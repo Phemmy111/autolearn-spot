@@ -1066,18 +1066,36 @@ export default function PartnerDashboard() {
                                 {item.name}
                               </h4>
 
-                              {/* Image Preview if applicable */}
-                              {item.url && (item.type === 'flyer' || item.type === 'banner' || item.type === 'image' || item.url.match(/\.(jpeg|jpg|png|webp|gif)/i)) && (
+                              {/* Media Preview if applicable */}
+                              {item.url && (
                                 <div
                                   onClick={() => openMaterialDetail(item)}
-                                  className="h-36 w-full rounded-xl overflow-hidden bg-brand-bg/60 border border-brand-border relative mb-3 cursor-pointer group-hover:opacity-95"
+                                  className="h-36 w-full rounded-xl overflow-hidden bg-brand-bg/60 border border-brand-border relative mb-3 cursor-pointer group-hover:opacity-95 flex items-center justify-center"
                                 >
-                                  <img
-                                    src={item.url}
-                                    alt={item.name}
-                                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                                    loading="lazy"
-                                  />
+                                  {item.type === 'video' || item.url.match(/\.(mp4|webm|ogg|mov)$/i) ? (
+                                    <video
+                                      src={item.url}
+                                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                      preload="metadata"
+                                      muted
+                                    />
+                                  ) : item.type === 'guide' || item.type === 'pdf' || item.url.match(/\.(pdf)$/i) ? (
+                                    <div className="flex flex-col items-center justify-center text-brand-text/50">
+                                      <FileText className="w-8 h-8 mb-2" />
+                                      <span className="text-xs font-semibold">PDF Document</span>
+                                    </div>
+                                  ) : (
+                                    <img
+                                      src={item.url}
+                                      alt={item.name}
+                                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                      loading="lazy"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = 'none';
+                                        e.currentTarget.parentElement?.classList.add('bg-brand-bg');
+                                      }}
+                                    />
+                                  )}
                                 </div>
                               )}
 
@@ -1197,32 +1215,42 @@ export default function PartnerDashboard() {
                     </div>
                     
                     {/* Integrated Preview */}
-                    {selectedMaterial.url && (selectedMaterial.type === 'image' || selectedMaterial.type === 'flyer' || selectedMaterial.type?.includes('image')) && (
+                    {selectedMaterial.url && (
                       <div className="bg-brand-bg p-4 rounded-lg">
                         <p className="text-sm font-medium text-brand-text mb-3">Preview</p>
-                        <img 
-                          src={selectedMaterial.url} 
-                          alt={selectedMaterial.name}
-                          className="w-full h-auto rounded-lg max-h-96 object-contain cursor-pointer hover:opacity-90 transition-opacity"
-                          onClick={() => window.open(selectedMaterial.url, '_blank')}
-                        />
-                        <p className="text-xs text-brand-text/60 mt-2 text-center">Click image to open in new tab</p>
-                      </div>
-                    )}
-                    
-                    {/* File Preview for non-image types */}
-                    {selectedMaterial.url && !(selectedMaterial.type === 'image' || selectedMaterial.type === 'flyer' || selectedMaterial.type?.includes('image')) && (
-                      <div className="bg-brand-bg p-4 rounded-lg">
-                        <p className="text-sm font-medium text-brand-text mb-3">File Preview</p>
-                        <a 
-                          href={selectedMaterial.url}
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-[#12E6F3] hover:underline flex items-center gap-2"
-                        >
-                          <FileText className="h-4 w-4" />
-                          Open file in new tab
-                        </a>
+                        {selectedMaterial.type === 'video' || selectedMaterial.url.match(/\.(mp4|webm|ogg|mov)$/i) ? (
+                          <video
+                            src={selectedMaterial.url}
+                            controls
+                            autoPlay
+                            className="w-full h-auto rounded-lg max-h-96 object-contain"
+                          />
+                        ) : selectedMaterial.type === 'guide' || selectedMaterial.type === 'pdf' || selectedMaterial.url.match(/\.(pdf)$/i) ? (
+                          <div className="flex flex-col items-center justify-center py-6 bg-brand-bg/60 rounded-lg">
+                            <FileText className="h-10 w-10 text-brand-text/40 mb-3" />
+                            <a
+                              href={selectedMaterial.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-emerald-500 hover:underline flex items-center gap-2 font-medium"
+                            >
+                              <FileText className="h-4 w-4" /> Open PDF Document
+                            </a>
+                          </div>
+                        ) : (
+                          <>
+                            <img 
+                              src={selectedMaterial.url} 
+                              alt={selectedMaterial.name}
+                              className="w-full h-auto rounded-lg max-h-96 object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                              onClick={() => window.open(selectedMaterial.url, '_blank')}
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                            <p className="text-xs text-brand-text/60 mt-2 text-center">Click image to open in new tab</p>
+                          </>
+                        )}
                       </div>
                     )}
                     
