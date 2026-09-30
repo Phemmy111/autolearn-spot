@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SessionService } from '@/lib/growth-engine/SessionService';
+import { PartnerService } from '@/lib/growth-engine/PartnerService';
 import { supabaseAdmin } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
@@ -7,6 +8,27 @@ export const dynamic = 'force-dynamic';
 function generateAffiliateCode(): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   return 'AFF' + Array.from({ length: 7 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+}
+
+async function resolvePartner(session: { userId: string; role?: string }) {
+  let partner = null;
+  if (session.role === 'community') {
+    partner = await PartnerService.getPartnerByCommunityAmbassadorId(session.userId);
+  } else if (session.role === 'influencer') {
+    partner = await PartnerService.getPartnerByInfluencerId(session.userId);
+  } else if (session.role === 'student') {
+    partner = await PartnerService.getPartnerByClerkUserId(session.userId);
+  }
+
+  if (!partner) {
+    const { data } = await supabaseAdmin
+      .from('partners')
+      .select('*')
+      .or(`id.eq.${session.userId},community_ambassador_id.eq.${session.userId},influencer_id.eq.${session.userId},clerk_user_id.eq.${session.userId}`)
+      .maybeSingle();
+    partner = data;
+  }
+  return partner;
 }
 
 // POST: Create an affiliate link for a product
@@ -18,13 +40,7 @@ export async function POST(request: NextRequest) {
   const { learning_product_id } = body;
   if (!learning_product_id) return NextResponse.json({ error: 'learning_product_id required' }, { status: 400 });
 
-  const { data: partner } = await supabaseAdmin
-    .from('partners')
-    .select('id')
-    .eq('clerk_user_id', session.userId)
-    .eq('status', 'active')
-    .single();
-
+  const partner = await resolvePartner(session);
   if (!partner) return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
 
   const { data: product } = await supabaseAdmin
@@ -33,7 +49,7 @@ export async function POST(request: NextRequest) {
     .eq('id', learning_product_id)
     .single();
 
-  if (!product || !product.affiliate_enabled) {
+  if (!product || product.affiliate_enabled === false) {
     return NextResponse.json({ error: 'This product does not accept affiliates' }, { status: 400 });
   }
 
@@ -93,13 +109,7 @@ export async function GET() {
   const session = await SessionService.getSession();
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { data: partner } = await supabaseAdmin
-    .from('partners')
-    .select('id')
-    .eq('clerk_user_id', session.userId)
-    .eq('status', 'active')
-    .single();
-
+  const partner = await resolvePartner(session);
   if (!partner) return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
 
   const { data: links } = await supabaseAdmin

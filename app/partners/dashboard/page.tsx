@@ -186,8 +186,14 @@ export default function PartnerDashboard() {
         fetch('/api/partners/affiliate-marketplace'),
         fetch('/api/partners/affiliate-links')
       ]);
-      if (mpRes.ok) setMarketplaceProducts(await mpRes.json());
-      if (linksRes.ok) setAffiliateLinks(await linksRes.json());
+      if (mpRes.ok) {
+        const mpData = await mpRes.json();
+        if (Array.isArray(mpData)) setMarketplaceProducts(mpData);
+      }
+      if (linksRes.ok) {
+        const linksData = await linksRes.json();
+        if (Array.isArray(linksData)) setAffiliateLinks(linksData);
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -506,40 +512,50 @@ export default function PartnerDashboard() {
                   <div className="flex justify-center p-10"><Loader2 className="h-8 w-8 animate-spin text-brand-primary" /></div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {marketplaceProducts.map(product => (
-                        <div key={product.id} className="border border-brand-border bg-brand-bg rounded-xl overflow-hidden flex flex-col">
-                          <div className="h-40 bg-brand-bg/50 relative">
-                            {product.thumbnail_url ? (
-                              <Image src={product.thumbnail_url} alt={product.title} fill className="object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-brand-text/30">No Image</div>
-                            )}
-                            <div className="absolute top-2 right-2 bg-brand-primary/90 text-white text-xs font-bold px-2 py-1 rounded">
-                              Earn {product.affiliate_commission_rate}%
-                            </div>
-                          </div>
-                          <div className="p-4 flex flex-col flex-1">
-                            <h4 className="font-bold text-brand-text mb-1 line-clamp-2">{product.title}</h4>
-                            <p className="text-sm text-brand-text/60 mb-4">Price: ₦{product.price?.toLocaleString()}</p>
-                            <div className="mt-auto">
-                              {product.already_promoting ? (
-                                <p className="text-sm text-brand-primary flex items-center gap-2 mb-2 font-medium"><CheckCircle2 className="w-4 h-4" /> Link Active</p>
+                    {marketplaceProducts.length === 0 ? (
+                      <div className="border border-brand-border bg-brand-bg/60 rounded-2xl p-10 text-center">
+                        <Globe className="w-12 h-12 text-brand-primary/60 mx-auto mb-3" />
+                        <h4 className="font-bold text-brand-text text-lg mb-1">No Courses Currently Available</h4>
+                        <p className="text-sm text-brand-text/60 max-w-md mx-auto">
+                          Courses published by authors will appear here for you to generate unique promotion links and earn commissions.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {marketplaceProducts.map(product => (
+                          <div key={product.id} className="border border-brand-border bg-brand-bg rounded-xl overflow-hidden flex flex-col">
+                            <div className="h-40 bg-brand-bg/50 relative">
+                              {product.thumbnail_url ? (
+                                <Image src={product.thumbnail_url} alt={product.title} fill className="object-cover" />
                               ) : (
-                                <button
-                                  onClick={() => generateAffiliateLink(product.id)}
-                                  disabled={generatingLink === product.id}
-                                  className="w-full py-2 bg-brand-bg hover:bg-brand-primary/10 border border-brand-primary/50 text-brand-primary rounded-lg transition-colors flex justify-center items-center gap-2"
-                                >
-                                  {generatingLink === product.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
-                                  Get Affiliate Link
-                                </button>
+                                <div className="w-full h-full flex items-center justify-center text-brand-text/30">No Image</div>
                               )}
+                              <div className="absolute top-2 right-2 bg-brand-primary/90 text-white text-xs font-bold px-2 py-1 rounded">
+                                Earn {product.affiliate_commission_rate}%
+                              </div>
+                            </div>
+                            <div className="p-4 flex flex-col flex-1">
+                              <h4 className="font-bold text-brand-text mb-1 line-clamp-2">{product.title}</h4>
+                              <p className="text-sm text-brand-text/60 mb-4">Price: ₦{product.price?.toLocaleString()}</p>
+                              <div className="mt-auto">
+                                {product.already_promoting ? (
+                                  <p className="text-sm text-brand-primary flex items-center gap-2 mb-2 font-medium"><CheckCircle2 className="w-4 h-4" /> Link Active</p>
+                                ) : (
+                                  <button
+                                    onClick={() => generateAffiliateLink(product.id)}
+                                    disabled={generatingLink === product.id}
+                                    className="w-full py-2 bg-brand-bg hover:bg-brand-primary/10 border border-brand-primary/50 text-brand-primary rounded-lg transition-colors flex justify-center items-center gap-2"
+                                  >
+                                    {generatingLink === product.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
+                                    Get Affiliate Link
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
 
                     {affiliateLinks.length > 0 && (
                       <div className="mt-12">
