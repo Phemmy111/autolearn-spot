@@ -53,6 +53,9 @@ export async function GET(request: Request) {
           
         certRecord = existingCert
 
+        const cohortObj = Array.isArray(enrollment.cohort) ? enrollment.cohort[0] : enrollment.cohort
+        const fallbackTitle = cohortObj?.name || 'Unknown Course'
+
         // Auto-generate certificate record if 100% and no record
         const isEligible = certStatus.eligible || overallProgress.percentage >= 100
         if (isEligible && !certRecord) {
@@ -63,7 +66,7 @@ export async function GET(request: Request) {
               user_id: userId,
               cohort_id: cohortId,
               learning_product_id: learningProduct?.id,
-              course_title: learningProduct?.title || 'Unknown Course',
+              course_title: learningProduct?.title || fallbackTitle,
               user_name: [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.username || 'Student',
               certificate_code: newCode,
               issued_at: new Date().toISOString()
@@ -79,7 +82,7 @@ export async function GET(request: Request) {
         return {
           id: certRecord?.id || `pending-${cohortId}`,
           cohort_id: cohortId,
-          course_title: learningProduct?.title || 'Unknown Course',
+          course_title: learningProduct?.title || fallbackTitle,
           course_slug: learningProduct?.slug || 'unknown-course',
           progress: overallProgress.percentage,
           is_unlocked: certStatus.eligible || overallProgress.percentage >= 100,

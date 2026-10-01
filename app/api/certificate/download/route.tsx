@@ -95,21 +95,29 @@ export async function GET(request: Request) {
 
     const certificateId = certificateRecord?.certificate_code || `CERT-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
     
-    let dbCourseTitle = certificateRecord?.course_title || certificateRecord?.cohorts?.learning_products?.title || certificateRecord?.cohorts?.name;
+    let dbCourseTitle = certificateRecord?.course_title;
+    
+    if (!dbCourseTitle || dbCourseTitle === 'Unknown Course') {
+      const cohortObj = Array.isArray(certificateRecord?.cohorts) ? certificateRecord?.cohorts[0] : certificateRecord?.cohorts;
+      const lpObj = cohortObj?.learning_products;
+      const lpTitle = Array.isArray(lpObj) ? lpObj[0]?.title : lpObj?.title;
+      dbCourseTitle = lpTitle || cohortObj?.name;
+    }
     
     // Fallback: If no certificate record exists, try to get course title from cohort
-    if (!dbCourseTitle && cohortIdParam) {
+    if ((!dbCourseTitle || dbCourseTitle === 'Unknown Course') && cohortIdParam) {
       const { data: cohort } = await supabaseAdmin
         .from('cohorts')
         .select('name, learning_products(title)')
         .eq('id', cohortIdParam)
         .maybeSingle()
       if (cohort) {
-        dbCourseTitle = cohort.learning_products?.title || cohort.name;
+        const lpTitle = Array.isArray(cohort.learning_products) ? cohort.learning_products[0]?.title : cohort.learning_products?.title;
+        dbCourseTitle = lpTitle || cohort.name;
       }
     }
     
-    dbCourseTitle = dbCourseTitle || 'AI Automation Training';
+    dbCourseTitle = dbCourseTitle && dbCourseTitle !== 'Unknown Course' ? dbCourseTitle : 'Course Completion';
 
     const dateStr = new Date().toLocaleDateString('en-US', {
       year: 'numeric',
