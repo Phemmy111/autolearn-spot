@@ -65,6 +65,7 @@ export async function GET(request: Request) {
       .join(' ')
 
     const certificateIdParam = searchParams.get('certificateId')
+    const cohortIdParam = searchParams.get('cohortId')
 
     const baseUrl = new URL('/', request.url).toString().slice(0, -1) // e.g. https://domain.com
 
@@ -74,8 +75,10 @@ export async function GET(request: Request) {
       .select('user_name, certificate_code, course_title, cohorts(name, learning_products(title))')
       .eq('user_id', targetUserId)
       
-    if (certificateIdParam) {
+    if (certificateIdParam && !certificateIdParam.startsWith('pending-')) {
       query = query.eq('id', certificateIdParam)
+    } else if (cohortIdParam) {
+      query = query.eq('cohort_id', cohortIdParam)
     }
     
     const { data: certificateRecord } = await query
@@ -91,9 +94,22 @@ export async function GET(request: Request) {
     }
 
     const certificateId = certificateRecord?.certificate_code || `CERT-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
-    const lpTitle = certificateRecord?.course_title || certificateRecord?.cohorts?.learning_products?.title;
-    const cName = certificateRecord?.cohorts?.name;
-    const dbCourseTitle = lpTitle || cName || 'AI Automation Training';
+    
+    let dbCourseTitle = certificateRecord?.course_title || certificateRecord?.cohorts?.learning_products?.title || certificateRecord?.cohorts?.name;
+    
+    // Fallback: If no certificate record exists, try to get course title from cohort
+    if (!dbCourseTitle && cohortIdParam) {
+      const { data: cohort } = await supabaseAdmin
+        .from('cohorts')
+        .select('name, learning_products(title)')
+        .eq('id', cohortIdParam)
+        .maybeSingle()
+      if (cohort) {
+        dbCourseTitle = cohort.learning_products?.title || cohort.name;
+      }
+    }
+    
+    dbCourseTitle = dbCourseTitle || 'AI Automation Training';
 
     const dateStr = new Date().toLocaleDateString('en-US', {
       year: 'numeric',
