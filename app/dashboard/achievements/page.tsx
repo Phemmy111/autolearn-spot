@@ -107,7 +107,7 @@ export default function AchievementsPage() {
                   <div className="w-full max-w-[200px] h-2 bg-brand-border rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-brand-primary transition-all duration-500"
-                      style={{ width: \`\${cert.progress}%\` }}
+                      style={{ width: `${cert.progress}%` }}
                     />
                   </div>
                   <span className="text-xs text-brand-text/60 mt-2 font-medium">{cert.progress}% Complete</span>
@@ -116,8 +116,8 @@ export default function AchievementsPage() {
 
               <div className="flex-1 p-6">
                 <div className="flex items-start justify-between mb-4">
-                  <div className={\`p-3 rounded-xl \${cert.is_unlocked ? 'bg-[#10b981]/10' : 'bg-brand-border/40'}\`}>
-                    <Award className={\`w-8 h-8 \${cert.is_unlocked ? 'text-[#10b981]' : 'text-brand-text/40'}\`} />
+                  <div className={`p-3 rounded-xl ${cert.is_unlocked ? 'bg-[#10b981]/10' : 'bg-brand-border/40'}`}>
+                    <Award className={`w-8 h-8 ${cert.is_unlocked ? 'text-[#10b981]' : 'text-brand-text/40'}`} />
                   </div>
                   {cert.is_unlocked ? (
                     <div className="flex items-center gap-1 text-xs font-medium text-[#10b981] bg-[#10b981]/10 px-2 py-1 rounded-full">
@@ -149,7 +149,7 @@ export default function AchievementsPage() {
                       <div className="w-full h-1.5 bg-brand-border rounded-full overflow-hidden mt-1">
                         <div 
                           className="h-full bg-brand-primary"
-                          style={{ width: \`\${cert.progress}%\` }}
+                          style={{ width: `${cert.progress}%` }}
                         />
                       </div>
                     </div>
@@ -161,11 +161,11 @@ export default function AchievementsPage() {
                 <button
                   disabled={!cert.is_unlocked}
                   onClick={() => downloadCertificate(cert, 'pdf')}
-                  className={\`w-full inline-flex items-center justify-center gap-2 font-bold py-2.5 rounded-xl transition-all \${
+                  className={`w-full inline-flex items-center justify-center gap-2 font-bold py-2.5 rounded-xl transition-all ${
                     cert.is_unlocked 
                       ? 'bg-[#10b981] text-white hover:bg-[#0ea5e9]' 
                       : 'bg-brand-border text-brand-text/40 cursor-not-allowed pointer-events-none'
-                  }\`}
+                  }`}
                 >
                   <Download className="w-4 h-4" />
                   Download PDF
@@ -173,11 +173,11 @@ export default function AchievementsPage() {
                 <button
                   disabled={!cert.is_unlocked}
                   onClick={() => downloadCertificate(cert, 'png')}
-                  className={\`w-full inline-flex items-center justify-center gap-2 font-bold py-2.5 rounded-xl transition-all \${
+                  className={`w-full inline-flex items-center justify-center gap-2 font-bold py-2.5 rounded-xl transition-all ${
                     cert.is_unlocked 
                       ? 'bg-transparent border border-[#10b981] text-[#10b981] hover:bg-[#10b981]/10' 
                       : 'bg-transparent border border-brand-border text-brand-text/40 cursor-not-allowed pointer-events-none'
-                  }\`}
+                  }`}
                 >
                   <Download className="w-4 h-4" />
                   Download PNG
