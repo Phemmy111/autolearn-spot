@@ -62,20 +62,11 @@ export async function linkEmailToClerkUser(
 }
 
 /**
- * Given an enrollment record, resolve its learning product.
- * Checks the direct field first (after migration), then falls back through cohort.
+ * Given an enrollment record, resolve its learning product (direct join only).
  */
 function resolveLearningProduct(e: any): any {
-  // After migration: direct learning_product field
-  if (e.learning_product) {
-    return Array.isArray(e.learning_product) ? e.learning_product[0] : e.learning_product;
-  }
-  // Before migration: learning_product nested inside cohort
-  const cohort = Array.isArray(e.cohort) ? e.cohort[0] : e.cohort;
-  if (cohort?.learning_product) {
-    return Array.isArray(cohort.learning_product) ? cohort.learning_product[0] : cohort.learning_product;
-  }
-  return null;
+  if (!e.learning_product) return null;
+  return Array.isArray(e.learning_product) ? e.learning_product[0] : e.learning_product;
 }
 
 /**
@@ -118,24 +109,9 @@ async function processEnrollmentExpiry(enrollments: any[]): Promise<any[]> {
   return validEnrollments;
 }
 
-/** The select string for enrollment queries — joins cohort and its learning_product */
+/** The select string for enrollment queries — joins directly to learning_products */
 const ENROLLMENT_SELECT = `
   *,
-  cohort:cohorts (
-    id,
-    name,
-    slug,
-    is_current,
-    learning_product:learning_products (
-      id,
-      title,
-      slug,
-      description,
-      thumbnail_url,
-      product_type,
-      access_duration_days
-    )
-  ),
   learning_product:learning_products (
     id,
     title,
