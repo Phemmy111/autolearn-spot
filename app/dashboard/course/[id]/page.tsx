@@ -20,27 +20,38 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
     userId: userId.slice(0, 8) + '...',
   });
 
-  // 1. Verify ownership - check product enrollment first, then cohort enrollment as fallback
+  // 1. Verify ownership - fetch ALL enrollments for this user+product, prefer active ones
   let enrollment: any = null;
   let isCohortEnrollment = false;
 
-  // First, try product enrollment
-  const { data: productEnrollment } = await supabaseAdmin
+  // Fetch all enrollments for this user+product (could have multiple from different cohorts)
+  const { data: allProductEnrollments } = await supabaseAdmin
     .from('enrollments')
     .select('id, activated_at, status, learning_product:learning_products(*)')
     .eq('clerk_user_id', userId)
     .eq('learning_product_id', productId)
-    .single();
+    .order('created_at', { ascending: false });
 
-  if (productEnrollment) {
-    enrollment = productEnrollment;
+  if (allProductEnrollments && allProductEnrollments.length > 0) {
+    // Prefer: active > not_started > any other status (skip expired last)
+    const priorityOrder = ['active', 'not_started', 'inactive', 'expired'];
+    let bestEnrollment = allProductEnrollments[0];
+    for (const priority of priorityOrder) {
+      const found = allProductEnrollments.find((e: any) => e.status === priority);
+      if (found) {
+        bestEnrollment = found;
+        break;
+      }
+    }
+    enrollment = bestEnrollment;
     console.info('[course-page] product-enrollment-found', {
       enrollmentId: enrollment.id,
       activatedAt: enrollment.activated_at,
       status: enrollment.status,
+      totalFound: allProductEnrollments.length,
     });
   } else {
-    // Fallback: check if user has a cohort enrollment for this product
+    // Fallback: check if user has a cohort enrollment for this product (legacy)
     const { data: product } = await supabaseAdmin
       .from('learning_products')
       .select('id, title, description, access_duration_days, cohort_id')
@@ -48,17 +59,26 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
       .single();
 
     if (product && product.cohort_id) {
-      const { data: cohortEnrollment } = await supabaseAdmin
+      const { data: allCohortEnrollments } = await supabaseAdmin
         .from('enrollments')
         .select('id, activated_at, status, cohort_id')
         .eq('clerk_user_id', userId)
         .eq('cohort_id', product.cohort_id)
-        .single();
+        .order('created_at', { ascending: false });
 
-      if (cohortEnrollment) {
+      if (allCohortEnrollments && allCohortEnrollments.length > 0) {
+        const priorityOrder = ['active', 'not_started', 'inactive', 'expired'];
+        let bestCohortEnrollment = allCohortEnrollments[0];
+        for (const priority of priorityOrder) {
+          const found = allCohortEnrollments.find((e: any) => e.status === priority);
+          if (found) {
+            bestCohortEnrollment = found;
+            break;
+          }
+        }
         isCohortEnrollment = true;
         enrollment = {
-          ...cohortEnrollment,
+          ...bestCohortEnrollment,
           learning_product: product,
         };
         console.info('[course-page] cohort-enrollment-found', {
