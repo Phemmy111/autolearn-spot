@@ -55,7 +55,7 @@ export async function getUserCohortId(userId: string, email: string | null | und
     if (enrollments.length > 0) {
       // Prefer active enrollment, otherwise use most recent
       const activeEnrollment = enrollments.find(e => e.status === 'active') || enrollments[0];
-      const cohortId = activeEnrollment.cohort_id;
+      const cohortId = activeEnrollment.cohort_id || DEFAULT_COHORT_ID;
       console.log('[getUserCohortId] Using enrollment cohort:', { 
         enrollmentId: activeEnrollment.id, 
         cohortId,
@@ -123,7 +123,7 @@ export async function upsertLessonProgress(
   
   const upsertData: Record<string, unknown> = {
     user_id: userId,
-    cohort_id: cohortId,  // Always required — cohort_id is NOT NULL in the DB
+    cohort_id: cohortId || DEFAULT_COHORT_ID,  // Always required — cohort_id is NOT NULL in the DB
     updated_at: now,
   }
 

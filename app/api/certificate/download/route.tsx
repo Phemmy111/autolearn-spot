@@ -66,17 +66,20 @@ export async function GET(request: Request) {
 
     const certificateIdParam = searchParams.get('certificateId')
     const cohortIdParam = searchParams.get('cohortId')
+    const productIdParam = searchParams.get('productId')
 
     const baseUrl = new URL('/', request.url).toString().slice(0, -1) // e.g. https://domain.com
 
     // Fetch the certificate record to get the actual certificate code, user name, and course title
     let query = supabaseAdmin
       .from('certificates')
-      .select('user_name, certificate_code, course_title, cohorts(name, learning_products(title))')
+      .select('user_name, certificate_code, course_title, learning_product_id, cohorts(name, learning_products(title))')
       .eq('user_id', targetUserId)
       
     if (certificateIdParam && !certificateIdParam.startsWith('pending-')) {
       query = query.eq('id', certificateIdParam)
+    } else if (productIdParam) {
+      query = query.eq('learning_product_id', productIdParam)
     } else if (cohortIdParam) {
       query = query.eq('cohort_id', cohortIdParam)
     }
@@ -96,6 +99,19 @@ export async function GET(request: Request) {
     const certificateId = certificateRecord?.certificate_code || `CERT-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
     
     let dbCourseTitle = certificateRecord?.course_title;
+
+    // Direct product title lookup if productIdParam or learning_product_id exists
+    const resolvedProductId = productIdParam || certificateRecord?.learning_product_id;
+    if ((!dbCourseTitle || dbCourseTitle === 'Unknown Course') && resolvedProductId) {
+      const { data: product } = await supabaseAdmin
+        .from('learning_products')
+        .select('title')
+        .eq('id', resolvedProductId)
+        .maybeSingle()
+      if (product?.title) {
+        dbCourseTitle = product.title
+      }
+    }
     
     if (!dbCourseTitle || dbCourseTitle === 'Unknown Course') {
       const cohortObj = Array.isArray(certificateRecord?.cohorts) ? certificateRecord?.cohorts[0] : certificateRecord?.cohorts;

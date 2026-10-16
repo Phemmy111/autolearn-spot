@@ -81,6 +81,42 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: `Failed to create order item: ${itemError.message}` }, { status: 500 })
     }
 
+    // 4.5. Create or update enrollment record so the student sees the course in their dashboard
+    // Fallback cohort_id to satisfy database NOT NULL constraint on enrollments table
+    const fallbackCohortId = '3633e893-7bc4-4cb6-9617-f7c5255aeaa9';
+    const normalizedEmail = email.toLowerCase().trim();
+    const studentFullName = fullName || [firstName, lastName].filter(Boolean).join(' ') || 'Student';
+
+    const enrollmentRecord: Record<string, any> = {
+      learning_product_id: productId,
+      cohort_id: fallbackCohortId,
+      email: normalizedEmail,
+      clerk_user_id: clerkUserId || null,
+      payment_ref: order.order_ref,
+      amount_paid: product.price || 0,
+      status: status || 'active',
+      activated_at: new Date().toISOString(),
+      enrolled_at: new Date().toISOString(),
+      first_name: firstName || null,
+      last_name: lastName || null,
+      full_name: studentFullName,
+      notes: reason ? `Manual enrollment by ${adminEmail}: ${reason}` : `Manual enrollment by ${adminEmail}`,
+    };
+
+    const { error: enrollmentError } = await supabaseAdmin
+      .from('enrollments')
+      .upsert(enrollmentRecord, {
+        onConflict: 'learning_product_id, email'
+      });
+
+    if (enrollmentError) {
+      console.warn('Manual enrollment upsert error, trying direct insert fallback:', enrollmentError);
+      const { error: insertError } = await supabaseAdmin.from('enrollments').insert(enrollmentRecord);
+      if (insertError) {
+        console.error('Failed to create enrollment record:', insertError);
+      }
+    }
+
     // 5. Send Notification
     try {
       const { createNotification } = await import('@/lib/notifications');

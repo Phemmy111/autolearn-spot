@@ -5,6 +5,7 @@ import { Award, Download, Calendar, CheckCircle, Clock, Lock } from 'lucide-reac
 interface Certificate {
   id: string;
   cohort_id: string;
+  learning_product_id?: string;
   course_title: string;
   course_slug: string;
   progress: number;
@@ -41,7 +42,13 @@ export default function AchievementsPage() {
 
   const downloadCertificate = async (cert: Certificate, format: 'pdf' | 'png') => {
     try {
-      const res = await fetch(`/api/certificate/download?format=${format}&cohortId=${cert.cohort_id}`);
+      const params = new URLSearchParams({
+        format,
+        cohortId: cert.cohort_id || '',
+        productId: cert.learning_product_id || '',
+        certificateId: cert.id || ''
+      });
+      const res = await fetch(`/api/certificate/download?${params.toString()}`);
       if (!res.ok) throw new Error(`Failed to download certificate as ${format.toUpperCase()}`);
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);

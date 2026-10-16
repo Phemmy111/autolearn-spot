@@ -1,11 +1,9 @@
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Download, Clock, BookOpen, FileText, ClipboardCheck } from 'lucide-react'
-import { auth } from '@clerk/nextjs/server'
+import { auth, currentUser } from '@clerk/nextjs/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { getUserProgress, getUserCohortId } from '@/lib/progress-service'
 import { getLessonById } from '@/lib/lesson-service'
-import { getUserEnrollments } from '@/lib/enrollment-service'
 import VideoPageClient from '@/components/video-page-client'
 
 interface VideoPageProps {
@@ -47,75 +45,39 @@ export default async function VideoPage({ params }: VideoPageProps) {
   });
 
   // Check if user has access to this lesson
-  // Try product enrollment first, then cohort enrollment as fallback
   let hasAccess = false
   let backUrl = '/dashboard'
   let backLabel = 'Back to Dashboard'
 
+  const userEmail = (await currentUser())?.primaryEmailAddress?.emailAddress || ''
+
   if (lesson.product_id) {
-    // Product-based lesson - check enrollment
-    const { data: enrollment } = await supabaseAdmin
+    // 1. Check product enrollments by clerk_user_id
+    const { data: userEnrollments } = await supabaseAdmin
       .from('enrollments')
-      .select('id, status, activated_at, learning_product:learning_products(*)')
+      .select('id, status, activated_at, learning_product_id')
       .eq('clerk_user_id', userId)
       .eq('learning_product_id', lesson.product_id)
-      .single()
+      .order('created_at', { ascending: false })
 
-    console.info('[video-page] product-enrollment-check', {
-      productId: lesson.product_id,
-      enrollmentFound: !!enrollment,
-      enrollmentStatus: enrollment?.status,
-      enrollmentActivated: !!enrollment?.activated_at,
-    });
+    let activeEnrollment = userEnrollments?.find(e => e.status === 'active' || e.status === 'not_started')
 
-    if (enrollment && enrollment.status === 'active' && enrollment.activated_at) {
+    // Fallback: check by email if not found or not active
+    if (!activeEnrollment && userEmail) {
+      const { data: emailEnrollments } = await supabaseAdmin
+        .from('enrollments')
+        .select('id, status, activated_at, learning_product_id')
+        .eq('email', userEmail)
+        .eq('learning_product_id', lesson.product_id)
+        .order('created_at', { ascending: false })
+
+      activeEnrollment = emailEnrollments?.find(e => e.status === 'active' || e.status === 'not_started')
+    }
+
+    if (activeEnrollment) {
       hasAccess = true
       backUrl = `/dashboard/course/${lesson.product_id}`
       backLabel = 'Back to Course'
-    } else {
-      // Fallback: check if product has a cohort and user is enrolled in that cohort
-      const { data: product } = await supabaseAdmin
-        .from('learning_products')
-        .select('cohort_id')
-        .eq('id', lesson.product_id)
-        .single();
-
-      if (product?.cohort_id) {
-        const { data: cohortEnrollment } = await supabaseAdmin
-          .from('enrollments')
-          .select('id, status, activated_at')
-          .eq('clerk_user_id', userId)
-          .eq('cohort_id', product.cohort_id)
-          .single();
-
-        console.info('[video-page] product-cohort-enrollment-check', {
-          productId: lesson.product_id,
-          cohortId: product.cohort_id,
-          cohortEnrollmentFound: !!cohortEnrollment,
-          cohortEnrollmentStatus: cohortEnrollment?.status,
-        });
-
-        if (cohortEnrollment && cohortEnrollment.status === 'active') {
-          hasAccess = true
-          backUrl = `/dashboard/course/${lesson.product_id}`
-          backLabel = 'Back to Course'
-        }
-      }
-    }
-  } else if (lesson.cohort_id) {
-    // Cohort-based lesson - check cohort enrollment
-    const { email } = await auth()
-    const enrollments = await getUserEnrollments(userId, email || '')
-    const cohortEnrollment = enrollments.find(e => e.cohort_id === lesson.cohort_id)
-
-    console.info('[video-page] cohort-enrollment-check', {
-      cohortId: lesson.cohort_id,
-      cohortEnrollmentFound: !!cohortEnrollment,
-      cohortEnrollmentStatus: cohortEnrollment?.status,
-    });
-
-    if (cohortEnrollment && cohortEnrollment.status === 'active') {
-      hasAccess = true
     }
   }
 
@@ -124,23 +86,28 @@ export default async function VideoPage({ params }: VideoPageProps) {
       lessonId: lesson.uuid_id || lesson.id,
       userId: userId.slice(0, 8) + '...',
       productId: lesson.product_id,
-      cohortId: lesson.cohort_id,
-    });
+    })
     redirect('/dashboard')
   }
 
   console.info('[video-page] access-granted', {
     lessonId: lesson.uuid_id || lesson.id,
     userId: userId.slice(0, 8) + '...',
-  });
+  })
 
-  // Fetch saved progress
+  // Fetch saved progress directly from lesson_progress
   let resumeFromSeconds = 0
   try {
-    const { email } = await auth()
-    const cohortId = await getUserCohortId(userId, email || '')
-    const progressRows = await getUserProgress(userId, cohortId)
-    const row = progressRows.find((p) => p.lesson_id === (lesson.uuid_id || lesson.id))
+    const lessonKey = lesson.uuid_id || lesson.id
+    const { data: progRows } = await supabaseAdmin
+      .from('lesson_progress')
+      .select('last_position_seconds, completed')
+      .eq('user_id', userId)
+      .or(`lesson_uuid_id.eq.${lessonKey},lesson_id.eq.${lessonKey}`)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+
+    const row = progRows?.[0]
     if (row && !row.completed && row.last_position_seconds > 5) {
       resumeFromSeconds = row.last_position_seconds
     }

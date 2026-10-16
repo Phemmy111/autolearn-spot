@@ -14,16 +14,16 @@ export default async function ManualEnrollmentPage() {
     redirect('/admin')
   }
 
-  // Fetch active cohorts for the dropdown
-  const { data: cohorts, error: cohortsError } = await supabaseAdmin
-    .from('cohorts')
-    .select('id, name, is_current')
-    .order('created_at', { ascending: false })
+  // Fetch published and active products for the dropdown
+  const { data: products, error: productsError } = await supabaseAdmin
+    .from('learning_products')
+    .select('id, title, slug, price, status')
+    .order('title', { ascending: true })
 
-  if (cohortsError) {
+  if (productsError) {
     return (
       <div className="min-h-screen bg-brand-bg flex items-center justify-center text-red-400">
-        Error loading cohorts: {cohortsError.message}
+        Error loading products: {productsError.message}
       </div>
     )
   }
@@ -44,12 +44,12 @@ export default async function ManualEnrollmentPage() {
             <h1 className="font-heading text-4xl font-bold text-brand-text">Manual Enrollment</h1>
           </div>
           <p className="font-mono text-sm text-brand-text/70 mt-4">
-            Manually enroll a student into a cohort, completely bypassing the payment system. This action is restricted to Super Admins only.
+            Manually enroll a student into a course, completely bypassing the payment system. This action is restricted to Super Admins only.
           </p>
         </div>
 
         <div className="border border-brand-border bg-[var(--card)] brightness-95 p-8 rounded-xl">
-          <ManualEnrollmentForm cohorts={cohorts || []} />
+          <ManualEnrollmentForm products={products || []} />
         </div>
       </div>
     </div>

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2, CheckCircle2, AlertCircle, UserPlus } from 'lucide-react'
 
-export function ManualEnrollmentForm({ cohorts, products }: { cohorts: any[], products: any[] }) {
+export function ManualEnrollmentForm({ cohorts, products = [] }: { cohorts?: any[], products?: any[] }) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
