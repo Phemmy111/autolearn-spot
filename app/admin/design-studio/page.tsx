@@ -157,11 +157,33 @@ export default function AdminDesignStudioPage() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch('/api/admin/design-studio');
+        const res = await fetch('/api/admin/design-studio', { cache: 'no-store' });
         if (res.ok) {
           const json = await res.json();
-          if (json.draft) setDraft({ ...DEFAULT_CONFIG, ...json.draft });
-          if (json.published) setPublished({ ...DEFAULT_CONFIG, ...json.published });
+          let draftData = json.draft;
+          let pubData = json.published;
+          if (typeof draftData === 'string') {
+            try { draftData = JSON.parse(draftData); } catch {}
+          }
+          if (typeof pubData === 'string') {
+            try { pubData = JSON.parse(pubData); } catch {}
+          }
+
+          if (draftData && typeof draftData === 'object') {
+            const cleanDraft: any = {};
+            for (const key of Object.keys(DEFAULT_CONFIG) as (keyof DesignConfig)[]) {
+              if (draftData[key] !== undefined) cleanDraft[key] = draftData[key];
+            }
+            setDraft({ ...DEFAULT_CONFIG, ...cleanDraft });
+          }
+          if (pubData && typeof pubData === 'object') {
+            const cleanPub: any = {};
+            for (const key of Object.keys(DEFAULT_CONFIG) as (keyof DesignConfig)[]) {
+              if (pubData[key] !== undefined) cleanPub[key] = pubData[key];
+            }
+            setPublished({ ...DEFAULT_CONFIG, ...cleanPub });
+          }
+
         }
       } catch (e) {
         console.error('Failed to fetch design config:', e);

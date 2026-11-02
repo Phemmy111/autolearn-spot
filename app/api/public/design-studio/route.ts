@@ -9,17 +9,27 @@ export async function GET() {
       .from('site_settings')
       .select('value')
       .eq('key', 'design_studio_published')
-      .single();
-    if (error) {
-      console.error('Error fetching design studio config:', error);
-      // Return empty config instead of error to prevent app from breaking
+      .maybeSingle();
+
+    if (error || !data) {
       return NextResponse.json({ config: {} });
     }
-    const config = data?.value ?? {};
-    return NextResponse.json({ config });
+
+    let config = data.value;
+    if (typeof config === 'string') {
+      try {
+        config = JSON.parse(config);
+        if (typeof config === 'string') {
+          config = JSON.parse(config);
+        }
+      } catch (e) {
+        config = {};
+      }
+    }
+
+    return NextResponse.json({ config: config || {} });
   } catch (err) {
-    console.error('Unexpected error:', err);
-    // Return empty config instead of error to prevent app from breaking
+    console.error('Unexpected error fetching design config:', err);
     return NextResponse.json({ config: {} });
   }
 }

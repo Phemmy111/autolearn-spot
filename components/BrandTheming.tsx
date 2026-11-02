@@ -12,7 +12,13 @@ export function BrandTheming() {
         });
         if (!res.ok) return;
         const data = await res.json();
-        const settings = data.config || {};
+        let settings = data.config || {};
+        if (typeof settings === 'string') {
+          try {
+            settings = JSON.parse(settings);
+            if (typeof settings === 'string') settings = JSON.parse(settings);
+          } catch {}
+        }
         
         const root = document.documentElement;
         
