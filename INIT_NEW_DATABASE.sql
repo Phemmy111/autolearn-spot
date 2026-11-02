@@ -393,6 +393,7 @@ INSERT INTO public.learning_products (
   title,
   slug,
   description,
+  thumbnail_url,
   price,
   currency,
   access_duration_days,
@@ -405,7 +406,8 @@ INSERT INTO public.learning_products (
   'author_admin',
   'AI Automation with n8n',
   'ai-automation-with-n8n',
-  'Master automated AI workflows, connect APIs, and deploy production pipelines using n8n.',
+  '{"short_description":"Master automated AI workflows, connect APIs, and deploy production pipelines using n8n.","full_description":"Comprehensive hands-on course covering n8n automation from beginner to production grade. Learn how to integrate LLMs, databases, webhooks, and third-party APIs to build powerful autonomous workflows.","learning_outcomes":["Build production-ready n8n workflows from scratch","Integrate OpenAI, Claude, and local AI models into automated pipelines","Connect databases (PostgreSQL, Supabase) and external REST APIs","Handle errors, rate limits, and secure secret credentials","Deploy and scale self-hosted n8n instances on modern cloud providers"],"media_gallery":["/n8n-mockup.png","/workflow-real.jpg","/videos/workflow.mp4"]}',
+  '/n8n-mockup.png',
   5000.00,
   'NGN',
   60,
@@ -415,7 +417,26 @@ INSERT INTO public.learning_products (
 ) ON CONFLICT (id) DO UPDATE SET
   title = EXCLUDED.title,
   slug = EXCLUDED.slug,
+  thumbnail_url = EXCLUDED.thumbnail_url,
+  description = EXCLUDED.description,
   status = 'PUBLISHED';
+
+-- 2b. Insert Author Record
+INSERT INTO public.authors (
+  user_id,
+  name,
+  email,
+  bio,
+  avatar_url,
+  status
+) VALUES (
+  'author_admin',
+  'Femi Adeleke',
+  'femi@autolearnspot.com',
+  'Specialist in scalable n8n workflows, enterprise API integrations, and AI agent architectures.',
+  '/femi-headshot.png',
+  'active'
+) ON CONFLICT (user_id) DO NOTHING;
 
 -- 3. Insert Cohort 2 (for backward compatibility)
 INSERT INTO public.cohorts (

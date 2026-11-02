@@ -35,12 +35,16 @@ export default async function LearningProductPage({ params }: PageParams) {
   const isOwner = userId === product.author_id;
 
   // 2. Fetch Author
-  const { data: author } = await supabaseAdmin
+  const { data: authorRecord } = await supabaseAdmin
     .from('authors')
-    .select('id, display_name, profile_image, professional_title, bio')
-    .eq('clerk_user_id', product.author_id)
-    .limit(1)
-    .single();
+    .select('id, name, avatar_url, bio')
+    .eq('user_id', product.author_id)
+    .maybeSingle();
+
+  const authorName = authorRecord?.name || 'Femi Adeleke';
+  const authorImage = authorRecord?.avatar_url || '/femi-headshot.png';
+  const authorBio = authorRecord?.bio || 'Specialist in scalable n8n workflows, enterprise API integrations, and AI agent architectures.';
+  const authorTitle = 'Lead AI Automation Architect';
 
   // 3. Fetch Lessons
   const { data: lessons } = await supabaseAdmin
@@ -55,8 +59,6 @@ export default async function LearningProductPage({ params }: PageParams) {
     currency: product.currency || 'NGN',
     maximumFractionDigits: 0
   }).format(product.price);
-
-  const authorName = author?.display_name || 'Expert Instructor';
 
   // Parse Description JSON
   let shortDesc = '';
@@ -137,8 +139,8 @@ export default async function LearningProductPage({ params }: PageParams) {
                 <div className="hidden sm:block w-1 h-1 rounded-full bg-border" />
                 
                 <Link href={`/instructors/${product.author_id}`} className="flex items-center gap-2 hover:text-brand-primary transition-colors text-foreground">
-                  {author?.profile_image ? (
-                    <Image src={author.profile_image} alt={authorName} width={24} height={24} className="rounded-full object-cover w-6 h-6" />
+                  {authorImage ? (
+                    <Image src={authorImage} alt={authorName} width={24} height={24} className="rounded-full object-cover w-6 h-6" />
                   ) : (
                     <UserIcon className="w-4 h-4 text-muted-foreground" />
                   )}
@@ -215,8 +217,8 @@ export default async function LearningProductPage({ params }: PageParams) {
               <h2 className="text-2xl font-heading font-bold mb-6">About the Instructor</h2>
               <div className="flex flex-col sm:flex-row gap-6 items-start">
                 <Link href={`/instructors/${product.author_id}`} className="shrink-0">
-                  {author?.profile_image ? (
-                    <Image src={author.profile_image} alt={authorName} width={120} height={120} className="rounded-full object-cover w-[100px] h-[100px] sm:w-[120px] sm:h-[120px] border-4 border-muted" />
+                  {authorImage ? (
+                    <Image src={authorImage} alt={authorName} width={120} height={120} className="rounded-full object-cover w-[100px] h-[100px] sm:w-[120px] sm:h-[120px] border-4 border-muted" />
                   ) : (
                     <div className="w-[100px] h-[100px] sm:w-[120px] sm:h-[120px] rounded-full bg-brand-primary/10 flex items-center justify-center border-4 border-muted">
                       <UserIcon className="w-12 h-12 text-brand-primary" />
@@ -227,11 +229,11 @@ export default async function LearningProductPage({ params }: PageParams) {
                   <Link href={`/instructors/${product.author_id}`} className="hover:text-brand-primary transition-colors">
                     <h3 className="text-xl font-bold text-foreground mb-1">{authorName}</h3>
                   </Link>
-                  <p className="text-brand-primary font-medium text-sm mb-4">{author?.professional_title || 'Expert Course Creator'}</p>
+                  <p className="text-brand-primary font-medium text-sm mb-4">{authorTitle}</p>
                   
-                  {author?.bio ? (
+                  {authorBio ? (
                     <p className="text-muted-foreground line-clamp-4 leading-relaxed mb-4">
-                      {author.bio}
+                      {authorBio}
                     </p>
                   ) : (
                     <p className="text-muted-foreground mb-4">

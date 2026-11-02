@@ -10,7 +10,9 @@ interface ProductMediaGalleryProps {
 }
 
 export function ProductMediaGallery({ thumbnailUrl, mediaGallery }: ProductMediaGalleryProps) {
-  const allMedia = [thumbnailUrl, ...mediaGallery].filter((url): url is string => !!url);
+  const fallbackMedia = ['/n8n-mockup.png', '/workflow-real.jpg', '/videos/workflow.mp4'];
+  const rawList = [thumbnailUrl, ...(mediaGallery || [])].filter((url): url is string => !!url);
+  const allMedia = rawList.length > 0 ? Array.from(new Set(rawList)) : fallbackMedia;
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const thumbnailsRef = useRef<HTMLDivElement>(null);
