@@ -9,10 +9,39 @@ export async function MarketplaceHero() {
     .from('page_sliders')
     .select('*, slider_media(*)')
     .eq('target_id', 'homepage')
-    .single();
+    .maybeSingle();
 
   const hasSlider = sliderConfig && sliderConfig.slider_media && sliderConfig.slider_media.length > 0;
   const sortedMedia = hasSlider ? sliderConfig.slider_media.sort((a: any, b: any) => a.order_index - b.order_index) : [];
+
+  const defaultHomepageMedia = [
+    {
+      id: 'default-hero-1',
+      media_url: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=2069&auto=format&fit=crop',
+      media_type: 'image' as const,
+      order_index: 0
+    },
+    {
+      id: 'default-hero-2',
+      media_url: '/videos/workflow.mp4',
+      media_type: 'video' as const,
+      order_index: 1
+    },
+    {
+      id: 'default-hero-3',
+      media_url: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2070&auto=format&fit=crop',
+      media_type: 'image' as const,
+      order_index: 2
+    },
+    {
+      id: 'default-hero-4',
+      media_url: '/workflow-real.jpg',
+      media_type: 'image' as const,
+      order_index: 3
+    }
+  ];
+
+  const activeMedia = sortedMedia.length > 0 ? sortedMedia : defaultHomepageMedia;
 
   return (
     <section className="relative pt-8 pb-12 md:pt-12 md:pb-16 overflow-hidden bg-brand-bg">
@@ -65,11 +94,16 @@ export async function MarketplaceHero() {
             {/* Social Proof */}
             <div className="flex items-center gap-4 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-900 fill-mode-both">
               <div className="flex -space-x-3">
-                {[1, 2, 3, 4].map((i) => (
+                {[
+                  { name: 'Emmanuel', src: '/students/ajagbe-emmanuel.jpg' },
+                  { name: 'Naheemot', src: '/students/jimoh-naheemot.jpg' },
+                  { name: 'Ruth', src: '/students/ruth-nwoke.jpg' },
+                  { name: 'Ola', src: '/Partners/Ola.png' }
+                ].map((student, i) => (
                   <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-[var(--card)] brightness-95 overflow-hidden relative">
                     <Image 
-                      src={`https://i.pravatar.cc/100?img=${i + 10}`} 
-                      alt="Student" 
+                      src={student.src} 
+                      alt={student.name} 
                       fill
                       className="object-cover"
                     />
@@ -90,11 +124,11 @@ export async function MarketplaceHero() {
           <div className="relative h-[500px] lg:h-[650px] w-full hidden md:block animate-in fade-in zoom-in-95 duration-1000 delay-300 fill-mode-both">
             {/* Main Image Mask/Container */}
             <div className="absolute right-0 bottom-0 w-[90%] h-[95%] bg-[var(--card)] brightness-95 rounded-[32px] overflow-hidden shadow-2xl relative">
-              {hasSlider ? (
+              {(activeMedia.length > 0) ? (
                 <DynamicSlider
-                  media={sortedMedia}
-                  transitionStyle={sliderConfig.transition_style}
-                  durationMs={sliderConfig.duration_ms}
+                  media={activeMedia}
+                  transitionStyle={sliderConfig?.transition_style || 'fade'}
+                  durationMs={sliderConfig?.duration_ms || 5000}
                   className="w-full h-full"
                 />
               ) : (

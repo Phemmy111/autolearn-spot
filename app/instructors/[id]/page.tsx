@@ -40,12 +40,16 @@ interface Product {
 
 async function getAuthorData(authorId: string) {
   console.log('Looking up author with ID:', authorId);
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(authorId);
   
-  const { data: author, error: authorError } = await supabaseAdmin
-    .from('authors')
-    .select('*')
-    .eq('id', authorId)
-    .single();
+  let query = supabaseAdmin.from('authors').select('*');
+  if (isUuid) {
+    query = query.or(`id.eq.${authorId},user_id.eq.${authorId}`);
+  } else {
+    query = query.eq('user_id', authorId);
+  }
+  
+  const { data: author, error: authorError } = await query.maybeSingle();
 
   console.log('Author lookup result:', { author, error: authorError });
 
@@ -54,7 +58,13 @@ async function getAuthorData(authorId: string) {
     return null;
   }
 
-  return author as Author;
+  return {
+    ...author,
+    display_name: author.display_name || author.name || 'Femi Adeleke',
+    profile_image: author.profile_image || author.avatar_url || '/femi-headshot.png',
+    professional_title: author.professional_title || 'Lead AI Automation Architect',
+    bio: author.bio || 'Specialist in scalable n8n workflows, enterprise API integrations, and AI agent architectures.'
+  } as Author;
 }
 
 async function getAuthorProducts(authorId: string) {
