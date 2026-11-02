@@ -25,12 +25,12 @@ interface DesignConfig {
 }
 
 const DEFAULT_CONFIG: DesignConfig = {
-  primaryColor: '#16a34a',
+  primaryColor: '#00f0ff',
   secondaryColor: '#1e293b',
-  accentColor: '#f59e0b',
+  accentColor: '#00f0ff',
   backgroundColor: '#f8f9fa',
   textColor: '#1a1a2e',
-  linkColor: '#16a34a',
+  linkColor: '#00f0ff',
   borderColor: '#e2e8f0',
   buttonRadius: 8,
   typography: 'Inter',

@@ -695,7 +695,12 @@ INSERT INTO public.site_settings (key, value) VALUES
 ('certificateCourse', 'AI Automation with n8n'),
 ('certificateFounderName', 'AutoLearn Spot'),
 ('certificateSignatureText', 'Founder & Lead Instructor'),
-('certificateQrEnabled', 'true')
+('certificateQrEnabled', 'true'),
+('primary_color', '"#00f0ff"'),
+('secondary_color', '"#8b5cf6"'),
+('accent_color', '"#00f0ff"'),
+('design_studio_draft', '{"primaryColor":"#00f0ff","secondaryColor":"#8b5cf6","accentColor":"#00f0ff","backgroundColor":"#f8f9fa","textColor":"#1a1a2e","linkColor":"#00f0ff","borderColor":"#e2e8f0","buttonRadius":8,"typography":"Inter","headingFont":"Space Grotesk","logoUrl":"","faviconUrl":""}'),
+('design_studio_published', '{"primaryColor":"#00f0ff","secondaryColor":"#8b5cf6","accentColor":"#00f0ff","backgroundColor":"#f8f9fa","textColor":"#1a1a2e","linkColor":"#00f0ff","borderColor":"#e2e8f0","buttonRadius":8,"typography":"Inter","headingFont":"Space Grotesk","logoUrl":"","faviconUrl":""}')
 ON CONFLICT (key) DO NOTHING;
 
 -- Disable Row Level Security on core application tables so Clerk and service_role can interact seamlessly
