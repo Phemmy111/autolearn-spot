@@ -706,7 +706,7 @@ export function AlexInputArea({
                 onClick={handleAttachment}
                 className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:bg-[#383838] rounded-xl transition-all"
                 title="Attach files"
-                disabled={isLoading || isGenerating || !conversationId}
+                disabled={isLoading || isGenerating}
                 aria-label="Attach files"
               >
                 <Paperclip className="h-4 w-4" />
@@ -715,7 +715,7 @@ export function AlexInputArea({
                 ref={fileInputRef}
                 type="file"
                 multiple
-                accept=".pdf,.doc,.docx,.txt,.md,.js,.jsx,.ts,.tsx,.json,.css,.html,.py,.java,.c,.cpp,.cs,.csv,.png,.jpg,.jpeg,.webp"
+                accept="*/*"
                 onChange={handleFileSelect}
                 className="hidden"
               />

@@ -44,7 +44,15 @@ export async function GET(
       return NextResponse.json({ error: 'File not found or access denied' }, { status: 404 })
     }
 
-    return NextResponse.json({ file })
+    const normalizedFile = {
+      ...file,
+      original_filename: file.file_name || file.original_filename || 'file',
+      mime_type: file.file_type || file.mime_type || 'application/octet-stream',
+      status: file.status || 'ready',
+      extraction_status: file.extraction_status || 'completed'
+    }
+
+    return NextResponse.json({ file: normalizedFile })
   } catch (error: any) {
     console.error('Error fetching file:', error)
     return NextResponse.json(

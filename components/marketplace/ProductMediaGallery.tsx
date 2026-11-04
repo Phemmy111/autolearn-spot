@@ -34,12 +34,19 @@ export function ProductMediaGallery({ thumbnailUrl, mediaGallery }: ProductMedia
     return () => clearInterval(timer);
   }, [allMedia.length, isHovered, activeIndex]);
 
-  // Keep active thumbnail scrolled into view
+  // Keep active thumbnail scrolled into view horizontally inside container without affecting page scroll
   useEffect(() => {
-    if (!thumbnailsRef.current) return;
-    const activeThumb = thumbnailsRef.current.children[activeIndex] as HTMLElement;
+    const container = thumbnailsRef.current;
+    if (!container) return;
+    const activeThumb = container.children[activeIndex] as HTMLElement;
     if (activeThumb) {
-      activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      const thumbLeft = activeThumb.offsetLeft;
+      const thumbWidth = activeThumb.offsetWidth;
+      const containerWidth = container.offsetWidth;
+      container.scrollTo({
+        left: thumbLeft - containerWidth / 2 + thumbWidth / 2,
+        behavior: 'smooth',
+      });
     }
   }, [activeIndex]);
 

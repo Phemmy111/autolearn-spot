@@ -291,11 +291,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Conversation not found or access denied' }, { status: 404 })
     }
 
-    // Get files for this conversation
+    // Get files for this user
     const { data: files, error: filesError } = await supabase
       .from('alex_files')
       .select('*')
-      .eq('conversation_id', conversationId)
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
 
@@ -304,7 +303,15 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: filesError.message }, { status: 500 })
     }
 
-    return NextResponse.json({ files: files || [] })
+    const normalizedFiles = (files || []).map(f => ({
+      ...f,
+      original_filename: f.file_name || f.original_filename || 'file',
+      mime_type: f.file_type || f.mime_type || 'application/octet-stream',
+      status: 'ready',
+      extraction_status: 'completed'
+    }))
+
+    return NextResponse.json({ files: normalizedFiles })
   } catch (error: any) {
     console.error('Error fetching files:', error)
     return NextResponse.json(
