@@ -1237,14 +1237,12 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
               onMouseLeave={handleMouseUp}
             >
               {/* Background */}
-              {settings.backgroundUrl && (
-                <img
-                  src={settings.backgroundUrl}
-                  alt="Certificate background"
-                  className="absolute inset-0 w-full h-full object-cover"
-                  style={{ pointerEvents: 'none' }}
-                />
-              )}
+              <img
+                src={settings.backgroundUrl || '/certificate-template.png'}
+                alt="Certificate background"
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ pointerEvents: 'none' }}
+              />
 
               {/* Alignment Guides */}
               {alignmentGuides.horizontal.map((y, index) => (

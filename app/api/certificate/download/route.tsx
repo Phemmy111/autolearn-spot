@@ -3,11 +3,9 @@ import { PDFDocument } from 'pdf-lib'
 import React from 'react'
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
-import { isSuperAdmin } from '@/lib/admin'
 import { CertificateTemplate } from '@/components/certificate/CertificateTemplate'
 import { getPublicSettings } from '@/lib/public-settings'
 import { supabaseAdmin } from '@/lib/supabase'
-import { CertificateLayout, validateLayout, DEFAULT_CERTIFICATE_LAYOUT } from '@/lib/certificate-layout'
 import QRCode from 'qrcode'
 
 export const runtime = 'nodejs'
@@ -25,115 +23,133 @@ export async function GET(request: Request) {
     const format = searchParams.get('format') || 'pdf'
     const studentNameParam = searchParams.get('name')
     const targetUserIdParam = searchParams.get('userId')
-
-    const user = await currentUser()
-    let fallbackName = user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.username || '';
-    const userEmail = user?.emailAddresses?.[0]?.emailAddress;
-    
-    // Fallback to enrollment table if name is missing
-    if (!fallbackName || fallbackName === 'Student' || fallbackName === userEmail?.split('@')[0]) {
-      if (userEmail) {
-        const { data: enrollment } = await supabaseAdmin
-          .from('enrollments')
-          .select('full_name')
-          .eq('email', userEmail)
-          .order('enrolled_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        if (enrollment?.full_name) {
-          fallbackName = enrollment.full_name;
-        }
-      }
-    }
-    
-    let userName = fallbackName || (userEmail?.split('@')[0]) || 'Student'
-    let targetUserId = userId
-
-    // Allow super admin to override the name and target user
-    if (studentNameParam || targetUserIdParam) {
-      const isSuper = await isSuperAdmin()
-      if (isSuper) {
-        if (studentNameParam) userName = studentNameParam
-        if (targetUserIdParam) targetUserId = targetUserIdParam
-      }
-    }
-
-    // Capitalize the first letter of each word robustly
-    userName = userName
-      .split(' ')
-      .map(word => word ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase() : '')
-      .join(' ')
-
     const certificateIdParam = searchParams.get('certificateId')
     const cohortIdParam = searchParams.get('cohortId')
     const productIdParam = searchParams.get('productId')
+    const courseParam = searchParams.get('course')
 
-    const baseUrl = new URL('/', request.url).toString().slice(0, -1) // e.g. https://domain.com
+    const user = await currentUser()
+    const userEmail = user?.emailAddresses?.[0]?.emailAddress?.toLowerCase()
+    const currentUserName = user?.firstName && user?.lastName 
+      ? `${user.firstName} ${user.lastName}` 
+      : user?.username || ''
 
-    // Fetch the certificate record to get the actual certificate code, user name, and course title
-    let query = supabaseAdmin
-      .from('certificates')
-      .select('user_name, certificate_code, course_title, learning_product_id, cohorts(name, learning_products(title))')
-      .eq('user_id', targetUserId)
-      
+    let userName = ''
+    let courseTitle = ''
+    let certificateCode = ''
+
+    // 1. If certificateId is given, fetch certificate record directly
+    let certificateRecord: any = null
     if (certificateIdParam && !certificateIdParam.startsWith('pending-')) {
-      query = query.eq('id', certificateIdParam)
-    } else if (productIdParam) {
-      query = query.eq('learning_product_id', productIdParam)
-    } else if (cohortIdParam) {
-      query = query.eq('cohort_id', cohortIdParam)
-    }
-    
-    const { data: certificateRecord } = await query
-      .order('issued_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
-
-    if (certificateRecord?.user_name && !studentNameParam) {
-      userName = certificateRecord.user_name
-        .split(' ')
-        .map(word => word ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase() : '')
-        .join(' ')
+      const { data } = await supabaseAdmin
+        .from('certificates')
+        .select('*, cohorts(name, learning_products(title))')
+        .eq('id', certificateIdParam)
+        .limit(1)
+      certificateRecord = data?.[0]
     }
 
-    const certificateId = certificateRecord?.certificate_code || `CERT-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
-    
-    let dbCourseTitle = certificateRecord?.course_title;
+    // 2. If certificate record found
+    if (certificateRecord) {
+      userName = certificateRecord.user_name || ''
+      courseTitle = certificateRecord.course_title || ''
+      certificateCode = certificateRecord.certificate_code || ''
 
-    // Direct product title lookup if productIdParam or learning_product_id exists
-    const resolvedProductId = productIdParam || certificateRecord?.learning_product_id;
-    if ((!dbCourseTitle || dbCourseTitle === 'Unknown Course') && resolvedProductId) {
-      const { data: product } = await supabaseAdmin
-        .from('learning_products')
-        .select('title')
-        .eq('id', resolvedProductId)
-        .maybeSingle()
-      if (product?.title) {
-        dbCourseTitle = product.title
+      if (!courseTitle && certificateRecord.learning_product_id) {
+        const { data: lp } = await supabaseAdmin
+          .from('learning_products')
+          .select('title')
+          .eq('id', certificateRecord.learning_product_id)
+          .limit(1)
+        if (lp?.[0]?.title) courseTitle = lp[0].title
       }
     }
-    
-    if (!dbCourseTitle || dbCourseTitle === 'Unknown Course') {
-      const cohortObj = Array.isArray(certificateRecord?.cohorts) ? certificateRecord?.cohorts[0] : certificateRecord?.cohorts;
-      const lpObj = cohortObj?.learning_products;
-      const lpTitle = Array.isArray(lpObj) ? lpObj[0]?.title : lpObj?.title;
-      dbCourseTitle = lpTitle || cohortObj?.name;
+
+    // 3. If targetUserIdParam is provided or certificate search by user
+    if (!userName && targetUserIdParam) {
+      const { data: targetCert } = await supabaseAdmin
+        .from('certificates')
+        .select('user_name, course_title, certificate_code')
+        .eq('user_id', targetUserIdParam)
+        .order('issued_at', { ascending: false })
+        .limit(1)
+      if (targetCert?.[0]) {
+        userName = targetCert[0].user_name
+        if (!courseTitle) courseTitle = targetCert[0].course_title
+        if (!certificateCode) certificateCode = targetCert[0].certificate_code
+      }
+
+      if (!userName) {
+        const { data: enroll } = await supabaseAdmin
+          .from('enrollments')
+          .select('full_name, learning_products(title)')
+          .or(`clerk_user_id.eq.${targetUserIdParam},user_id.eq.${targetUserIdParam}`)
+          .limit(1)
+        if (enroll?.[0]?.full_name) userName = enroll[0].full_name
+        if (!courseTitle && (enroll?.[0] as any)?.learning_products?.title) {
+          courseTitle = (enroll?.[0] as any).learning_products.title
+        }
+      }
     }
-    
-    // Fallback: If no certificate record exists, try to get course title from cohort
-    if ((!dbCourseTitle || dbCourseTitle === 'Unknown Course') && cohortIdParam) {
-      const { data: cohort } = await supabaseAdmin
+
+    // 4. Honor explicit query parameters (from admin tables, certificates grid, or custom URLs)
+    if (studentNameParam && studentNameParam.trim()) {
+      userName = studentNameParam.trim()
+    }
+    if (courseParam && courseParam.trim()) {
+      courseTitle = courseParam.trim()
+    }
+
+    // 5. If still no user name, check logged-in user's enrollment
+    if (!userName && userEmail) {
+      const { data: myEnrollment } = await supabaseAdmin
+        .from('enrollments')
+        .select('full_name, learning_products(title)')
+        .eq('email', userEmail)
+        .order('enrolled_at', { ascending: false })
+        .limit(1)
+      if (myEnrollment?.[0]?.full_name) {
+        userName = myEnrollment[0].full_name
+        if (!courseTitle && (myEnrollment[0] as any)?.learning_products?.title) {
+          courseTitle = (myEnrollment[0] as any).learning_products.title
+        }
+      }
+    }
+
+    // 6. If productIdParam or cohortIdParam provided and courseTitle still unknown
+    if (!courseTitle && productIdParam) {
+      const { data: lp } = await supabaseAdmin
+        .from('learning_products')
+        .select('title')
+        .eq('id', productIdParam)
+        .limit(1)
+      if (lp?.[0]?.title) courseTitle = lp[0].title
+    }
+    if (!courseTitle && cohortIdParam) {
+      const { data: ch } = await supabaseAdmin
         .from('cohorts')
         .select('name, learning_products(title)')
         .eq('id', cohortIdParam)
-        .maybeSingle()
-      if (cohort) {
-        const lpTitle = Array.isArray(cohort.learning_products) ? cohort.learning_products[0]?.title : cohort.learning_products?.title;
-        dbCourseTitle = lpTitle || cohort.name;
+        .limit(1)
+      if (ch?.[0]) {
+        const lpObj = ch[0].learning_products
+        const lpTitle = Array.isArray(lpObj) ? lpObj[0]?.title : (lpObj as any)?.title
+        courseTitle = lpTitle || ch[0].name
       }
     }
-    
-    dbCourseTitle = dbCourseTitle && dbCourseTitle !== 'Unknown Course' ? dbCourseTitle : 'Course Completion';
+
+    // 7. Ultimate fallbacks
+    if (!userName) userName = currentUserName || 'Student'
+    if (!courseTitle) courseTitle = 'AI Automation with n8n'
+    if (!certificateCode) {
+      certificateCode = `CERT-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
+    }
+
+    // Capitalize first letters of each name word
+    userName = userName
+      .split(' ')
+      .map(w => w ? w.charAt(0).toUpperCase() + w.slice(1) : '')
+      .join(' ')
 
     const dateStr = new Date().toLocaleDateString('en-US', {
       year: 'numeric',
@@ -141,117 +157,51 @@ export async function GET(request: Request) {
       day: 'numeric',
     })
 
-    // Fetch certificate settings from database
+    const baseUrl = new URL('/', request.url).toString().slice(0, -1)
+
+    // Certificate settings
     const certSettings = await getPublicSettings([
-      'certificateBackgroundUrl',
-      'certificateLogoUrl',
-      'certificateTitle',
-      'certificateSubtitle',
-      'certificateBodyText',
-      'certificateCourse',
-      'certificateFounderName',
       'certificateSignatureUrl',
-      'certificateSignatureText',
-      'certificateQrEnabled',
-      'certificateQrDestination',
-      'certificateFooter',
       'certificateAccentColor',
-      'certificateLayout',
+      'certificateQrEnabled',
+      'certificateQrDestination'
     ])
 
-    const courseParam = searchParams.get('course')
-
-    // Use database settings with fallbacks to hardcoded values
-    // Use the new professional certificate background
-    const backgroundSrc = certSettings.certificateBackgroundUrl || `${baseUrl}/certificate-template.png`
-    const logoSrc = certSettings.certificateLogoUrl || `${baseUrl}/logo.png`
-    const title = certSettings.certificateTitle || 'Certificate of Completion'
-    const subtitle = certSettings.certificateSubtitle || 'This certifies that'
-    const bodyText = certSettings.certificateBodyText || 'has successfully completed the'
-    
-    // Dynamic course name logic (URL param > Database relation > Site settings > Default)
-    const course = courseParam || dbCourseTitle || certSettings.certificateCourse || 'AI Automation Training'
-    const founderName = certSettings.certificateFounderName || 'AutoLearn Spot'
-    const signatureUrl = certSettings.certificateSignatureUrl || ''
-    const signatureText = certSettings.certificateSignatureText || 'Founder'
-    const footer = certSettings.certificateFooter || 'AutoLearn Spot - AI Automation Training'
     const accentColor = certSettings.certificateAccentColor || '#00f0ff'
     const qrEnabled = certSettings.certificateQrEnabled !== 'false'
     const qrDestination = certSettings.certificateQrDestination || `${baseUrl}/certificate/verify`
 
-    // Fetch font for the cursive name
-    const fontRes = await fetch('https://cdn.jsdelivr.net/fontsource/fonts/playfair-display@latest/latin-600-normal.ttf')
-    const fontData = await fontRes.arrayBuffer()
-    
-    // Fetch a standard font (Roboto) for the rest of the text
-    const robotoRes = await fetch('https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-400-normal.ttf')
-    const robotoData = await robotoRes.arrayBuffer()
-
-    // Generate QR code only if enabled
+    // Generate QR code
     let qrData = null
     if (qrEnabled) {
-      const verifyUrl = `${qrDestination}?name=${encodeURIComponent(userName)}&date=${encodeURIComponent(dateStr)}`
+      const verifyUrl = `${qrDestination}?name=${encodeURIComponent(userName)}&code=${encodeURIComponent(certificateCode)}`
       const qrCodeData = QRCode.create(verifyUrl)
       qrData = { modules: { size: qrCodeData.modules.size, data: Array.from(qrCodeData.modules.data).map(byte => byte === 1) } }
     }
 
-    // Load and validate layout
-    let certificateLayout: CertificateLayout = DEFAULT_CERTIFICATE_LAYOUT
-    if (certSettings.certificateLayout) {
-      try {
-        const parsedLayout = JSON.parse(certSettings.certificateLayout)
-        console.log('Loaded layout from settings:', JSON.stringify(parsedLayout, null, 2))
-        const validation = validateLayout(parsedLayout)
-        console.log('Layout validation:', validation)
-        if (validation.valid) {
-          certificateLayout = parsedLayout
-        } else {
-          console.error('Invalid certificate layout in settings:', validation.errors)
-          console.log('Falling back to default layout')
-        }
-      } catch (e) {
-        console.error('Failed to parse certificate layout:', e)
-        console.log('Raw layout value:', certSettings.certificateLayout)
-      }
-    } else {
-      console.log('No certificateLayout found in settings, using default')
-    }
+    // Font data
+    const fontRes = await fetch('https://cdn.jsdelivr.net/fontsource/fonts/playfair-display@latest/latin-600-normal.ttf')
+    const fontData = await fontRes.arrayBuffer()
+    const robotoRes = await fetch('https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-400-normal.ttf')
+    const robotoData = await robotoRes.arrayBuffer()
 
-    // Use absolute URL for the background and logo so next/og can fetch them
-    let absoluteLogoSrc = ''
-    if (logoSrc) {
-      absoluteLogoSrc = logoSrc.startsWith('http') ? logoSrc : `${baseUrl}${logoSrc}`
-    }
-    
-    let absoluteBackgroundSrc = ''
-    if (backgroundSrc) {
-      absoluteBackgroundSrc = backgroundSrc.startsWith('http') ? backgroundSrc : `${baseUrl}${backgroundSrc}`
-    }
+    const absoluteBackgroundSrc = `${baseUrl}/certificate-template.png`
 
-    // Generate the certificate PNG using ImageResponse (satori)
     const imageResponse = new ImageResponse(
-      (<CertificateTemplate 
-        layout={certificateLayout}
-        name={userName} 
-        date={dateStr} 
-        course={course}
-        certificateId={certificateId}
-        logoSrc={absoluteLogoSrc} 
-        qrData={qrData} 
-        backgroundSrc={absoluteBackgroundSrc}
-        title={title}
-        subtitle={subtitle}
-        bodyText={bodyText}
-        founderName={founderName}
-        signatureUrl={signatureUrl}
-        signatureText={signatureText}
-        qrEnabled={qrEnabled}
-        qrDestination={qrDestination}
-        footer={footer}
-        accentColor={accentColor}
-      />),
-      { 
-        width: 1200, 
+      (
+        <CertificateTemplate
+          name={userName}
+          date={dateStr}
+          course={courseTitle}
+          certificateId={certificateCode}
+          qrData={qrData}
+          backgroundSrc={absoluteBackgroundSrc}
+          signatureUrl={certSettings.certificateSignatureUrl || ''}
+          accentColor={accentColor}
+        />
+      ),
+      {
+        width: 1200,
         height: 800,
         fonts: [
           {
@@ -276,16 +226,14 @@ export async function GET(request: Request) {
         status: 200,
         headers: {
           'Content-Type': 'image/png',
-          'Content-Disposition': `attachment; filename="AutoLearn-Certificate.png"`,
+          'Content-Disposition': `attachment; filename="AutoLearn-Certificate-${certificateCode}.png"`,
           'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
         },
       })
     }
 
-    // PDF: embed the PNG into a single-page PDF
     const pngArrayBuffer = await imageResponse.arrayBuffer()
     const pngUint8 = new Uint8Array(pngArrayBuffer)
-
     const pdfDoc = await PDFDocument.create()
     const page = pdfDoc.addPage([1200, 800])
     const pngImage = await pdfDoc.embedPng(pngUint8)
@@ -296,22 +244,12 @@ export async function GET(request: Request) {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="AutoLearn-Certificate.pdf"`,
+        'Content-Disposition': `attachment; filename="AutoLearn-Certificate-${certificateCode}.pdf"`,
         'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
       },
     })
   } catch (error) {
     console.error('Failed to generate certificate:', error)
-    
-    // Get the Vercel request ID for easier debugging
-    const requestId = request.headers.get('x-vercel-id') || 'unknown';
-
-    return NextResponse.json(
-      { error: 'Internal Server Error', details: String(error), requestId },
-      { 
-        status: 500,
-        headers: { 'x-vercel-request-id': requestId } 
-      }
-    )
+    return NextResponse.json({ error: 'Internal Server Error', details: String(error) }, { status: 500 })
   }
 }

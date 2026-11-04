@@ -10,6 +10,13 @@ export interface AdminInfo {
   is_active: boolean
 }
 
+const ROOT_SUPER_ADMIN_EMAILS = [
+  'femiadeleke2020@gmail.com',
+  'femiadeleke200@gmail.com',
+  'femi@autolearnspot.com',
+  'marvellousomobomi@gmail.com'
+]
+
 export async function isAdmin(): Promise<boolean> {
   try {
     const { userId } = await auth()
@@ -22,7 +29,12 @@ export async function isAdmin(): Promise<boolean> {
     const userEmail = user.emailAddresses[0]?.emailAddress?.toLowerCase()
     if (!userEmail) return false
     
-    // First check ADMIN_EMAILS environment variable (fallback approach)
+    // Root super admin check
+    if (ROOT_SUPER_ADMIN_EMAILS.includes(userEmail)) {
+      return true
+    }
+
+    // Check ADMIN_EMAILS environment variable (fallback approach)
     const adminEmails = process.env.ADMIN_EMAILS
     if (adminEmails) {
       const allowedEmails = adminEmails.split(',').map(e => e.trim().toLowerCase())
@@ -37,7 +49,7 @@ export async function isAdmin(): Promise<boolean> {
       .select('role, is_active')
       .eq('email', userEmail)
       .eq('is_active', true)
-      .single()
+      .maybeSingle()
     
     if (error || !data) return false
     
@@ -60,13 +72,23 @@ export async function getAdminInfo(): Promise<AdminInfo | null> {
     const userEmail = user.emailAddresses[0]?.emailAddress?.toLowerCase()
     if (!userEmail) return null
     
+    // Root super admin fallback
+    if (ROOT_SUPER_ADMIN_EMAILS.includes(userEmail)) {
+      return {
+        id: userId,
+        email: userEmail,
+        role: 'super_admin',
+        is_active: true
+      }
+    }
+
     // Check database for admin info (use service role to bypass RLS)
     const { data, error } = await supabaseAdmin
       .from('admins')
       .select('*')
       .eq('email', userEmail)
       .eq('is_active', true)
-      .single()
+      .maybeSingle()
     
     if (error || !data) return null
     

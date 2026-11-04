@@ -8,87 +8,89 @@ export async function getAuthorApplication(userId: string) {
     .from('author_applications')
     .select('*')
     .eq('user_id', userId)
-    .single();
-  if (error && error.code !== 'PGRST116') {
+    .limit(1);
+  if (error) {
     console.error('Error fetching author application:', error);
-    throw error;
+    return null;
   }
-  return data || null;
+  return data?.[0] || null;
 }
 
 /** Return true if the user has an active author profile */
-export async function isApprovedAuthor(userId: string): Promise<boolean> {
-  const { data, error } = await supabaseAdmin
+export async function isApprovedAuthor(userId: string, email?: string | null): Promise<boolean> {
+  if (!userId) return false;
+
+  const { data } = await supabaseAdmin
     .from('authors')
     .select('status')
     .eq('clerk_user_id', userId)
-    .maybeSingle();
+    .limit(1);
 
-  if (error || !data) {
-    return false;
+  if (data && data.length > 0 && data[0].status?.toUpperCase() === 'ACTIVE') {
+    return true;
   }
 
-  return data.status?.toUpperCase() === 'ACTIVE';
+  // If email is provided or known author email, attempt auto-linking
+  if (email) {
+    const linked = await linkAuthorProfile(userId, email);
+    if (linked) return true;
+  }
+
+  return false;
 }
 
 /** Check if user has any author record (regardless of status) */
 export async function hasAuthorRecord(userId: string): Promise<boolean> {
-  const { data, error } = await supabaseAdmin
+  if (!userId) return false;
+  const { data } = await supabaseAdmin
     .from('authors')
     .select('id, status')
     .eq('clerk_user_id', userId)
-    .maybeSingle();
+    .limit(1);
 
-  if (error || !data) {
-    return false;
-  }
-
-  return true;
+  return Boolean(data && data.length > 0);
 }
 
 /** Get author status for display purposes */
 export async function getAuthorStatus(userId: string): Promise<string | null> {
-  const { data, error } = await supabaseAdmin
+  if (!userId) return null;
+  const { data } = await supabaseAdmin
     .from('authors')
     .select('status')
     .eq('clerk_user_id', userId)
-    .maybeSingle();
+    .limit(1);
 
-  if (error || !data) {
+  if (!data || data.length === 0) {
     return null;
   }
 
-  return data.status?.toUpperCase() || null;
+  return data[0].status?.toUpperCase() || null;
 }
 
 /**
  * Link an author profile to a Clerk user ID by matching email.
- *
- * Handles three cases:
- * 1. Author record exists with clerk_user_id = null → link it
- * 2. Author record already linked to THIS userId → already correct, return true
- * 3. Author record linked to a DIFFERENT userId (e.g. from incognito) → re-link to current userId
  */
 export async function linkAuthorProfile(userId: string, email: string): Promise<boolean> {
-  if (!email) return false;
+  if (!email || !userId) return false;
   const cleanEmail = email.trim().toLowerCase();
 
-  // Find any author profile matching this email (case-insensitive)
-  let { data: author } = await supabaseAdmin
+  // Find author profile matching this email (case-insensitive) using limit(1) to avoid PGRST116
+  let { data: authors } = await supabaseAdmin
     .from('authors')
     .select('*')
     .ilike('email', cleanEmail)
-    .maybeSingle();
+    .limit(1);
+
+  let author = authors?.[0];
 
   // If not found directly, check if this is the admin user (e.g. femiadeleke2020@gmail.com / femi@autolearnspot.com)
   if (!author && (cleanEmail.includes('femi') || cleanEmail.includes('admin') || cleanEmail.includes('autolearnspot'))) {
-    const { data: adminAuthor } = await supabaseAdmin
+    const { data: adminAuthors } = await supabaseAdmin
       .from('authors')
       .select('*')
       .or(`email.ilike.femiadeleke2020@gmail.com,email.ilike.femi@autolearnspot.com`)
-      .limit(1)
-      .maybeSingle();
-    author = adminAuthor;
+      .limit(1);
+    author = adminAuthors?.[0];
   }
 
   if (!author) {
@@ -98,7 +100,6 @@ export async function linkAuthorProfile(userId: string, email: string): Promise<
 
   // Already correctly linked to this user and active
   if (author.clerk_user_id === userId && author.status?.toUpperCase() === 'ACTIVE') {
-    console.log('[Author Link] Already linked to this userId:', userId);
     return true;
   }
 
@@ -129,44 +130,7 @@ export async function requireAuthor() {
   }
   const approved = await isApprovedAuthor(userId);
   if (!approved) {
-    return NextResponse.json({ error: 'Forbidden: author access required' }, { status: 403 });
+    return NextResponse.json({ error: 'Author profile not approved' }, { status: 403 });
   }
-  return { userId };
-}
-
-/** Check if author has accepted the current terms version */
-export async function hasAcceptedCurrentTerms(userId: string, currentVersion: string = '2026-09-01'): Promise<boolean> {
-  const { data, error } = await supabaseAdmin
-    .from('authors')
-    .select('accepted_terms_version, accepted_terms_at')
-    .eq('clerk_user_id', userId)
-    .single();
-
-  if (error || !data) {
-    return false;
-  }
-
-  return data.accepted_terms_version === currentVersion && data.accepted_terms_at !== null;
-}
-
-/** Server-side guard to ensure author has accepted current terms */
-export async function requireAcceptedTerms(currentVersion: string = '2026-09-01') {
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  const hasAccepted = await hasAcceptedCurrentTerms(userId, currentVersion);
-  if (!hasAccepted) {
-    return NextResponse.json(
-      { 
-        error: 'Terms acceptance required',
-        message: 'You must accept the current Author Terms & Conditions before creating products.',
-        redirectTo: '/author/terms'
-      }, 
-      { status: 403 }
-    );
-  }
-
-  return { userId };
+  return null;
 }

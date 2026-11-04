@@ -3,9 +3,24 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, BookOpen, Award, Home, LogOut, Settings, FileText, ClipboardCheck, MessageSquare, Video } from 'lucide-react';
+import { 
+  Menu, 
+  X, 
+  BookOpen, 
+  Award, 
+  Home, 
+  LogOut, 
+  Settings, 
+  FileText, 
+  ClipboardCheck, 
+  MessageSquare, 
+  Video, 
+  Bot,
+  Sparkles
+} from 'lucide-react';
 import { SignOutButton } from '@clerk/nextjs';
 import { NotificationBell } from '@/components/NotificationBell';
+import { AlexFloatingWidget } from '@/components/alex/AlexFloatingWidget';
 
 /**
  * Student Shell Component
@@ -19,6 +34,7 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
   const navItems = [
     { name: 'Dashboard', href: '/student', icon: Home },
     { name: 'My Learning', href: '/dashboard', icon: BookOpen },
+    { name: 'Alex AI Tutor', href: '/dashboard/alex', icon: Bot, badge: 'Smart' },
     { name: 'Messages', href: '/student/messages', icon: MessageSquare },
     { name: 'Live Classes', href: '/student/live-classes', icon: Video },
     { name: 'Quizzes', href: '/dashboard/quizzes', icon: ClipboardCheck },
@@ -28,7 +44,7 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
   ];
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-neutral-50 relative">
       {/* Desktop Layout */}
       <div className="hidden md:flex">
         {/* Sidebar - fixed, independent from scrolling */}
@@ -44,19 +60,26 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
             <nav className="space-y-1">
               {navItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href + '/'));
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                    className={`flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-neutral-100 text-neutral-900'
+                        ? 'bg-neutral-100 text-neutral-900 font-semibold'
                         : 'text-neutral-600 hover:bg-neutral-50'
                     }`}
                   >
-                    <Icon className="w-5 h-5" />
-                    {item.name}
+                    <div className="flex items-center gap-3">
+                      <Icon className={`w-5 h-5 ${item.badge ? 'text-blue-600' : ''}`} />
+                      <span>{item.name}</span>
+                    </div>
+                    {item.badge && (
+                      <span className="text-[10px] bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                        <Sparkles className="w-2.5 h-2.5" /> {item.badge}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
@@ -77,7 +100,7 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-8 ml-64">
+        <main className="flex-1 p-8 ml-64 min-w-0">
           {children}
         </main>
       </div>
@@ -98,25 +121,25 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
               AutoLearn Spot
             </span>
           </Link>
-          <NotificationBell />
+          <div className="w-6" /> {/* Spacer for centering */}
         </header>
 
-        {/* Mobile Content */}
+        {/* Mobile Main Content */}
         <main className="p-4">
           {children}
         </main>
 
-        {/* Mobile Sidebar */}
+        {/* Mobile Sidebar Overlay */}
         {isSidebarOpen && (
           <>
             <div
-              className="fixed inset-0 bg-black/50 z-40"
+              className="fixed inset-0 bg-neutral-900/50 z-40"
               onClick={() => setIsSidebarOpen(false)}
             />
-            <div className="fixed inset-y-0 left-0 w-72 bg-white z-50 p-6 overflow-y-auto">
+            <div className="fixed inset-y-0 left-0 w-64 bg-white z-50 p-6 overflow-y-auto">
               <div className="flex items-center justify-between mb-8">
                 <span className="font-heading text-lg font-bold text-neutral-900">
-                  Menu
+                  AutoLearn Spot
                 </span>
                 <button
                   onClick={() => setIsSidebarOpen(false)}
@@ -129,20 +152,27 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
               <nav className="space-y-1">
                 {navItems.map((item) => {
                   const Icon = item.icon;
-                  const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                  const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href + '/'));
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
                       onClick={() => setIsSidebarOpen(false)}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                      className={`flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                         isActive
-                          ? 'bg-neutral-100 text-neutral-900'
+                          ? 'bg-neutral-100 text-neutral-900 font-semibold'
                           : 'text-neutral-600 hover:bg-neutral-50'
                       }`}
                     >
-                      <Icon className="w-5 h-5" />
-                      {item.name}
+                      <div className="flex items-center gap-3">
+                        <Icon className={`w-5 h-5 ${item.badge ? 'text-blue-600' : ''}`} />
+                        <span>{item.name}</span>
+                      </div>
+                      {item.badge && (
+                        <span className="text-[10px] bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                          <Sparkles className="w-2.5 h-2.5" /> {item.badge}
+                        </span>
+                      )}
                     </Link>
                   );
                 })}
@@ -163,6 +193,9 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
           </>
         )}
       </div>
+
+      {/* Persistent Floating Alex AI Assistant */}
+      <AlexFloatingWidget />
     </div>
   );
 }

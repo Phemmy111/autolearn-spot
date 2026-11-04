@@ -1,7 +1,5 @@
 import React from 'react'
 
-import { CertificateLayout, CertificateElement, validateLayout, DEFAULT_CERTIFICATE_LAYOUT, getElementText, getElementSrc } from '@/lib/certificate-layout'
-
 interface QRCodeData {
   modules: {
     size: number
@@ -10,7 +8,7 @@ interface QRCodeData {
 }
 
 interface CertificateTemplateProps {
-  layout?: CertificateLayout
+  layout?: any
   name: string
   date: string
   course?: string
@@ -34,54 +32,20 @@ const CANVAS_WIDTH = 1200
 const CANVAS_HEIGHT = 800
 
 export function CertificateTemplate({
-  layout,
   name,
   date,
   course,
   certificateId,
-  logoSrc,
   qrData,
   backgroundSrc,
-  title,
-  subtitle,
-  bodyText,
-  founderName,
   signatureUrl,
-  signatureText,
-  qrEnabled,
-  qrDestination: _qrDestination,
-  footer,
   accentColor,
 }: CertificateTemplateProps) {
-  const accent = accentColor || '#00e5ff'
-
-  // Use provided layout or fall back to default
-  const activeLayout = layout || DEFAULT_CERTIFICATE_LAYOUT
-  
-  // Validate layout
-  const validation = validateLayout(activeLayout)
-  if (!validation.valid) {
-    console.error('Invalid certificate layout:', validation.errors)
-  }
-
-  // Prepare data for binding resolution
-  const data = {
-    student_name: name,
-    course: course || 'n8n Automation',
-    issue_date: date,
-    certificate_id: certificateId || 'ALS-2026-DEMO-001'
-  }
-
-  const settings = {
-    title: title || 'Certificate of Completion',
-    subtitle: subtitle || 'This certifies that',
-    bodyText: bodyText || 'has successfully completed the',
-    founderName: founderName || 'AutoLearn Spot',
-    signatureText: signatureText || 'Founder',
-    footer: footer || 'AutoLearn Spot - AI Automation Training',
-    logoUrl: logoSrc || '',
-    signatureUrl: signatureUrl || '',
-  }
+  const accent = accentColor || '#00f0ff'
+  const displayCourse = course || 'n8n Automation'
+  const displayName = name || 'Student'
+  const displayCertId = certificateId || 'ALS-2026-CERT'
+  const bg = backgroundSrc || '/certificate-template.png'
 
   return (
     <div
@@ -91,188 +55,216 @@ export function CertificateTemplate({
         height: `${CANVAS_HEIGHT}px`,
         overflow: 'hidden',
         fontFamily: '"Roboto", Arial, sans-serif',
-        background: '#06101f',
+        backgroundColor: '#030a16',
         display: 'flex',
       }}
     >
-      {/* Background */}
-      {backgroundSrc ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={backgroundSrc}
-          alt="Certificate background"
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: `${CANVAS_WIDTH}px`,
-            height: `${CANVAS_HEIGHT}px`,
-            objectFit: 'cover',
-            zIndex: 0,
-          }}
-        />
-      ) : (
+      {/* Background Image - Authentic AutoLearn Spot Certificate Artwork */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={bg}
+        alt="Certificate Background"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: `${CANVAS_WIDTH}px`,
+          height: `${CANVAS_HEIGHT}px`,
+          objectFit: 'cover',
+          zIndex: 0,
+        }}
+      />
+
+      {/* Dynamic Overlay Layer */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: `${CANVAS_WIDTH}px`,
+          height: `${CANVAS_HEIGHT}px`,
+          display: 'flex',
+          flexDirection: 'column',
+          zIndex: 10,
+        }}
+      >
+        {/* Certificate ID Pill (Top Right) */}
         <div
           style={{
             position: 'absolute',
-            inset: 0,
-            background:
-              'linear-gradient(135deg, #03101f 0%, #07172a 48%, #020914 100%)',
-            zIndex: 0,
+            top: '32px',
+            right: '48px',
             display: 'flex',
+            alignItems: 'center',
+            padding: '4px 12px',
+            borderRadius: '4px',
+            backgroundColor: 'rgba(3, 16, 32, 0.75)',
+            border: `1px solid ${accent}`,
+            color: '#a0aec0',
+            fontSize: '11px',
+            fontFamily: '"Roboto", monospace',
+            letterSpacing: '1px',
+          }}
+        >
+          <span>ID: {displayCertId}</span>
+        </div>
+
+        {/* Student Name Overlay - Positioned in the designated focal slot */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '345px',
+            left: 0,
+            width: `${CANVAS_WIDTH}px`,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <span
+            style={{
+              fontFamily: '"Playfair Display", "GreatVibes", Georgia, serif',
+              fontSize: displayName.length > 28 ? '58px' : displayName.length > 20 ? '70px' : '82px',
+              color: '#ffffff',
+              fontWeight: 600,
+              letterSpacing: '0.5px',
+              lineHeight: 1,
+              textAlign: 'center',
+              textShadow: '0 0 20px rgba(0, 240, 255, 0.45), 0 2px 8px rgba(0, 0, 0, 0.9)',
+            }}
+          >
+            {displayName}
+          </span>
+        </div>
+
+        {/* Dynamic Course Title Overlay */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '516px',
+            left: '150px',
+            width: '900px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
           }}
         >
           <div
             style={{
-              position: 'absolute',
-              inset: 18,
-              border: `2px solid ${accent}`,
-              opacity: 0.32,
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              inset: 28,
-              border: `1px solid ${accent}`,
-              opacity: 0.15,
-            }}
-          />
-        </div>
-      )}
-
-      {/* Readability overlay */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background:
-            'linear-gradient(to bottom, rgba(0,0,0,0.06), rgba(0,0,0,0.015) 48%, rgba(0,0,0,0.10))',
-          zIndex: 1,
-          pointerEvents: 'none',
-          display: 'flex',
-        }}
-      />
-
-      {/* Render elements from layout */}
-      {activeLayout.elements.map((element) => {
-        const displayText = getElementText(element, data, settings)
-        const displaySrc = getElementSrc(element, settings)
-        
-        // Skip hidden elements
-        if (element.visible === false) return null
-
-        // Skip QR if disabled
-        if (element.type === 'qrCode' && (qrEnabled === false || !qrData)) return null
-
-        // Determine if this is a text/image element
-        const isTextElement = ['title', 'subtitle', 'studentName', 'bodyText', 'course', 'date', 'signatureText', 'founderName', 'certificateId', 'footer', 'text'].includes(element.type)
-        const isImageElement = ['logo', 'signature', 'image'].includes(element.type)
-        const isQrElement = element.type === 'qrCode'
-
-        return (
-          <div
-            key={element.id}
-            style={{
-              position: 'absolute',
-              left: element.x,
-              top: element.y,
-              width: element.width,
-              height: element.height,
-              zIndex: element.zIndex || 10,
-              opacity: element.style?.opacity || 1,
               display: 'flex',
               alignItems: 'center',
-              justifyContent: element.style?.textAlign === 'left' ? 'flex-start' : 
-                           element.style?.textAlign === 'right' ? 'flex-end' : 'center',
-              flexDirection: 'column',
-              ...(element.style?.background && { background: element.style.background }),
-              ...(element.style?.border && { border: element.style.border }),
-              ...(element.style?.borderRadius && { borderRadius: element.style.borderRadius }),
+              justifyContent: 'center',
+              backgroundColor: '#040b17',
+              padding: '6px 28px',
+              borderRadius: '8px',
+              border: `1px solid rgba(0, 240, 255, 0.35)`,
+              boxShadow: '0 0 15px rgba(0, 240, 255, 0.2)',
             }}
           >
-            {isTextElement && (
-              <div
-                style={{
-                  fontFamily: element.style?.fontFamily || 'Roboto',
-                  fontSize: element.style?.fontSize || 12,
-                  fontWeight: element.style?.fontWeight || 400,
-                  fontStyle: element.style?.fontStyle || 'normal',
-                  color: element.style?.color || '#f5f5f5',
-                  textAlign: element.style?.textAlign || 'left',
-                  lineHeight: element.style?.lineHeight || 1,
-                  letterSpacing: element.style?.letterSpacing || 0,
-                  textShadow: element.style?.textShadow || '0 2px 8px rgba(0,0,0,0.78)',
-                  whiteSpace: element.style?.whiteSpace || 'normal',
-                  overflow: 'visible',
-                  maxWidth: element.style?.maxWidth || '100%',
-                  textTransform: element.style?.textTransform || 'none',
-                  ...(element.style?.outlineWidth && element.style?.outlineWidth > 0 ? {
-                    WebkitTextStroke: `${element.style.outlineWidth}px ${element.style.outlineColor || '#f5f5f5'}`,
-                    paintOrder: 'stroke',
-                  } : {}),
-                }}
-              >
-                {displayText}
-              </div>
-            )}
-            {isImageElement && displaySrc && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={displaySrc}
-                alt={element.id}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: element.style?.objectFit || 'contain',
-                  display: 'block',
-                }}
-              />
-            )}
-            {isQrElement && qrData && (
-              <div
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: element.style?.background || '#f5f5f5',
-                  padding: 3,
-                  borderRadius: element.style?.borderRadius || 2,
-                  opacity: element.style?.opacity || 0.84,
-                }}
-              >
-                <svg
-                  width={element.width - 6}
-                  height={element.height - 6}
-                  viewBox={`0 0 ${qrData.modules.size} ${qrData.modules.size}`}
-                  fill="#000000"
-                  shapeRendering="crispEdges"
-                  aria-label="Certificate verification QR code"
-                >
-                  {Array.from(qrData.modules.data).map((isDark, index) => {
-                    if (!isDark) return null
-
-                    const size = qrData.modules.size
-                    const x = index % size
-                    const y = Math.floor(index / size)
-
-                    return (
-                      <rect
-                        key={index}
-                        x={x}
-                        y={y}
-                        width="1.05"
-                        height="1.05"
-                      />
-                    )
-                  })}
-                </svg>
-              </div>
-            )}
+            <span
+              style={{
+                fontFamily: '"Roboto", Arial, sans-serif',
+                fontSize: displayCourse.length > 35 ? '26px' : '32px',
+                fontWeight: 700,
+                color: accent,
+                letterSpacing: '0.8px',
+                textAlign: 'center',
+                textShadow: '0 0 12px rgba(0, 240, 255, 0.5)',
+              }}
+            >
+              {displayCourse}
+            </span>
           </div>
-        )
-      })}
+        </div>
+
+        {/* Date Overlay - Over Date Line (Bottom Left) */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '648px',
+            left: '185px',
+            width: '240px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <span
+            style={{
+              fontFamily: '"Roboto", sans-serif',
+              fontSize: '16px',
+              color: '#ffffff',
+              fontWeight: 500,
+              textShadow: '0 1px 4px rgba(0,0,0,0.8)',
+            }}
+          >
+            {date}
+          </span>
+        </div>
+
+        {/* Optional Custom Signature Overlay (Bottom Right) */}
+        {signatureUrl && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '625px',
+              right: '180px',
+              width: '180px',
+              height: '45px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={signatureUrl}
+              alt="Signature"
+              style={{
+                maxWidth: '180px',
+                maxHeight: '45px',
+                objectFit: 'contain',
+              }}
+            />
+          </div>
+        )}
+
+        {/* QR Code - Credential Verification Badge */}
+        {qrData && (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '125px',
+              right: '72px',
+              display: 'flex',
+              width: '76px',
+              height: '76px',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: '#ffffff',
+              padding: '4px',
+              borderRadius: '6px',
+              border: `2px solid ${accent}`,
+              boxShadow: `0 0 12px rgba(0, 240, 255, 0.4)`,
+            }}
+          >
+            <svg
+              width="68"
+              height="68"
+              viewBox={`0 0 ${qrData.modules.size} ${qrData.modules.size}`}
+              fill="#000000"
+            >
+              {Array.from(qrData.modules.data).map((isDark, i) => {
+                if (!isDark) return null
+                const size = qrData.modules.size
+                const x = i % size
+                const y = Math.floor(i / size)
+                return <rect key={i} x={x} y={y} width="1.05" height="1.05" />
+              })}
+            </svg>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
