@@ -289,7 +289,20 @@ export function AlexChat({ userId }: AlexChatProps) {
         signal: controller.signal,
       })
 
-      if (res.ok) {
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => null);
+        const errMsg = errJson?.error || 'Unable to reach Alex AI tutor';
+        setMessages(prev => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            conversation_id: conversationToUse.id,
+            role: 'assistant',
+            content: `⚠️ ${errMsg}\n\nTip: Click the ⚙️ Settings icon in the top right to configure your Personal AI API key (Google Gemini, Groq, OpenRouter, Anthropic, or OpenAI).`,
+            created_at: new Date().toISOString(),
+          }
+        ]);
+      } else {
         const reader = res.body?.getReader()
         if (reader) {
           const decoder = new TextDecoder()
@@ -419,6 +432,16 @@ export function AlexChat({ userId }: AlexChatProps) {
         console.log('Generation stopped by user')
       } else {
         console.error('Failed to send message:', error)
+        setMessages(prev => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            conversation_id: conversationToUse.id,
+            role: 'assistant',
+            content: '⚠️ Failed to get a response from Alex. Please click the ⚙️ Settings icon in the top right to configure your API key.',
+            created_at: new Date().toISOString(),
+          }
+        ])
       }
     } finally {
       setIsLoading(false)
@@ -537,7 +560,7 @@ export function AlexChat({ userId }: AlexChatProps) {
           </button>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => window.location.href = '/'}
+              onClick={() => { window.location.href = '/dashboard'; }}
               className="w-8 h-8 flex items-center justify-center text-white/60 hover:text-white transition-colors"
               aria-label="Go to homepage"
             >
@@ -594,7 +617,7 @@ export function AlexChat({ userId }: AlexChatProps) {
             <div className="flex items-center justify-between max-w-4xl mx-auto">
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => window.location.href = '/'}
+                  onClick={() => { window.location.href = '/dashboard'; }}
                   className="w-9 h-9 flex items-center justify-center text-white/60 hover:text-white transition-colors rounded-xl hover:bg-[#404040]"
                   aria-label="Go to homepage"
                 >

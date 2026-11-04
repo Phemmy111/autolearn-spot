@@ -84,7 +84,8 @@ export default function AlexProviderPage() {
       const res = await fetch('/api/admin/alex-provider')
       if (!res.ok) {
         if (res.status === 403) {
-          router.push('/admin')
+          setError('Super admin access required to view or edit providers.')
+          setLoading(false)
           return
         }
         throw new Error('Failed to fetch providers')

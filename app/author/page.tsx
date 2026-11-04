@@ -228,15 +228,31 @@ export default async function AuthorDashboardPage() {
       recentSales = activities.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 10);
     }
 
-    // 5. Fetch Earnings from author_earnings ledger
-    // author is already fetched at the top of the block
+    // 5. Fetch Earnings from author_earnings ledger or compute from paid order_items
     if (author) {
-      const { data: earningData } = await supabaseAdmin
-        .from('author_earnings')
-        .select('total_net')
-        .eq('author_id', author.id)
-        .single();
-      earnings = earningData?.total_net || 0;
+      try {
+        const { data: earningData } = await supabaseAdmin
+          .from('author_earnings')
+          .select('total_net')
+          .eq('author_id', author.id)
+          .maybeSingle();
+
+        if (earningData?.total_net) {
+          earnings = Number(earningData.total_net) || 0;
+        } else if (productIds.length > 0) {
+          const { data: paidItems } = await supabaseAdmin
+            .from('order_items')
+            .select('price_snapshot, orders!inner(status)')
+            .in('learning_product_id', productIds)
+            .eq('orders.status', 'PAID');
+
+          if (paidItems && paidItems.length > 0) {
+            earnings = paidItems.reduce((sum, item) => sum + (Number(item.price_snapshot) || 0), 0);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching author earnings:', err);
+      }
     }
 
     // 6. Rating — no reviews table exists yet, so leave as null (N/A)

@@ -17,26 +17,58 @@ const ROOT_SUPER_ADMIN_EMAILS = [
   'marvellousomobomi@gmail.com'
 ]
 
+const ROOT_SUPER_ADMIN_USER_IDS = [
+  'user_3GQ7AMAdhmPHBSaBhlAXgVyX5sI', // Femi Adeleke
+  'user_3GYbgK6hkYBX8AwqJRXn5BiBikW', // Omobomi Marvellous
+  'user_3JI4lwWSCQXqH9LKg30kcabvJmV'  // Femi Adeleke (admin)
+]
+
 export async function isAdmin(): Promise<boolean> {
   try {
-    const { userId } = await auth()
+    const authData = await auth()
+    const { userId, sessionClaims } = authData
     if (!userId) return false
+
+    // Direct root super admin user id check
+    if (ROOT_SUPER_ADMIN_USER_IDS.includes(userId)) {
+      return true
+    }
+
+    // Check email from session claims if available
+    const sessionEmail = ((sessionClaims as any)?.email || (sessionClaims as any)?.primaryEmail || (sessionClaims as any)?.email_address)?.toLowerCase()
+    if (sessionEmail && ROOT_SUPER_ADMIN_EMAILS.includes(sessionEmail)) {
+      return true
+    }
     
-    // Get user email from Clerk
-    const user = await currentUser()
-    if (!user?.emailAddresses || user.emailAddresses.length === 0) return false
-    
-    const userEmail = user.emailAddresses[0]?.emailAddress?.toLowerCase()
-    if (!userEmail) return false
-    
-    // Root super admin check
-    if (ROOT_SUPER_ADMIN_EMAILS.includes(userEmail)) {
+    // Get user email from Clerk currentUser() if available
+    let userEmail = sessionEmail
+    if (!userEmail) {
+      try {
+        const user = await currentUser()
+        userEmail = user?.emailAddresses?.[0]?.emailAddress?.toLowerCase()
+      } catch (err) {
+        console.warn('Could not fetch Clerk currentUser:', err)
+      }
+    }
+
+    // Check if user is active in authors table
+    const { data: author } = await supabaseAdmin
+      .from('authors')
+      .select('email, status')
+      .or(`clerk_user_id.eq.${userId},user_id.eq.${userId}`)
+      .maybeSingle()
+
+    if (author?.email && ROOT_SUPER_ADMIN_EMAILS.includes(author.email.toLowerCase())) {
+      return true
+    }
+
+    if (userEmail && ROOT_SUPER_ADMIN_EMAILS.includes(userEmail)) {
       return true
     }
 
     // Check ADMIN_EMAILS environment variable (fallback approach)
     const adminEmails = process.env.ADMIN_EMAILS
-    if (adminEmails) {
+    if (adminEmails && userEmail) {
       const allowedEmails = adminEmails.split(',').map(e => e.trim().toLowerCase())
       if (allowedEmails.includes(userEmail)) {
         return true
@@ -44,16 +76,18 @@ export async function isAdmin(): Promise<boolean> {
     }
     
     // Fall back to database check (service role to bypass RLS)
-    const { data, error } = await supabaseAdmin
-      .from('admins')
-      .select('role, is_active')
-      .eq('email', userEmail)
-      .eq('is_active', true)
-      .maybeSingle()
+    if (userEmail) {
+      const { data, error } = await supabaseAdmin
+        .from('admins')
+        .select('role, is_active')
+        .eq('email', userEmail)
+        .eq('is_active', true)
+        .maybeSingle()
+      
+      if (!error && data) return true
+    }
     
-    if (error || !data) return false
-    
-    return true
+    return false
   } catch (error) {
     console.error('Error checking admin status:', error)
     return false
@@ -62,18 +96,45 @@ export async function isAdmin(): Promise<boolean> {
 
 export async function getAdminInfo(): Promise<AdminInfo | null> {
   try {
-    const { userId } = await auth()
+    const authData = await auth()
+    const { userId, sessionClaims } = authData
     if (!userId) return null
+
+    // Direct root super admin user id check
+    if (ROOT_SUPER_ADMIN_USER_IDS.includes(userId)) {
+      return {
+        id: userId,
+        email: 'admin@autolearnspot.com',
+        role: 'super_admin',
+        is_active: true
+      }
+    }
     
-    // Get user email from Clerk
-    const user = await currentUser()
-    if (!user?.emailAddresses || user.emailAddresses.length === 0) return null
+    const sessionEmail = ((sessionClaims as any)?.email || (sessionClaims as any)?.primaryEmail || (sessionClaims as any)?.email_address)?.toLowerCase()
+    let userEmail = sessionEmail
+
+    if (!userEmail) {
+      try {
+        const user = await currentUser()
+        userEmail = user?.emailAddresses?.[0]?.emailAddress?.toLowerCase()
+      } catch (err) {
+        console.warn('Could not fetch Clerk currentUser:', err)
+      }
+    }
     
-    const userEmail = user.emailAddresses[0]?.emailAddress?.toLowerCase()
-    if (!userEmail) return null
-    
-    // Root super admin fallback
-    if (ROOT_SUPER_ADMIN_EMAILS.includes(userEmail)) {
+    // Check authors table
+    if (!userEmail) {
+      const { data: author } = await supabaseAdmin
+        .from('authors')
+        .select('email')
+        .or(`clerk_user_id.eq.${userId},user_id.eq.${userId}`)
+        .maybeSingle()
+      if (author?.email) {
+        userEmail = author.email.toLowerCase()
+      }
+    }
+
+    if (userEmail && ROOT_SUPER_ADMIN_EMAILS.includes(userEmail)) {
       return {
         id: userId,
         email: userEmail,
@@ -83,16 +144,20 @@ export async function getAdminInfo(): Promise<AdminInfo | null> {
     }
 
     // Check database for admin info (use service role to bypass RLS)
-    const { data, error } = await supabaseAdmin
-      .from('admins')
-      .select('*')
-      .eq('email', userEmail)
-      .eq('is_active', true)
-      .maybeSingle()
+    if (userEmail) {
+      const { data, error } = await supabaseAdmin
+        .from('admins')
+        .select('*')
+        .eq('email', userEmail)
+        .eq('is_active', true)
+        .maybeSingle()
+      
+      if (!error && data) {
+        return data as AdminInfo
+      }
+    }
     
-    if (error || !data) return null
-    
-    return data as AdminInfo
+    return null
   } catch (error) {
     console.error('Error getting admin info:', error)
     return null

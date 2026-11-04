@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
         const { data: earlyUserMessage, error: earlyUserMsgError } = await supabase
           .from('alex_messages')
           .insert({
-            conversation_id: conversationId,
+            conversation_id: conversationIdToUse,
             role: 'user',
             content,
             file_ids: fileIds || [],
@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
         await supabase
           .from('alex_messages')
           .insert({
-            conversation_id: conversationId,
+            conversation_id: conversationIdToUse,
             role: 'assistant',
             content: assistantContent,
           })
@@ -275,25 +275,47 @@ export async function POST(request: NextRequest) {
       effectiveFileIds = currentMessageFileIds
     }
 
-    if (!conversationId || !content || !mode) {
-      alexLogger.warn('CHAT', 'Missing required fields', { body })
+    if (!content) {
+      alexLogger.warn('CHAT', 'Missing content field', { body })
       const error = handleAlexError(AlexErrors.INVALID_REQUEST)
-      return NextResponse.json({ error: error.message }, { status: error.statusCode })
+      return NextResponse.json({ error: 'Message content is required' }, { status: 400 })
     }
 
-    // Verify user owns the conversation
-    const { data: conversation, error: convError } = await supabase
-      .from('alex_conversations')
-      .select('*')
-      .eq('id', conversationId)
-      .eq('user_id', userId)
-      .single()
+    const effectiveMode = mode || 'auto';
+    let effectiveConversationId = conversationId;
+    let conversation: any = null;
 
-    if (convError || !conversation) {
-      alexLogger.warn('CHAT', 'Conversation not found', { conversationId, userId })
-      const error = handleAlexError(AlexErrors.CONVERSATION_NOT_FOUND)
-      return NextResponse.json({ error: error.message }, { status: error.statusCode })
+    if (effectiveConversationId) {
+      const { data: existingConv } = await supabase
+        .from('alex_conversations')
+        .select('*')
+        .eq('id', effectiveConversationId)
+        .eq('user_id', userId)
+        .maybeSingle()
+      conversation = existingConv;
     }
+
+    if (!conversation) {
+      // Auto-create conversation for seamless chat in widgets or fresh sessions
+      const { data: newConv, error: newConvError } = await supabase
+        .from('alex_conversations')
+        .insert({
+          user_id: userId,
+          title: content.substring(0, 40) || 'New Conversation',
+          mode: effectiveMode,
+        })
+        .select()
+        .single()
+
+      if (newConvError || !newConv) {
+        alexLogger.error('CHAT', 'Failed to create conversation', { error: newConvError, userId })
+        return NextResponse.json({ error: 'Failed to initialize conversation' }, { status: 500 })
+      }
+      conversation = newConv;
+      effectiveConversationId = newConv.id;
+    }
+
+    const conversationIdToUse = effectiveConversationId;
 
     // Save user message with file IDs (Phase 3A)
     console.log('[DIAGNOSTIC] MESSAGE PERSISTENCE START', {
@@ -308,7 +330,7 @@ export async function POST(request: NextRequest) {
     const { data: userMessage, error: userMsgError } = await supabase
       .from('alex_messages')
       .insert({
-        conversation_id: conversationId,
+        conversation_id: conversationIdToUse,
         role: 'user',
         content,
         file_ids: fileIds || [], // Store file IDs with the message
@@ -365,7 +387,7 @@ export async function POST(request: NextRequest) {
         const { data: updatedConversation, error: updateError } = await supabase
           .from('alex_conversations')
           .update({ title: newTitle })
-          .eq('id', conversationId)
+          .eq('id', conversationIdToUse)
           .select()
           .single()
 
@@ -392,7 +414,7 @@ export async function POST(request: NextRequest) {
     await supabase
       .from('alex_conversations')
       .update({ updated_at: new Date().toISOString() })
-      .eq('id', conversationId)
+      .eq('id', conversationIdToUse)
 
     // Phase 4: Handle memory commands
     const memoryCommand = detectMemoryCommand(content)
@@ -404,7 +426,7 @@ export async function POST(request: NextRequest) {
           await memoryService.createMemory(userId, {
             content: memoryCommand.extractedMemory,
             source: 'explicit',
-            source_conversation_id: conversationId
+            source_conversation_id: conversationIdToUse
           })
           console.log('[Memory Command] Memory created successfully')
         } else if (memoryCommand.type === 'forget' && memoryCommand.extractedMemory) {
@@ -695,7 +717,7 @@ export async function POST(request: NextRequest) {
                   await supabase
                     .from('alex_messages')
                     .insert({
-                      conversation_id: conversationId,
+                      conversation_id: conversationIdToUse,
                       role: 'assistant',
                       content: fullContent,
                       model_used: modelUsed,
@@ -738,7 +760,7 @@ export async function POST(request: NextRequest) {
             await supabase
               .from('alex_messages')
               .insert({
-                conversation_id: conversationId,
+                conversation_id: conversationIdToUse,
                 role: 'assistant',
                 content: fullContent,
                 model_used: modelUsed,

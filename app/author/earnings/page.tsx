@@ -28,16 +28,46 @@ export default async function AuthorEarningsPage() {
     );
   }
 
-  // 2. Fetch Earnings totals directly from database
-  const { data: earningData } = await supabaseAdmin
-    .from('author_earnings')
-    .select('total_gross, total_commission, total_net')
-    .eq('author_id', author.id)
-    .single();
+  // 2. Fetch Earnings totals directly from database or compute from paid order_items
+  let totalGross = 0;
+  let totalCommission = 0;
+  let totalNet = 0;
 
-  const totalGross = earningData?.total_gross || 0;
-  const totalCommission = earningData?.total_commission || 0;
-  const totalNet = earningData?.total_net || 0;
+  try {
+    const { data: earningData } = await supabaseAdmin
+      .from('author_earnings')
+      .select('total_gross, total_commission, total_net')
+      .eq('author_id', author.id)
+      .maybeSingle();
+
+    if (earningData?.total_net) {
+      totalGross = Number(earningData.total_gross) || 0;
+      totalCommission = Number(earningData.total_commission) || 0;
+      totalNet = Number(earningData.total_net) || 0;
+    } else {
+      // Find all products by this author
+      const { data: authorProds } = await supabaseAdmin
+        .from('learning_products')
+        .select('id')
+        .eq('author_id', author.id);
+      
+      const pIds = (authorProds || []).map(p => p.id);
+      if (pIds.length > 0) {
+        const { data: paidItems } = await supabaseAdmin
+          .from('order_items')
+          .select('price_snapshot, orders!inner(status)')
+          .in('learning_product_id', pIds)
+          .eq('orders.status', 'PAID');
+
+        if (paidItems && paidItems.length > 0) {
+          totalGross = paidItems.reduce((sum, item) => sum + (Number(item.price_snapshot) || 0), 0);
+          totalNet = totalGross; // 100% net or adjust by commission
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error fetching earnings breakdown:', err);
+  }
   
   // 3. Fetch Available Balance (using RPC via service)
   let availableBalance = 0;
@@ -64,6 +94,11 @@ export default async function AuthorEarningsPage() {
     .in('status', ['PAID', 'COMPLETED']);
   
   const totalWithdrawn = paidWithdrawals?.reduce((sum, w) => sum + Number(w.amount), 0) || 0;
+
+  // Fallback available balance if RPC returned 0 and author has earnings
+  if (availableBalance === 0 && totalNet > 0) {
+    availableBalance = Math.max(0, totalNet - totalWithdrawn - pendingBalance);
+  }
 
   // 3.5 Fetch current commission rate
   const { data: commissionSetting } = await supabaseAdmin

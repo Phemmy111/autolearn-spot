@@ -55,9 +55,16 @@ export class ProviderManager {
    * Decrypt API key
    */
   private decrypt(encrypted: string): string {
+    if (!encrypted || typeof encrypted !== 'string' || encrypted.trim() === '') {
+      return ''
+    }
     try {
       const key = this.getEncryptionKey()
       const combined = Buffer.from(encrypted, 'base64')
+
+      if (combined.length < 32) {
+        return ''
+      }
 
       const iv = combined.slice(0, 16)
       const authTag = combined.slice(16, 32)
@@ -71,8 +78,8 @@ export class ProviderManager {
 
       return decrypted.toString('utf8')
     } catch (error) {
-      console.error('ALEX Decryption error:', error)
-      throw new Error('Failed to decrypt ALEX provider data')
+      console.warn('ALEX Decryption warning (key may be empty or encrypted with different key):', error)
+      return ''
     }
   }
 
@@ -108,9 +115,15 @@ export class ProviderManager {
           this.providerConfigs.set(providerConfig.id, providerConfig)
 
           // Decrypt API key for the adapter
+          const decryptedKey = this.decrypt(providerConfig.apiKeyEncrypted)
+          if (!decryptedKey && providerConfig.providerType !== 'self_hosted') {
+            console.warn(`[ProviderManager] Provider ${providerConfig.displayName} has no valid API key. Skipping.`)
+            continue
+          }
+
           const configWithDecryptedKey = {
             ...providerConfig,
-            apiKeyEncrypted: this.decrypt(providerConfig.apiKeyEncrypted),
+            apiKeyEncrypted: decryptedKey,
           }
 
           // Create adapter using factory
@@ -125,7 +138,12 @@ export class ProviderManager {
         }
       }
 
-      console.log(`Provider Manager loaded ${configs.length} providers from database`)
+      if (this.registry.getEnabledProviders().length === 0) {
+        console.warn('No active providers with valid keys found in database. Checking environment variables...')
+        await this.initializeFromEnv()
+      }
+
+      console.log(`Provider Manager active providers count: ${this.registry.getEnabledProviders().length}`)
     } catch (error) {
       console.error('Failed to load providers from database:', error)
       // Fall back to environment variables
@@ -137,26 +155,108 @@ export class ProviderManager {
    * Fallback to environment variables for bootstrap
    */
   private async initializeFromEnv(): Promise<void> {
+    const groqKey = process.env.GROQ_API_KEY
+    const geminiKey = process.env.GEMINI_API_KEY
+    const openaiKey = process.env.OPENAI_API_KEY
+    const openrouterKey = process.env.OPENROUTER_API_KEY
+
+    let loadedAny = false
+
+    if (groqKey) {
+      const adapter = ProviderFactory.createProvider({
+        id: 'env-groq',
+        providerName: 'groq-env',
+        displayName: 'Groq (Environment)',
+        providerType: 'groq',
+        apiKeyEncrypted: groqKey,
+        baseUrl: 'https://api.groq.com/openai/v1',
+        currentModel: 'llama-3.3-70b-versatile',
+        isActive: true,
+        priority: 1,
+        healthStatus: 'healthy',
+        fallbackEnabled: true,
+        capabilities: ['chat', 'code', 'workflow'],
+        requestTimeout: 30000,
+        authType: 'bearer',
+        failureCount: 0,
+        consecutiveFailureCount: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      })
+      this.registry.registerProvider(adapter)
+      loadedAny = true
+    }
+
+    if (geminiKey) {
+      const adapter = ProviderFactory.createProvider({
+        id: 'env-gemini',
+        providerName: 'gemini-env',
+        displayName: 'Google Gemini (Environment)',
+        providerType: 'gemini',
+        apiKeyEncrypted: geminiKey,
+        currentModel: 'gemini-2.0-flash',
+        isActive: true,
+        priority: 2,
+        healthStatus: 'healthy',
+        fallbackEnabled: true,
+        capabilities: ['chat', 'code', 'workflow', 'vision'],
+        requestTimeout: 30000,
+        authType: 'api_key',
+        failureCount: 0,
+        consecutiveFailureCount: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      })
+      this.registry.registerProvider(adapter)
+      loadedAny = true
+    }
+
+    if (openaiKey) {
+      const adapter = ProviderFactory.createProvider({
+        id: 'env-openai',
+        providerName: 'openai-env',
+        displayName: 'OpenAI (Environment)',
+        providerType: 'openai',
+        apiKeyEncrypted: openaiKey,
+        baseUrl: 'https://api.openai.com/v1',
+        currentModel: 'gpt-4o-mini',
+        isActive: true,
+        priority: 3,
+        healthStatus: 'healthy',
+        fallbackEnabled: true,
+        capabilities: ['chat', 'code', 'workflow'],
+        requestTimeout: 30000,
+        authType: 'bearer',
+        failureCount: 0,
+        consecutiveFailureCount: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      })
+      this.registry.registerProvider(adapter)
+      loadedAny = true
+    }
+
     const endpoint = process.env.ALEX_SELF_HOSTED_ENDPOINT
     const model = process.env.ALEX_SELF_HOSTED_MODEL
     const apiKey = process.env.ALEX_SELF_HOSTED_API_KEY
 
     if (endpoint && model && apiKey) {
-      console.warn('Using environment variables for provider configuration (database empty)')
-      // Import dynamically to avoid circular dependency
       const { SelfHostedProvider } = await import('./self-hosted-provider')
       const provider = new SelfHostedProvider({
         id: 'env-fallback',
-        name: 'Environment Fallback Provider',
+        name: 'Self-Hosted Fallback Provider',
         endpoint,
         model,
         apiKey,
-        priority: 999, // Lowest priority
+        priority: 999,
         enabled: true,
       })
       this.registry.registerProvider(provider)
-    } else {
-      throw new Error('No provider configuration available - database is empty and environment variables not set')
+      loadedAny = true
+    }
+
+    if (!loadedAny) {
+      console.warn('[ProviderManager] No providers available from database or environment variables.')
     }
   }
 

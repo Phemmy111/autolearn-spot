@@ -127,14 +127,14 @@ const navigation: NavSection[] = [
     ],
   },
   {
-    title: 'AI',
+    title: 'AI & ALEX',
     items: [
-      { label: 'AI / ALEX', href: '/admin/ai', icon: Bot },
-      { label: 'AI Providers', href: '/admin/ai-providers', icon: Bot },
-      { label: 'AI Prompts', href: '/admin/ai-prompts', icon: MessageSquare },
+      { label: 'ALEX Providers', href: '/admin/alex-providers', icon: Bot },
       { label: 'AI Playground', href: '/admin/ai-playground', icon: Sparkles },
+      { label: 'AI Prompts', href: '/admin/ai-prompts', icon: MessageSquare },
+      { label: 'Quiz Providers', href: '/admin/ai-providers', icon: SettingsIcon },
       { label: 'AI Health', href: '/admin/ai-health', icon: HeartPulse },
-      { label: 'AI Cost Controls', href: '/admin/ai-cost-controls', icon: SettingsIcon },
+      { label: 'AI Cost Controls', href: '/admin/ai-cost-controls', icon: DollarSign },
     ],
   },
   {
