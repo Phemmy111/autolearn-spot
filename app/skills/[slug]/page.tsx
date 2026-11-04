@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import { supabaseAdmin } from '@/lib/supabase';
 import { Tag } from 'lucide-react';
 import { DynamicSlider } from '@/components/ui/DynamicSlider';
+import { ALL_SKILLS } from '@/lib/taxonomy';
+import { getSkillSliderMedia } from '@/lib/skill-slider-defaults';
 
 interface PageParams {
   params: Promise<{ slug: string }>;
@@ -12,43 +14,47 @@ interface PageParams {
 export default async function SkillPage({ params }: PageParams) {
   const { slug } = await params;
   
-  // Get skill info
+  // Get skill info from supabase or fallback to taxonomy
   const { data: skill } = await supabaseAdmin
     .from('skills')
     .select('id, name, description')
     .eq('slug', slug)
     .single();
 
-  if (!skill) {
-    // Ideally notFound(), handling fallback for now
-  }
+  const taxonomySkill = ALL_SKILLS.find(s => s.id === slug);
 
   // Fetch slider config for this skill if it exists
-  const { data: sliderConfig } = skill ? await supabaseAdmin
+  const skillId = skill?.id || slug;
+  const { data: sliderConfig } = await supabaseAdmin
     .from('page_sliders')
     .select('*, slider_media(*)')
-    .eq('target_id', `skill:${skill.id}`)
-    .single() : { data: null };
+    .eq('target_id', `skill:${skillId}`)
+    .single();
 
-  const hasSlider = sliderConfig && sliderConfig.slider_media && sliderConfig.slider_media.length > 0;
-  const sortedMedia = hasSlider ? sliderConfig.slider_media.sort((a: any, b: any) => a.order_index - b.order_index) : [];
+  const hasCustomSlider = sliderConfig && sliderConfig.slider_media && sliderConfig.slider_media.length > 0;
+  const sortedCustomMedia = hasCustomSlider ? sliderConfig.slider_media.sort((a: any, b: any) => a.order_index - b.order_index) : [];
+
+  const defaultSlider = getSkillSliderMedia(skillId);
+  const activeMedia = hasCustomSlider ? sortedCustomMedia : defaultSlider.media;
+  const activeTransition = hasCustomSlider ? sliderConfig.transition_style : defaultSlider.transitionStyle;
+  const activeDuration = hasCustomSlider ? sliderConfig.duration_ms : defaultSlider.durationMs;
 
   const products = await getPublishedProductsBySkill(slug);
-  const title = skill?.name || slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  const title = skill?.name || taxonomySkill?.name || slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
   return (
     <div className="min-h-screen bg-brand-bg">
       <div className="bg-[var(--card)] brightness-95 border-b border-brand-border relative overflow-hidden">
-        {hasSlider && (
+        {activeMedia && activeMedia.length > 0 && (
           <div className="absolute inset-0 z-0">
             <DynamicSlider
-              media={sortedMedia}
-              transitionStyle={sliderConfig.transition_style}
-              durationMs={sliderConfig.duration_ms}
-              className="w-full h-full opacity-80"
+              media={activeMedia}
+              transitionStyle={activeTransition}
+              durationMs={activeDuration}
+              className="w-full h-full opacity-25"
               showIndicators={false}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-brand-bg/30 via-brand-bg/50 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-brand-bg/90 via-brand-bg/80 to-brand-bg/50" />
           </div>
         )}
 

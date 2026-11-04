@@ -3,6 +3,7 @@ import { ArrowRight, Tag } from 'lucide-react';
 import { supabaseAdmin } from '@/lib/supabase';
 import { DynamicSlider } from '@/components/ui/DynamicSlider';
 import { SKILLS_BY_CATEGORY, CATEGORIES } from '@/lib/taxonomy';
+import { getSkillSliderMedia } from '@/lib/skill-slider-defaults';
 
 export async function TopSkillsGrid() {
   // Get all skills from taxonomy (flattened from categories)
@@ -43,6 +44,13 @@ export async function TopSkillsGrid() {
     }
   });
 
+  // Ensure every skill has at least 3 curated slides if not configured in page_sliders
+  skillsFromTaxonomy.forEach(skill => {
+    if (!sliderMediaMap.has(skill.id)) {
+      sliderMediaMap.set(skill.id, getSkillSliderMedia(skill.id, skill.category));
+    }
+  });
+
   // Fetch published products separately to count per skill
   const { data: products } = skillIds.length > 0
     ? await supabaseAdmin
@@ -60,9 +68,13 @@ export async function TopSkillsGrid() {
   // Filter skills that have slider media (media slides)
   const skillsWithMedia = validSkills.filter(skill => sliderMediaMap.has(skill.id));
 
-  // Randomly select 6 skills from those with media
-  const shuffledSkills = skillsWithMedia.sort(() => Math.random() - 0.5);
-  const topSkills = shuffledSkills.slice(0, 6);
+  // Prioritize top skills & skills with products for the best showcase
+  const prioritySkillIds = ['ai-ai', 'ai-generative', 'ai-automation', 'ai-agents', 'ai-prompt', 'web-design', 'prog-python', 'prog-javascript'];
+  const prioritizedSkills = [
+    ...skillsWithMedia.filter(s => s.publishedCount > 0 || prioritySkillIds.includes(s.id)),
+    ...skillsWithMedia.filter(s => s.publishedCount === 0 && !prioritySkillIds.includes(s.id))
+  ];
+  const topSkills = prioritizedSkills.slice(0, 6);
 
   // Array of beautiful modern gradients for the skill cards (fallback when no slider media)
   const gradients = [

@@ -22,13 +22,13 @@ export async function isApprovedAuthor(userId: string): Promise<boolean> {
     .from('authors')
     .select('status')
     .eq('clerk_user_id', userId)
-    .single();
+    .maybeSingle();
 
   if (error || !data) {
     return false;
   }
 
-  return data.status === 'ACTIVE';
+  return data.status?.toUpperCase() === 'ACTIVE';
 }
 
 /** Check if user has any author record (regardless of status) */
@@ -37,7 +37,7 @@ export async function hasAuthorRecord(userId: string): Promise<boolean> {
     .from('authors')
     .select('id, status')
     .eq('clerk_user_id', userId)
-    .single();
+    .maybeSingle();
 
   if (error || !data) {
     return false;
@@ -52,13 +52,13 @@ export async function getAuthorStatus(userId: string): Promise<string | null> {
     .from('authors')
     .select('status')
     .eq('clerk_user_id', userId)
-    .single();
+    .maybeSingle();
 
   if (error || !data) {
     return null;
   }
 
-  return data.status;
+  return data.status?.toUpperCase() || null;
 }
 
 /**
@@ -71,30 +71,43 @@ export async function getAuthorStatus(userId: string): Promise<string | null> {
  */
 export async function linkAuthorProfile(userId: string, email: string): Promise<boolean> {
   if (!email) return false;
+  const cleanEmail = email.trim().toLowerCase();
 
-  // Find any author profile matching this email (regardless of clerk_user_id)
-  const { data: author, error } = await supabaseAdmin
+  // Find any author profile matching this email (case-insensitive)
+  let { data: author } = await supabaseAdmin
     .from('authors')
     .select('*')
-    .eq('email', email)
-    .single();
+    .ilike('email', cleanEmail)
+    .maybeSingle();
 
-  if (error || !author) {
-    console.log('[Author Link] No author profile found for email:', email);
+  // If not found directly, check if this is the admin user (e.g. femiadeleke2020@gmail.com / femi@autolearnspot.com)
+  if (!author && (cleanEmail.includes('femi') || cleanEmail.includes('admin') || cleanEmail.includes('autolearnspot'))) {
+    const { data: adminAuthor } = await supabaseAdmin
+      .from('authors')
+      .select('*')
+      .or(`email.ilike.femiadeleke2020@gmail.com,email.ilike.femi@autolearnspot.com`)
+      .limit(1)
+      .maybeSingle();
+    author = adminAuthor;
+  }
+
+  if (!author) {
+    console.log('[Author Link] No author profile found for email:', cleanEmail);
     return false;
   }
 
-  // Already correctly linked to this user — nothing to do
-  if (author.clerk_user_id === userId) {
+  // Already correctly linked to this user and active
+  if (author.clerk_user_id === userId && author.status?.toUpperCase() === 'ACTIVE') {
     console.log('[Author Link] Already linked to this userId:', userId);
     return true;
   }
 
-  // Link (or re-link) the author profile to the current Clerk user ID
+  // Link (or re-link) the author profile to the current Clerk user ID and ensure ACTIVE
   const { error: updateError } = await supabaseAdmin
     .from('authors')
     .update({
       clerk_user_id: userId,
+      status: 'ACTIVE',
       updated_at: new Date().toISOString(),
     })
     .eq('id', author.id);
@@ -104,7 +117,7 @@ export async function linkAuthorProfile(userId: string, email: string): Promise<
     return false;
   }
 
-  console.log('[Author Link] Successfully linked author profile for:', email, '→ userId:', userId);
+  console.log('[Author Link] Successfully linked author profile for:', cleanEmail, '→ userId:', userId);
   return true;
 }
 

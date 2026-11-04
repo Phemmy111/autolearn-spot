@@ -3,6 +3,7 @@ import { Tag, ArrowRight, Home, ChevronRight, Search } from 'lucide-react';
 import { supabaseAdmin } from '@/lib/supabase';
 import { DynamicSlider } from '@/components/ui/DynamicSlider';
 import { SKILLS_BY_CATEGORY, CATEGORIES } from '@/lib/taxonomy';
+import { getSkillSliderMedia } from '@/lib/skill-slider-defaults';
 import SkillsSearch from './SkillsSearch';
 
 export const dynamic = 'force-dynamic';
@@ -43,6 +44,13 @@ export default async function SkillsPage() {
         transitionStyle: slider.transition_style,
         durationMs: slider.duration_ms
       });
+    }
+  });
+
+  // Ensure every skill has at least 3 curated slides if not configured in page_sliders
+  skillsFromTaxonomy.forEach(skill => {
+    if (!sliderMediaMap.has(skill.id)) {
+      sliderMediaMap.set(skill.id, getSkillSliderMedia(skill.id, skill.category));
     }
   });
 
