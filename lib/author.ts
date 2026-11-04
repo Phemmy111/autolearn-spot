@@ -130,7 +130,44 @@ export async function requireAuthor() {
   }
   const approved = await isApprovedAuthor(userId);
   if (!approved) {
-    return NextResponse.json({ error: 'Author profile not approved' }, { status: 403 });
+    return NextResponse.json({ error: 'Forbidden: author access required' }, { status: 403 });
   }
-  return null;
+  return { userId };
+}
+
+/** Check if author has accepted the current terms version */
+export async function hasAcceptedCurrentTerms(userId: string, currentVersion: string = '2026-09-01'): Promise<boolean> {
+  const { data, error } = await supabaseAdmin
+    .from('authors')
+    .select('accepted_terms_version, accepted_terms_at')
+    .eq('clerk_user_id', userId)
+    .limit(1);
+
+  if (error || !data || data.length === 0) {
+    return false;
+  }
+
+  return data[0].accepted_terms_version === currentVersion && data[0].accepted_terms_at !== null;
+}
+
+/** Server-side guard to ensure author has accepted current terms */
+export async function requireAcceptedTerms(currentVersion: string = '2026-09-01') {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const hasAccepted = await hasAcceptedCurrentTerms(userId, currentVersion);
+  if (!hasAccepted) {
+    return NextResponse.json(
+      { 
+        error: 'Terms acceptance required',
+        message: 'You must accept the current Author Terms & Conditions before creating products.',
+        redirectTo: '/author/terms'
+      }, 
+      { status: 403 }
+    );
+  }
+
+  return { userId };
 }
