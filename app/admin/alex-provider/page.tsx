@@ -165,16 +165,30 @@ export default function AlexProviderPage() {
   const handleFetchModels = async (providerId: string) => {
     setFetchingModels(providerId)
     try {
-      const res = await fetch(`/api/admin/alex-provider/models?id=${providerId}`, {
-        method: 'POST',
-      })
+      let res: Response
+      if (editingProvider && editingProvider.id === providerId && editApiKey) {
+        // If editing and user typed a key in the form, fetch using that key directly
+        res = await fetch('/api/admin/alex-provider/models/fetch-models', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            provider_type: editingProvider.provider_type,
+            api_key: editApiKey,
+            base_url: editingProvider.base_url,
+          }),
+        })
+      } else {
+        res = await fetch(`/api/admin/alex-provider/models?id=${providerId}`, {
+          method: 'POST',
+        })
+      }
 
       const data = await res.json()
       if (data.models && data.models.length > 0) {
         setAvailableModels(data.models)
         setShowModelSelector(true)
       } else {
-        alert('No models found or failed to fetch models')
+        alert(data.error || data.details || 'No models found or failed to fetch models')
       }
     } catch (err: any) {
       alert(`Failed to fetch models: ${err.message}`)

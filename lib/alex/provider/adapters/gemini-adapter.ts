@@ -103,7 +103,7 @@ export class GeminiAdapter implements AIProvider {
 
     try {
       const requestBody = this.formatRequest(request)
-      const url = `${this.baseUrl}/models/${normalizedModel}:streamGenerateContent?key=${this.apiKey}`
+      const url = `${this.baseUrl}/models/${normalizedModel}:streamGenerateContent?alt=sse&key=${this.apiKey}`
 
       const response = await fetch(url, {
         method: 'POST',

@@ -74,6 +74,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Provider type is required' }, { status: 400 })
     }
 
+    // Get provider config
+    const config = PROVIDER_CONFIGS[provider_type]
+    if (!config) {
+      return NextResponse.json({ error: 'Invalid provider type' }, { status: 400 })
+    }
+
     // For Gemini, fetch from Google's official API
     if (provider_type === 'gemini') {
       if (!api_key) {
@@ -123,12 +129,6 @@ export async function POST(request: Request) {
       }
     }
 
-    // Get provider config
-    const config = PROVIDER_CONFIGS[provider_type]
-    if (!config) {
-      return NextResponse.json({ error: 'Invalid provider type' }, { status: 400 })
-    }
-
     // For OpenAI-compatible providers, use provided base URL
     const baseUrl = base_url || config.baseUrl
     if (!baseUrl) {
@@ -149,26 +149,42 @@ export async function POST(request: Request) {
       headers['Authorization'] = `Bearer ${api_key}`
     }
 
-    // Fetch models
-    const response = await fetch(`${baseUrl}/models`, {
-      headers,
-      signal: AbortSignal.timeout(30000),
-    })
+    try {
+      const response = await fetch(config.modelsEndpoint, {
+        headers,
+        signal: AbortSignal.timeout(30000),
+      })
 
-    if (!response.ok) {
-      const error = await response.text()
-      return NextResponse.json({ error: `Failed to fetch models: ${response.status} - ${error}` }, { status: response.status })
+      if (!response.ok) {
+        const error = await response.text()
+        let errorMessage = `Failed to fetch models from ${provider_type}: ${response.status}`
+        try {
+          const errorJson = JSON.parse(error)
+          if (errorJson.error?.message) {
+            errorMessage = errorJson.error.message
+          }
+        } catch {
+          // Keep original error text if not JSON
+        }
+        return NextResponse.json({ error: errorMessage }, { status: response.status })
+      }
+
+      const data = await response.json()
+      const models = data.data?.map((m: any) => m.id) || []
+
+      return NextResponse.json({ models })
+    } catch (error: any) {
+      console.error(`Error fetching models from ${provider_type}:`, error)
+      if (error.name === 'AbortError') {
+        return NextResponse.json({ error: `Request timeout: Failed to fetch models from ${provider_type}` }, { status: 504 })
+      }
+      return NextResponse.json({ error: error.message || 'Failed to fetch models' }, { status: 500 })
     }
-
-    const data = await response.json()
-    const models = data.data?.map((m: any) => m.id) || []
-
-    return NextResponse.json({ models })
   } catch (error: any) {
     if (error.message?.includes('Unauthorized')) {
       return NextResponse.json({ error: 'Unauthorized: Super admin access required' }, { status: 403 })
     }
-    console.error('Error fetching models for new provider:', error)
-    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
+    console.error('Unexpected error fetching models:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
