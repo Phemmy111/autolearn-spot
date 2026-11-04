@@ -43,8 +43,8 @@ export interface CartDetails {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /**
- * Get or create a cart for the given Clerk userId.
- * Currency defaults to 'NGN'. Once set it must be consistent across all items.
+ * Get or create a cart for the given Clerk userId or guestId.
+ * Currency defaults to 'NGN'.
  */
 export async function createOrGetCart(
   userId: string,
@@ -53,7 +53,7 @@ export async function createOrGetCart(
   // Try existing cart
   const { data: existing, error: fetchErr } = await supabaseAdmin
     .from('carts')
-    .select('id, currency')
+    .select('id')
     .eq('user_id', userId)
     .maybeSingle();
 
@@ -62,13 +62,13 @@ export async function createOrGetCart(
     return null;
   }
 
-  if (existing) return existing;
+  if (existing) return { id: existing.id, currency };
 
   // Create new cart
   const { data: created, error: createErr } = await supabaseAdmin
     .from('carts')
-    .insert({ user_id: userId, currency })
-    .select('id, currency')
+    .insert({ user_id: userId })
+    .select('id')
     .single();
 
   if (createErr) {
@@ -76,7 +76,7 @@ export async function createOrGetCart(
     return null;
   }
 
-  return created;
+  return { id: created.id, currency };
 }
 
 /**
@@ -85,7 +85,7 @@ export async function createOrGetCart(
 export async function getCartDetails(userId: string): Promise<CartDetails | null> {
   const { data: cart, error: cartErr } = await supabaseAdmin
     .from('carts')
-    .select('id, user_id, currency, created_at, updated_at')
+    .select('id, user_id, created_at, updated_at')
     .eq('user_id', userId)
     .maybeSingle();
 
@@ -136,9 +136,11 @@ export async function getCartDetails(userId: string): Promise<CartDetails | null
 
   const rows = (items ?? []) as unknown as CartItemRow[];
   const subtotal = rows.reduce((sum, row) => sum + (row.learning_products?.price ?? 0), 0);
+  const currency = rows[0]?.learning_products?.currency || 'NGN';
 
   return {
     ...cart,
+    currency,
     items: rows,
     subtotal,
     item_count: rows.length,
@@ -176,18 +178,27 @@ export async function addProductToCart(
   }
 
   // Get or create cart
-  const cart = await createOrGetCart(userId, product.currency);
+  const cart = await createOrGetCart(userId, product.currency || 'NGN');
   if (!cart) {
     return { success: false, error: 'Failed to create or retrieve cart', status: 500 };
   }
 
-  // Enforce currency consistency
-  if (cart.currency !== product.currency) {
-    return {
-      success: false,
-      error: `Currency mismatch: cart is ${cart.currency}, product is ${product.currency}`,
-      status: 422,
-    };
+  // Enforce currency consistency with existing cart items
+  const { data: existingItems } = await supabaseAdmin
+    .from('cart_items')
+    .select('learning_products(currency)')
+    .eq('cart_id', cart.id)
+    .limit(1);
+
+  if (existingItems && existingItems.length > 0) {
+    const existingCurrency = (existingItems[0] as any).learning_products?.currency;
+    if (existingCurrency && product.currency && existingCurrency !== product.currency) {
+      return {
+        success: false,
+        error: `Currency mismatch: cart is ${existingCurrency}, product is ${product.currency}`,
+        status: 422,
+      };
+    }
   }
 
   // Insert (unique constraint prevents duplicates; ON CONFLICT DO NOTHING)

@@ -4,13 +4,19 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
+import { cookies } from 'next/headers';
 import { removeCartItem } from '@/lib/cart-service';
 
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ itemId: string }> }
 ) {
-  const { userId } = await auth();
+  let { userId } = await auth();
+  if (!userId) {
+    const cookieStore = await cookies();
+    userId = cookieStore.get('guest_cart_id')?.value || null;
+  }
+
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

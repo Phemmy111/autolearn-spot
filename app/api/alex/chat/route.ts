@@ -251,23 +251,10 @@ export async function POST(request: NextRequest) {
     let effectiveFileIds: string[] = []
 
     try {
-      // Fetch all files associated with this conversation
-      const { data: conversationFiles, error: convFilesError } = await supabase
-        .from('alex_files')
-        .select('id')
-        .eq('conversation_id', conversationId)
-        .eq('user_id', userId)
-
-      if (!convFilesError && conversationFiles) {
-        persistedConversationFileIds = conversationFiles.map(f => f.id)
-      }
-
-      // If current message has file IDs, use only those (new files for this message)
-      // Otherwise, use persisted conversation files (continuing from previous messages)
       if (currentMessageFileIds.length > 0) {
         effectiveFileIds = currentMessageFileIds
       } else {
-        effectiveFileIds = persistedConversationFileIds
+        effectiveFileIds = []
       }
 
       console.log('[FILE RESOLUTION DIAGNOSTICS]', {
@@ -519,10 +506,21 @@ export async function POST(request: NextRequest) {
       }
 
       if (files && files.length > 0) {
+        // Normalize column aliases (file_name/original_filename, file_type/mime_type)
+        const normalizedFiles = files.map(f => ({
+          ...f,
+          original_filename: f.original_filename || f.file_name || 'file',
+          file_name: f.file_name || f.original_filename || 'file',
+          mime_type: f.mime_type || f.file_type || 'application/octet-stream',
+          file_type: f.file_type || f.mime_type || 'application/octet-stream',
+          status: f.status || 'ready',
+          extraction_status: f.extraction_status || 'completed'
+        }))
+
         // Filter files to only include those that are ready for context
         // Images are ready immediately; text files are ready when extraction is completed or has text
-        attachedFiles = files.filter(f =>
-          f.mime_type.startsWith('image/') || (f.extracted_text && f.extracted_text.trim().length > 0) || f.extraction_status === 'completed'
+        attachedFiles = normalizedFiles.filter(f =>
+          (f.mime_type && f.mime_type.startsWith('image/')) || (f.extracted_text && f.extracted_text.trim().length > 0) || f.extraction_status === 'completed'
         )
       } else {
         attachedFiles = []

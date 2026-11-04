@@ -139,33 +139,14 @@ export async function POST(request: Request) {
         .from('alex_files')
         .insert({
           user_id: userId,
-          conversation_id: finalConversationId,
-          original_filename: file.name,
-          storage_path: storagePath,
-          mime_type: file.type,
+          file_name: file.name,
+          file_type: file.type || 'image/png',
           file_size: file.size,
-          status: 'ready',
-          extraction_status: 'completed',
+          storage_path: storagePath,
           extracted_text: visualDescription,
-          metadata: {
-            fileName: file.name,
-            fileType: file.type,
-            fileSize: file.size,
-            extractedAt: new Date().toISOString()
-          }
         })
         .select()
         .single()
-
-      console.log('[DIAGNOSTIC] IMAGE DATABASE INSERT', {
-        fileId,
-        dbSuccess: !imageDbError,
-        dbError: imageDbError?.message,
-        recordId: imageFileRecord?.id,
-        finalStatus: imageFileRecord?.status,
-        finalExtractionStatus: imageFileRecord?.extraction_status,
-        hasExtractedText: !!imageFileRecord?.extracted_text
-      })
 
       if (imageDbError) {
         console.error('Database error for image:', imageDbError)
@@ -174,13 +155,17 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: imageDbError.message }, { status: 500 })
       }
 
-      fileRecord = imageFileRecord
+      fileRecord = {
+        ...imageFileRecord,
+        original_filename: imageFileRecord.file_name,
+        mime_type: imageFileRecord.file_type,
+        status: 'ready',
+        extraction_status: 'completed',
+      }
 
       console.log('[Files Route] Image file ready immediately', {
         fileId: fileRecord.id,
         filename: file.name,
-        status: fileRecord.status,
-        extraction_status: fileRecord.extraction_status
       })
 
       return NextResponse.json({
@@ -229,17 +214,11 @@ export async function POST(request: Request) {
         .from('alex_files')
         .insert({
           user_id: userId,
-          conversation_id: finalConversationId,
-          original_filename: file.name,
-          storage_path: storagePath,
-          mime_type: file.type,
+          file_name: file.name,
+          file_type: file.type || 'text/plain',
           file_size: file.size,
+          storage_path: storagePath,
           extracted_text: extractedText,
-          page_count: pageCount,
-          status: 'ready',
-          extraction_status: extractionStatus,
-          extraction_error: extractionError,
-          metadata
         })
         .select()
         .single()
@@ -251,7 +230,13 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: textDbError.message }, { status: 500 })
       }
 
-      fileRecord = textFileRecord
+      fileRecord = {
+        ...textFileRecord,
+        original_filename: textFileRecord.file_name,
+        mime_type: textFileRecord.file_type,
+        status: 'ready',
+        extraction_status: 'completed',
+      }
 
       // Trigger indexing in the background (non-critical)
       indexFile(fileRecord.id, userId).catch(err => {
@@ -261,8 +246,6 @@ export async function POST(request: Request) {
       console.log('[Files Route] Document file ready immediately', {
         fileId: fileRecord.id,
         filename: file.name,
-        status: fileRecord.status,
-        extraction_status: fileRecord.extraction_status,
         textLength: extractedText.length
       })
 
