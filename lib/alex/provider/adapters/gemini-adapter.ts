@@ -33,33 +33,69 @@ export class GeminiAdapter implements AIProvider {
     return this.config.capabilities.includes('streaming')
   }
 
+  // Resilient fallback order for Gemini models in case of traffic spikes / deprecations
+  private getCandidateModels(requestedModel: string): string[] {
+    const normalized = requestedModel.startsWith('models/') ? requestedModel.replace('models/', '') : requestedModel
+    const fallbackList = [
+      normalized,
+      'gemini-flash-lite-latest',
+      'gemini-3.6-flash',
+      'gemini-3.5-flash',
+      'gemini-3.5-flash-lite',
+      'gemini-3.1-flash-lite',
+      'gemini-3-flash-preview',
+      'gemini-flash-latest'
+    ]
+    return fallbackList.filter((m, idx, arr) => arr.indexOf(m) === idx)
+  }
+
   async generate(request: AIRequest): Promise<AIResponse> {
     const model = request.model || this.config.currentModel
     if (!model) {
       throw new Error('No model specified')
     }
 
-    // Ensure model doesn't have 'models/' prefix (Google API returns with prefix, but we normalize it)
-    const normalizedModel = model.startsWith('models/') ? model.replace('models/', '') : model
+    const candidateModels = this.getCandidateModels(model)
+    let response: Response | null = null
+    let selectedModel = candidateModels[0]
+    let lastError = ''
 
-    const requestBody = this.formatRequest(request)
-    const url = `${this.baseUrl}/models/${normalizedModel}:generateContent?key=${this.apiKey}`
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
-      signal: AbortSignal.timeout(this.config.requestTimeout || 180000), // Increased to 3 minutes for vision analysis
-    })
-
-    if (!response.ok) {
-      const error = await response.text()
-      // Try to parse as JSON for better error classification
-      let errorMessage = `API error: ${response.status} - ${error}`
+    for (const currentModel of candidateModels) {
       try {
-        const errorJson = JSON.parse(error)
+        const requestBody = this.formatRequest(request)
+        const url = `${this.baseUrl}/models/${currentModel}:generateContent?key=${this.apiKey}`
+
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+          signal: AbortSignal.timeout(this.config.requestTimeout || 180000),
+        })
+
+        if (res.ok) {
+          response = res
+          selectedModel = currentModel
+          break
+        }
+
+        const error = await res.text()
+        lastError = error
+        console.warn(`[GeminiAdapter generate] Model ${currentModel} returned ${res.status}: ${error.substring(0, 100)}, attempting fallback...`)
+        if (![404, 429, 500, 503].includes(res.status)) {
+          break
+        }
+      } catch (fetchErr: any) {
+        lastError = fetchErr.message
+        console.warn(`[GeminiAdapter generate] Error with model ${currentModel}: ${fetchErr.message}`)
+      }
+    }
+
+    if (!response || !response.ok) {
+      let errorMessage = `API error: ${lastError}`
+      try {
+        const errorJson = JSON.parse(lastError)
         if (errorJson.error?.message) {
           errorMessage = errorJson.error.message
         } else if (errorJson.message) {
@@ -76,7 +112,7 @@ export class GeminiAdapter implements AIProvider {
 
     return {
       content: candidate?.content?.parts?.[0]?.text || '',
-      model: normalizedModel,
+      model: selectedModel,
       usage: data.usageMetadata ? {
         promptTokens: data.usageMetadata.promptTokenCount,
         completionTokens: data.usageMetadata.candidatesTokenCount,
@@ -96,30 +132,49 @@ export class GeminiAdapter implements AIProvider {
       throw new Error('No model specified')
     }
 
-    // Ensure model doesn't have 'models/' prefix (Google API returns with prefix, but we normalize it)
-    const normalizedModel = model.startsWith('models/') ? model.replace('models/', '') : model
-
-    yield { type: 'start', data: { model: normalizedModel } }
+    const candidateModels = this.getCandidateModels(model)
 
     try {
-      const requestBody = this.formatRequest(request)
-      const url = `${this.baseUrl}/models/${normalizedModel}:streamGenerateContent?alt=sse&key=${this.apiKey}`
+      let response: Response | null = null
+      let selectedModel = candidateModels[0]
+      let lastError = ''
 
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-        signal: AbortSignal.timeout(this.config.requestTimeout || 180000), // Increased to 3 minutes for vision analysis
-      })
-
-      if (!response.ok) {
-        const error = await response.text()
-        // Try to parse as JSON for better error classification
-        let errorMessage = `API error: ${response.status} - ${error}`
+      for (const currentModel of candidateModels) {
         try {
-          const errorJson = JSON.parse(error)
+          const requestBody = this.formatRequest(request)
+          const url = `${this.baseUrl}/models/${currentModel}:streamGenerateContent?alt=sse&key=${this.apiKey}`
+
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+            signal: AbortSignal.timeout(this.config.requestTimeout || 180000),
+          })
+
+          if (res.ok) {
+            response = res
+            selectedModel = currentModel
+            break
+          }
+
+          const error = await res.text()
+          lastError = error
+          console.warn(`[GeminiAdapter stream] Model ${currentModel} returned ${res.status}: ${error.substring(0, 100)}, attempting fallback...`)
+          if (![404, 429, 500, 503].includes(res.status)) {
+            break
+          }
+        } catch (fetchErr: any) {
+          lastError = fetchErr.message
+          console.warn(`[GeminiAdapter stream] Error with model ${currentModel}: ${fetchErr.message}`)
+        }
+      }
+
+      if (!response || !response.ok) {
+        let errorMessage = `API error: ${lastError}`
+        try {
+          const errorJson = JSON.parse(lastError)
           if (errorJson.error?.message) {
             errorMessage = errorJson.error.message
           } else if (errorJson.message) {
@@ -130,6 +185,8 @@ export class GeminiAdapter implements AIProvider {
         }
         throw new Error(errorMessage)
       }
+
+      yield { type: 'start', data: { model: selectedModel } }
 
       const reader = response.body?.getReader()
       if (!reader) {
