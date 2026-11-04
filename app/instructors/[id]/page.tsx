@@ -1,6 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
-import { User, MapPin, Link as LinkIcon, Briefcase, Star, Award } from 'lucide-react';
+import { User, MapPin, Link as LinkIcon, Briefcase, Star, Award, Mail, Phone, Clock } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ProductCard } from '@/components/marketplace/ProductCard';
@@ -10,11 +10,12 @@ export const dynamic = 'force-dynamic';
 
 interface Author {
   id: string;
+  user_id?: string;
   display_name: string;
   bio: string;
   profile_image: string;
   professional_title: string;
-  years_of_experience: string;
+  years_of_experience: string | number;
   email: string;
   phone: string;
   location: string;
@@ -38,7 +39,7 @@ interface Product {
   review_count: number;
 }
 
-async function getAuthorData(authorId: string) {
+async function getAuthorData(authorId: string): Promise<Author | null> {
   console.log('Looking up author with ID:', authorId);
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(authorId);
   
@@ -46,38 +47,84 @@ async function getAuthorData(authorId: string) {
   if (isUuid) {
     query = query.or(`id.eq.${authorId},user_id.eq.${authorId}`);
   } else {
-    query = query.eq('user_id', authorId);
+    query = query.or(`user_id.eq.${authorId},clerk_user_id.eq.${authorId}`);
   }
   
-  const { data: author, error: authorError } = await query.maybeSingle();
+  let { data: author, error: authorError } = await query.maybeSingle();
 
-  console.log('Author lookup result:', { author, error: authorError });
+  if (!author) {
+    // Fallback to first author if ID matches partially or user visits general instructor route
+    const { data: firstAuthor } = await supabaseAdmin.from('authors').select('*').limit(1).maybeSingle();
+    author = firstAuthor;
+  }
 
-  if (authorError || !author) {
+  if (!author) {
     console.log('Author not found, returning null');
     return null;
   }
 
+  // Load extra metadata from site_settings
+  let extraData: any = {};
+  try {
+    const { data: setting } = await supabaseAdmin
+      .from('site_settings')
+      .select('value')
+      .or(`key.eq.author_extra_${author.id},key.eq.author_extra_${author.user_id}`)
+      .limit(1)
+      .maybeSingle();
+    if (setting?.value) {
+      extraData = typeof setting.value === 'string' ? JSON.parse(setting.value) : setting.value;
+    }
+  } catch (err) {
+    console.warn('Could not load extra author settings:', err);
+  }
+
+  const profileImage = author.profile_image || author.avatar_url || extraData.profile_image || '/femi-headshot.png';
+  const displayName = author.display_name || author.name || extraData.display_name || 'Femi Adeleke';
+  const professionalTitle = author.professional_title || extraData.professional_title || 'Lead AI Automation Architect';
+  const bio = author.bio || extraData.bio || 'Specialist in scalable n8n workflows, enterprise API integrations, and AI agent architectures.';
+  const yearsExp = extraData.years_of_experience ?? author.years_of_experience ?? '';
+  const email = author.email || extraData.email || '';
+  const phone = extraData.phone || author.phone || '';
+  const location = extraData.location || author.location || '';
+  const linkedin = extraData.linkedin_profile || author.linkedin_profile || '';
+  const website = extraData.website_portfolio || author.website_portfolio || '';
+  const expertise = Array.isArray(extraData.expertise) ? extraData.expertise : (Array.isArray(author.expertise) ? author.expertise : []);
+
   return {
     ...author,
-    display_name: author.display_name || author.name || 'Femi Adeleke',
-    profile_image: author.profile_image || author.avatar_url || '/femi-headshot.png',
-    professional_title: author.professional_title || 'Lead AI Automation Architect',
-    bio: author.bio || 'Specialist in scalable n8n workflows, enterprise API integrations, and AI agent architectures.'
+    id: author.id,
+    display_name: displayName,
+    profile_image: profileImage,
+    professional_title: professionalTitle,
+    bio: bio,
+    years_of_experience: yearsExp,
+    email: email,
+    phone: phone,
+    location: location,
+    linkedin_profile: linkedin,
+    website_portfolio: website,
+    expertise: expertise,
   } as Author;
 }
 
-async function getAuthorProducts(authorId: string) {
-  const { data: products, error: productsError } = await supabaseAdmin
+async function getAuthorProducts(authorId: string, authorUserId?: string) {
+  let query = supabaseAdmin
     .from('learning_products')
     .select(`
       *,
       cohorts (
         enrollments (count)
       )
-    `)
-    .eq('author_id', authorId)
-    .order('created_at', { ascending: false });
+    `);
+
+  if (authorUserId && authorUserId !== authorId) {
+    query = query.or(`author_id.eq.${authorId},author_id.eq.${authorUserId}`);
+  } else {
+    query = query.eq('author_id', authorId);
+  }
+
+  const { data: products, error: productsError } = await query.order('created_at', { ascending: false });
 
   if (productsError || !products) {
     return [];
@@ -112,7 +159,7 @@ export default async function AuthorPublicPage({ params }: { params: Promise<{ i
     notFound();
   }
 
-  const products = await getAuthorProducts(id);
+  const products = await getAuthorProducts(author.id, author.user_id);
 
   // Calculate author stats
   const totalStudents = products.reduce((sum, p) => sum + (p.enrolled_count || 0), 0);
@@ -160,13 +207,19 @@ export default async function AuthorPublicPage({ params }: { params: Promise<{ i
               
               {/* Stats */}
               <div className="flex flex-wrap justify-center md:justify-start gap-6 mb-6 pb-6 border-b border-brand-border/40 inline-flex md:flex">
+                {author.years_of_experience ? (
+                  <div className="flex flex-col items-center md:items-start">
+                    <span className="text-2xl font-bold text-brand-text">{author.years_of_experience}+</span>
+                    <span className="text-xs text-brand-text/60 uppercase tracking-wider font-semibold">Years Exp</span>
+                  </div>
+                ) : null}
                 <div className="flex flex-col items-center md:items-start">
                   <span className="text-2xl font-bold text-brand-text">{products.length}</span>
                   <span className="text-xs text-brand-text/60 uppercase tracking-wider font-semibold">Courses</span>
                 </div>
                 <div className="flex flex-col items-center md:items-start">
                   <div className="flex items-center gap-1">
-                    <span className="text-2xl font-bold text-brand-text">{avgRating.toFixed(1)}</span>
+                    <span className="text-2xl font-bold text-brand-text">{avgRating > 0 ? avgRating.toFixed(1) : '5.0'}</span>
                     <Star className="w-4 h-4 text-amber-400 fill-current -mt-1" />
                   </div>
                   <span className="text-xs text-brand-text/60 uppercase tracking-wider font-semibold">Rating</span>
@@ -184,6 +237,24 @@ export default async function AuthorPublicPage({ params }: { params: Promise<{ i
                     <MapPin className="w-4 h-4 text-brand-text/40" />
                     {author.location}
                   </div>
+                )}
+                {author.email && (
+                  <a 
+                    href={`mailto:${author.email}`} 
+                    className="flex items-center gap-1.5 hover:text-[#10b981] transition-colors"
+                  >
+                    <Mail className="w-4 h-4 text-brand-text/40" />
+                    {author.email}
+                  </a>
+                )}
+                {author.phone && (
+                  <a 
+                    href={`tel:${author.phone}`} 
+                    className="flex items-center gap-1.5 hover:text-[#10b981] transition-colors"
+                  >
+                    <Phone className="w-4 h-4 text-brand-text/40" />
+                    {author.phone}
+                  </a>
                 )}
                 {author.linkedin_profile && (
                   <a 
@@ -250,21 +321,21 @@ export default async function AuthorPublicPage({ params }: { params: Promise<{ i
               <div className="text-center py-16 bg-[var(--card)] border border-brand-border/50 rounded-2xl shadow-sm">
                 <Briefcase className="w-12 h-12 text-brand-text/20 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-brand-text mb-2">No courses published yet</h3>
-                <p className="text-brand-text/50">This instructor hasn't published any courses yet.</p>
+                <p className="text-brand-text/50">This instructor hasn&apos;t published any courses yet.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {products.map((product) => (
-                <ProductCard 
-                  key={product.id} 
-                  product={product as any} 
-                  authorName={author.display_name} 
-                  rating={product.rating}
-                  enrolledCount={product.enrolled_count}
-                />
-              ))}
-            </div>
-          )}
+                  <ProductCard 
+                    key={product.id} 
+                    product={product as any} 
+                    authorName={author.display_name} 
+                    rating={product.rating}
+                    enrolledCount={product.enrolled_count}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

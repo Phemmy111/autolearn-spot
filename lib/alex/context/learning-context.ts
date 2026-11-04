@@ -63,54 +63,58 @@ export async function getLearningContext(
 
 async function getUserCourseId(userId: string, email?: string): Promise<string> {
   // Try to get user's enrolled course
-  const { data: enrollments } = await supabaseAdmin
+  let query = supabaseAdmin
     .from('enrollments')
-    .select('learning_product_id, status')
-    .eq('clerk_user_id', userId);
+    .select('learning_product_id, status');
+
+  if (email) {
+    query = query.or(`clerk_user_id.eq.${userId},email.eq.${email}`);
+  } else {
+    query = query.eq('clerk_user_id', userId);
+  }
+
+  const { data: enrollments } = await query;
 
   if (enrollments && enrollments.length > 0) {
     // Prefer active enrollment
     const activeEnrollment = enrollments.find(e => e.status === 'active') || enrollments[0];
-    return activeEnrollment.learning_product_id;
-  }
-
-  // Fallback to email lookup
-  if (email) {
-    const { data: emailEnrollments } = await supabaseAdmin
-      .from('enrollments')
-      .select('learning_product_id')
-      .eq('email', email);
-
-    if (emailEnrollments && emailEnrollments.length > 0) {
-      return emailEnrollments[0].learning_product_id;
+    if (activeEnrollment?.learning_product_id) {
+      return activeEnrollment.learning_product_id;
     }
   }
 
-  // Fallback to current course
+  // Fallback to active course in learning_products
   const { data: currentCourse } = await supabaseAdmin
     .from('learning_products')
     .select('id')
-    .eq('is_current', true)
-    .single();
+    .limit(1)
+    .maybeSingle();
 
-  return currentCourse?.id || 'a1111111-1111-1111-1111-111111111111';
+  return currentCourse?.id || 'c1e11cc7-d8f6-4c2d-8a3b-1bb204892921';
 }
 
 async function getCompletionSummary(userId: string, courseId: string) {
-  const { count: totalLessons } = await supabaseAdmin
+  const { data: lessons } = await supabaseAdmin
     .from('lessons')
-    .select('id', { count: 'exact', head: true })
-    .eq('learning_product_id', courseId);
+    .select('id, uuid_id')
+    .eq('product_id', courseId);
 
-  const { count: completedLessons } = await supabaseAdmin
+  const total = lessons?.length || 0;
+  const lessonIds = new Set([
+    ...(lessons || []).map(l => l.id),
+    ...(lessons || []).map(l => l.uuid_id).filter(Boolean)
+  ]);
+
+  const { data: progressRows } = await supabaseAdmin
     .from('lesson_progress')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .eq('learning_product_id', courseId)
-    .eq('completed', true);
+    .select('lesson_id, lesson_uuid_id, completed, watch_pct')
+    .eq('user_id', userId);
 
-  const total = totalLessons || 0;
-  const completed = completedLessons || 0;
+  const completed = (progressRows || []).filter(p => {
+    const isThisCourse = (p.lesson_id && lessonIds.has(p.lesson_id)) || (p.lesson_uuid_id && lessonIds.has(p.lesson_uuid_id));
+    return isThisCourse && (p.completed || (p.watch_pct && p.watch_pct >= 80));
+  }).length;
+
   const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
 
   return { total, completed, percentage };
@@ -119,75 +123,86 @@ async function getCompletionSummary(userId: string, courseId: string) {
 async function getRecentLessonProgress(userId: string, courseId: string) {
   const { data: progressData } = await supabaseAdmin
     .from('lesson_progress')
-    .select(`
-      lesson_id,
-      completed,
-      watch_pct,
-      last_position_seconds,
-      lesson:lessons (
-        id,
-        title,
-        week_number
-      )
-    `)
+    .select('lesson_id, lesson_uuid_id, completed, watch_pct, last_position_seconds, updated_at')
     .eq('user_id', userId)
-    .eq('learning_product_id', courseId)
     .order('updated_at', { ascending: false })
     .limit(10);
 
-  if (!progressData) return [];
+  if (!progressData || progressData.length === 0) return [];
 
-  return progressData.map(progress => ({
-    lessonId: progress.lesson_id,
-    lessonTitle: (progress.lesson as any)?.title || 'Unknown Lesson',
-    weekNumber: (progress.lesson as any)?.week_number || 0,
-    completed: progress.completed,
-    watchPercentage: progress.watch_pct,
-    lastPosition: progress.last_position_seconds,
-  }));
+  const { data: lessons } = await supabaseAdmin
+    .from('lessons')
+    .select('id, uuid_id, title, week_number')
+    .eq('product_id', courseId);
+
+  const lessonMap = new Map();
+  (lessons || []).forEach(l => {
+    if (l.id) lessonMap.set(l.id, l);
+    if (l.uuid_id) lessonMap.set(l.uuid_id, l);
+  });
+
+  return progressData.map(progress => {
+    const lesson = lessonMap.get(progress.lesson_uuid_id) || lessonMap.get(progress.lesson_id);
+    return {
+      lessonId: progress.lesson_uuid_id || progress.lesson_id,
+      lessonTitle: lesson?.title || 'Lesson Video',
+      weekNumber: lesson?.week_number || 0,
+      completed: !!progress.completed || (progress.watch_pct && progress.watch_pct >= 80),
+      watchPercentage: progress.watch_pct || 0,
+      lastPosition: progress.last_position_seconds || 0,
+    };
+  });
 }
 
 async function getAllLessonsWithProgress(userId: string, courseId: string): Promise<LessonInfo[]> {
   // Get all lessons for the course, ordered by week_number and order_index
   const { data: lessons } = await supabaseAdmin
     .from('lessons')
-    .select('id, title, week_number, session_number, order_index, available_at')
-    .eq('learning_product_id', courseId)
+    .select('id, uuid_id, title, week_number, session_number, order_index, available_at')
+    .eq('product_id', courseId)
     .order('week_number', { ascending: true })
     .order('order_index', { ascending: true });
 
-  if (!lessons) return [];
+  if (!lessons || lessons.length === 0) return [];
 
   // Get user's lesson progress
   const { data: progressData } = await supabaseAdmin
     .from('lesson_progress')
-    .select('lesson_id, completed, watch_pct')
-    .eq('user_id', userId)
-    .eq('learning_product_id', courseId);
+    .select('lesson_id, lesson_uuid_id, completed, watch_pct')
+    .eq('user_id', userId);
 
   // Create a map of lesson progress
   const progressMap = new Map();
   if (progressData) {
     progressData.forEach(progress => {
-      progressMap.set(progress.lesson_id, {
-        completed: progress.completed,
-        watchPercentage: progress.watch_pct,
-      });
+      const isDone = !!progress.completed || (progress.watch_pct && progress.watch_pct >= 80);
+      if (progress.lesson_uuid_id) {
+        progressMap.set(progress.lesson_uuid_id, {
+          completed: isDone,
+          watchPercentage: progress.watch_pct || 0,
+        });
+      }
+      if (progress.lesson_id) {
+        progressMap.set(progress.lesson_id, {
+          completed: isDone,
+          watchPercentage: progress.watch_pct || 0,
+        });
+      }
     });
   }
 
   // Combine lesson info with progress
   const now = new Date();
   return lessons.map(lesson => {
-    const progress = progressMap.get(lesson.id) || { completed: false, watchPercentage: 0 };
-    const isAvailable = new Date(lesson.available_at) <= now;
+    const progress = progressMap.get(lesson.uuid_id) || progressMap.get(lesson.id) || { completed: false, watchPercentage: 0 };
+    const isAvailable = lesson.available_at ? new Date(lesson.available_at) <= now : true;
 
     return {
-      lessonId: lesson.id,
+      lessonId: lesson.uuid_id || lesson.id,
       title: lesson.title,
-      weekNumber: lesson.week_number,
-      sessionNumber: lesson.session_number,
-      orderIndex: lesson.order_index,
+      weekNumber: lesson.week_number || 0,
+      sessionNumber: lesson.session_number || 0,
+      orderIndex: lesson.order_index || 0,
       completed: progress.completed,
       watchPercentage: progress.watchPercentage,
       available: isAvailable,

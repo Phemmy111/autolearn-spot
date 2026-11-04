@@ -136,7 +136,7 @@ async function loadContext(
     case 'scholarship':
       return await getScholarshipContext(userId, userEmail);
     case 'certificate':
-      return await getCertificateContext(userId);
+      return await getCertificateContext(userId, userEmail);
     default:
       return {
         context: null,
@@ -231,8 +231,8 @@ export function formatPlatformContextForPrompt(context: PlatformContext): string
   if (context.certificates && context.certificates.hasCertificate) {
     prompt += '--- Certificates ---\n';
     context.certificates.certificates.forEach(cert => {
-      prompt += `Certificate: ${cert.certificateCode}\n`;
-      prompt += `Course: ${cert.cohortName}\n`;
+      prompt += `Certificate Code: ${cert.certificateCode}\n`;
+      prompt += `Course: ${cert.courseName || 'AI Automation with n8n'}\n`;
       prompt += `Issued: ${new Date(cert.issuedDate).toLocaleDateString()}\n`;
       if (cert.isRevoked) {
         prompt += 'Status: Revoked\n';
@@ -241,6 +241,10 @@ export function formatPlatformContextForPrompt(context: PlatformContext): string
     });
   }
 
+  prompt += '--- Formatting Directive for Alex ---\n';
+  prompt += '- Always address the student naturally by their real name.\n';
+  prompt += '- Avoid unnecessary or excessive markdown asterisks (* or **). Never put asterisks around names, course titles, single words, or everyday greetings.\n';
+  prompt += '- Rely directly on the facts above for any questions about lessons watched, courses, or certificates.\n';
   prompt += '=== END PLATFORM CONTEXT ===\n';
 
   return prompt;

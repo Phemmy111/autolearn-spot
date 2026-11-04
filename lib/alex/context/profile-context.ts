@@ -15,50 +15,86 @@ export async function getUserProfileContext(
   userName?: string
 ): Promise<{ context: UserProfileContext | null; error: ContextError | null }> {
   try {
-    // First, try to get profile data from enrollments table (authoritative source)
-    // Use .limit(1) to handle cases where user might have multiple enrollments
-    const { data: enrollments, error: enrollmentError } = await supabaseAdmin
-      .from('enrollments')
-      .select('first_name, last_name, full_name, email')
-      .eq('clerk_user_id', authenticatedUserId)
-      .limit(1);
-
-    const enrollment = enrollments && enrollments.length > 0 ? enrollments[0] : null;
-
+    let fullName: string | undefined = userName;
     let firstName: string | undefined;
     let lastName: string | undefined;
-    let fullName: string | undefined;
-    let email: string | undefined;
+    let email: string | undefined = userEmail;
 
-    if (enrollment && !enrollmentError) {
-      // Use enrollment data as primary source
-      firstName = enrollment.first_name || undefined;
-      lastName = enrollment.last_name || undefined;
-      fullName = enrollment.full_name || (enrollment.first_name && enrollment.last_name
-        ? `${enrollment.first_name} ${enrollment.last_name}`
-        : undefined);
-      email = enrollment.email || userEmail;
+    // 1. Check authors table first (if user is an author or admin instructor)
+    try {
+      const { data: author } = await supabaseAdmin
+        .from('authors')
+        .select('display_name, name, email')
+        .or(`clerk_user_id.eq.${authenticatedUserId},user_id.eq.${authenticatedUserId}`)
+        .limit(1)
+        .maybeSingle();
 
-      // If enrollment doesn't have name data, fall back to Clerk data
-      if (!fullName && !firstName && !lastName && userName) {
-        firstName = userName.split(' ')[0] || userName;
-        lastName = userName.includes(' ') ? userName.split(' ').slice(1).join(' ') : undefined;
-        fullName = userName;
+      if (author?.display_name || author?.name) {
+        fullName = author.display_name || author.name;
+        if (author.email && !email) email = author.email;
       }
-    } else {
-      // Fallback to Clerk data if no enrollment found
-      firstName = userName?.split(' ')[0] || userName;
-      lastName = userName?.includes(' ') ? userName.split(' ').slice(1).join(' ') : undefined;
-      fullName = userName;
-      email = userEmail;
+    } catch (e) {
+      // ignore
     }
 
-    // Build sanitized profile context
+    // 2. Check profiles table
+    if (!fullName) {
+      try {
+        const { data: prof } = await supabaseAdmin
+          .from('profiles')
+          .select('full_name')
+          .or(`clerk_user_id.eq.${authenticatedUserId},id.eq.${authenticatedUserId}`)
+          .limit(1)
+          .maybeSingle();
+        if (prof?.full_name) {
+          fullName = prof.full_name;
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    // 3. Check enrollments table (prefer active and latest enrolled)
+    try {
+      let enrQuery = supabaseAdmin
+        .from('enrollments')
+        .select('first_name, last_name, full_name, email, status, activated_at');
+
+      if (email) {
+        enrQuery = enrQuery.or(`clerk_user_id.eq.${authenticatedUserId},email.eq.${email}`);
+      } else {
+        enrQuery = enrQuery.eq('clerk_user_id', authenticatedUserId);
+      }
+
+      const { data: enrollments } = await enrQuery.order('activated_at', { ascending: false }).limit(5);
+
+      if (enrollments && enrollments.length > 0) {
+        const activeEnr = enrollments.find(e => e.status === 'active') || enrollments[0];
+        if (activeEnr.email && !email) email = activeEnr.email;
+
+        // If we don't have a reliable full name yet, use enrollment
+        if (!fullName) {
+          fullName = activeEnr.full_name || (activeEnr.first_name && activeEnr.last_name ? `${activeEnr.first_name} ${activeEnr.last_name}` : activeEnr.first_name);
+        }
+        firstName = activeEnr.first_name || undefined;
+        lastName = activeEnr.last_name || undefined;
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    // If still no split first/last, derive from fullName
+    if (fullName) {
+      const parts = fullName.trim().split(/\s+/);
+      if (!firstName && parts.length > 0) firstName = parts[0];
+      if (!lastName && parts.length > 1) lastName = parts.slice(1).join(' ');
+    }
+
     const profileContext: UserProfileContext = {
       userId: authenticatedUserId,
       firstName,
       lastName,
-      fullName,
+      fullName: fullName || 'Student',
       email,
     };
 

@@ -45,59 +45,13 @@ export function routeContext(request: ContextRequest): ContextRoutingResult {
     ],
   };
 
-  // Determine required contexts based on intent keywords
-  const requiredContexts: ContextType[] = [];
+  // Always include profile, enrollment, learning, and certificate so Alex ALWAYS has student context!
+  const requiredContexts: ContextType[] = ['profile', 'enrollment', 'learning', 'certificate'];
   const optionalContexts: ContextType[] = [];
 
-  // Check each context type for keyword matches
-  for (const [contextType, keywords] of Object.entries(contextKeywords)) {
-    const hasKeyword = keywords.some(keyword => intent.includes(keyword));
-    
-    if (hasKeyword) {
-      requiredContexts.push(contextType as ContextType);
-    }
-  }
-
-  // Auto mode: Always include profile for personalization
-  if (mode === 'auto') {
-    if (!requiredContexts.includes('profile')) {
-      optionalContexts.push('profile');
-    }
-    
-    // In auto mode, learning context is often relevant
-    if (!requiredContexts.includes('learning') && !requiredContexts.includes('enrollment')) {
-      optionalContexts.push('learning');
-    }
-  }
-
-  // Tutor mode: Learning context is often relevant
-  if (mode === 'tutor' && !requiredContexts.includes('learning')) {
-    optionalContexts.push('learning');
-  }
-
-  // Special cases that require multiple contexts
-  const progressKeywords = ['progress', 'how far', 'completion', 'remaining'];
-  const hasProgressKeyword = progressKeywords.some(keyword => intent.includes(keyword));
-  
-  if (hasProgressKeyword) {
-    if (!requiredContexts.includes('learning')) {
-      requiredContexts.push('learning');
-    }
-    if (!requiredContexts.includes('enrollment')) {
-      optionalContexts.push('enrollment');
-    }
-  }
-
-  const certificateProgressKeywords = ['certificate', 'when will i get', 'eligible for certificate'];
-  const hasCertProgressKeyword = certificateProgressKeywords.some(keyword => intent.includes(keyword));
-  
-  if (hasCertProgressKeyword) {
-    if (!requiredContexts.includes('certificate')) {
-      requiredContexts.push('certificate');
-    }
-    if (!requiredContexts.includes('learning')) {
-      optionalContexts.push('learning');
-    }
+  const scholarshipKeywords = ['scholarship', 'application', 'eligible', 'financial aid', 'discount', 'payment', 'fee', 'cost'];
+  if (scholarshipKeywords.some(keyword => intent.includes(keyword))) {
+    requiredContexts.push('scholarship');
   }
 
   return {

@@ -39,8 +39,32 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
-    if (!conversationId) {
-      return NextResponse.json({ error: 'No conversation ID provided' }, { status: 400 })
+    let finalConversationId = conversationId
+    if (finalConversationId) {
+      const { data: conv } = await supabase
+        .from('alex_conversations')
+        .select('id')
+        .eq('id', finalConversationId)
+        .eq('user_id', userId)
+        .maybeSingle()
+      if (!conv) finalConversationId = ''
+    }
+
+    if (!finalConversationId) {
+      const { data: newConv } = await supabase
+        .from('alex_conversations')
+        .insert({
+          user_id: userId,
+          title: `Upload: ${file.name.substring(0, 30)}`,
+          mode: 'tutor',
+        })
+        .select()
+        .single()
+      if (newConv) finalConversationId = newConv.id
+    }
+
+    if (!finalConversationId) {
+      return NextResponse.json({ error: 'Failed to initialize conversation' }, { status: 500 })
     }
 
     // Validate file
@@ -49,25 +73,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: validation.error }, { status: 400 })
     }
 
-    // Verify user owns the conversation
-    const { data: conversation, error: convError } = await supabase
-      .from('alex_conversations')
-      .select('id')
-      .eq('id', conversationId)
-      .eq('user_id', userId)
-      .single()
-
-    if (convError || !conversation) {
-      return NextResponse.json({ error: 'Conversation not found or access denied' }, { status: 404 })
-    }
-
     // Generate file ID and storage path
     const fileId = crypto.randomUUID()
     const fileExt = file.name.split('.').pop()
     
     // Sanitize filename for storage path (remove special characters)
     const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
-    const storagePath = `alex/${userId}/${conversationId}/${fileId}/${sanitizedFilename}`
+    const storagePath = `alex/${userId}/${finalConversationId}/${fileId}/${sanitizedFilename}`
 
     console.log('[DIAGNOSTIC] UPLOAD START', {
       fileId,
@@ -127,7 +139,7 @@ export async function POST(request: Request) {
         .from('alex_files')
         .insert({
           user_id: userId,
-          conversation_id: conversationId,
+          conversation_id: finalConversationId,
           original_filename: file.name,
           storage_path: storagePath,
           mime_type: file.type,
@@ -173,7 +185,8 @@ export async function POST(request: Request) {
 
       return NextResponse.json({
         success: true,
-        file: fileRecord
+        file: fileRecord,
+        conversationId: finalConversationId
       })
     } else {
       // For document files (PDF, DOCX, TXT, code), extract text synchronously
@@ -216,7 +229,7 @@ export async function POST(request: Request) {
         .from('alex_files')
         .insert({
           user_id: userId,
-          conversation_id: conversationId,
+          conversation_id: finalConversationId,
           original_filename: file.name,
           storage_path: storagePath,
           mime_type: file.type,
@@ -255,7 +268,8 @@ export async function POST(request: Request) {
 
       return NextResponse.json({
         success: true,
-        file: fileRecord
+        file: fileRecord,
+        conversationId: finalConversationId
       })
     }
   } catch (error: any) {

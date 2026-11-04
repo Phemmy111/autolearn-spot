@@ -43,7 +43,7 @@ export default function AuthorProfileSettings() {
           setFormData({
             display_name: data.author.display_name || '',
             professional_title: data.author.professional_title || '',
-            years_of_experience: data.author.years_of_experience || '',
+            years_of_experience: data.author.years_of_experience !== null && data.author.years_of_experience !== undefined ? data.author.years_of_experience.toString() : '',
             profile_image: data.author.profile_image || '',
             bio: data.author.bio || '',
             email: data.author.email || '',
@@ -51,7 +51,7 @@ export default function AuthorProfileSettings() {
             location: data.author.location || '',
             linkedin_profile: data.author.linkedin_profile || '',
             website_portfolio: data.author.website_portfolio || '',
-            expertise: data.author.expertise || []
+            expertise: Array.isArray(data.author.expertise) ? data.author.expertise : []
           });
           setAuthorId(data.author.id);
         }
@@ -71,7 +71,7 @@ export default function AuthorProfileSettings() {
     try {
       const payload = {
         ...formData,
-        years_of_experience: formData.years_of_experience ? parseInt(formData.years_of_experience.toString(), 10) : null
+        years_of_experience: formData.years_of_experience !== '' ? parseInt(formData.years_of_experience.toString(), 10) : null
       };
 
       const res = await fetch('/api/author/profile', {
@@ -80,7 +80,26 @@ export default function AuthorProfileSettings() {
         body: JSON.stringify(payload)
       });
       
-      if (!res.ok) throw new Error('Failed to save profile');
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to save profile');
+      }
+
+      if (data.author) {
+        setFormData({
+          display_name: data.author.display_name || '',
+          professional_title: data.author.professional_title || '',
+          years_of_experience: data.author.years_of_experience !== null && data.author.years_of_experience !== undefined ? data.author.years_of_experience.toString() : '',
+          profile_image: data.author.profile_image || '',
+          bio: data.author.bio || '',
+          email: data.author.email || '',
+          phone: data.author.phone || '',
+          location: data.author.location || '',
+          linkedin_profile: data.author.linkedin_profile || '',
+          website_portfolio: data.author.website_portfolio || '',
+          expertise: Array.isArray(data.author.expertise) ? data.author.expertise : []
+        });
+      }
       
       setMessage({ type: 'success', text: 'Profile updated successfully!' });
       router.refresh();
@@ -101,7 +120,20 @@ export default function AuthorProfileSettings() {
     try {
       const publicUrl = await uploadThumbnail(file);
       if (publicUrl) {
-        setFormData({ ...formData, profile_image: publicUrl });
+        setFormData(prev => ({ ...prev, profile_image: publicUrl }));
+        // Instantly auto-persist to server so picture is never lost on refresh
+        try {
+          const autoRes = await fetch('/api/author/profile', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ profile_image: publicUrl })
+          });
+          if (autoRes.ok) {
+            setMessage({ type: 'success', text: 'Profile picture uploaded and saved!' });
+          }
+        } catch (saveErr) {
+          console.warn('Auto-save of profile image failed:', saveErr);
+        }
       } else {
         setMessage({ type: 'error', text: 'Failed to upload image. Please try again.' });
       }

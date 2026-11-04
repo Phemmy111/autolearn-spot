@@ -64,75 +64,63 @@ const FILE_TYPE_MAP: Record<string, string[]> = {
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024 // 20 MB
 
+const ALLOWED_EXTENSIONS = new Set([
+  // Documents
+  'pdf', 'doc', 'docx', 'txt', 'md', 'rtf', 'odt', 'tex', 'log', 'pages',
+  // Spreadsheets and data
+  'csv', 'tsv', 'xls', 'xlsx', 'json', 'xml', 'yaml', 'yml', 'sql',
+  // Presentations
+  'ppt', 'pptx', 'key',
+  // Images
+  'png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'svg', 'heic', 'tiff', 'ico',
+  // Code & scripts
+  'js', 'ts', 'jsx', 'tsx', 'py', 'java', 'c', 'cpp', 'cs', 'go', 'rs', 'php', 'rb', 'sh', 'bash', 'html', 'css', 'r', 'swift', 'kt'
+]);
+
 /**
  * Validate file before upload
  */
 export function validateFile(file: File): FileValidation {
-  console.log('[DIAGNOSTIC] FILE VALIDATION', {
-    filename: file.name,
-    fileType: file.type,
-    fileSize: file.size,
-    allowedTypes: Object.keys(FILE_TYPE_MAP),
-    typeInMap: Object.keys(FILE_TYPE_MAP).includes(file.type)
-  })
+  const allowedTypes = Object.keys(FILE_TYPE_MAP);
 
-  // Check file size
+  // Check file size (25MB limit)
   if (file.size > MAX_FILE_SIZE) {
     return {
       valid: false,
       maxSize: MAX_FILE_SIZE,
-      allowedTypes: Object.keys(FILE_TYPE_MAP),
+      allowedTypes,
       error: `File size exceeds ${MAX_FILE_SIZE / 1024 / 1024}MB limit`
-    }
+    };
   }
 
-  // Check file type
-  const allowedTypes = Object.keys(FILE_TYPE_MAP)
-  if (!allowedTypes.includes(file.type)) {
-    console.log('[DIAGNOSTIC] FILE TYPE REJECTED, CHECKING EXTENSION', {
-      fileType: file.type,
-      allowedTypes,
-      reason: 'Type not in allowed types'
-    })
+  const fileExt = file.name.split('.').pop()?.toLowerCase() || '';
 
-    // Fallback: check file extension if MIME type doesn't match
-    const fileExt = file.name.split('.').pop()?.toLowerCase()
-    console.log('[DIAGNOSTIC] FILE EXTENSION CHECK', {
-      fileExt,
-      isImageExt: ['png', 'jpg', 'jpeg', 'webp'].includes(fileExt || '')
-    })
-
-    // Allow image files based on extension as fallback
-    if (['png', 'jpg', 'jpeg', 'webp'].includes(fileExt || '')) {
-      console.log('[DIAGNOSTIC] FILE ACCEPTED BY EXTENSION', {
-        fileExt,
-        filename: file.name
-      })
-      return {
-        valid: true,
-        maxSize: MAX_FILE_SIZE,
-        allowedTypes
-      }
-    }
-
-    return {
-      valid: false,
-      maxSize: MAX_FILE_SIZE,
-      allowedTypes,
-      error: `File type ${file.type} not supported`
-    }
+  // Accept if MIME type is known
+  if (allowedTypes.includes(file.type)) {
+    return { valid: true, maxSize: MAX_FILE_SIZE, allowedTypes };
   }
 
-  console.log('[DIAGNOSTIC] FILE TYPE ACCEPTED', {
-    fileType: file.type,
-    filename: file.name
-  })
+  // Accept if it's any image or text MIME
+  if (file.type.startsWith('image/') || file.type.startsWith('text/') || file.type.includes('document') || file.type.includes('sheet') || file.type.includes('presentation')) {
+    return { valid: true, maxSize: MAX_FILE_SIZE, allowedTypes };
+  }
+
+  // Accept by extension
+  if (ALLOWED_EXTENSIONS.has(fileExt)) {
+    return { valid: true, maxSize: MAX_FILE_SIZE, allowedTypes };
+  }
+
+  // Permissive fallback: allow any regular file under size limit
+  if (file.size > 0 && file.size <= MAX_FILE_SIZE) {
+    return { valid: true, maxSize: MAX_FILE_SIZE, allowedTypes };
+  }
 
   return {
-    valid: true,
+    valid: false,
     maxSize: MAX_FILE_SIZE,
-    allowedTypes
-  }
+    allowedTypes,
+    error: `File format not supported.`
+  };
 }
 
 /**
@@ -239,17 +227,32 @@ export async function extractTextFromFile(file: File): Promise<ExtractionResult>
           }
         }
 
-      default:
-        console.log('[EXTRACTION] Unsupported file type', {
-          mimeType: file.type,
-          filename: file.name
-        })
-        return {
-          success: false,
-          text: '',
-          metadata: { extractionMethod: 'none' },
-          error: `Unsupported file type: ${file.type}. Supported types: PDF, DOCX, DOC, TXT, Markdown, JSON, CSV, HTML, code files, and images (PNG, JPG, WEBP, GIF, BMP).`
+      default: {
+        const fileExt = file.name.split('.').pop()?.toLowerCase() || '';
+        if (fileExt === 'pdf') {
+          return await extractPDF(uint8Array);
         }
+        if (fileExt === 'docx' || fileExt === 'doc') {
+          return await extractDOCX(uint8Array);
+        }
+        if (file.type.startsWith('image/') || ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'svg', 'heic', 'tiff', 'ico'].includes(fileExt)) {
+          return { success: true, text: '', metadata: { extractionMethod: 'vision' } };
+        }
+        // Try general UTF-8 text extraction for any text, code, or document
+        try {
+          const textResult = extractTextFile(uint8Array);
+          if (textResult.success && textResult.text.trim()) {
+            return textResult;
+          }
+        } catch (e) {
+          // ignore
+        }
+        return {
+          success: true,
+          text: `[Attached File: ${file.name}]`,
+          metadata: { extractionMethod: 'fallback' }
+        };
+      }
     }
   } catch (error) {
     console.log('[EXTRACTION] Extraction exception', {

@@ -589,6 +589,14 @@ export async function POST(request: NextRequest) {
     const stream = new ReadableStream({
       async start(controller) {
         try {
+          // Immediately notify client of the conversationId
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({
+              type: 'init',
+              conversationId: conversationIdToUse
+            })}\n\n`)
+          )
+
           let fullContent = ''
           let tokensUsed = 0
           let modelUsed = 'unknown'
@@ -757,6 +765,7 @@ export async function POST(request: NextRequest) {
                 controller.enqueue(
                   encoder.encode(`data: ${JSON.stringify({ 
                     type: 'finish',
+                    conversationId: conversationIdToUse,
                     usage: event.data?.usage 
                   })}\n\n`)
                 )
