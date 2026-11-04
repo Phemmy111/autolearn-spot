@@ -51,6 +51,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const [mediaGallery, setMediaGallery] = useState<string[]>([]);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [isUploadingMedia, setIsUploadingMedia] = useState(false);
+  const mediaInputRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -265,8 +267,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       const uploadedUrl = await uploadThumbnail(file);
       if (uploadedUrl) {
         setThumbnailUrl(uploadedUrl);
+        setThumbnailPreview(uploadedUrl);
         setThumbnailFile(null);
-        setThumbnailPreview(null);
 
         // Immediately persist thumbnail change to database
         await fetch(`/api/author/products/${id}`, {
@@ -309,15 +311,65 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     }
   };
 
+  const getStructuredDescription = (galleryUrls?: string[]) => {
+    return JSON.stringify({
+      short_description: shortDesc,
+      full_description: fullDesc,
+      category,
+      difficulty,
+      learning_outcomes: learningOutcomes,
+      requirements,
+      target_audience: targetAudience,
+      media_gallery: galleryUrls !== undefined ? galleryUrls : mediaGallery
+    });
+  };
 
-  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setMediaFiles(prev => [...prev, ...Array.from(e.target.files!)]);
+  const handleMediaChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    if (files.length === 0) return;
+
+    setIsUploadingMedia(true);
+    setError(null);
+    try {
+      const newUrls = await Promise.all(files.map(file => uploadThumbnail(file, 'product-media')));
+      const validUrls = newUrls.filter(Boolean) as string[];
+      if (validUrls.length > 0) {
+        const updated = [...mediaGallery, ...validUrls];
+        setMediaGallery(updated);
+
+        // Immediately sync to database
+        const structuredDesc = getStructuredDescription(updated);
+        await fetch(`/api/author/products/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ description: structuredDesc }),
+        });
+      }
+    } catch (err: any) {
+      console.error('Failed to upload media files:', err);
+      setError('Failed to upload media: ' + (err.message || 'Network error'));
+    } finally {
+      setIsUploadingMedia(false);
+      if (mediaInputRef.current) {
+        mediaInputRef.current.value = '';
+      }
     }
   };
 
-  const removeMediaGalleryItem = (index: number) => {
-    setMediaGallery(prev => prev.filter((_, i) => i !== index));
+  const removeMediaGalleryItem = async (index: number) => {
+    const updated = mediaGallery.filter((_, i) => i !== index);
+    setMediaGallery(updated);
+
+    try {
+      const structuredDesc = getStructuredDescription(updated);
+      await fetch(`/api/author/products/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description: structuredDesc }),
+      });
+    } catch (err) {
+      console.error('Failed to delete media from database:', err);
+    }
   };
 
   const removeMediaFile = (index: number) => {
@@ -603,21 +655,39 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           <div>
             <label className="block text-sm font-semibold text-neutral-700 mb-2">Thumbnail (Optional - replace existing)</label>
             <div className="flex flex-col sm:flex-row items-center gap-6 p-6 border-2 border-dashed border-brand-border rounded-xl bg-brand-bg hover:bg-[var(--card)] brightness-95 transition-colors">
-              {isUploadingThumbnail ? (
-                <div className="w-32 h-32 flex flex-col items-center justify-center bg-neutral-200 rounded-lg border border-brand-border">
-                  <span className="animate-spin text-2xl mb-1 text-sky-600">⟳</span>
-                  <span className="text-neutral-500 text-xs font-semibold">Uploading...</span>
-                </div>
-              ) : displayThumbnail ? (
-                <div className="relative">
-                  <img src={displayThumbnail} alt="Preview" className="w-32 h-32 object-cover rounded-lg border border-brand-border shadow-sm" />
-                  <button type="button" onClick={handleRemoveThumbnail} className="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs hover:bg-red-200 shadow-sm" title="Remove image">✕</button>
-                </div>
-              ) : (
-                <div className="w-32 h-32 flex items-center justify-center bg-neutral-200 rounded-lg border border-brand-border">
-                  <span className="text-neutral-400 text-xs text-center px-2">Upload product image<br/><br/>PNG/JPG/WEBP</span>
-                </div>
-              )}
+              <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-brand-border bg-neutral-100 flex items-center justify-center shadow-sm">
+                {displayThumbnail ? (
+                  <>
+                    <img
+                      key={displayThumbnail}
+                      src={displayThumbnail}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                    {isUploadingThumbnail && (
+                      <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white backdrop-blur-[1px] z-10">
+                        <span className="animate-spin text-xl mb-1">⟳</span>
+                        <span className="text-[10px] font-bold tracking-wide">UPLOADING...</span>
+                      </div>
+                    )}
+                    {!isUploadingThumbnail && (
+                      <button
+                        type="button"
+                        onClick={handleRemoveThumbnail}
+                        className="absolute top-1.5 right-1.5 bg-red-600 hover:bg-red-700 text-white rounded-full w-7 h-7 sm:w-6 sm:h-6 flex items-center justify-center font-bold text-xs shadow-md z-20 transition-colors active:scale-95 cursor-pointer"
+                        title="Remove thumbnail"
+                        aria-label="Remove thumbnail"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-neutral-200">
+                    <span className="text-neutral-400 text-xs text-center px-2">Upload product image<br/><br/>PNG/JPG/WEBP</span>
+                  </div>
+                )}
+              </div>
               <div className="flex-1 text-center sm:text-left">
                 <input ref={thumbnailInputRef} type="file" id="thumbnail" accept="image/png, image/jpeg, image/webp" className="hidden" onChange={handleThumbnailChange} />
                 <label htmlFor="thumbnail" className="cursor-pointer inline-flex px-4 py-2 bg-[var(--card)] border border-brand-border text-neutral-700 text-sm font-semibold rounded-lg hover:bg-brand-bg transition-colors shadow-sm">
@@ -633,25 +703,53 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             <div className="p-6 border-2 border-dashed border-brand-border rounded-xl bg-brand-bg">
               <div className="flex flex-wrap gap-4 mb-4">
                 {mediaGallery.map((url, idx) => (
-                  <div key={idx} className="relative w-24 h-24 rounded-lg overflow-hidden border border-brand-border group">
+                  <div key={idx} className="relative w-24 h-24 rounded-lg overflow-hidden border border-brand-border group shadow-sm bg-neutral-900">
                     {url.match(/\.(mp4|webm)$/i) ? (
                       <video src={url} className="w-full h-full object-cover" />
                     ) : (
                       <img src={url} alt={"Media " + idx} className="w-full h-full object-cover" />
                     )}
-                    <button type="button" onClick={() => removeMediaGalleryItem(idx)} className="absolute top-1 right-1 bg-red-100 text-red-600 rounded-full w-5 h-5 flex items-center justify-center font-bold text-[10px] opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">?</button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeMediaGalleryItem(idx);
+                      }}
+                      className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-7 h-7 sm:w-6 sm:h-6 flex items-center justify-center font-bold text-xs shadow-md opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-20 cursor-pointer active:scale-95"
+                      title="Delete media"
+                      aria-label="Delete media"
+                    >
+                      ✕
+                    </button>
                   </div>
                 ))}
                 {mediaFiles.map((file, idx) => (
                   <div key={"file-" + idx} className="relative w-24 h-24 rounded-lg overflow-hidden border border-brand-border bg-neutral-200 flex items-center justify-center opacity-70 group">
                     <span className="text-[10px] text-center px-1 break-all text-neutral-600">{file.name}</span>
-                    <button type="button" onClick={() => removeMediaFile(idx)} className="absolute top-1 right-1 bg-red-100 text-red-600 rounded-full w-5 h-5 flex items-center justify-center font-bold text-[10px] opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">?</button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeMediaFile(idx);
+                      }}
+                      className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-7 h-7 sm:w-6 sm:h-6 flex items-center justify-center font-bold text-xs shadow-md opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-20 cursor-pointer active:scale-95"
+                      title="Delete media"
+                      aria-label="Delete media"
+                    >
+                      ✕
+                    </button>
                   </div>
                 ))}
               </div>
-              <input type="file" id="additional-media" multiple accept="image/png, image/jpeg, image/webp, video/mp4, video/webm" className="hidden" onChange={handleMediaChange} />
-              <label htmlFor="additional-media" className="cursor-pointer inline-flex px-4 py-2 bg-[var(--card)] border border-brand-border text-neutral-700 text-sm font-semibold rounded-lg hover:bg-brand-bg transition-colors shadow-sm">
-                + Add Media
+              <input ref={mediaInputRef} type="file" id="additional-media" multiple accept="image/png, image/jpeg, image/webp, video/mp4, video/webm" className="hidden" onChange={handleMediaChange} />
+              <label htmlFor="additional-media" className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-[var(--card)] border border-brand-border text-neutral-700 text-sm font-semibold rounded-lg hover:bg-brand-bg transition-colors shadow-sm">
+                {isUploadingMedia ? (
+                  <><span className="animate-spin text-sm text-sky-600">⟳</span> Uploading Media...</>
+                ) : (
+                  '+ Add Media'
+                )}
               </label>
             </div>
           </div>
