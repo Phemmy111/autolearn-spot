@@ -164,7 +164,8 @@ export async function GET(request: Request) {
       'certificateSignatureUrl',
       'certificateAccentColor',
       'certificateQrEnabled',
-      'certificateQrDestination'
+      'certificateQrDestination',
+      'certificateFooter'
     ])
 
     const accentColor = certSettings.certificateAccentColor || '#00f0ff'
@@ -197,6 +198,7 @@ export async function GET(request: Request) {
           qrData={qrData}
           backgroundSrc={absoluteBackgroundSrc}
           signatureUrl={certSettings.certificateSignatureUrl || ''}
+          footer={certSettings.certificateFooter || ''}
           accentColor={accentColor}
         />
       ),

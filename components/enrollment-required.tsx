@@ -70,7 +70,7 @@ export function EnrollmentRequired() {
     },
     {
       question: 'Is the certificate recognized?',
-      answer: 'Yes. The certificate is issued by Moon Space Network, a trusted organization. You can display it on LinkedIn and professional profiles.',
+      answer: 'Yes. The certificate is issued by AutoLearn Spot, a trusted organization. You can display it on LinkedIn and professional profiles.',
     },
     {
       question: 'What payment methods do you accept?',

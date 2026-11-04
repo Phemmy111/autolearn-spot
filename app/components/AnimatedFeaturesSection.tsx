@@ -8,7 +8,7 @@ const featureIcons = [
   { icon: BrainCircuit, title: 'AI Integration', description: 'Connect ChatGPT to real workflows' },
   { icon: Rocket, title: 'Real Projects', description: 'Build 10+ production-ready automations' },
   { icon: MessageCircle, title: 'Live Support', description: 'Direct access to instructors' },
-  { icon: GraduationCap, title: 'Certification', description: 'Verified credential from Moon Space Network' },
+  { icon: GraduationCap, title: 'Certification', description: 'Verified credential from AutoLearn Spot' },
   { icon: Target, title: 'Career Opportunities', description: 'Launch your automation career' },
 ];
 

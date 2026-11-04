@@ -9,8 +9,9 @@ function CertificateVerifyContent() {
   const searchParams = useSearchParams()
   const name = searchParams.get('name')
   const date = searchParams.get('date')
+  const code = searchParams.get('code')
 
-  if (!name || !date) {
+  if (!name && !code) {
     return (
       <div className="min-h-screen bg-brand-bg flex items-center justify-center p-4">
         <div className="border border-red-500/30 bg-red-500/10 p-8 text-center max-w-md">
@@ -30,27 +31,33 @@ function CertificateVerifyContent() {
           </div>
           <h1 className="font-heading text-2xl font-bold text-brand-text mb-2">Certificate Verified</h1>
           <p className="font-mono text-xs text-brand-text/60 uppercase tracking-wider">
-            Autolearn Spot • Powered by Moon Space Network
+            AutoLearn Spot Verification System
           </p>
         </div>
 
         {/* Certificate Details */}
         <div className="border border-brand-border bg-brand-bg p-6 space-y-4 mb-6">
-          <div>
-            <p className="font-mono text-[10px] uppercase tracking-wider text-[#5d5f63] mb-1">Recipient</p>
-            <p className="text-lg text-brand-text font-semibold">{decodeURIComponent(name)}</p>
-          </div>
-          <div>
-            <p className="font-mono text-[10px] uppercase tracking-wider text-[#5d5f63] mb-1">Course</p>
-            <p className="text-[#10b981] font-semibold">n8n Automation</p>
-          </div>
-          <div>
-            <p className="font-mono text-[10px] uppercase tracking-wider text-[#5d5f63] mb-1">Completion Date</p>
-            <p className="text-brand-text/60">{decodeURIComponent(date)}</p>
-          </div>
+          {name && (
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-wider text-[#5d5f63] mb-1">Recipient</p>
+              <p className="text-lg text-brand-text font-semibold">{decodeURIComponent(name)}</p>
+            </div>
+          )}
+          {code && (
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-wider text-[#5d5f63] mb-1">Certificate ID</p>
+              <p className="text-[#10b981] font-mono font-semibold">{code}</p>
+            </div>
+          )}
+          {date && (
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-wider text-[#5d5f63] mb-1">Issue Date</p>
+              <p className="text-brand-text/60">{decodeURIComponent(date)}</p>
+            </div>
+          )}
           <div>
             <p className="font-mono text-[10px] uppercase tracking-wider text-[#5d5f63] mb-1">Issued By</p>
-            <p className="text-brand-text/60">Moon Space Network (MSN)</p>
+            <p className="text-brand-text/60">AutoLearn Spot</p>
           </div>
         </div>
 
@@ -58,7 +65,7 @@ function CertificateVerifyContent() {
         <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/30 p-3 mb-6">
           <Award className="h-5 w-5 text-emerald-400 flex-shrink-0" />
           <p className="font-mono text-xs text-emerald-400">
-            This certificate is authentic and was issued by Autolearn Spot.
+            This certificate is authentic, officially verified, and was issued by AutoLearn Spot.
           </p>
         </div>
 
@@ -69,7 +76,7 @@ function CertificateVerifyContent() {
             className="inline-flex items-center gap-2 font-mono text-xs text-[#10b981] hover:text-brand-text transition-colors"
           >
             <ExternalLink className="h-3 w-3" />
-            Visit Autolearn Spot
+            Visit AutoLearn Spot
           </Link>
         </div>
       </div>

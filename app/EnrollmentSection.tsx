@@ -118,7 +118,7 @@ export function EnrollmentSection() {
                 { icon: Star, title: 'Lifetime Access', description: 'Access all content forever' },
                 { icon: Rocket, title: 'Real Projects', description: 'Build 10+ production workflows' },
                 { icon: Users, title: 'Community', description: 'Join a network of automation experts' },
-                { icon: GraduationCap, title: 'Certificate', description: 'Verified credential from Moon Space Network' },
+                { icon: GraduationCap, title: 'Certificate', description: 'Verified credential from AutoLearn Spot' },
                 { icon: MessageCircle, title: 'Support', description: 'Direct access to instructors' },
               ].map((item, index) => {
                 const Icon = item.icon

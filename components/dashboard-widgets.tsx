@@ -173,7 +173,7 @@ export function DashboardWidgets() {
               <p className="text-[10px] text-[#5d5f63] mt-2 max-w-[180px]">
                 {!certEnabled
                   ? 'Certificates are not yet available.'
-                  : 'Complete all 12 sessions to unlock your Moon Space Network certificate.'}
+                  : 'Complete all 12 sessions to unlock your AutoLearn Spot certificate.'}
               </p>
             </>
           )}

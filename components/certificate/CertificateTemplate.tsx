@@ -39,6 +39,7 @@ export function CertificateTemplate({
   qrData,
   backgroundSrc,
   signatureUrl,
+  footer,
   accentColor,
 }: CertificateTemplateProps) {
   const accent = accentColor || '#00f0ff'
@@ -46,6 +47,7 @@ export function CertificateTemplate({
   const displayName = name || 'Student'
   const displayCertId = certificateId || 'ALS-2026-CERT'
   const bg = backgroundSrc || '/certificate-template.png'
+  const displayFooter = footer || `© ${new Date().getFullYear()} AutoLearn Spot - All Rights Reserved`
 
   return (
     <div
@@ -59,7 +61,7 @@ export function CertificateTemplate({
         display: 'flex',
       }}
     >
-      {/* Background Image - Authentic AutoLearn Spot Certificate Artwork */}
+      {/* Background Image - Clean 2026 AutoLearn Spot Artwork */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={bg}
@@ -109,7 +111,7 @@ export function CertificateTemplate({
           <span>ID: {displayCertId}</span>
         </div>
 
-        {/* Student Name Overlay - Positioned in the designated focal slot */}
+        {/* Student Name Overlay - Perfectly centered in the focal name zone */}
         <div
           style={{
             position: 'absolute',
@@ -177,13 +179,13 @@ export function CertificateTemplate({
           </div>
         </div>
 
-        {/* Date Overlay - Over Date Line (Bottom Left) */}
+        {/* Adjusted Date Overlay - Positioned accurately over the Date blank line */}
         <div
           style={{
             position: 'absolute',
-            top: '648px',
-            left: '185px',
-            width: '240px',
+            top: '654px',
+            left: '235px',
+            width: '230px',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
@@ -192,9 +194,10 @@ export function CertificateTemplate({
           <span
             style={{
               fontFamily: '"Roboto", sans-serif',
-              fontSize: '16px',
+              fontSize: '15px',
               color: '#ffffff',
               fontWeight: 500,
+              letterSpacing: '0.3px',
               textShadow: '0 1px 4px rgba(0,0,0,0.8)',
             }}
           >
@@ -264,6 +267,32 @@ export function CertificateTemplate({
             </svg>
           </div>
         )}
+
+        {/* Dynamic Footer Overlay (Centered at Bottom) */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '30px',
+            left: 0,
+            width: `${CANVAS_WIDTH}px`,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <span
+            style={{
+              fontFamily: '"Roboto", Arial, sans-serif',
+              fontSize: '12px',
+              color: 'rgba(255, 255, 255, 0.85)',
+              letterSpacing: '0.8px',
+              textAlign: 'center',
+              textShadow: '0 1px 4px rgba(0, 0, 0, 0.8)',
+            }}
+          >
+            {displayFooter}
+          </span>
+        </div>
       </div>
     </div>
   )

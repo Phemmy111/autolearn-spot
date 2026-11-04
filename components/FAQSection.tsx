@@ -27,7 +27,7 @@ export default function FAQSection() {
     },
     {
       question: 'Is the certificate recognized?',
-      answer: 'Yes. The certificate is issued by Moon Space Network.',
+      answer: 'Yes. The certificate is issued by AutoLearn Spot.',
     },
   ]
 
