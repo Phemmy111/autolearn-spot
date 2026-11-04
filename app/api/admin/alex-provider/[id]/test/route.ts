@@ -167,6 +167,21 @@ export async function POST(
           throw new Error(`Provider returned ${response.status}: ${errorText}`)
         }
       }
+
+      // Update provider health on success
+      await supabaseAdmin
+        .from('alex_provider_config')
+        .update({
+          health_status: 'healthy',
+          last_health_check: new Date().toISOString(),
+          last_success_at: new Date().toISOString(),
+          consecutive_failure_count: 0,
+          health_error: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', id)
+
+      return NextResponse.json({ success: true })
     } catch (error: any) {
       // Update provider health on failure
       await supabaseAdmin

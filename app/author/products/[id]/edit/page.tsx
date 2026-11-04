@@ -101,12 +101,14 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           }
 
           let loadedCategory = '';
+          let loadedSkill = '';
           if (p.description) {
             try {
               const descData = JSON.parse(p.description);
               setShortDesc(descData.short_description || '');
               setFullDesc(descData.full_description || '');
               loadedCategory = descData.category || '';
+              loadedSkill = descData.skill || descData.skill_id || '';
               setDifficulty(descData.difficulty || 'All Levels');
               setLearningOutcomes(descData.learning_outcomes || []);
               setRequirements(descData.requirements || []);
@@ -122,9 +124,17 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           }
           setCategory(loadedCategory);
 
-          let initialSkill = p.skill_id || '';
-          if (initialSkill === '00000000-0000-0000-0000-000000000002' || !initialSkill) {
-            initialSkill = 'ai-automation';
+          const skillsInCat = SKILLS_BY_CATEGORY[loadedCategory] || [];
+          let initialSkill = loadedSkill || data.skill_slug || p.skill_slug || '';
+          
+          if (!skillsInCat.some(s => s.id === initialSkill)) {
+            const match = skillsInCat.find(s => 
+              s.id.toLowerCase() === initialSkill.toLowerCase() ||
+              s.name.toLowerCase() === initialSkill.toLowerCase() ||
+              (p.skill_name && s.name.toLowerCase() === p.skill_name.toLowerCase()) ||
+              s.id.includes('automation')
+            );
+            initialSkill = match ? match.id : (skillsInCat[0]?.id || 'ai-automation');
           }
           setSkill(initialSkill);
         }
@@ -220,7 +230,30 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
 
   const handleCategoryChange = (val: string) => {
     setCategory(val);
-    setSkill(''); 
+    const newSkills = val && SKILLS_BY_CATEGORY[val] ? SKILLS_BY_CATEGORY[val] : [];
+    const defaultSkill = newSkills[0]?.id || '';
+    setSkill(defaultSkill);
+    if (defaultSkill) {
+      handleSkillChange(defaultSkill, val);
+    }
+  };
+
+  const handleSkillChange = async (newSkill: string, catOverride?: string) => {
+    setSkill(newSkill);
+    const activeCategory = catOverride || category;
+    try {
+      const structuredDesc = getStructuredDescription(undefined, activeCategory, newSkill);
+      await fetch(`/api/author/products/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          skill_id: newSkill,
+          description: structuredDesc,
+        }),
+      });
+    } catch (err) {
+      console.error('Failed to sync skill to server:', err);
+    }
   };
 
   const toggleTargetAudience = (aud: string) => {
@@ -311,11 +344,12 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     }
   };
 
-  const getStructuredDescription = (galleryUrls?: string[]) => {
+  const getStructuredDescription = (galleryUrls?: string[], overrideCategory?: string, overrideSkill?: string) => {
     return JSON.stringify({
       short_description: shortDesc,
       full_description: fullDesc,
-      category,
+      category: overrideCategory || category,
+      skill: overrideSkill || skill,
       difficulty,
       learning_outcomes: learningOutcomes,
       requirements,
@@ -534,7 +568,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Skill <span className="text-red-500">*</span></label>
               {category ? (
                 availableSkills.length > 0 ? (
-                  <select required className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={skill} onChange={(e) => setSkill(e.target.value)}>
+                  <select required className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={skill} onChange={(e) => handleSkillChange(e.target.value)}>
                     <option value="">[ Select a skill ▾ ]</option>
                     {availableSkills.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                   </select>

@@ -41,9 +41,30 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       else if (pRate > 1) platformCommissionRate = pRate;
     }
 
+    // Look up human-readable skill slug from skills table
+    let skillSlug = null;
+    let skillName = null;
+    if (product.skill_id) {
+      const { data: skillRow } = await supabaseAdmin
+        .from('skills')
+        .select('slug, name')
+        .eq('id', product.skill_id)
+        .maybeSingle();
+      if (skillRow) {
+        skillSlug = skillRow.slug;
+        skillName = skillRow.name;
+      }
+    }
+
     return NextResponse.json({ 
       success: true, 
-      product,
+      product: {
+        ...product,
+        skill_slug: skillSlug,
+        skill_name: skillName,
+      },
+      skill_slug: skillSlug,
+      skill_name: skillName,
       platform_commission_rate: platformCommissionRate 
     });
   } catch (err: any) {
