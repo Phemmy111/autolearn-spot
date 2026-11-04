@@ -64,11 +64,49 @@ export function validateProductCompleteness(product: Partial<LearningProduct>): 
   };
 }
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+async function resolveSkillUuid(skillInput?: string | null): Promise<string> {
+  if (!skillInput) return '00000000-0000-0000-0000-000000000002';
+  if (UUID_REGEX.test(skillInput)) return skillInput;
+
+  try {
+    const cleanSlug = skillInput.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const { data: matchedSkill } = await supabaseAdmin
+      .from('skills')
+      .select('id')
+      .or(`slug.eq.${cleanSlug},name.ilike.%${skillInput}%`)
+      .limit(1)
+      .maybeSingle();
+
+    if (matchedSkill?.id) return matchedSkill.id;
+
+    const { data: newSkill } = await supabaseAdmin
+      .from('skills')
+      .insert({
+        slug: cleanSlug,
+        name: skillInput,
+        category_id: '00000000-0000-0000-0000-000000000001',
+        status: 'active',
+      })
+      .select('id')
+      .single();
+
+    if (newSkill?.id) return newSkill.id;
+  } catch (err) {
+    console.warn('[product-service] skill resolution error, falling back:', err);
+  }
+
+  return '00000000-0000-0000-0000-000000000002';
+}
+
 /** Create a new product as DRAFT */
 export async function createProduct(data: Omit<LearningProduct, 'id' | 'author_id' | 'status' | 'created_at' | 'updated_at'>): Promise<LearningProduct | null> {
   const authorId = await getAuthorId();
+  const safeSkillId = await resolveSkillUuid(data.skill_id);
   const payload = {
     ...data,
+    skill_id: safeSkillId,
     author_id: authorId,
     status: 'DRAFT' as ProductStatus,
     created_at: new Date().toISOString(),
@@ -86,7 +124,7 @@ export async function createProduct(data: Omit<LearningProduct, 'id' | 'author_i
 /** Update mutable fields of owned product (only DRAFT or UNPUBLISHED) */
 export async function updateProduct(productId: string, updates: Partial<Omit<LearningProduct, 'id' | 'author_id' | 'created_at' | 'updated_at'>>): Promise<LearningProduct | null> {
   const authorId = await getAuthorId();
-  const { data: existing, error: selError } = await supabaseAdmin.from('learning_products').select('status').eq('id', productId).eq('author_id', authorId).single();
+  const { data: existing, error: selError } = await supabaseAdmin.from('learning_products').select('status, skill_id').eq('id', productId).eq('author_id', authorId).single();
   if (selError || !existing) {
     console.error('[product-service] ownership check failed:', selError);
     return null;
@@ -96,7 +134,13 @@ export async function updateProduct(productId: string, updates: Partial<Omit<Lea
     console.error('[product-service] cannot edit status', (existing as any).status);
     return null;
   }
-  const payload = { ...updates, updated_at: new Date().toISOString() };
+
+  const safeUpdates = { ...updates };
+  if (safeUpdates.skill_id !== undefined) {
+    safeUpdates.skill_id = await resolveSkillUuid(safeUpdates.skill_id);
+  }
+
+  const payload = { ...safeUpdates, updated_at: new Date().toISOString() };
   const { data: result, error } = await supabaseAdmin.from('learning_products').update(payload).eq('id', productId).eq('author_id', authorId).select().single();
   if (error) {
     console.error('[product-service] update error:', error);

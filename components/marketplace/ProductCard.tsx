@@ -22,9 +22,9 @@ export function ProductCard({ product, authorName = 'Expert Instructor', rating 
     <div className="group flex flex-col bg-[var(--card)] border border-brand-border/60 rounded-2xl overflow-hidden hover:border-[#10b981]/40 transition-all duration-500 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1">
       {/* Thumbnail Container */}
       <Link href={`/learning_products/${product.id}`} className="relative aspect-[4/3] block overflow-hidden bg-[var(--card)] brightness-95">
-        {(product.thumbnail_url || true) ? (
+        {product.thumbnail_url ? (
           <Image
-            src={product.thumbnail_url || '/n8n-mockup.png'}
+            src={product.thumbnail_url}
             alt={product.title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"

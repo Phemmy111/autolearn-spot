@@ -111,16 +111,26 @@ export async function POST(request: NextRequest) {
       
       try {
         // Save user message FIRST so it appears in conversation history
-        const { data: earlyUserMessage, error: earlyUserMsgError } = await supabase
+        const earlyPayload: any = {
+          conversation_id: conversationIdToUse,
+          role: 'user',
+          content,
+        }
+        if (fileIds && fileIds.length > 0) {
+          earlyPayload.file_ids = fileIds
+        }
+        let { data: earlyUserMessage, error: earlyUserMsgError } = await supabase
           .from('alex_messages')
-          .insert({
-            conversation_id: conversationIdToUse,
-            role: 'user',
-            content,
-            file_ids: fileIds || [],
-          })
+          .insert(earlyPayload)
           .select()
           .single()
+
+        if (earlyUserMsgError && (earlyUserMsgError.message?.includes('file_ids') || earlyUserMsgError.code === 'PGRST204')) {
+          delete earlyPayload.file_ids
+          const retry = await supabase.from('alex_messages').insert(earlyPayload).select().single()
+          earlyUserMessage = retry.data
+          earlyUserMsgError = retry.error
+        }
 
         if (earlyUserMsgError) {
           console.error('[CHAT ROUTE] Failed to save user message in early routing:', earlyUserMsgError)
@@ -327,16 +337,27 @@ export async function POST(request: NextRequest) {
       fileIds: fileIds || []
     })
 
-    const { data: userMessage, error: userMsgError } = await supabase
+    const userMsgPayload: any = {
+      conversation_id: conversationIdToUse,
+      role: 'user',
+      content,
+    }
+    if (fileIds && fileIds.length > 0) {
+      userMsgPayload.file_ids = fileIds
+    }
+
+    let { data: userMessage, error: userMsgError } = await supabase
       .from('alex_messages')
-      .insert({
-        conversation_id: conversationIdToUse,
-        role: 'user',
-        content,
-        file_ids: fileIds || [], // Store file IDs with the message
-      })
+      .insert(userMsgPayload)
       .select()
       .single()
+
+    if (userMsgError && (userMsgError.message?.includes('file_ids') || userMsgError.code === 'PGRST204')) {
+      delete userMsgPayload.file_ids
+      const retry = await supabase.from('alex_messages').insert(userMsgPayload).select().single()
+      userMessage = retry.data
+      userMsgError = retry.error
+    }
 
     console.log('[DIAGNOSTIC] MESSAGE PERSISTENCE RESULT', {
       insertSuccess: !userMsgError,

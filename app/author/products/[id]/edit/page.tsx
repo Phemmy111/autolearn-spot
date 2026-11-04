@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState, use, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { uploadThumbnail } from '@/lib/supabase-upload';
 import { CATEGORIES, SKILLS_BY_CATEGORY } from '@/lib/taxonomy';
@@ -47,6 +47,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false);
+  const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const [mediaGallery, setMediaGallery] = useState<string[]>([]);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
 
@@ -73,7 +75,6 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           const p = data.product;
           setTitle(p.title || '');
           setProductType(p.product_type || 'COURSE');
-          setSkill(p.skill_id || '');
           setPrice(String(p.price ?? 0));
           setCurrency(p.currency || 'NGN');
           setThumbnailUrl(p.thumbnail_url || null);
@@ -97,12 +98,13 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             }
           }
 
+          let loadedCategory = '';
           if (p.description) {
             try {
               const descData = JSON.parse(p.description);
               setShortDesc(descData.short_description || '');
               setFullDesc(descData.full_description || '');
-              setCategory(descData.category || '');
+              loadedCategory = descData.category || '';
               setDifficulty(descData.difficulty || 'All Levels');
               setLearningOutcomes(descData.learning_outcomes || []);
               setRequirements(descData.requirements || []);
@@ -112,6 +114,17 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               setFullDesc(p.description);
             }
           }
+
+          if (!loadedCategory) {
+            loadedCategory = 'Artificial Intelligence & Machine Learning';
+          }
+          setCategory(loadedCategory);
+
+          let initialSkill = p.skill_id || '';
+          if (initialSkill === '00000000-0000-0000-0000-000000000002' || !initialSkill) {
+            initialSkill = 'ai-automation';
+          }
+          setSkill(initialSkill);
         }
         setLoading(false);
         setTimeout(() => setInitialLoad(false), 500);
@@ -238,13 +251,61 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     setRequirements(requirements.filter((_, i) => i !== index));
   };
 
-  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleThumbnailChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
-    setThumbnailFile(file);
-    if (file) {
-      setThumbnailPreview(URL.createObjectURL(file));
-    } else {
+    if (!file) return;
+
+    // Show instant local preview
+    const localPreview = URL.createObjectURL(file);
+    setThumbnailPreview(localPreview);
+    setIsUploadingThumbnail(true);
+    setError(null);
+
+    try {
+      const uploadedUrl = await uploadThumbnail(file);
+      if (uploadedUrl) {
+        setThumbnailUrl(uploadedUrl);
+        setThumbnailFile(null);
+        setThumbnailPreview(null);
+
+        // Immediately persist thumbnail change to database
+        await fetch(`/api/author/products/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ thumbnail_url: uploadedUrl }),
+        });
+      } else {
+        setError('Failed to upload thumbnail image. Please check file format and try again.');
+        setThumbnailPreview(null);
+      }
+    } catch (err: any) {
+      console.error('Thumbnail upload failed:', err);
+      setError('Error uploading thumbnail: ' + (err.message || 'Network error'));
       setThumbnailPreview(null);
+    } finally {
+      setIsUploadingThumbnail(false);
+      if (thumbnailInputRef.current) {
+        thumbnailInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleRemoveThumbnail = async () => {
+    setThumbnailPreview(null);
+    setThumbnailFile(null);
+    setThumbnailUrl(null);
+    if (thumbnailInputRef.current) {
+      thumbnailInputRef.current.value = '';
+    }
+    try {
+      // Immediately clear in database
+      await fetch(`/api/author/products/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ thumbnail_url: null }),
+      });
+    } catch (err) {
+      console.error('Failed to clear thumbnail in DB:', err);
     }
   };
 
@@ -542,10 +603,15 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           <div>
             <label className="block text-sm font-semibold text-neutral-700 mb-2">Thumbnail (Optional - replace existing)</label>
             <div className="flex flex-col sm:flex-row items-center gap-6 p-6 border-2 border-dashed border-brand-border rounded-xl bg-brand-bg hover:bg-[var(--card)] brightness-95 transition-colors">
-              {displayThumbnail ? (
+              {isUploadingThumbnail ? (
+                <div className="w-32 h-32 flex flex-col items-center justify-center bg-neutral-200 rounded-lg border border-brand-border">
+                  <span className="animate-spin text-2xl mb-1 text-sky-600">⟳</span>
+                  <span className="text-neutral-500 text-xs font-semibold">Uploading...</span>
+                </div>
+              ) : displayThumbnail ? (
                 <div className="relative">
                   <img src={displayThumbnail} alt="Preview" className="w-32 h-32 object-cover rounded-lg border border-brand-border shadow-sm" />
-                  <button type="button" onClick={() => { setThumbnailPreview(null); setThumbnailFile(null); setThumbnailUrl(null); }} className="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs hover:bg-red-200 shadow-sm">✕</button>
+                  <button type="button" onClick={handleRemoveThumbnail} className="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs hover:bg-red-200 shadow-sm" title="Remove image">✕</button>
                 </div>
               ) : (
                 <div className="w-32 h-32 flex items-center justify-center bg-neutral-200 rounded-lg border border-brand-border">
@@ -553,11 +619,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 </div>
               )}
               <div className="flex-1 text-center sm:text-left">
-                <input type="file" id="thumbnail" accept="image/png, image/jpeg, image/webp" className="hidden" onChange={handleThumbnailChange} />
+                <input ref={thumbnailInputRef} type="file" id="thumbnail" accept="image/png, image/jpeg, image/webp" className="hidden" onChange={handleThumbnailChange} />
                 <label htmlFor="thumbnail" className="cursor-pointer inline-flex px-4 py-2 bg-[var(--card)] border border-brand-border text-neutral-700 text-sm font-semibold rounded-lg hover:bg-brand-bg transition-colors shadow-sm">
-                  Choose Image
+                  {isUploadingThumbnail ? 'Uploading...' : 'Choose Image'}
                 </label>
-                <p className="mt-2 text-xs text-brand-text/60">Recommended size: 1280x720. Max size: 2MB.</p>
+                <p className="mt-2 text-xs text-brand-text/60">Recommended size: 1280x720. Max size: 10MB.</p>
               </div>
             </div>
           </div>
