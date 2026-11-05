@@ -35,17 +35,48 @@ export default async function LearningProductPage({ params }: PageParams) {
   const { userId } = await auth();
   const isOwner = userId === product.author_id;
 
-  // 2. Fetch Author
-  const { data: authorRecord } = await supabaseAdmin
-    .from('authors')
-    .select('id, name, avatar_url, bio')
-    .eq('user_id', product.author_id)
-    .maybeSingle();
+  // 2. Fetch Author (support UUID id, user_id, or clerk_user_id)
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(product.author_id);
+  const authorQuery = isUuid
+    ? supabaseAdmin.from('authors').select('*').or(`id.eq.${product.author_id},user_id.eq.${product.author_id}`)
+    : supabaseAdmin.from('authors').select('*').or(`user_id.eq.${product.author_id},clerk_user_id.eq.${product.author_id}`);
 
-  const authorName = authorRecord?.name || 'Femi Adeleke';
-  const authorImage = authorRecord?.avatar_url || '/femi-headshot.png';
-  const authorBio = authorRecord?.bio || 'Specialist in scalable n8n workflows, enterprise API integrations, and AI agent architectures.';
-  const authorTitle = 'Lead AI Automation Architect';
+  let { data: authorRecord } = await authorQuery.maybeSingle();
+
+  // Load extra metadata from site_settings if available
+  let authorExtra: any = {};
+  if (authorRecord) {
+    try {
+      const { data: setting } = await supabaseAdmin
+        .from('site_settings')
+        .select('value')
+        .or(`key.eq.author_extra_${authorRecord.id},key.eq.author_extra_${authorRecord.user_id}`)
+        .limit(1)
+        .maybeSingle();
+      if (setting?.value) {
+        authorExtra = typeof setting.value === 'string' ? JSON.parse(setting.value) : setting.value;
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  // Resolve author image: prioritize uploaded images over generic placeholders
+  const candidateImages = [
+    authorRecord?.profile_image,
+    authorExtra?.profile_image,
+    authorRecord?.avatar_url,
+    authorExtra?.avatar_url,
+  ].filter(Boolean);
+
+  const realUploadedImage = candidateImages.find(
+    (img: string) => typeof img === 'string' && !img.includes('femi-headshot') && img.trim() !== ''
+  );
+
+  const authorName = authorRecord?.display_name || authorRecord?.name || authorExtra?.display_name || 'Expert Instructor';
+  const authorImage = realUploadedImage || candidateImages[0] || '/femi-headshot.png';
+  const authorBio = authorRecord?.bio || authorExtra?.bio || 'Specialist in scalable automations, enterprise API integrations, and AI agent architectures.';
+  const authorTitle = authorRecord?.professional_title || authorExtra?.professional_title || 'Lead AI Automation Architect';
 
   // 3. Fetch Lessons
   const { data: lessons } = await supabaseAdmin

@@ -60,7 +60,17 @@ export async function GET(request: NextRequest) {
       console.warn('Could not load author extra settings:', e);
     }
 
-    const profileImage = author?.profile_image || author?.avatar_url || extraData.profile_image || '';
+    const candidateImages = [
+      author?.profile_image,
+      extraData?.profile_image,
+      author?.avatar_url,
+      extraData?.avatar_url,
+    ].filter(Boolean);
+
+    const realUploadedImage = candidateImages.find(
+      (img: string) => typeof img === 'string' && !img.includes('femi-headshot') && img.trim() !== ''
+    );
+    const profileImage = realUploadedImage || candidateImages[0] || '';
     const displayName = author?.display_name || author?.name || extraData.display_name || '';
     const professionalTitle = author?.professional_title || extraData.professional_title || '';
     const bio = author?.bio || extraData.bio || '';

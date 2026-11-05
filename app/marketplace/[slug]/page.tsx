@@ -46,13 +46,48 @@ export default async function MarketplaceProductPage({ params }: PageParams) {
   const { userId } = await auth();
   const isOwner = userId === product.author_id;
 
-  // 2. Fetch Author
-  const { data: author } = await supabaseAdmin
-    .from('authors')
-    .select('id, display_name, profile_image, professional_title, bio')
-    .eq('clerk_user_id', product.author_id)
-    .limit(1)
-    .single();
+  // 2. Fetch Author (support UUID id, user_id, or clerk_user_id)
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(product.author_id);
+  const authorQuery = isUuid
+    ? supabaseAdmin.from('authors').select('*').or(`id.eq.${product.author_id},user_id.eq.${product.author_id}`)
+    : supabaseAdmin.from('authors').select('*').or(`user_id.eq.${product.author_id},clerk_user_id.eq.${product.author_id}`);
+
+  let { data: author } = await authorQuery.maybeSingle();
+
+  // Load extra metadata from site_settings if available
+  let authorExtra: any = {};
+  if (author) {
+    try {
+      const { data: setting } = await supabaseAdmin
+        .from('site_settings')
+        .select('value')
+        .or(`key.eq.author_extra_${author.id},key.eq.author_extra_${author.user_id}`)
+        .limit(1)
+        .maybeSingle();
+      if (setting?.value) {
+        authorExtra = typeof setting.value === 'string' ? JSON.parse(setting.value) : setting.value;
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  // Resolve author image: prioritize uploaded images over generic placeholder
+  const candidateImages = [
+    author?.profile_image,
+    authorExtra?.profile_image,
+    author?.avatar_url,
+    authorExtra?.avatar_url,
+  ].filter(Boolean);
+
+  const realUploadedImage = candidateImages.find(
+    (img: string) => typeof img === 'string' && !img.includes('femi-headshot') && img.trim() !== ''
+  );
+
+  const authorProfileImage = realUploadedImage || candidateImages[0] || '';
+  const authorName = author?.display_name || author?.name || authorExtra?.display_name || 'Expert Instructor';
+  const authorTitle = author?.professional_title || authorExtra?.professional_title || 'Expert Course Creator';
+  const authorBio = author?.bio || authorExtra?.bio || '';
 
   // 3. Fetch Lessons
   const { data: lessons } = await supabaseAdmin
@@ -67,8 +102,6 @@ export default async function MarketplaceProductPage({ params }: PageParams) {
     currency: product.currency || 'NGN',
     maximumFractionDigits: 0
   }).format(product.price);
-
-  const authorName = author?.display_name || 'Expert Instructor';
 
   // Parse Description JSON
   let shortDesc = '';
@@ -158,8 +191,8 @@ export default async function MarketplaceProductPage({ params }: PageParams) {
                 <div className="hidden sm:block w-1 h-1 rounded-full bg-border" />
                 
                 <Link href={`/instructors/${product.author_id}`} className="flex items-center gap-2 hover:text-brand-primary transition-colors text-foreground">
-                  {author?.profile_image ? (
-                    <Image src={author.profile_image} alt={authorName} width={24} height={24} className="rounded-full object-cover w-6 h-6" />
+                  {authorProfileImage ? (
+                    <Image src={authorProfileImage} alt={authorName} width={24} height={24} className="rounded-full object-cover w-6 h-6" />
                   ) : (
                     <UserIcon className="w-4 h-4 text-muted-foreground" />
                   )}
@@ -236,8 +269,8 @@ export default async function MarketplaceProductPage({ params }: PageParams) {
               <h2 className="text-2xl font-heading font-bold mb-6">About the Instructor</h2>
               <div className="flex flex-col sm:flex-row gap-6 items-start">
                 <Link href={`/instructors/${product.author_id}`} className="shrink-0">
-                  {author?.profile_image ? (
-                    <Image src={author.profile_image} alt={authorName} width={120} height={120} className="rounded-full object-cover w-[100px] h-[100px] sm:w-[120px] sm:h-[120px] border-4 border-muted" />
+                  {authorProfileImage ? (
+                    <Image src={authorProfileImage} alt={authorName} width={120} height={120} className="rounded-full object-cover w-[100px] h-[100px] sm:w-[120px] sm:h-[120px] border-4 border-muted" />
                   ) : (
                     <div className="w-[100px] h-[100px] sm:w-[120px] sm:h-[120px] rounded-full bg-brand-primary/10 flex items-center justify-center border-4 border-muted">
                       <UserIcon className="w-12 h-12 text-brand-primary" />
@@ -248,11 +281,11 @@ export default async function MarketplaceProductPage({ params }: PageParams) {
                   <Link href={`/instructors/${product.author_id}`} className="hover:text-brand-primary transition-colors">
                     <h3 className="text-xl font-bold text-foreground mb-1">{authorName}</h3>
                   </Link>
-                  <p className="text-brand-primary font-medium text-sm mb-4">{author?.professional_title || 'Expert Course Creator'}</p>
+                  <p className="text-brand-primary font-medium text-sm mb-4">{authorTitle}</p>
                   
-                  {author?.bio ? (
+                  {authorBio ? (
                     <p className="text-muted-foreground line-clamp-4 leading-relaxed mb-4">
-                      {author.bio}
+                      {authorBio}
                     </p>
                   ) : (
                     <p className="text-muted-foreground mb-4">

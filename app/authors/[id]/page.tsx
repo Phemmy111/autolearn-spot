@@ -36,17 +36,75 @@ interface Product {
 }
 
 async function getAuthorData(authorId: string) {
-  const { data: author, error: authorError } = await supabaseAdmin
-    .from('authors')
-    .select('*')
-    .eq('id', authorId)
-    .single();
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(authorId);
+  
+  let query = supabaseAdmin.from('authors').select('*');
+  if (isUuid) {
+    query = query.or(`id.eq.${authorId},user_id.eq.${authorId}`);
+  } else {
+    query = query.or(`user_id.eq.${authorId},clerk_user_id.eq.${authorId}`);
+  }
 
-  if (authorError || !author) {
+  let { data: author, error: authorError } = await query.maybeSingle();
+
+  if (!author) {
     return null;
   }
 
-  return author as Author;
+  // Load extra metadata from site_settings
+  let extraData: any = {};
+  try {
+    const { data: setting } = await supabaseAdmin
+      .from('site_settings')
+      .select('value')
+      .or(`key.eq.author_extra_${author.id},key.eq.author_extra_${author.user_id}`)
+      .limit(1)
+      .maybeSingle();
+    if (setting?.value) {
+      extraData = typeof setting.value === 'string' ? JSON.parse(setting.value) : setting.value;
+    }
+  } catch (err) {
+    console.warn('Could not load extra author settings:', err);
+  }
+
+  const candidateImages = [
+    author.profile_image,
+    extraData.profile_image,
+    author.avatar_url,
+    extraData.avatar_url,
+  ].filter(Boolean);
+
+  const realUploadedImage = candidateImages.find(
+    (img: string) => typeof img === 'string' && !img.includes('femi-headshot') && img.trim() !== ''
+  );
+
+  const profileImage = realUploadedImage || candidateImages[0] || '';
+  const displayName = author.display_name || author.name || extraData.display_name || 'Instructor';
+  const professionalTitle = author.professional_title || extraData.professional_title || '';
+  const bio = author.bio || extraData.bio || '';
+  const yearsExp = extraData.years_of_experience ?? author.years_of_experience ?? '';
+  const email = author.email || extraData.email || '';
+  const phone = extraData.phone || author.phone || '';
+  const location = extraData.location || author.location || '';
+  const linkedin = extraData.linkedin_profile || author.linkedin_profile || '';
+  const website = extraData.website_portfolio || author.website_portfolio || '';
+  const expertise = Array.isArray(extraData.expertise) ? extraData.expertise : (Array.isArray(author.expertise) ? author.expertise : []);
+
+  return {
+    ...author,
+    id: author.id,
+    display_name: displayName,
+    profile_image: profileImage,
+    professional_title: professionalTitle,
+    bio: bio,
+    years_of_experience: yearsExp,
+    email: email,
+    phone: phone,
+    location: location,
+    linkedin_profile: linkedin,
+    website_portfolio: website,
+    expertise: expertise,
+  } as Author;
 }
 
 async function getAuthorProducts(authorId: string) {

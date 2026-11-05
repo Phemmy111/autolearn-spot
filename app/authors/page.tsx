@@ -9,9 +9,28 @@ export default async function AuthorsDirectoryPage() {
   // Step 1: Fetch all ACTIVE authors
   const { data: authors, error } = await supabaseAdmin
     .from('authors')
-    .select('id, display_name, bio, profile_image, professional_title, status, created_at')
+    .select('id, user_id, display_name, name, bio, profile_image, avatar_url, professional_title, status, created_at')
     .eq('status', 'ACTIVE')
     .order('display_name');
+
+  // Fetch author extra settings for rich metadata (including uploaded images)
+  const { data: extraSettings } = await supabaseAdmin
+    .from('site_settings')
+    .select('key, value')
+    .like('key', 'author_extra_%');
+
+  const extraMap: Record<string, any> = {};
+  if (extraSettings) {
+    for (const s of extraSettings) {
+      try {
+        const parsed = typeof s.value === 'string' ? JSON.parse(s.value) : s.value;
+        const keyId = s.key.replace('author_extra_', '');
+        extraMap[keyId] = parsed;
+      } catch (e) {
+        // ignore
+      }
+    }
+  }
 
   // Step 2: Fetch published products separately
   const authorIds = (authors || []).map((a) => a.id);
@@ -59,8 +78,25 @@ export default async function AuthorsDirectoryPage() {
         ? authorReviews.reduce((sum, r) => sum + (r.rating || 0), 0) / authorReviews.length
         : 0;
 
+    const extra = extraMap[author.id] || (author.user_id ? extraMap[author.user_id] : {}) || {};
+
+    const candidateImages = [
+      author.profile_image,
+      extra.profile_image,
+      author.avatar_url,
+      extra.avatar_url,
+    ].filter(Boolean);
+
+    const realUploadedImage = candidateImages.find(
+      (img: string) => typeof img === 'string' && !img.includes('femi-headshot') && img.trim() !== ''
+    );
+
     return {
       ...author,
+      display_name: author.display_name || author.name || extra.display_name || 'Instructor',
+      profile_image: realUploadedImage || candidateImages[0] || '',
+      professional_title: author.professional_title || extra.professional_title || '',
+      bio: author.bio || extra.bio || '',
       publishedCount: authorProducts.length,
       totalStudents,
       avgRating,

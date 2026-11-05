@@ -79,7 +79,19 @@ async function getAuthorData(authorId: string): Promise<Author | null> {
     console.warn('Could not load extra author settings:', err);
   }
 
-  const profileImage = author.profile_image || author.avatar_url || extraData.profile_image || '/femi-headshot.png';
+  // Resolve author image: prioritize uploaded images over generic placeholder
+  const candidateImages = [
+    author.profile_image,
+    extraData.profile_image,
+    author.avatar_url,
+    extraData.avatar_url,
+  ].filter(Boolean);
+
+  const realUploadedImage = candidateImages.find(
+    (img: string) => typeof img === 'string' && !img.includes('femi-headshot') && img.trim() !== ''
+  );
+
+  const profileImage = realUploadedImage || candidateImages[0] || '/femi-headshot.png';
   const displayName = author.display_name || author.name || extraData.display_name || 'Femi Adeleke';
   const professionalTitle = author.professional_title || extraData.professional_title || 'Lead AI Automation Architect';
   const bio = author.bio || extraData.bio || 'Specialist in scalable n8n workflows, enterprise API integrations, and AI agent architectures.';
