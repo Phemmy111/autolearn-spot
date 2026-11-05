@@ -9,6 +9,7 @@ import { ProductMediaGallery } from '@/components/marketplace/ProductMediaGaller
 import { Suspense } from 'react';
 import { AffiliateRefCapture } from '@/components/affiliate/AffiliateRefCapture';
 import { TrackViewContent } from '@/components/analytics/TrackViewContent';
+import { CourseStudentReviews } from '@/components/marketplace/CourseStudentReviews';
 
 interface PageParams {
   params: Promise<{ slug: string }>;
@@ -300,18 +301,8 @@ export default async function MarketplaceProductPage({ params }: PageParams) {
               </div>
             </div>
 
-            {/* Reviews Section Placeholder */}
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-700 fill-mode-both">
-              <h2 className="text-2xl font-heading font-bold mb-6 flex items-center gap-2">
-                <Star className="w-6 h-6 text-amber-500 fill-amber-500" />
-                Student Reviews
-              </h2>
-              <div className="bg-card border border-border rounded-2xl p-8 text-center">
-                <Star className="w-12 h-12 text-muted-foreground/20 mx-auto mb-3" />
-                <h4 className="text-lg font-bold text-foreground mb-1">No reviews yet</h4>
-                <p className="text-muted-foreground text-sm">Be the first to review this course after enrolling!</p>
-              </div>
-            </div>
+            {/* Student Reviews Section */}
+            <CourseStudentReviews courseTitle={product.title} courseSlug={product.slug || slug} />
 
           </div>
 

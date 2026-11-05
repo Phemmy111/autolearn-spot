@@ -52,7 +52,7 @@ export function StudentTestimonialCard({
           )}
           {verified && (
             <div className="absolute -bottom-1 -right-1 bg-brand-bg rounded-full p-1">
-              <CheckCircle className="h-3 w-3 text-[#00363a]" />
+              <CheckCircle className="h-3.5 w-3.5 text-[#10b981]" />
             </div>
           )}
         </div>
