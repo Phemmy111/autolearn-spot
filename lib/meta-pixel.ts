@@ -83,6 +83,41 @@ function getEventKey(eventName: string, identifier: string): string {
   return `${eventName}:${identifier}`;
 }
 
+// ─── Queue for Resilient Delivery (Prevents lost events if script is still loading) ──
+
+interface QueuedPixelCall {
+  action: 'track' | 'trackCustom';
+  eventName: string;
+  params?: Record<string, any>;
+  options?: { eventID?: string };
+}
+
+const pendingQueue: QueuedPixelCall[] = [];
+let queueFlushTimer: ReturnType<typeof setInterval> | null = null;
+
+function flushPendingQueue(): void {
+  if (typeof window === 'undefined' || typeof window.fbq !== 'function') return;
+  while (pendingQueue.length > 0) {
+    const item = pendingQueue.shift();
+    if (!item) break;
+    try {
+      if (item.options?.eventID) {
+        window.fbq(item.action, item.eventName, item.params, { eventID: item.options.eventID });
+        console.debug(`[Meta Pixel] Flushed queued ${item.eventName} with eventID: ${item.options.eventID}`, item.params);
+      } else {
+        window.fbq(item.action, item.eventName, item.params);
+        console.debug(`[Meta Pixel] Flushed queued ${item.eventName}`, item.params);
+      }
+    } catch (e) {
+      console.warn(`[Meta Pixel] Error flushing queued ${item.eventName}:`, e);
+    }
+  }
+  if (queueFlushTimer) {
+    clearInterval(queueFlushTimer);
+    queueFlushTimer = null;
+  }
+}
+
 /**
  * Safe wrapper around window.fbq
  */
@@ -99,8 +134,30 @@ function safeFbq(
   }
 
   if (typeof window.fbq !== 'function') {
-    console.debug(`[Meta Pixel] fbq not available yet. Queuing or skipping ${eventName}`);
+    console.debug(`[Meta Pixel] fbq not available yet. Queuing ${eventName}`);
+    pendingQueue.push({ action, eventName, params, options });
+    if (!queueFlushTimer) {
+      let attempts = 0;
+      queueFlushTimer = setInterval(() => {
+        attempts++;
+        if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+          flushPendingQueue();
+        } else if (attempts >= 25) {
+          // Timed out after ~5 seconds
+          if (queueFlushTimer) {
+            clearInterval(queueFlushTimer);
+            queueFlushTimer = null;
+          }
+          console.warn(`[Meta Pixel] Timed out waiting for fbq to initialize (${pendingQueue.length} events dropped).`);
+        }
+      }, 200);
+    }
     return;
+  }
+
+  // If there are pending items waiting, flush them first
+  if (pendingQueue.length > 0) {
+    flushPendingQueue();
   }
 
   try {

@@ -26,7 +26,7 @@ import { clearCartItems } from '@/lib/cart-service';
 import { processWithdrawal } from '@/lib/authorService';
 // Email service for course purchases
 import { EmailService } from '@/lib/email-service';
-import { sendMetaCapiEvent } from '@/lib/meta-conversions-api';
+import { dispatchCapiWithOutbox } from '@/lib/meta-capi-outbox';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -88,7 +88,40 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
 
   // 2. Idempotency check
   if (order.status === 'PAID') {
-    console.log(`Cart checkout ${reference} already processed - order is PAID`);
+    console.log(`Cart checkout ${reference} already processed - order is PAID. Ensuring CAPI event is delivered.`);
+    try {
+      const orderItems = await getOrderItems(order.id);
+      const confirmedFullName = order.customer_name || 'Student';
+      const nameParts = confirmedFullName.split(' ');
+      await dispatchCapiWithOutbox({
+        event_name: 'Purchase',
+        event_id: `purchase_${order.id}`,
+        event_source_url: 'https://www.autolearnspot.com/checkout/success',
+        action_source: 'website',
+        user_data: {
+          email: order.customer_email || email,
+          firstName: nameParts[0] || null,
+          lastName: nameParts.slice(1).join(' ') || null,
+          clientIpAddress: data.ip_address || null,
+        },
+        custom_data: {
+          currency: 'NGN',
+          value: order.total,
+          content_type: 'product',
+          content_ids: orderItems.map((i: any) => i.learning_product_id),
+          contents: orderItems.map((i: any) => ({
+            id: i.learning_product_id,
+            title: i.product_title,
+            item_price: i.price_snapshot,
+            quantity: 1,
+          })),
+          num_items: orderItems.length,
+          order_id: order.id,
+        },
+      });
+    } catch (e) {
+      console.warn('[Meta CAPI Outbox] Retry check on PAID order error:', e);
+    }
     return NextResponse.json({ received: true, message: 'Payment already processed' });
   }
 
@@ -314,7 +347,7 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
 
   // Meta Conversions API (CAPI): Server-side Purchase tracking
   try {
-    await sendMetaCapiEvent({
+    await dispatchCapiWithOutbox({
       event_name: 'Purchase',
       event_id: `purchase_${order.id}`,
       event_source_url: 'https://www.autolearnspot.com/checkout/success',
@@ -593,7 +626,41 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
     .maybeSingle();
 
   if (existingEnrollment) {
-    console.log(`Payment ${reference} already processed - enrollment exists`);
+    console.log(`Payment ${reference} already processed - enrollment exists. Ensuring CAPI event is delivered.`);
+    try {
+      const directNameParts = (pendingEnrollment.full_name || '').split(' ');
+      await dispatchCapiWithOutbox({
+        event_name: 'Purchase',
+        event_id: `purchase_ref_${reference}`,
+        event_source_url: 'https://www.autolearnspot.com/enroll/success',
+        action_source: 'website',
+        user_data: {
+          email: email,
+          firstName: directNameParts[0] || null,
+          lastName: directNameParts.slice(1).join(' ') || null,
+          phone: pendingEnrollment.phone_number || null,
+          clientIpAddress: data.ip_address || null,
+        },
+        custom_data: {
+          currency: 'NGN',
+          value: amountInNaira,
+          content_type: 'product',
+          content_ids: ['n8n-automation-training'],
+          contents: [
+            {
+              id: 'n8n-automation-training',
+              title: '4-Week n8n Automation Training',
+              item_price: amountInNaira,
+              quantity: 1,
+            },
+          ],
+          num_items: 1,
+          order_id: reference,
+        },
+      });
+    } catch (e) {
+      console.warn('[Meta CAPI Outbox] Direct enrollment retry check error:', e);
+    }
     return NextResponse.json({ received: true, message: 'Payment already processed' });
   }
 
@@ -741,7 +808,7 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
   // Meta Conversions API (CAPI): Server-side Purchase tracking for Direct Enrollment
   try {
     const directNameParts = (pendingEnrollment.full_name || '').split(' ');
-    await sendMetaCapiEvent({
+    await dispatchCapiWithOutbox({
       event_name: 'Purchase',
       event_id: `purchase_ref_${reference}`,
       event_source_url: 'https://www.autolearnspot.com/enroll/success',
