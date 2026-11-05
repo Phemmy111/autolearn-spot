@@ -5,6 +5,7 @@ import { useAuth, useUser } from '@clerk/nextjs';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ShoppingBag, Trash2, ArrowRight, ShieldCheck, Loader2 } from 'lucide-react';
+import { fbqInitiateCheckout } from '@/lib/meta-pixel';
 
 interface CartItem {
   id: string; // cart item id
@@ -122,6 +123,18 @@ export default function CartPage() {
       }
 
       if (data?.authorization_url) {
+        fbqInitiateCheckout({
+          contents: cart?.items?.map((item) => ({
+            id: item.learning_product_id,
+            quantity: item.quantity || 1,
+            item_price: item.learning_products?.price || 0,
+            title: item.learning_products?.title,
+          })),
+          content_ids: cart?.items?.map((item) => item.learning_product_id),
+          num_items: cart?.items?.length || 1,
+          value: cart?.subtotal || 0,
+          currency: cart?.currency || 'NGN',
+        });
         window.location.href = data.authorization_url;
       } else {
         throw new Error('No payment authorization URL returned');

@@ -26,6 +26,7 @@ import { clearCartItems } from '@/lib/cart-service';
 import { processWithdrawal } from '@/lib/authorService';
 // Email service for course purchases
 import { EmailService } from '@/lib/email-service';
+import { sendMetaCapiEvent } from '@/lib/meta-conversions-api';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -310,6 +311,38 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
       orderId: order.id
     },
   });
+
+  // Meta Conversions API (CAPI): Server-side Purchase tracking
+  try {
+    await sendMetaCapiEvent({
+      event_name: 'Purchase',
+      event_id: `purchase_${order.id}`,
+      event_source_url: 'https://www.autolearnspot.com/checkout/success',
+      action_source: 'website',
+      user_data: {
+        email: email,
+        firstName: firstName || null,
+        lastName: lastName || null,
+        clientIpAddress: data.ip_address || null,
+      },
+      custom_data: {
+        currency: 'NGN',
+        value: order.total,
+        content_type: 'product',
+        content_ids: orderItems.map((i: any) => i.learning_product_id),
+        contents: orderItems.map((i: any) => ({
+          id: i.learning_product_id,
+          title: i.product_title,
+          item_price: i.price_snapshot,
+          quantity: 1,
+        })),
+        num_items: orderItems.length,
+        order_id: order.id,
+      },
+    });
+  } catch (capiError) {
+    console.warn('[Meta CAPI] Cart checkout dispatch error (non-fatal):', capiError);
+  }
 
   // Send emails for each product in the cart
   for (const item of orderItems) {
@@ -704,6 +737,42 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
   }
 
   console.info('DIRECT ENROLLMENT: Enrollment created successfully');
+
+  // Meta Conversions API (CAPI): Server-side Purchase tracking for Direct Enrollment
+  try {
+    const directNameParts = (pendingEnrollment.full_name || '').split(' ');
+    await sendMetaCapiEvent({
+      event_name: 'Purchase',
+      event_id: `purchase_ref_${reference}`,
+      event_source_url: 'https://www.autolearnspot.com/enroll/success',
+      action_source: 'website',
+      user_data: {
+        email: email,
+        firstName: directNameParts[0] || null,
+        lastName: directNameParts.slice(1).join(' ') || null,
+        phone: pendingEnrollment.phone_number || null,
+        clientIpAddress: data.ip_address || null,
+      },
+      custom_data: {
+        currency: 'NGN',
+        value: amountInNaira,
+        content_type: 'product',
+        content_ids: ['n8n-automation-training'],
+        contents: [
+          {
+            id: 'n8n-automation-training',
+            title: '4-Week n8n Automation Training',
+            item_price: amountInNaira,
+            quantity: 1,
+          },
+        ],
+        num_items: 1,
+        order_id: reference,
+      },
+    });
+  } catch (capiError) {
+    console.warn('[Meta CAPI] Direct enrollment dispatch error (non-fatal):', capiError);
+  }
 
   // Send admin notification about successful payment
   await AdminEmailService.sendStudentPaymentEmail({

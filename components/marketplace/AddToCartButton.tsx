@@ -2,12 +2,21 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ShoppingCart, Loader2 } from 'lucide-react';
+import { fbqAddToCart } from '@/lib/meta-pixel';
 
 type AddToCartButtonProps = {
   productId: string;
+  productTitle?: string;
+  price?: number;
+  currency?: string;
 };
 
-export default function AddToCartButton({ productId }: AddToCartButtonProps) {
+export default function AddToCartButton({
+  productId,
+  productTitle,
+  price,
+  currency = 'NGN',
+}: AddToCartButtonProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,12 +28,26 @@ export default function AddToCartButton({ productId }: AddToCartButtonProps) {
       const res = await fetch('/api/cart', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ learningProductId: productId })
+        body: JSON.stringify({ learningProductId: productId }),
       });
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const data = await res.json();
         throw new Error(data.error || 'Failed to add to cart');
       }
+
+      // Meta Pixel: Track AddToCart
+      const addedItem = data?.cart?.items?.find((i: any) => i.learning_product_id === productId);
+      const title = addedItem?.learning_products?.title || productTitle || 'Online Course';
+      const itemPrice = addedItem?.learning_products?.price ?? price ?? 0;
+      const itemCurrency = addedItem?.learning_products?.currency || currency || 'NGN';
+
+      fbqAddToCart({
+        content_id: productId,
+        content_name: title,
+        value: itemPrice,
+        currency: itemCurrency,
+      });
+
       router.push('/cart');
     } catch (e: any) {
       setError(e.message);

@@ -7,6 +7,7 @@ import { ArrowLeft, CheckCircle, Star, User, Mail, Phone, Briefcase, Users, Aler
 import { DIRECT_ENROLLMENT_CONFIG } from "@/config/direct-enrollment";
 import { useDirectEnrollmentFee } from "@/hooks/useDirectEnrollmentFee";
 import { getPublicSettings } from "@/lib/public-settings";
+import { fbqInitiateCheckout } from "@/lib/meta-pixel";
 
 function EnrollForm() {
   const searchParams = useSearchParams();
@@ -164,6 +165,20 @@ function EnrollForm() {
       const paymentData = await paymentResponse.json();
 
       console.log('Redirecting to Paystack:', paymentData.authorization_url);
+      fbqInitiateCheckout({
+        contents: [
+          {
+            id: 'n8n-automation-training',
+            quantity: 1,
+            item_price: fee,
+            title: '4-Week n8n Automation Training',
+          },
+        ],
+        content_ids: ['n8n-automation-training'],
+        num_items: 1,
+        value: fee,
+        currency: 'NGN',
+      });
       window.location.href = paymentData.authorization_url;
     } catch (error) {
       console.error("Enrollment error:", error);

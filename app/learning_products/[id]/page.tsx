@@ -9,6 +9,7 @@ import { auth } from '@clerk/nextjs/server';
 import { ProductMediaGallery } from '@/components/marketplace/ProductMediaGallery';
 import { Suspense } from 'react';
 import { AffiliateRefCapture } from '@/components/affiliate/AffiliateRefCapture';
+import { TrackViewContent } from '@/components/analytics/TrackViewContent';
 
 interface PageParams {
   params: Promise<{ id: string }>;
@@ -85,7 +86,16 @@ export default async function LearningProductPage({ params }: PageParams) {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      {/* Capture ?ref= affiliate codes from URL */}
+      {/* Meta Pixel ViewContent */}
+      <TrackViewContent
+        product={{
+          id: product.id,
+          title: product.title,
+          price: product.price,
+          currency: product.currency,
+          category: product.category,
+        }}
+      />
       <Suspense fallback={null}>
         <AffiliateRefCapture />
       </Suspense>
