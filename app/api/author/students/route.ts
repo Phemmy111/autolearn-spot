@@ -120,10 +120,27 @@ export async function GET(request: NextRequest) {
       });
     });
 
+    // Create a map of customer emails to linked clerk_user_id from enrollments
+    const customerEmails = [...new Set(orders.map(o => o.customer_email).filter(Boolean))];
+    const { data: matchedEnrollments } = customerEmails.length > 0 ? await supabaseAdmin
+      .from('enrollments')
+      .select('email, clerk_user_id')
+      .in('email', customerEmails)
+      .not('clerk_user_id', 'is', null) : { data: [] };
+
+    const emailToClerkId = new Map<string, string>();
+    matchedEnrollments?.forEach(e => {
+      if (e.email && e.clerk_user_id) {
+        emailToClerkId.set(e.email.toLowerCase(), e.clerk_user_id);
+      }
+    });
+
     // Format students based on actual purchases
     const studentsByProduct = orders.map(order => {
       const productInfo = orderToProduct.get(order.id);
       const isGuest = order.user_id.startsWith('guest_');
+      const linkedClerkId = order.customer_email ? emailToClerkId.get(order.customer_email.toLowerCase()) : null;
+      const effectiveStudentId = linkedClerkId || order.user_id;
       
       // Use customer details from orders if available, otherwise fallback
       // Use email local part as name if customer_name is null
@@ -132,11 +149,11 @@ export async function GET(request: NextRequest) {
                         (isGuest ? 'Guest Purchaser' : order.user_id));
       const displayEmail = order.customer_email || (isGuest ? 'guest@example.com' : `${order.user_id}@clerk.user`);
       
-      console.log('[STUDENTS API] Processing order:', order.id, 'User:', order.user_id, 'Customer name:', order.customer_name, 'Customer email:', order.customer_email);
+      console.log('[STUDENTS API] Processing order:', order.id, 'User:', order.user_id, 'Effective student ID:', effectiveStudentId, 'Customer name:', order.customer_name, 'Customer email:', order.customer_email);
       
       return {
         // For messages page
-        student_id: order.user_id,
+        student_id: effectiveStudentId,
         full_name: displayName,
         product_id: productInfo?.productId,
         product_title: productInfo?.productTitle || 'Unknown Course',

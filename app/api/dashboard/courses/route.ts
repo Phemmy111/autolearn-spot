@@ -13,9 +13,17 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const primaryEmail = user.primaryEmailAddress?.emailAddress || '';
+    const emails: string[] = [];
+    if (user.primaryEmailAddress?.emailAddress) {
+      emails.push(user.primaryEmailAddress.emailAddress);
+    }
+    user.emailAddresses?.forEach(e => {
+      if (e.emailAddress && !emails.includes(e.emailAddress)) {
+        emails.push(e.emailAddress);
+      }
+    });
 
-    const enrollments = await getUserEnrollments(userId, primaryEmail);
+    const enrollments = await getUserEnrollments(userId, emails);
 
     // Show both active and not-started enrollments (exclude expired)
     const activeEnrollments = enrollments.filter((e: any) => e.status === 'active' || e.status === 'not_started');

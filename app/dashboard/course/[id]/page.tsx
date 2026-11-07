@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation';
-import { auth } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { getLessonsForProduct } from '@/lib/lesson-service';
+import { linkEmailToClerkUser } from '@/lib/enrollment-service';
 import Link from 'next/link';
 import { Lock, Play, CheckCircle, Clock, AlertTriangle, Video, MessageSquare } from 'lucide-react';
 import StartCourseButton from './StartCourseButton';
@@ -12,16 +13,35 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
   const { userId } = await auth();
   if (!userId) redirect('/sign-in');
 
+  const user = await currentUser();
   const resolvedParams = await params;
   const productId = resolvedParams.id;
 
+  const emails: string[] = [];
+  if (user?.primaryEmailAddress?.emailAddress) emails.push(user.primaryEmailAddress.emailAddress);
+  user?.emailAddresses?.forEach(e => {
+    if (e.emailAddress && !emails.includes(e.emailAddress)) {
+      emails.push(e.emailAddress);
+    }
+  });
+
+  if (emails.length > 0) {
+    await linkEmailToClerkUser(emails, userId);
+  }
+
   // 1. Fetch all enrollments for this user + product, prefer active ones
-  const { data: allEnrollments } = await supabaseAdmin
+  let query = supabaseAdmin
     .from('enrollments')
     .select('id, activated_at, status, learning_product:learning_products(*)')
-    .eq('clerk_user_id', userId)
-    .eq('learning_product_id', productId)
-    .order('created_at', { ascending: false });
+    .eq('learning_product_id', productId);
+
+  if (emails.length > 0) {
+    query = query.or(`clerk_user_id.eq.${userId},email.in.(${emails.map(e => `"${e.toLowerCase()}"`).join(',')})`);
+  } else {
+    query = query.eq('clerk_user_id', userId);
+  }
+
+  const { data: allEnrollments } = await query.order('created_at', { ascending: false });
 
   if (!allEnrollments || allEnrollments.length === 0) {
     redirect('/dashboard'); // Not enrolled

@@ -11,10 +11,18 @@ export default async function StudentDashboardPage() {
   const { userId } = await auth();
   const user = await currentUser();
   const firstName = user?.firstName || user?.username || 'Student';
-  const primaryEmail = user?.primaryEmailAddress?.emailAddress || '';
+  const emails: string[] = [];
+  if (user?.primaryEmailAddress?.emailAddress) {
+    emails.push(user.primaryEmailAddress.emailAddress);
+  }
+  user?.emailAddresses?.forEach(e => {
+    if (e.emailAddress && !emails.includes(e.emailAddress)) {
+      emails.push(e.emailAddress);
+    }
+  });
 
   // Fetch real enrollment data
-  const enrollments = userId ? await getUserEnrollments(userId, primaryEmail) : [];
+  const enrollments = userId ? await getUserEnrollments(userId, emails) : [];
 
   // Fetch live classes and conversations for enrolled courses
   const enrolledProductIds = enrollments

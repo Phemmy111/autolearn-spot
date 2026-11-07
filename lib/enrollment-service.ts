@@ -31,30 +31,47 @@ interface EnrollmentUpdateData {
 }
 
 /**
- * Automatically link an email-only enrollment to a Clerk User ID
+ * Automatically link email-only enrollments to a Clerk User ID
  */
 export async function linkEmailToClerkUser(
-  email: string,
+  emailOrEmails: string | string[],
   clerkUserId: string
 ): Promise<void> {
   try {
-    const updateData: EnrollmentUpdateData = {
-      clerk_user_id: clerkUserId,
-    };
+    if (!clerkUserId) return;
+    const emails = (Array.isArray(emailOrEmails) ? emailOrEmails : [emailOrEmails])
+      .filter(Boolean)
+      .map(e => e.trim().toLowerCase());
 
-    const { data, error } = await supabaseAdmin
-      .from('enrollments')
-      .update(updateData)
-      .eq('email', email)
-      .is('clerk_user_id', null)
-      .select();
+    if (emails.length === 0) return;
 
-    if (error) {
-      console.error('Failed to link enrollment to Clerk user:', error);
-    } else if (data && data.length > 0) {
-      console.log(
-        `Successfully linked ${data.length} enrollment(s) to Clerk user ${clerkUserId}`
-      );
+    for (const email of emails) {
+      // 1. Link unlinked or matching enrollments
+      const { data, error } = await supabaseAdmin
+        .from('enrollments')
+        .update({ clerk_user_id: clerkUserId })
+        .ilike('email', email)
+        .or(`clerk_user_id.is.null,clerk_user_id.eq.${clerkUserId}`)
+        .select('id');
+
+      if (error) {
+        console.error(`Failed to link enrollment for ${email} to Clerk user:`, error);
+      } else if (data && data.length > 0) {
+        console.log(`Successfully linked ${data.length} enrollment(s) for ${email} to Clerk user ${clerkUserId}`);
+      }
+
+      // 2. Link guest orders with this email to clerkUserId
+      await supabaseAdmin
+        .from('orders')
+        .update({ user_id: clerkUserId })
+        .ilike('customer_email', email)
+        .like('user_id', 'guest_%');
+
+      // 3. Link author conversations that were targeted by email
+      await supabaseAdmin
+        .from('author_conversations')
+        .update({ student_id: clerkUserId })
+        .ilike('student_id', email);
     }
   } catch (error) {
     console.error('Error in linkEmailToClerkUser:', error);
@@ -126,65 +143,62 @@ const ENROLLMENT_SELECT = `
 export const getUserEnrollments = cache(
   async (
     clerkUserId: string,
-    email: string
+    emailOrEmails?: string | string[]
   ): Promise<Enrollment[]> => {
-    console.log('[getUserEnrollments] Input values:', { clerkUserId, email });
+    const emails = (Array.isArray(emailOrEmails) ? emailOrEmails : [emailOrEmails])
+      .filter(Boolean)
+      .map(e => e!.trim().toLowerCase());
+
+    console.log('[getUserEnrollments] Input values:', { clerkUserId, emails });
 
     if (!clerkUserId) {
       console.log('[getUserEnrollments] Missing clerkUserId, returning empty');
       return [];
     }
 
-    // Auto-link email enrollment to Clerk account
-    if (email) {
-      await linkEmailToClerkUser(email, clerkUserId);
+    // Auto-link any unlinked enrollments with these emails to the Clerk account
+    if (emails.length > 0) {
+      await linkEmailToClerkUser(emails, clerkUserId);
     }
 
-    const { data, error } = await supabaseAdmin
+    // 1. Fetch by clerk_user_id
+    const { data: byClerkId, error: clerkError } = await supabaseAdmin
       .from('enrollments')
       .select(ENROLLMENT_SELECT)
       .eq('clerk_user_id', clerkUserId);
 
-    console.log('[getUserEnrollments] Query result:', {
-      recordCount: data?.length || 0,
-      error: error?.message,
-      enrollments: data?.map(e => ({ id: e.id, email: e.email, clerk_user_id: e.clerk_user_id, cohort_id: e.cohort_id }))
-    });
-
-    if (error) {
-      console.error('Error fetching user enrollments:', error);
-      return [];
+    if (clerkError) {
+      console.error('Error fetching user enrollments by clerk_user_id:', clerkError);
     }
 
-    // If no enrollment found by clerk_user_id, try email fallback
-    if (!data || data.length === 0) {
-      if (email) {
-        console.log('[getUserEnrollments] No enrollment by clerk_user_id, trying email fallback');
-        const { data: emailData, error: emailError } = await supabaseAdmin
-          .from('enrollments')
-          .select(ENROLLMENT_SELECT)
-          .eq('email', email);
+    // 2. Fetch by emails (fallback / safety net for race conditions or unlinked records)
+    const byEmail: any[] = [];
+    for (const em of emails) {
+      const { data: emailData, error: emailError } = await supabaseAdmin
+        .from('enrollments')
+        .select(ENROLLMENT_SELECT)
+        .ilike('email', em);
 
-        console.log('[getUserEnrollments] Email fallback result:', {
-          recordCount: emailData?.length || 0,
-          error: emailError?.message,
-          enrollments: emailData?.map(e => ({ id: e.id, email: e.email, clerk_user_id: e.clerk_user_id, cohort_id: e.cohort_id }))
-        });
-
-        if (emailError) {
-          console.error('Error fetching enrollments by email:', emailError);
-          return [];
-        }
-
-        if (emailData && emailData.length > 0) {
-          console.log('[getUserEnrollments] Found enrollment by email, linking clerk_user_id');
-          await linkEmailToClerkUser(email, clerkUserId);
-          return await processEnrollmentExpiry((emailData ?? []) as any[]);
-        }
+      if (emailError) {
+        console.error(`Error fetching enrollments by email ${em}:`, emailError);
+      } else if (emailData && emailData.length > 0) {
+        byEmail.push(...emailData);
       }
     }
 
-    return await processEnrollmentExpiry((data ?? []) as any[]);
+    // 3. Deduplicate enrollments by ID
+    const mergedMap = new Map<string, any>();
+    (byClerkId || []).forEach(e => mergedMap.set(e.id, e));
+    byEmail.forEach(e => {
+      if (!mergedMap.has(e.id)) {
+        mergedMap.set(e.id, e);
+      }
+    });
+
+    const combined = Array.from(mergedMap.values());
+    console.log('[getUserEnrollments] Total resolved enrollments:', combined.length);
+
+    return await processEnrollmentExpiry(combined as any[]);
   }
 );
 
@@ -193,9 +207,9 @@ export const getUserEnrollments = cache(
  */
 export async function hasActiveEnrollment(
   clerkUserId: string,
-  email: string
+  emailOrEmails?: string | string[]
 ): Promise<boolean> {
-  const enrollments = await getUserEnrollments(clerkUserId, email);
+  const enrollments = await getUserEnrollments(clerkUserId, emailOrEmails);
 
   // Allow access for both active courses AND purchased-but-not-yet-started courses
   return enrollments.some(

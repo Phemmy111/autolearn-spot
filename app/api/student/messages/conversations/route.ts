@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
@@ -11,11 +11,32 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth();
+    const user = await currentUser();
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const emails: string[] = [];
+    if (user?.primaryEmailAddress?.emailAddress) {
+      emails.push(user.primaryEmailAddress.emailAddress.toLowerCase().trim());
+    }
+    user?.emailAddresses?.forEach(e => {
+      if (e.emailAddress) {
+        const em = e.emailAddress.toLowerCase().trim();
+        if (!emails.includes(em)) emails.push(em);
+      }
+    });
+
+    // Auto-link any conversations addressed to student's email
+    if (emails.length > 0) {
+      await supabaseAdmin
+        .from('author_conversations')
+        .update({ student_id: userId })
+        .in('student_id', emails);
+    }
+
     // Get conversations where student is the student
+    const studentIds = [userId, ...emails];
     const { data: conversations, error } = await supabaseAdmin
       .from('author_conversations')
       .select(`
@@ -39,7 +60,7 @@ export async function GET(request: NextRequest) {
           created_at
         )
       `)
-      .eq('student_id', userId)
+      .in('student_id', studentIds)
       .order('updated_at', { ascending: false });
 
     if (error) {
@@ -152,27 +173,62 @@ export async function POST(request: NextRequest) {
 }
 
 async function verifyStudentAccess(userId: string, productId: string): Promise<boolean> {
-  // Check if student has access via enrollments or orders
-  const { data: enrollments } = await supabaseAdmin
+  if (!userId || !productId) return false;
+
+  // 1. Direct active enrollment match by clerk_user_id
+  const { data: directEnrollments } = await supabaseAdmin
+    .from('enrollments')
+    .select('id, learning_product_id, status')
+    .eq('clerk_user_id', userId)
+    .in('status', ['active', 'not_started']);
+
+  if (directEnrollments && directEnrollments.some(e => e.learning_product_id === productId)) {
+    return true;
+  }
+
+  // 2. Direct order purchase match (order is PAID and contains productId)
+  const { data: matchingOrders } = await supabaseAdmin
+    .from('orders')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('status', 'PAID');
+
+  if (matchingOrders && matchingOrders.length > 0) {
+    const orderIds = matchingOrders.map(o => o.id);
+    const { data: matchingItems } = await supabaseAdmin
+      .from('order_items')
+      .select('id')
+      .in('order_id', orderIds)
+      .eq('learning_product_id', productId);
+
+    if (matchingItems && matchingItems.length > 0) {
+      return true;
+    }
+  }
+
+  // 3. Fallback: Cohort check for legacy enrollments
+  const { data: legacyEnrollments } = await supabaseAdmin
     .from('enrollments')
     .select('cohort_id')
     .eq('clerk_user_id', userId)
-    .eq('status', 'active');
+    .in('status', ['active', 'not_started']);
 
-  if (!enrollments || enrollments.length === 0) {
-    return false;
+  if (legacyEnrollments && legacyEnrollments.length > 0) {
+    const cohortIds = legacyEnrollments.map(e => e.cohort_id).filter(Boolean);
+    if (cohortIds.length > 0) {
+      const { data: cohorts } = await supabaseAdmin
+        .from('cohorts')
+        .select('id')
+        .in('id', cohortIds)
+        .eq('learning_product_id', productId);
+
+      if (cohorts && cohorts.length > 0) {
+        return true;
+      }
+    }
   }
 
-  const cohortIds = enrollments.map(e => e.cohort_id);
-
-  // Check if any cohort is linked to this learning product
-  const { data: cohorts } = await supabaseAdmin
-    .from('cohorts')
-    .select('id')
-    .in('id', cohortIds)
-    .eq('learning_product_id', productId);
-
-  return cohorts && cohorts.length > 0;
+  return false;
 }
 
 async function getUnreadCounts(conversationIds: string[], studentId: string) {

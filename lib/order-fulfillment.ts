@@ -413,13 +413,17 @@ async function createOrUpdateEnrollments(
     // ignore
   }
 
+  const clerkUserIdToUse = (order.user_id && !order.user_id.startsWith('guest_') && !order.user_id.startsWith('manual_'))
+    ? order.user_id
+    : null;
+
   for (const item of orderItems) {
     try {
       const { data: existing } = await supabaseAdmin
         .from('enrollments')
-        .select('id')
+        .select('id, clerk_user_id')
         .eq('learning_product_id', item.learning_product_id)
-        .eq('email', email)
+        .ilike('email', email)
         .maybeSingle();
 
       if (existing) {
@@ -427,6 +431,7 @@ async function createOrUpdateEnrollments(
           .from('enrollments')
           .update({
             status: 'active',
+            clerk_user_id: clerkUserIdToUse || existing.clerk_user_id,
             payment_ref: reference || order.provider_ref,
             amount_paid: item.price_snapshot,
             payment_amount: item.price_snapshot,
@@ -441,6 +446,7 @@ async function createOrUpdateEnrollments(
           .insert({
             cohort_id: activeCohortId,
             learning_product_id: item.learning_product_id,
+            clerk_user_id: clerkUserIdToUse,
             email: email,
             full_name: confirmedFullName,
             first_name: firstName,

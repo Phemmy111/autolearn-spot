@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { Lock, Play, BookOpen, Clock, Calendar, CheckCircle, MessageSquare, Video } from 'lucide-react';
+import { Lock, Play, BookOpen, Clock, Calendar, CheckCircle, MessageSquare, Video, KeyRound, Check, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -25,21 +25,61 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchCourses() {
-      try {
-        const res = await fetch('/api/dashboard/courses');
-        if (!res.ok) throw new Error('Failed to fetch courses');
-        const data = await res.json();
-        setCourses(data.courses || []);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+  // Claim modal state
+  const [claimOpen, setClaimOpen] = useState(false);
+  const [claimIdentifier, setClaimIdentifier] = useState('');
+  const [claiming, setClaiming] = useState(false);
+  const [claimSuccess, setClaimSuccess] = useState<string | null>(null);
+  const [claimError, setClaimError] = useState<string | null>(null);
+
+  const fetchCourses = async () => {
+    try {
+      const res = await fetch('/api/dashboard/courses');
+      if (!res.ok) throw new Error('Failed to fetch courses');
+      const data = await res.json();
+      setCourses(data.courses || []);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     fetchCourses();
   }, []);
+
+  const handleClaim = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!claimIdentifier.trim()) return;
+    setClaiming(true);
+    setClaimError(null);
+    setClaimSuccess(null);
+
+    try {
+      const res = await fetch('/api/student/claim-course', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier: claimIdentifier.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to claim course');
+      }
+      setClaimSuccess(data.message || 'Course linked successfully!');
+      setClaimIdentifier('');
+      // Reload courses
+      await fetchCourses();
+      setTimeout(() => {
+        setClaimOpen(false);
+        setClaimSuccess(null);
+      }, 2000);
+    } catch (err: any) {
+      setClaimError(err.message);
+    } finally {
+      setClaiming(false);
+    }
+  };
 
   const startCourse = async (enrollmentId: string) => {
     try {
@@ -83,7 +123,75 @@ export default function DashboardPage() {
             Pick up right where you left off.
           </p>
         </div>
+        <button
+          onClick={() => { setClaimOpen(true); setClaimError(null); setClaimSuccess(null); }}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/30 transition-colors self-start md:self-auto"
+        >
+          <KeyRound className="w-4 h-4" />
+          Paid with another email? Link course
+        </button>
       </div>
+
+      {/* Claim Modal */}
+      {claimOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[var(--card)] border border-brand-border rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <h2 className="text-xl font-heading font-bold text-brand-text mb-1">
+              Link Your Purchase
+            </h2>
+            <p className="text-sm text-brand-text/70 mb-5 leading-relaxed">
+              If you paid with a different email address on Paystack or checked out as a guest, enter that email or your Paystack payment reference below to instantly attach the course to this account.
+            </p>
+
+            <form onSubmit={handleClaim} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-brand-text/80 mb-1.5 uppercase tracking-wider">
+                  Payment Email or Reference
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. your-payment-email@gmail.com or T9450..."
+                  value={claimIdentifier}
+                  onChange={(e) => setClaimIdentifier(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-brand-border bg-brand-bg text-brand-text text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              {claimError && (
+                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-xs flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <span>{claimError}</span>
+                </div>
+              )}
+
+              {claimSuccess && (
+                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs flex items-center gap-2">
+                  <Check className="w-4 h-4 flex-shrink-0" />
+                  <span>{claimSuccess}</span>
+                </div>
+              )}
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="submit"
+                  disabled={claiming || !claimIdentifier.trim()}
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm disabled:opacity-50 transition-colors shadow-sm"
+                >
+                  {claiming ? 'Linking...' : 'Link to Account'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setClaimOpen(false)}
+                  className="py-2.5 px-4 rounded-xl border border-brand-border text-brand-text/70 hover:bg-brand-bg text-sm font-semibold transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pt-4">
         {courses.map((c) => {
@@ -188,11 +296,20 @@ export default function DashboardPage() {
             <BookOpen className="w-12 h-12 text-brand-text/20 mx-auto mb-4" />
             <h3 className="text-lg font-bold text-brand-text mb-2">No active courses</h3>
             <p className="text-brand-text/60 mb-6 max-w-md mx-auto">
-              You haven&apos;t bought any courses yet, or your access has expired.
+              You haven&apos;t bought any courses yet, or your access has expired. If you just purchased via Paystack or used a different email, click below to link your purchase.
             </p>
-            <Link href="/" className="inline-flex items-center justify-center bg-[#10b981] text-white px-6 py-2.5 rounded-xl font-bold hover:bg-[#0ea5e9] transition-colors">
-              Explore Marketplace
-            </Link>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button
+                onClick={() => { setClaimOpen(true); setClaimError(null); setClaimSuccess(null); }}
+                className="inline-flex items-center gap-2 bg-emerald-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-emerald-500 transition-colors shadow-sm"
+              >
+                <KeyRound className="w-4 h-4" />
+                Link Paid Course
+              </button>
+              <Link href="/" className="inline-flex items-center justify-center border border-brand-border text-brand-text px-6 py-2.5 rounded-xl font-bold hover:bg-brand-bg transition-colors">
+                Explore Marketplace
+              </Link>
+            </div>
           </div>
         )}
       </div>
