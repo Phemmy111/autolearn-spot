@@ -4,10 +4,12 @@
  * Verifies payment confirmation for browser success pages.
  * Ensures the browser never tracks a "Purchase" event on unverified or failed visits.
  * Returns order details and the exact deterministic event_id for Meta deduplication.
+ * Includes direct Paystack fallback verification to fulfill orders immediately if webhook was delayed.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { fulfillCartOrder } from '@/lib/order-fulfillment';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,7 +28,7 @@ export async function GET(request: NextRequest) {
     // 1. Check cart orders
     const { data: order } = await supabaseAdmin
       .from('orders')
-      .select('id, order_ref, status, total, currency, provider_ref')
+      .select('id, order_ref, status, total, currency, provider_ref, customer_name, customer_email')
       .or(`provider_ref.eq.${reference},order_ref.eq.${reference}`)
       .maybeSingle();
 
@@ -56,7 +58,65 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // 2. Check direct enrollments
+    // 2. Fallback direct verification with Paystack if order is still PENDING
+    const paystackSecret = process.env.PAYSTACK_SECRET_KEY || process.env.PAYSTACK_TEST_SECRET_KEY;
+    if (order && order.status !== 'PAID' && paystackSecret && reference) {
+      try {
+        const verifyRes = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`, {
+          headers: {
+            Authorization: `Bearer ${paystackSecret}`,
+          },
+        });
+        const verifyData = await verifyRes.json();
+
+        if (verifyData?.status && verifyData?.data?.status === 'success') {
+          console.log(`[order-status] Paystack direct verification succeeded for ref ${reference}. Fulfilling order.`);
+          const paystackData = verifyData.data;
+          const paystackCustomerName = [paystackData.customer?.first_name, paystackData.customer?.last_name]
+            .filter(Boolean)
+            .join(' ');
+
+          const fulfillResult = await fulfillCartOrder({
+            orderId: order.id,
+            reference,
+            customerEmail: paystackData.customer?.email || order.customer_email,
+            customerName: paystackData.metadata?.full_name || paystackCustomerName || order.customer_name,
+            amountInNaira: Math.round(paystackData.amount / 100),
+            ipAddress: paystackData.ip_address,
+            affiliateRef: paystackData.metadata?.affiliate_ref,
+          });
+
+          if (fulfillResult.success) {
+            const { data: items } = await supabaseAdmin
+              .from('order_items')
+              .select('learning_product_id, product_title, price_snapshot')
+              .eq('order_id', order.id);
+
+            const contents = (items || []).map((i) => ({
+              id: i.learning_product_id,
+              title: i.product_title,
+              item_price: i.price_snapshot,
+              quantity: 1,
+            }));
+
+            return NextResponse.json({
+              verified: true,
+              orderId: order.id,
+              eventId: `purchase_${order.id}`,
+              total: order.total,
+              currency: order.currency || 'NGN',
+              numItems: contents.length || 1,
+              contentIds: contents.map((c) => c.id),
+              contents,
+            });
+          }
+        }
+      } catch (verifyErr) {
+        console.warn('[order-status] Paystack direct verification attempt error:', verifyErr);
+      }
+    }
+
+    // 3. Check direct enrollments
     const { data: enrollment } = await supabaseAdmin
       .from('enrollments')
       .select('id, payment_ref, amount_paid, status, learning_product_id, learning_products(id, title)')

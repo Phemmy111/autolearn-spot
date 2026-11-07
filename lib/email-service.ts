@@ -49,9 +49,21 @@ export class EmailService {
    * Send an email - using the same pattern as existing services
    */
   private static async sendEmail(template: EmailTemplate): Promise<boolean> {
+    const smtpUser = process.env.SMTP_USER;
+    const smtpPass = process.env.SMTP_PASS;
+    const fromAddress = process.env.SMTP_FROM || (smtpUser ? `"AutoLearn Spot" <${smtpUser}>` : '"AutoLearn Spot" <noreply@autolearnspot.com>');
+
+    if (!smtpUser || !smtpPass) {
+      console.warn('[EmailService] SMTP credentials not configured (SMTP_USER/SMTP_PASS missing in environment). Email logged only:', {
+        to: template.to,
+        subject: template.subject,
+      });
+      return false;
+    }
+
     try {
       const mailOptions = {
-        from: `"AutoLearn Spot" <${process.env.SMTP_USER}>`,
+        from: fromAddress,
         to: template.to,
         subject: template.subject,
         html: template.html,

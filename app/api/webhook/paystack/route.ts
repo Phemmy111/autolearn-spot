@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
 import { PartnerService } from '@/lib/growth-engine/PartnerService';
 import { logReferralEvent } from '@/lib/audit-logging';
+import { fulfillCartOrder } from '@/lib/order-fulfillment';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
