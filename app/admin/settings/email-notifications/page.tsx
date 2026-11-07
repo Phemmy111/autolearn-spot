@@ -224,13 +224,22 @@ export default function EmailNotificationsPage() {
           <h1 className="text-2xl font-bold text-brand-text">Email Notifications</h1>
           <p className="text-brand-text/70">Manage who receives email notifications for different events</p>
         </div>
-        <button
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors"
-        >
-          <Plus className="w-5 h-5" />
-          Add Notification
-        </button>
+        <div className="flex items-center gap-3">
+          <a
+            href="/admin/settings/email-test"
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium text-sm"
+          >
+            <Mail className="w-4 h-4" />
+            Test Email Automation
+          </a>
+          <button
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors font-medium text-sm"
+          >
+            <Plus className="w-5 h-5" />
+            Add Notification
+          </button>
+        </div>
       </div>
 
       {error && (
