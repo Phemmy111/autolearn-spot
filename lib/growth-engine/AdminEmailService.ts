@@ -1,17 +1,31 @@
 import nodemailer from 'nodemailer';
 
-// Email configuration
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+function getAdminEmailCredentials() {
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const port = parseInt(process.env.SMTP_PORT || '587');
+  const isSecure = process.env.SMTP_SECURE === 'true' || port === 465;
+  const user = process.env.SMTP_USER || process.env.EMAIL_USER;
+  const pass = process.env.SMTP_PASS || process.env.EMAIL_PASS || process.env.EMAIL_PASSWORD;
+  const from = process.env.SMTP_FROM || (user ? `"AutoLearn Spot" <${user}>` : '"AutoLearn Spot" <autolearnspot@gmail.com>');
+  const adminEmail = process.env.ADMIN_EMAIL || process.env.FOUNDER_EMAIL || 'autolearnspot@gmail.com';
 
-const ADMIN_EMAIL = 'femiadeleke2020@gmail.com';
+  return { host, port, isSecure, user, pass, from, adminEmail };
+}
+
+function getTransporter() {
+  const creds = getAdminEmailCredentials();
+  return nodemailer.createTransport({
+    host: creds.host,
+    port: creds.port,
+    secure: creds.isSecure,
+    auth: {
+      user: creds.user,
+      pass: creds.pass,
+    },
+  });
+}
+
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || process.env.FOUNDER_EMAIL || 'autolearnspot@gmail.com';
 
 export class AdminEmailService {
   /**
@@ -29,7 +43,7 @@ export class AdminEmailService {
   }): Promise<boolean> {
     try {
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getAdminEmailCredentials().from,
         to: ADMIN_EMAIL,
         subject: '🎓 New Student Registration - AutoLearn Spot',
         html: `
@@ -96,7 +110,7 @@ export class AdminEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await getTransporter().sendMail(mailOptions);
       console.log('[AdminEmailService] Student registration email sent successfully');
       return true;
     } catch (error) {
@@ -118,7 +132,7 @@ export class AdminEmailService {
   }): Promise<boolean> {
     try {
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getAdminEmailCredentials().from,
         to: ADMIN_EMAIL,
         subject: '💰 Payment Successful - AutoLearn Spot',
         html: `
@@ -177,7 +191,7 @@ export class AdminEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await getTransporter().sendMail(mailOptions);
       console.log('[AdminEmailService] Student payment email sent successfully');
       return true;
     } catch (error) {
@@ -198,7 +212,7 @@ export class AdminEmailService {
   }): Promise<boolean> {
     try {
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getAdminEmailCredentials().from,
         to: ADMIN_EMAIL,
         subject: '🤝 New Partner Created - AutoLearn Spot',
         html: `
@@ -253,7 +267,7 @@ export class AdminEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await getTransporter().sendMail(mailOptions);
       console.log('[AdminEmailService] Partner created email sent successfully');
       return true;
     } catch (error) {
@@ -275,7 +289,7 @@ export class AdminEmailService {
   }): Promise<boolean> {
     try {
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getAdminEmailCredentials().from,
         to: partnerData.partnerEmail,
         subject: '🎉 Welcome to AutoLearn Spot Partner Program',
         html: `
@@ -345,7 +359,7 @@ export class AdminEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await getTransporter().sendMail(mailOptions);
       console.log('[AdminEmailService] Partner welcome email sent successfully');
       return true;
     } catch (error) {
@@ -366,7 +380,7 @@ export class AdminEmailService {
   }): Promise<boolean> {
     try {
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getAdminEmailCredentials().from,
         to: ADMIN_EMAIL,
         subject: '📝 New Partnership Application - AutoLearn Spot',
         html: `
@@ -422,7 +436,7 @@ export class AdminEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await getTransporter().sendMail(mailOptions);
       console.log('[AdminEmailService] Partner application email sent successfully');
       return true;
     } catch (error) {
@@ -444,7 +458,7 @@ export class AdminEmailService {
   }): Promise<boolean> {
     try {
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getAdminEmailCredentials().from,
         to: ADMIN_EMAIL,
         subject: '🎯 Partner Referral Success - AutoLearn Spot',
         html: `
@@ -510,7 +524,7 @@ export class AdminEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await getTransporter().sendMail(mailOptions);
       console.log('[AdminEmailService] Admin partner referral notification sent successfully');
       return true;
     } catch (error) {
@@ -531,7 +545,7 @@ export class AdminEmailService {
   }): Promise<boolean> {
     try {
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getAdminEmailCredentials().from,
         to: referralData.partnerEmail,
         subject: '💰 New Successful Referral - AutoLearn Spot',
         html: `
@@ -593,7 +607,7 @@ export class AdminEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await getTransporter().sendMail(mailOptions);
       console.log('[AdminEmailService] Partner referral email sent successfully');
       return true;
     } catch (error) {

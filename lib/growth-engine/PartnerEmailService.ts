@@ -14,15 +14,29 @@ console.log('[PartnerEmailService] SMTP Config:', {
   from: process.env.SMTP_FROM
 });
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+function getPartnerEmailCredentials() {
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const port = parseInt(process.env.SMTP_PORT || '587');
+  const isSecure = process.env.SMTP_SECURE === 'true' || port === 465;
+  const user = process.env.SMTP_USER || process.env.EMAIL_USER;
+  const pass = process.env.SMTP_PASS || process.env.EMAIL_PASS || process.env.EMAIL_PASSWORD;
+  const from = process.env.SMTP_FROM || (user ? `"AutoLearn Spot" <${user}>` : '"AutoLearn Spot" <autolearnspot@gmail.com>');
+
+  return { host, port, isSecure, user, pass, from };
+}
+
+function getTransporter() {
+  const creds = getPartnerEmailCredentials();
+  return nodemailer.createTransport({
+    host: creds.host,
+    port: creds.port,
+    secure: creds.isSecure,
+    auth: {
+      user: creds.user,
+      pass: creds.pass,
+    },
+  });
+}
 
 export class PartnerEmailService {
   /**
@@ -31,7 +45,7 @@ export class PartnerEmailService {
   static async sendApplicationReceivedEmail(applicantEmail: string, applicantName: string): Promise<boolean> {
     try {
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getPartnerEmailCredentials().from,
         to: applicantEmail,
         subject: 'Application Received - AutoLearn Spot Community Partner',
         html: `
@@ -47,7 +61,7 @@ export class PartnerEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await getTransporter().sendMail(mailOptions);
 
       // Log email
       await supabaseAdmin.from('partner_email_history').insert({
@@ -81,7 +95,7 @@ export class PartnerEmailService {
   static async sendApplicationUnderReviewEmail(applicantEmail: string, applicantName: string): Promise<boolean> {
     try {
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getPartnerEmailCredentials().from,
         to: applicantEmail,
         subject: 'Application Under Review - AutoLearn Spot Community Partner',
         html: `
@@ -96,7 +110,7 @@ export class PartnerEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await getTransporter().sendMail(mailOptions);
 
       await supabaseAdmin.from('partner_email_history').insert({
         recipient_email: applicantEmail,
@@ -182,7 +196,7 @@ export class PartnerEmailService {
       }
 
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getPartnerEmailCredentials().from,
         to: applicantEmail,
         subject: 'Application Approved - Welcome to AutoLearn Spot Partners!',
         html: `
@@ -214,7 +228,7 @@ export class PartnerEmailService {
       };
 
       console.log('[PartnerEmailService] Attempting to send email via nodemailer...');
-      const info = await transporter.sendMail(mailOptions);
+      const info = await getTransporter().sendMail(mailOptions);
       console.log('[PartnerEmailService] Email sent successfully:', info);
 
       await supabaseAdmin.from('partner_email_history').insert({
@@ -299,7 +313,7 @@ export class PartnerEmailService {
   static async sendApplicationRejectedEmail(applicantEmail: string, applicantName: string, reason?: string): Promise<boolean> {
     try {
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getPartnerEmailCredentials().from,
         to: applicantEmail,
         subject: 'Application Update - AutoLearn Spot Community Partner',
         html: `
@@ -315,7 +329,7 @@ export class PartnerEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await getTransporter().sendMail(mailOptions);
 
       await supabaseAdmin.from('partner_email_history').insert({
         recipient_email: applicantEmail,
@@ -338,7 +352,7 @@ export class PartnerEmailService {
   static async sendNeedMoreInfoEmail(applicantEmail: string, applicantName: string, notes: string): Promise<boolean> {
     try {
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getPartnerEmailCredentials().from,
         to: applicantEmail,
         subject: 'Additional Information Required - AutoLearn Spot Community Partner',
         html: `
@@ -357,7 +371,7 @@ export class PartnerEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await getTransporter().sendMail(mailOptions);
 
       await supabaseAdmin.from('partner_email_history').insert({
         recipient_email: applicantEmail,
@@ -387,7 +401,7 @@ export class PartnerEmailService {
   ): Promise<boolean> {
     try {
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getPartnerEmailCredentials().from,
         to: influencerEmail,
         subject: 'You are invited to be an AutoLearn Spot Influencer Partner!',
         html: `
@@ -416,7 +430,7 @@ export class PartnerEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await getTransporter().sendMail(mailOptions);
 
       await supabaseAdmin.from('partner_email_history').insert({
         recipient_email: influencerEmail,
@@ -444,7 +458,7 @@ export class PartnerEmailService {
   ): Promise<boolean> {
     try {
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getPartnerEmailCredentials().from,
         to: partnerEmail,
         subject: `Commission Earned: ₦${amount} - AutoLearn Spot`,
         html: `
@@ -465,7 +479,7 @@ export class PartnerEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await getTransporter().sendMail(mailOptions);
 
       await supabaseAdmin.from('partner_email_history').insert({
         recipient_email: partnerEmail,
@@ -492,7 +506,7 @@ export class PartnerEmailService {
   ): Promise<boolean> {
     try {
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getPartnerEmailCredentials().from,
         to: partnerEmail,
         subject: `Commission Available: ₦${amount} - AutoLearn Spot`,
         html: `
@@ -507,7 +521,7 @@ export class PartnerEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await getTransporter().sendMail(mailOptions);
 
       await supabaseAdmin.from('partner_email_history').insert({
         recipient_email: partnerEmail,
@@ -534,7 +548,7 @@ export class PartnerEmailService {
   ): Promise<boolean> {
     try {
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getPartnerEmailCredentials().from,
         to: partnerEmail,
         subject: `Withdrawal Request Submitted: ₦${amount} - AutoLearn Spot`,
         html: `
@@ -549,7 +563,7 @@ export class PartnerEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await getTransporter().sendMail(mailOptions);
 
       await supabaseAdmin.from('partner_email_history').insert({
         recipient_email: partnerEmail,
@@ -576,7 +590,7 @@ export class PartnerEmailService {
   ): Promise<boolean> {
     try {
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getPartnerEmailCredentials().from,
         to: partnerEmail,
         subject: `Withdrawal Approved: ₦${amount} - AutoLearn Spot`,
         html: `
@@ -591,7 +605,7 @@ export class PartnerEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await getTransporter().sendMail(mailOptions);
 
       await supabaseAdmin.from('partner_email_history').insert({
         recipient_email: partnerEmail,
@@ -619,7 +633,7 @@ export class PartnerEmailService {
   ): Promise<boolean> {
     try {
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getPartnerEmailCredentials().from,
         to: partnerEmail,
         subject: `Payment Sent: ₦${amount} - AutoLearn Spot`,
         html: `
@@ -635,7 +649,7 @@ export class PartnerEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await getTransporter().sendMail(mailOptions);
 
       await supabaseAdmin.from('partner_email_history').insert({
         recipient_email: partnerEmail,
@@ -663,7 +677,7 @@ export class PartnerEmailService {
   ): Promise<boolean> {
     try {
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getPartnerEmailCredentials().from,
         to: partnerEmail,
         subject: `Withdrawal Rejected: ₦${amount} - AutoLearn Spot`,
         html: `
@@ -681,7 +695,7 @@ export class PartnerEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await getTransporter().sendMail(mailOptions);
 
       await supabaseAdmin.from('partner_email_history').insert({
         recipient_email: partnerEmail,
@@ -712,7 +726,7 @@ export class PartnerEmailService {
   ): Promise<boolean> {
     try {
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getPartnerEmailCredentials().from,
         to: partnerEmail,
         subject: `Monthly Earnings Summary - ${month} ${year} - AutoLearn Spot`,
         html: `
@@ -738,7 +752,7 @@ export class PartnerEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await getTransporter().sendMail(mailOptions);
 
       await supabaseAdmin.from('partner_email_history').insert({
         recipient_email: partnerEmail,
@@ -768,7 +782,7 @@ export class PartnerEmailService {
       const dashboardUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://autolearnspot.com'}/admin/growth-center`;
 
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getPartnerEmailCredentials().from,
         to: adminEmail,
         subject: 'New Community Partner Application - AutoLearn Spot',
         html: `
@@ -788,7 +802,7 @@ export class PartnerEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await getTransporter().sendMail(mailOptions);
 
       return true;
     } catch (error) {
@@ -810,7 +824,7 @@ export class PartnerEmailService {
       const dashboardUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://autolearnspot.com'}/admin/growth-center`;
 
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: getPartnerEmailCredentials().from,
         to: adminEmail,
         subject: `New Withdrawal Request: ₦${amount} - AutoLearn Spot`,
         html: `
@@ -830,7 +844,7 @@ export class PartnerEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await getTransporter().sendMail(mailOptions);
 
       return true;
     } catch (error) {

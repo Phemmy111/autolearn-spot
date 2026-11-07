@@ -561,19 +561,40 @@ async function sendFulfillmentEmails(
       if (author?.email) {
         try {
           const authorEarnings = Math.round(item.price_snapshot * 0.9);
-          await EmailService.sendAuthorNewSaleNotification(
+          await EmailService.sendCourseSaleNotification(
             author.email,
             author.display_name || 'Author',
             product.title,
+            email,
             item.price_snapshot,
-            authorEarnings,
-            confirmedFullName,
-            order.id
+            authorEarnings
           );
           console.log(`[Fulfillment] New sale notification sent to author ${author.email}`);
         } catch (authorEmailErr) {
           console.warn(`[Fulfillment] Failed to send author sale email (non-fatal):`, authorEmailErr);
         }
+      }
+
+      // 3. Send notification to platform admins / system (autolearnspot@gmail.com)
+      try {
+        await EmailService.sendCoursePurchaseNotificationToRecipients(
+          email,
+          confirmedFullName,
+          product.title,
+          item.price_snapshot,
+          order.provider_ref || order.id
+        );
+        const platformCommission = Math.round(item.price_snapshot * 0.1);
+        await EmailService.sendFounderCourseSaleNotification(
+          product.title,
+          author?.display_name || 'Author',
+          email,
+          item.price_snapshot,
+          platformCommission
+        );
+        console.log(`[Fulfillment] Admin purchase and sale notifications dispatched`);
+      } catch (adminEmailErr) {
+        console.warn(`[Fulfillment] Failed to send admin sale notification (non-fatal):`, adminEmailErr);
       }
     } catch (err) {
       console.warn(`[Fulfillment] Email processing error for item ${item.id}:`, err);

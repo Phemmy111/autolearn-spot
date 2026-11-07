@@ -33,15 +33,29 @@ console.log('[EmailService] SMTP Config:', {
   from: process.env.SMTP_FROM
 });
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_SECURE === 'true',
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+function getEmailCredentials() {
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const port = parseInt(process.env.SMTP_PORT || '587');
+  const isSecure = process.env.SMTP_SECURE === 'true' || port === 465;
+  const user = process.env.SMTP_USER || process.env.EMAIL_USER;
+  const pass = process.env.SMTP_PASS || process.env.EMAIL_PASS || process.env.EMAIL_PASSWORD;
+  const from = process.env.SMTP_FROM || (user ? `"AutoLearn Spot" <${user}>` : '"AutoLearn Spot" <autolearnspot@gmail.com>');
+
+  return { host, port, isSecure, user, pass, from };
+}
+
+function getTransporter() {
+  const { host, port, isSecure, user, pass } = getEmailCredentials();
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure: isSecure,
+    auth: {
+      user,
+      pass,
+    },
+  });
+}
 
 export class EmailService {
 
@@ -49,11 +63,9 @@ export class EmailService {
    * Send an email - using the same pattern as existing services
    */
   private static async sendEmail(template: EmailTemplate): Promise<boolean> {
-    const smtpUser = process.env.SMTP_USER;
-    const smtpPass = process.env.SMTP_PASS;
-    const fromAddress = process.env.SMTP_FROM || (smtpUser ? `"AutoLearn Spot" <${smtpUser}>` : '"AutoLearn Spot" <noreply@autolearnspot.com>');
+    const creds = getEmailCredentials();
 
-    if (!smtpUser || !smtpPass) {
+    if (!creds.user || !creds.pass) {
       console.warn('[EmailService] SMTP credentials not configured (SMTP_USER/SMTP_PASS missing in environment). Email logged only:', {
         to: template.to,
         subject: template.subject,
@@ -62,8 +74,9 @@ export class EmailService {
     }
 
     try {
+      const transporter = getTransporter();
       const mailOptions = {
-        from: fromAddress,
+        from: creds.from,
         to: template.to,
         subject: template.subject,
         html: template.html,
@@ -96,9 +109,25 @@ export class EmailService {
    * Send emails to multiple recipients
    */
   private static async sendEmailMultiple(template: EmailTemplateMultiple): Promise<boolean> {
+    const creds = getEmailCredentials();
+
+    if (!creds.user || !creds.pass) {
+      console.warn('[EmailService] SMTP credentials not configured. Email logged only:', {
+        to: template.to,
+        subject: template.subject,
+      });
+      return false;
+    }
+
+    if (!template.to || template.to.length === 0) {
+      console.warn('[EmailService] No recipients provided for sendEmailMultiple:', template.subject);
+      return false;
+    }
+
     try {
+      const transporter = getTransporter();
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: creds.from,
         to: template.to.join(','),
         subject: template.subject,
         html: template.html,
@@ -131,25 +160,48 @@ export class EmailService {
    * Get email recipients for a specific event from database configuration
    */
   private static async getEventRecipients(eventType: string): Promise<string[]> {
+    const defaultRecipients = Array.from(new Set([
+      process.env.FOUNDER_EMAIL,
+      process.env.ADMIN_EMAIL,
+      process.env.OWNER_EMAIL,
+      'autolearnspot@gmail.com',
+      'femiadeleke2020@gmail.com'
+    ].filter(Boolean))) as string[];
+
     try {
       const { data: config, error } = await supabaseAdmin
         .from('email_notifications')
         .select('recipient_emails, is_active')
         .eq('event_type', eventType)
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
 
-      if (error || !config || !config.is_active) {
-        // Fallback to founder email if no configuration found
-        console.log(`[EmailService] No active configuration for ${eventType}, using fallback`);
-        return [process.env.FOUNDER_EMAIL || 'femiadeleke2020@gmail.com'];
+      if (!error && config && config.is_active && Array.isArray(config.recipient_emails) && config.recipient_emails.length > 0) {
+        return config.recipient_emails;
       }
 
-      return config.recipient_emails || [];
+      // Check site_settings fallback
+      const { data: siteSetting } = await supabaseAdmin
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'email_notifications')
+        .maybeSingle();
+
+      if (siteSetting?.value) {
+        try {
+          const parsed = JSON.parse(siteSetting.value);
+          if (parsed[eventType] && Array.isArray(parsed[eventType]) && parsed[eventType].length > 0) {
+            return parsed[eventType];
+          }
+        } catch {
+          // ignore parsing error
+        }
+      }
+
+      return defaultRecipients;
     } catch (error) {
       console.error('[EmailService] Error fetching event recipients:', error);
-      // Fallback to founder email on error
-      return [process.env.FOUNDER_EMAIL || 'femiadeleke2020@gmail.com'];
+      return defaultRecipients;
     }
   }
 
@@ -485,6 +537,28 @@ export class EmailService {
   /**
    * Send course sale notification to author
    */
+    /**
+   * Alias for sendCourseSaleNotification
+   */
+  static async sendAuthorNewSaleNotification(
+    authorEmail: string,
+    authorName: string,
+    courseTitle: string,
+    amount: number,
+    authorEarnings: number,
+    studentName?: string,
+    orderId?: string
+  ): Promise<boolean> {
+    return this.sendCourseSaleNotification(
+      authorEmail,
+      authorName,
+      courseTitle,
+      studentName || 'Student',
+      amount,
+      authorEarnings
+    );
+  }
+
   static async sendCourseSaleNotification(
     authorEmail: string,
     authorName: string,

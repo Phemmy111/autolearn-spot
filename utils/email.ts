@@ -11,33 +11,39 @@ interface EmailOptions {
   }[]
 }
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_SECURE === 'true',
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-})
+function getCredentials() {
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com'
+  const port = parseInt(process.env.SMTP_PORT || '587')
+  const isSecure = process.env.SMTP_SECURE === 'true' || port === 465
+  const user = process.env.SMTP_USER || process.env.EMAIL_USER
+  const pass = process.env.SMTP_PASS || process.env.EMAIL_PASS || process.env.EMAIL_PASSWORD
+  const from = process.env.SMTP_FROM || (user ? `"AutoLearn Spot" <${user}>` : '"AutoLearn Spot" <autolearnspot@gmail.com>')
+
+  return { host, port, isSecure, user, pass, from }
+}
 
 export async function sendEmail({ to, subject, html, attachments }: EmailOptions) {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.error('SMTP configuration incomplete. SMTP_USER:', !!process.env.SMTP_USER, 'SMTP_PASS:', !!process.env.SMTP_PASS)
+  const creds = getCredentials()
+
+  if (!creds.user || !creds.pass) {
+    console.error('SMTP configuration incomplete. User configured:', !!creds.user, 'Pass configured:', !!creds.pass)
     throw new Error('SMTP credentials not configured')
   }
 
-  console.log('SMTP Configuration:', {
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: process.env.SMTP_PORT || '587',
-    secure: process.env.SMTP_SECURE === 'true',
-    user: process.env.SMTP_USER,
+  const transporter = nodemailer.createTransport({
+    host: creds.host,
+    port: creds.port,
+    secure: creds.isSecure,
+    auth: {
+      user: creds.user,
+      pass: creds.pass,
+    },
   })
 
   try {
     console.log('Attempting to send email to:', to)
     const info = await transporter.sendMail({
-      from: `"AutoLearn Spot" <${process.env.SMTP_USER}>`,
+      from: creds.from,
       to,
       subject,
       html,

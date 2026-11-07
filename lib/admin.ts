@@ -11,6 +11,7 @@ export interface AdminInfo {
 }
 
 const ROOT_SUPER_ADMIN_EMAILS = [
+  'autolearnspot@gmail.com',
   'femiadeleke2020@gmail.com',
   'femiadeleke200@gmail.com',
   'femi@autolearnspot.com',
