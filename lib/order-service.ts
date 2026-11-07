@@ -140,6 +140,23 @@ export async function getOrderByProviderRef(providerRef: string): Promise<Order 
 }
 
 /**
+ * Look up an order by its primary ID.
+ */
+export async function getOrderById(orderId: string): Promise<Order | null> {
+  const { data, error } = await supabaseAdmin
+    .from('orders')
+    .select('*')
+    .eq('id', orderId)
+    .maybeSingle();
+
+  if (error) {
+    console.error('order-service: getOrderById error', error);
+    return null;
+  }
+  return (data as Order) ?? null;
+}
+
+/**
  * Fetch all order_items for an order.
  */
 export async function getOrderItems(orderId: string): Promise<OrderItem[]> {
