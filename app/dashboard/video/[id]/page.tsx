@@ -75,6 +75,9 @@ export default async function VideoPage({ params }: VideoPageProps) {
     }
 
     if (activeEnrollment) {
+      if (!activeEnrollment.activated_at) {
+        redirect(`/dashboard/course/${lesson.product_id}`);
+      }
       hasAccess = true
       backUrl = `/dashboard/course/${lesson.product_id}`
       backLabel = 'Back to Course'

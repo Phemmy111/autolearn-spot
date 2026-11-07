@@ -430,12 +430,10 @@ async function createOrUpdateEnrollments(
         await supabaseAdmin
           .from('enrollments')
           .update({
-            status: 'active',
             clerk_user_id: clerkUserIdToUse || existing.clerk_user_id,
             payment_ref: reference || order.provider_ref,
             amount_paid: item.price_snapshot,
             payment_amount: item.price_snapshot,
-            activated_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           })
           .eq('id', existing.id);
@@ -454,9 +452,9 @@ async function createOrUpdateEnrollments(
             payment_ref: reference || order.provider_ref,
             amount_paid: item.price_snapshot,
             payment_amount: item.price_snapshot,
-            status: 'active',
+            status: 'not_started',
             enrolled_at: new Date().toISOString(),
-            activated_at: new Date().toISOString(),
+            activated_at: null,
           })
           .select();
 

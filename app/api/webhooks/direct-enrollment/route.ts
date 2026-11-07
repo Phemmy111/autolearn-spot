@@ -193,8 +193,8 @@ export async function POST(request: NextRequest) {
       email: pendingEnrollment.email,
       payment_ref: reference,
       amount_paid: amountInNaira,
-      status: 'active',
-      activated_at: new Date().toISOString(),
+      status: 'not_started',
+      activated_at: null,
       referral_code: pendingEnrollment.referral_code || null,
       referred_by_code: pendingEnrollment.referral_code || null
     };

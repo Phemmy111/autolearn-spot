@@ -28,7 +28,6 @@ export async function GET(request: NextRequest) {
     }
 
     // Get conversations with student info and product info
-    // Sort by the latest message created_at instead of conversation updated_at
     const { data: conversations, error } = await supabaseAdmin
       .from('author_conversations')
       .select(`
@@ -36,18 +35,18 @@ export async function GET(request: NextRequest) {
         student_id,
         learning_product_id,
         created_at,
-        updated_at,
+        updated_at:last_message_at,
         learning_products (
           id,
           title,
-          thumbnail
+          thumbnail:thumbnail_url
         ),
         author_messages (
           created_at
         )
       `)
       .eq('author_id', author.id)
-      .order('updated_at', { ascending: false });
+      .order('last_message_at', { ascending: false, nullsFirst: false });
 
     if (error) {
       console.error('Error fetching conversations:', error);
@@ -178,11 +177,11 @@ export async function POST(request: NextRequest) {
         student_id,
         learning_product_id,
         created_at,
-        updated_at,
+        updated_at:last_message_at,
         learning_products (
           id,
           title,
-          thumbnail
+          thumbnail:thumbnail_url
         )
       `)
       .single();

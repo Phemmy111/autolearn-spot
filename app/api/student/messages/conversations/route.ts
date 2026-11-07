@@ -45,11 +45,11 @@ export async function GET(request: NextRequest) {
         author_id,
         learning_product_id,
         created_at,
-        updated_at,
+        updated_at:last_message_at,
         learning_products (
           id,
           title,
-          thumbnail
+          thumbnail:thumbnail_url
         ),
         authors (
           id,
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
         )
       `)
       .in('student_id', studentIds)
-      .order('updated_at', { ascending: false });
+      .order('last_message_at', { ascending: false, nullsFirst: false });
 
     if (error) {
       console.error('Error fetching conversations:', error);
@@ -146,11 +146,11 @@ export async function POST(request: NextRequest) {
         author_id,
         learning_product_id,
         created_at,
-        updated_at,
+        updated_at:last_message_at,
         learning_products (
           id,
           title,
-          thumbnail
+          thumbnail:thumbnail_url
         ),
         authors (
           id,
