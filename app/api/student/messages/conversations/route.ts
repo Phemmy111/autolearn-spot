@@ -45,16 +45,11 @@ export async function GET(request: NextRequest) {
         author_id,
         learning_product_id,
         created_at,
-        updated_at:last_message_at,
+        last_message_at,
         learning_products (
           id,
           title,
           thumbnail:thumbnail_url
-        ),
-        authors (
-          id,
-          display_name,
-          profile_image
         ),
         author_messages (
           created_at
@@ -68,12 +63,27 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch conversations' }, { status: 500 });
     }
 
+    // Fetch author info separately to prevent foreign key schema errors
+    const authorIds = [...new Set((conversations || []).map(c => c.author_id).filter(Boolean))];
+    const authorsMap: Record<string, any> = {};
+    if (authorIds.length > 0) {
+      const { data: authorsList } = await supabaseAdmin
+        .from('authors')
+        .select('id, display_name, profile_image')
+        .in('id', authorIds);
+      authorsList?.forEach(a => {
+        authorsMap[a.id] = a;
+      });
+    }
+
     // Get unread counts for each conversation
     const conversationIds = conversations?.map(c => c.id) || [];
     const unreadCounts = conversationIds.length > 0 ? await getUnreadCounts(conversationIds, userId) : {};
 
     const conversationsWithCounts = conversations?.map(conv => ({
       ...conv,
+      updated_at: conv.last_message_at,
+      authors: authorsMap[conv.author_id] || null,
       unread_count: unreadCounts[conv.id] || 0,
     })) || [];
 
@@ -91,9 +101,21 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();
+    const user = await currentUser();
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const emails: string[] = [];
+    if (user?.primaryEmailAddress?.emailAddress) {
+      emails.push(user.primaryEmailAddress.emailAddress.toLowerCase().trim());
+    }
+    user?.emailAddresses?.forEach(e => {
+      if (e.emailAddress) {
+        const em = e.emailAddress.toLowerCase().trim();
+        if (!emails.includes(em)) emails.push(em);
+      }
+    });
 
     const body = await request.json();
     const { learning_product_id } = body;
@@ -108,10 +130,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'You do not have access to this product' }, { status: 403 });
     }
 
-    // Get the author for this product
+    // Get the product with its author
     const { data: product } = await supabaseAdmin
       .from('learning_products')
-      .select('author_id')
+      .select('id, title, thumbnail_url, author_id')
       .eq('id', learning_product_id)
       .single();
 
@@ -119,17 +141,53 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
-    // Check if conversation already exists
-    const { data: existing } = await supabaseAdmin
+    // Fetch author info separately
+    let authorInfo: any = null;
+    if (product.author_id) {
+      const { data: author } = await supabaseAdmin
+        .from('authors')
+        .select('id, display_name, profile_image')
+        .eq('id', product.author_id)
+        .single();
+      authorInfo = author;
+    }
+
+    const studentIds = [userId, ...emails];
+
+    // Check if conversation already exists (checking userId and any emails)
+    const { data: existingList } = await supabaseAdmin
       .from('author_conversations')
-      .select('*')
-      .eq('student_id', userId)
+      .select('id, student_id, author_id, learning_product_id, created_at, last_message_at')
+      .in('student_id', studentIds)
       .eq('author_id', product.author_id)
       .eq('learning_product_id', learning_product_id)
-      .single();
+      .limit(1);
+
+    const existing = existingList && existingList.length > 0 ? existingList[0] : null;
 
     if (existing) {
-      return NextResponse.json({ success: true, conversation: existing });
+      // Ensure student_id is set to user's Clerk ID if it was stored as email
+      if (existing.student_id !== userId) {
+        await supabaseAdmin
+          .from('author_conversations')
+          .update({ student_id: userId })
+          .eq('id', existing.id);
+        existing.student_id = userId;
+      }
+
+      return NextResponse.json({
+        success: true,
+        conversation: {
+          ...existing,
+          updated_at: existing.last_message_at,
+          learning_products: {
+            id: product.id,
+            title: product.title,
+            thumbnail: product.thumbnail_url,
+          },
+          authors: authorInfo,
+        }
+      });
     }
 
     // Create new conversation
@@ -139,25 +197,9 @@ export async function POST(request: NextRequest) {
         student_id: userId,
         author_id: product.author_id,
         learning_product_id,
+        last_message_at: new Date().toISOString(),
       })
-      .select(`
-        id,
-        student_id,
-        author_id,
-        learning_product_id,
-        created_at,
-        updated_at:last_message_at,
-        learning_products (
-          id,
-          title,
-          thumbnail:thumbnail_url
-        ),
-        authors (
-          id,
-          display_name,
-          profile_image
-        )
-      `)
+      .select('id, student_id, author_id, learning_product_id, created_at, last_message_at')
       .single();
 
     if (error) {
@@ -165,7 +207,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create conversation' }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, conversation });
+    return NextResponse.json({
+      success: true,
+      conversation: {
+        ...conversation,
+        updated_at: conversation.last_message_at,
+        learning_products: {
+          id: product.id,
+          title: product.title,
+          thumbnail: product.thumbnail_url,
+        },
+        authors: authorInfo,
+      }
+    });
   } catch (error) {
     console.error('Error in conversations API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -237,25 +291,10 @@ async function getUnreadCounts(conversationIds: string[], studentId: string) {
       .from('author_messages')
       .select('conversation_id')
       .in('conversation_id', conversationIds)
-      .neq('sender_role', 'STUDENT') // Count messages not sent by student
-      .eq('read_status', 'UNREAD'); // Only count unread messages
+      .neq('sender_role', 'STUDENT');
 
     if (error) {
       console.error('[getUnreadCounts] Error:', error);
-      // If read_status column doesn't exist yet, fall back to counting all messages
-      if (error.code === '42703') { // column does not exist
-        const { data: fallbackData } = await supabaseAdmin
-          .from('author_messages')
-          .select('conversation_id')
-          .in('conversation_id', conversationIds)
-          .neq('sender_role', 'STUDENT');
-
-        const counts: Record<string, number> = {};
-        fallbackData?.forEach(msg => {
-          counts[msg.conversation_id] = (counts[msg.conversation_id] || 0) + 1;
-        });
-        return counts;
-      }
       return {};
     }
 
