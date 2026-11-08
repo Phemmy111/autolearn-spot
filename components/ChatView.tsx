@@ -257,6 +257,8 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
   const [paused, setPaused] = useState(false);
   const [recTime, setRecTime] = useState(0);
   const [audioLevel, setAudioLevel] = useState(0);
+  const [audioDevices, setAudioDevices] = useState<{ deviceId: string; label: string }[]>([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string>("");
   const mediaRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -265,6 +267,50 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
   const maxAudioLevelRef = useRef<number>(0);
   const fileRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    async function loadDevices() {
+      try {
+        if (typeof navigator !== "undefined" && navigator.mediaDevices?.enumerateDevices) {
+          const devs = await navigator.mediaDevices.enumerateDevices();
+          const inputs = devs
+            .filter(d => d.kind === "audioinput")
+            .map(d => ({
+              deviceId: d.deviceId,
+              label: d.label || `Microphone ${d.deviceId.slice(0, 5)}`
+            }));
+          setAudioDevices(inputs);
+
+          const savedId = localStorage.getItem("preferred_audio_device_id");
+          if (savedId && inputs.some(d => d.deviceId === savedId)) {
+            setSelectedDeviceId(savedId);
+          } else if (inputs.length > 0) {
+            // Auto-prefer physical Realtek / built-in microphone over virtual devices (Iriun, Voicemeeter, etc.)
+            const realtek = inputs.find(d => d.label.toLowerCase().includes("realtek"));
+            const physical = inputs.find(d =>
+              !d.label.toLowerCase().includes("iriun") &&
+              !d.label.toLowerCase().includes("voicemeeter") &&
+              !d.label.toLowerCase().includes("cable")
+            );
+            const preferred = realtek || physical || inputs[0];
+            if (preferred) {
+              setSelectedDeviceId(preferred.deviceId);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Could not list audio input devices:", e);
+      }
+    }
+    loadDevices();
+  }, []);
+
+  const handleDeviceChange = (devId: string) => {
+    setSelectedDeviceId(devId);
+    try {
+      localStorage.setItem("preferred_audio_device_id", devId);
+    } catch (e) {}
+  };
 
   const canSend = (text.trim().length > 0 || pendingAttachments.length > 0) && !sending && !recording;
 
@@ -348,8 +394,40 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
 
   const startRecording = async () => {
     try {
-      // Use clean standard audio capture
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      let audioConstraint: any = true;
+      if (selectedDeviceId) {
+        audioConstraint = { deviceId: { exact: selectedDeviceId } };
+      }
+
+      let stream: MediaStream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraint });
+      } catch (err) {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      }
+
+      // Re-enumerate devices so labels populate now that permission is active
+      try {
+        const devs = await navigator.mediaDevices.enumerateDevices();
+        const inputs = devs
+          .filter(d => d.kind === "audioinput")
+          .map(d => ({
+            deviceId: d.deviceId,
+            label: d.label || `Microphone ${d.deviceId.slice(0, 5)}`
+          }));
+        setAudioDevices(inputs);
+        if (!selectedDeviceId) {
+          const realtek = inputs.find(d => d.label.toLowerCase().includes("realtek"));
+          const physical = inputs.find(d =>
+            !d.label.toLowerCase().includes("iriun") &&
+            !d.label.toLowerCase().includes("voicemeeter") &&
+            !d.label.toLowerCase().includes("cable")
+          );
+          if (realtek || physical) {
+            setSelectedDeviceId((realtek || physical)!.deviceId);
+          }
+        }
+      } catch (e) {}
 
       // Setup audio analyzer for live volume feedback
       try {
@@ -557,6 +635,21 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
             </span>
           )}
 
+          {audioDevices.length > 1 && (
+            <select
+              value={selectedDeviceId}
+              onChange={(e) => handleDeviceChange(e.target.value)}
+              className="text-xs bg-white border border-gray-200 text-gray-700 rounded-lg px-2 py-1 max-w-[170px] truncate focus:outline-none"
+              title="Microphone input"
+            >
+              {audioDevices.map((d) => (
+                <option key={d.deviceId} value={d.deviceId}>
+                  {d.label}
+                </option>
+              ))}
+            </select>
+          )}
+
           <button onClick={pauseRecording} className="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center gap-1 font-medium">
             {paused ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
             {paused ? "Resume" : "Pause"}
@@ -581,6 +674,20 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
                 className={`flex-shrink-0 p-2 transition-colors disabled:opacity-40 rounded-full ${recording ? "text-red-500 bg-red-50" : "text-gray-400 hover:text-sky-600 hover:bg-sky-50"}`}>
           <Mic className="w-5 h-5" />
         </button>
+        {audioDevices.length > 1 && !recording && (
+          <select
+            value={selectedDeviceId}
+            onChange={(e) => handleDeviceChange(e.target.value)}
+            className="text-[11px] bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600 rounded-lg px-1.5 py-1.5 max-w-[130px] truncate focus:outline-none cursor-pointer self-center"
+            title="Selected Microphone"
+          >
+            {audioDevices.map((d) => (
+              <option key={d.deviceId} value={d.deviceId}>
+                {d.label}
+              </option>
+            ))}
+          </select>
+        )}
         <textarea ref={textareaRef} rows={1} placeholder="Type a message..."
                   value={text} onChange={handleTextChange} onKeyDown={handleKeyDown}
                   disabled={sending}
