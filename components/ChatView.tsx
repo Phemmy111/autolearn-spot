@@ -31,7 +31,7 @@ interface PendingAttachment {
   file: File;
   previewUrl: string;
   uploading: boolean;
-  uploaded?: { publicUrl: string };
+  uploaded?: { publicUrl: string; duration?: number };
   error?: string;
 }
 
@@ -45,39 +45,115 @@ async function uploadAttachment(file: File): Promise<string> {
 }
 
 // Voice Player
-function VoicePlayer({ url, isMe }: { url: string; isMe: boolean }) {
+function VoicePlayer({ url, isMe, durationSeconds }: { url: string; isMe: boolean; durationSeconds?: number | null }) {
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState(0);
+  const [duration, setDuration] = useState<number>(durationSeconds || 0);
+  const [currentTime, setCurrentTime] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    const audio = new Audio(url);
-    audio.onloadedmetadata = () => setDuration(audio.duration || 0);
-    audio.ontimeupdate = () => setProgress((audio.currentTime / (audio.duration || 1)) * 100);
-    audio.onended = () => { setPlaying(false); setProgress(0); };
+    const audio = new Audio();
+    audio.preload = "metadata";
+    audio.src = url;
+
+    const handleLoadedMetadata = () => {
+      if (isFinite(audio.duration) && audio.duration > 0) {
+        setDuration(Math.round(audio.duration));
+      } else if (durationSeconds && durationSeconds > 0) {
+        setDuration(durationSeconds);
+      }
+    };
+
+    const handleTimeUpdate = () => {
+      setCurrentTime(audio.currentTime);
+      const effectiveDuration = (isFinite(audio.duration) && audio.duration > 0)
+        ? audio.duration
+        : (durationSeconds && durationSeconds > 0 ? durationSeconds : duration);
+
+      if (effectiveDuration > 0) {
+        setProgress(Math.min((audio.currentTime / effectiveDuration) * 100, 100));
+      }
+    };
+
+    const handleEnded = () => {
+      setPlaying(false);
+      setProgress(0);
+      setCurrentTime(0);
+    };
+
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+    audio.addEventListener("timeupdate", handleTimeUpdate);
+    audio.addEventListener("ended", handleEnded);
     audioRef.current = audio;
-    return () => { audio.pause(); audio.src = ""; };
-  }, [url]);
+
+    return () => {
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.removeEventListener("timeupdate", handleTimeUpdate);
+      audio.removeEventListener("ended", handleEnded);
+      audio.pause();
+      audio.src = "";
+    };
+  }, [url, durationSeconds]);
 
   const toggle = () => {
     if (!audioRef.current) return;
-    if (playing) { audioRef.current.pause(); setPlaying(false); }
-    else { audioRef.current.play(); setPlaying(true); }
+    if (playing) {
+      audioRef.current.pause();
+      setPlaying(false);
+    } else {
+      audioRef.current.play().then(() => {
+        setPlaying(true);
+      }).catch((err) => {
+        console.error("Audio playback error:", err);
+        setPlaying(false);
+      });
+    }
   };
 
-  const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+  const fmt = (s: number) => {
+    if (!s || isNaN(s) || !isFinite(s)) return "0:00";
+    const mins = Math.floor(s / 60);
+    const secs = Math.floor(s % 60);
+    return `${mins}:${String(secs).padStart(2, "0")}`;
+  };
+
+  const displayTime = playing ? fmt(currentTime) : fmt(duration || durationSeconds || 0);
 
   return (
-    <div className={`flex items-center gap-2 min-w-[180px] ${isMe ? "text-white" : "text-gray-700"}`}>
-      <button onClick={toggle} className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isMe ? "bg-white/20 hover:bg-white/30" : "bg-sky-100 hover:bg-sky-200"}`}>
-        {playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+    <div className={`flex items-center gap-2 min-w-[200px] ${isMe ? "text-white" : "text-gray-700"}`}>
+      <button
+        type="button"
+        onClick={toggle}
+        className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
+          isMe ? "bg-white/20 hover:bg-white/30" : "bg-sky-100 hover:bg-sky-200"
+        }`}
+      >
+        {playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
       </button>
       <div className="flex-1">
-        <div className={`h-1 rounded-full ${isMe ? "bg-white/20" : "bg-gray-200"}`}>
-          <div className={`h-1 rounded-full transition-all ${isMe ? "bg-white" : "bg-sky-500"}`} style={{ width: `${progress}%` }} />
+        <div
+          className={`h-1.5 rounded-full cursor-pointer relative ${isMe ? "bg-white/20" : "bg-gray-200"}`}
+          onClick={(e) => {
+            if (!audioRef.current) return;
+            const rect = e.currentTarget.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const pct = Math.max(0, Math.min(1, clickX / rect.width));
+            const effectiveDuration = (isFinite(audioRef.current.duration) && audioRef.current.duration > 0)
+              ? audioRef.current.duration
+              : (durationSeconds || duration || 0);
+            if (effectiveDuration > 0) {
+              audioRef.current.currentTime = pct * effectiveDuration;
+              setProgress(pct * 100);
+            }
+          }}
+        >
+          <div
+            className={`h-1.5 rounded-full transition-all ${isMe ? "bg-white" : "bg-sky-500"}`}
+            style={{ width: `${progress}%` }}
+          />
         </div>
-        <span className="text-[10px] mt-0.5 block opacity-70">{fmt(duration)}</span>
+        <span className="text-[10px] mt-0.5 block opacity-70">{displayTime}</span>
       </div>
     </div>
   );
@@ -102,7 +178,7 @@ function MessageBubble({ message, isMe, partnerName }: { message: Message; isMe:
                 <img src={att.storage_path} alt={att.file_name} className="rounded-xl max-h-52 max-w-full object-cover" />
               </a>
             );
-            if (isAudio) return <div key={att.id} className="mb-1"><VoicePlayer url={att.storage_path} isMe={isMe} /></div>;
+            if (isAudio) return <div key={att.id} className="mb-1"><VoicePlayer url={att.storage_path} isMe={isMe} durationSeconds={att.duration_seconds} /></div>;
             return (
               <a key={att.id} href={att.storage_path} target="_blank" rel="noopener noreferrer"
                  className={`flex items-center gap-2 mb-1 p-2 rounded-lg text-xs ${isMe ? "bg-white/10 hover:bg-white/20" : "bg-gray-50 hover:bg-gray-100"}`}>
@@ -217,6 +293,7 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
         file_name: a.file.name,
         mime_type: a.file.type,
         file_size: a.file.size,
+        duration_seconds: a.uploaded?.duration || null,
       }));
       let msgType = "TEXT";
       if (attachments.length > 0) {
@@ -257,23 +334,62 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mr = new MediaRecorder(stream);
-      mediaRef.current = mr; chunksRef.current = [];
-      mr.ondataavailable = e => { if (e.data.size > 0) chunksRef.current.push(e.data); };
-      mr.start();
-      setRecording(true); setPaused(false); setRecTime(0);
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        }
+      });
+
+      // Prefer standard webm opus, fallback to webm, mp4, ogg
+      let mimeType = "audio/webm;codecs=opus";
+      if (typeof MediaRecorder !== "undefined" && typeof MediaRecorder.isTypeSupported === "function") {
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
+          if (MediaRecorder.isTypeSupported("audio/webm")) {
+            mimeType = "audio/webm";
+          } else if (MediaRecorder.isTypeSupported("audio/mp4")) {
+            mimeType = "audio/mp4";
+          } else if (MediaRecorder.isTypeSupported("audio/ogg;codecs=opus")) {
+            mimeType = "audio/ogg;codecs=opus";
+          } else {
+            mimeType = "";
+          }
+        }
+      }
+
+      const options: MediaRecorderOptions = mimeType ? { mimeType } : {};
+      const mr = new MediaRecorder(stream, options);
+      mediaRef.current = mr;
+      chunksRef.current = [];
+
+      mr.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          chunksRef.current.push(e.data);
+        }
+      };
+
+      // Request data chunks every 250ms so speech buffer is continuously preserved
+      mr.start(250);
+      setRecording(true);
+      setPaused(false);
+      setRecTime(0);
       timerRef.current = setInterval(() => setRecTime(t => t + 1), 1000);
-    } catch (err: any) { alert("Microphone access denied or error: " + err.message); }
+    } catch (err: any) {
+      alert("Microphone access denied or error: " + err.message);
+    }
   };
 
   const pauseRecording = () => {
     if (!mediaRef.current) return;
     if (mediaRef.current.state === "recording") {
-      mediaRef.current.pause(); setPaused(true);
+      try { mediaRef.current.requestData(); } catch (e) {}
+      mediaRef.current.pause();
+      setPaused(true);
       if (timerRef.current) clearInterval(timerRef.current);
     } else if (mediaRef.current.state === "paused") {
-      mediaRef.current.resume(); setPaused(false);
+      mediaRef.current.resume();
+      setPaused(false);
       timerRef.current = setInterval(() => setRecTime(t => t + 1), 1000);
     }
   };
@@ -282,33 +398,65 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
     if (!mediaRef.current) return;
     if (timerRef.current) clearInterval(timerRef.current);
     const mr = mediaRef.current;
+    const finalRecTime = recTime;
+
     mr.onstop = async () => {
+      // Safely stop tracks inside onstop AFTER all chunks are collected
+      try {
+        mr.stream.getTracks().forEach(t => t.stop());
+      } catch (e) {}
+
       const mime = mr.mimeType || "audio/webm";
       const ext = mime.includes("mp4") ? "mp4" : mime.includes("ogg") ? "ogg" : "webm";
       const blob = new Blob(chunksRef.current, { type: mime });
+
+      if (blob.size === 0) {
+        alert("Recording was empty. Please check your microphone and try again.");
+        return;
+      }
+
       const file = new File([blob], `voice-${Date.now()}.${ext}`, { type: mime });
       const previewUrl = URL.createObjectURL(blob);
       const att: PendingAttachment = { file, previewUrl, uploading: true };
       setPendingAttachments(prev => [...prev, att]);
+
       try {
         const publicUrl = await uploadAttachment(file);
-        setPendingAttachments(prev => prev.map(a => a.previewUrl === previewUrl ? { ...a, uploading: false, uploaded: { publicUrl } } : a));
-      } catch {
-        setPendingAttachments(prev => prev.map(a => a.previewUrl === previewUrl ? { ...a, uploading: false, error: "Failed" } : a));
+        setPendingAttachments(prev => prev.map(a =>
+          a.previewUrl === previewUrl
+            ? { ...a, uploading: false, uploaded: { publicUrl, duration: finalRecTime } }
+            : a
+        ));
+      } catch (err: any) {
+        setPendingAttachments(prev => prev.map(a =>
+          a.previewUrl === previewUrl ? { ...a, uploading: false, error: err.message || "Failed" } : a
+        ));
       }
     };
+
+    if (mr.state === "recording") {
+      try { mr.requestData(); } catch (e) {}
+    }
     mr.stop();
-    mr.stream.getTracks().forEach(t => t.stop());
-    setRecording(false); setPaused(false); setRecTime(0);
+    setRecording(false);
+    setPaused(false);
+    setRecTime(0);
   };
 
   const cancelRecording = () => {
     if (!mediaRef.current) return;
     if (timerRef.current) clearInterval(timerRef.current);
-    mediaRef.current.stop();
-    mediaRef.current.stream.getTracks().forEach(t => t.stop());
+    const mr = mediaRef.current;
+    try {
+      mr.stream.getTracks().forEach(t => t.stop());
+    } catch (e) {}
+    if (mr.state !== "inactive") {
+      mr.stop();
+    }
     chunksRef.current = [];
-    setRecording(false); setPaused(false); setRecTime(0);
+    setRecording(false);
+    setPaused(false);
+    setRecTime(0);
   };
 
   const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
