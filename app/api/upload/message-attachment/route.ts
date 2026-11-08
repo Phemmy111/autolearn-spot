@@ -23,8 +23,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "File too large. Maximum size is 20 MB." }, { status: 400 });
     }
 
-    const allowedTypes = [
-      "image/jpeg", "image/png", "image/gif", "image/webp",
+    const allowedSpecificTypes = [
       "application/pdf",
       "application/msword",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -33,12 +32,19 @@ export async function POST(request: NextRequest) {
       "application/vnd.ms-powerpoint",
       "application/vnd.openxmlformats-officedocument.presentationml.presentation",
       "text/plain",
-      "audio/webm", "audio/ogg", "audio/mp4", "audio/mpeg", "audio/wav",
+      "text/csv",
     ];
 
-    const baseType = file.type.split(";")[0];
-    if (!allowedTypes.includes(baseType)) {
-      return NextResponse.json({ error: "File type not allowed" }, { status: 400 });
+    const rawType = file.type || "";
+    const baseType = rawType.split(";")[0].toLowerCase().trim();
+
+    const isAllowed =
+      baseType.startsWith("image/") ||
+      baseType.startsWith("audio/") ||
+      allowedSpecificTypes.includes(baseType);
+
+    if (!isAllowed) {
+      return NextResponse.json({ error: `File type not allowed (${baseType || 'unknown'})` }, { status: 400 });
     }
 
     const ext = file.name.split(".").pop() || "bin";
@@ -50,11 +56,14 @@ export async function POST(request: NextRequest) {
 
     const { error: uploadError } = await supabaseAdmin.storage
       .from("message-attachments")
-      .upload(path, buffer, { contentType: file.type, upsert: false });
+      .upload(path, buffer, {
+        contentType: rawType || "application/octet-stream",
+        upsert: true,
+      });
 
     if (uploadError) {
       console.error("Upload error:", uploadError);
-      return NextResponse.json({ error: "Failed to upload file" }, { status: 500 });
+      return NextResponse.json({ error: "Failed to upload file to storage" }, { status: 500 });
     }
 
     const { data: publicData } = supabaseAdmin.storage
@@ -66,7 +75,7 @@ export async function POST(request: NextRequest) {
       path,
       publicUrl: publicData.publicUrl,
       fileName: file.name,
-      mimeType: file.type,
+      mimeType: rawType || baseType,
       fileSize: file.size,
     });
   } catch (error: any) {

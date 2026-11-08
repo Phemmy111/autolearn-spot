@@ -89,19 +89,38 @@ export async function GET(
       return NextResponse.json({ error: 'Failed to fetch messages' }, { status: 500 });
     }
 
-    const messages = (rawMessages || []).map((m: any) => ({
-      id: m.id,
-      conversation_id: m.conversation_id,
-      sender_id: m.sender_id,
-      sender_role: m.sender_role,
-      message_type: 'TEXT',
-      body: m.content || '',
-      content: m.content || '',
-      created_at: m.created_at,
-      delivery_status: 'DELIVERED',
-      read_status: 'READ',
-      author_message_attachments: []
-    }));
+    const messages = (rawMessages || []).map((m: any) => {
+      let bodyText = m.content || '';
+      let atts: any[] = [];
+
+      if (bodyText.includes('<!-- ATTACHMENTS:')) {
+        try {
+          const parts = bodyText.split('<!-- ATTACHMENTS:');
+          bodyText = parts[0].trim();
+          const jsonStr = parts[1].replace('-->', '').trim();
+          atts = JSON.parse(jsonStr);
+        } catch (e) {
+          console.error('Error parsing attachments JSON:', e);
+        }
+      }
+
+      const hasAudio = atts.some((a: any) => a.mime_type?.startsWith('audio/'));
+      const hasImage = atts.some((a: any) => a.mime_type?.startsWith('image/'));
+
+      return {
+        id: m.id,
+        conversation_id: m.conversation_id,
+        sender_id: m.sender_id,
+        sender_role: m.sender_role,
+        message_type: hasAudio ? 'VOICE' : (hasImage ? 'IMAGE' : 'TEXT'),
+        body: bodyText,
+        content: bodyText,
+        created_at: m.created_at,
+        delivery_status: 'DELIVERED',
+        read_status: 'READ',
+        author_message_attachments: atts
+      };
+    });
 
     return NextResponse.json({ success: true, messages });
   } catch (error) {
@@ -201,7 +220,21 @@ export async function POST(
       senderRole = isAuthor ? 'AUTHOR' : 'STUDENT';
     }
 
-    const messageContent = messageBody || body.content || '';
+    let rawText = messageBody || body.content || '';
+    let attachmentsWithIds: any[] = [];
+
+    if (attachments && Array.isArray(attachments) && attachments.length > 0) {
+      attachmentsWithIds = attachments.map((att: any, idx: number) => ({
+        id: att.id || `${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 7)}`,
+        storage_path: att.storage_path,
+        file_name: att.file_name || 'attachment',
+        mime_type: att.mime_type || 'application/octet-stream',
+        file_size: att.file_size || 0,
+        duration_seconds: att.duration_seconds || null,
+      }));
+
+      rawText = `${rawText ? rawText + '\n\n' : ''}<!-- ATTACHMENTS:${JSON.stringify(attachmentsWithIds)} -->`;
+    }
 
     // Insert message into author_messages
     const { data: message, error: messageError } = await supabaseAdmin
@@ -210,7 +243,7 @@ export async function POST(
         conversation_id: conversationId,
         sender_id: userId,
         sender_role: senderRole,
-        content: messageContent,
+        content: rawText,
       })
       .select()
       .single();
@@ -234,25 +267,28 @@ export async function POST(
     try {
       const recipientId = isAuthor ? conversation.student_id : conversation.author_id;
       const senderName = isAuthor ? author?.display_name || 'Author' : 'Student';
-      const messagePreview = messageContent ? (messageContent.length > 100 ? messageContent.substring(0, 100) + '...' : messageContent) : 'New message';
+      const previewText = messageBody || (attachmentsWithIds.length > 0 ? (attachmentsWithIds[0].mime_type?.startsWith('audio/') ? 'Voice note' : 'Attachment') : 'New message');
 
       await PushNotificationService.sendNewMessageNotification(
         recipientId,
         senderName,
-        messagePreview,
+        previewText,
         conversationId
       );
     } catch (pushError) {
       console.error('[POST messages] Push notification failed:', pushError);
     }
 
+    const hasAudio = attachmentsWithIds.some((a: any) => a.mime_type?.startsWith('audio/'));
+    const hasImage = attachmentsWithIds.some((a: any) => a.mime_type?.startsWith('image/'));
+
     const formattedMessage = {
       ...message,
-      body: message.content,
-      message_type: 'TEXT',
+      body: messageBody || null,
+      message_type: hasAudio ? 'VOICE' : (hasImage ? 'IMAGE' : (message_type || 'TEXT')),
       delivery_status: 'DELIVERED',
       read_status: 'UNREAD',
-      author_message_attachments: attachments || []
+      author_message_attachments: attachmentsWithIds
     };
 
     return NextResponse.json({ success: true, message: formattedMessage });
