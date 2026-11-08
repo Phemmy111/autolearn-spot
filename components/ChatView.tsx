@@ -155,6 +155,16 @@ function VoicePlayer({ url, isMe, durationSeconds }: { url: string; isMe: boolea
         </div>
         <span className="text-[10px] mt-0.5 block opacity-70">{displayTime}</span>
       </div>
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        download="voice-note.webm"
+        className={`p-1 rounded-full opacity-60 hover:opacity-100 transition-opacity ${isMe ? "hover:bg-white/10" : "hover:bg-gray-100"}`}
+        title="Download / Open Audio"
+      >
+        <Download className="w-3.5 h-3.5" />
+      </a>
     </div>
   );
 }
@@ -246,9 +256,13 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
   const [recording, setRecording] = useState(false);
   const [paused, setPaused] = useState(false);
   const [recTime, setRecTime] = useState(0);
+  const [audioLevel, setAudioLevel] = useState(0);
   const mediaRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const animFrameRef = useRef<number | null>(null);
+  const maxAudioLevelRef = useRef<number>(0);
   const fileRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -334,13 +348,39 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
+      // Use clean standard audio capture
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      // Setup audio analyzer for live volume feedback
+      try {
+        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioCtx) {
+          const actx = new AudioCtx();
+          if (actx.state === "suspended") {
+            await actx.resume();
+          }
+          const src = actx.createMediaStreamSource(stream);
+          const analyser = actx.createAnalyser();
+          analyser.fftSize = 64;
+          src.connect(analyser);
+          audioContextRef.current = actx;
+          maxAudioLevelRef.current = 0;
+
+          const dataArray = new Uint8Array(analyser.frequencyBinCount);
+          const checkVolume = () => {
+            analyser.getByteFrequencyData(dataArray);
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+            const avg = sum / dataArray.length;
+            if (avg > maxAudioLevelRef.current) maxAudioLevelRef.current = avg;
+            setAudioLevel(Math.min(100, Math.round((avg / 64) * 100)));
+            animFrameRef.current = requestAnimationFrame(checkVolume);
+          };
+          animFrameRef.current = requestAnimationFrame(checkVolume);
         }
-      });
+      } catch (err) {
+        console.warn("Could not start audio visualizer:", err);
+      }
 
       // Prefer standard webm opus, fallback to webm, mp4, ogg
       let mimeType = "audio/webm;codecs=opus";
@@ -380,6 +420,18 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
     }
   };
 
+  const cleanupAudioAnalyser = () => {
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+    if (audioContextRef.current) {
+      try { audioContextRef.current.close(); } catch (e) {}
+      audioContextRef.current = null;
+    }
+    setAudioLevel(0);
+  };
+
   const pauseRecording = () => {
     if (!mediaRef.current) return;
     if (mediaRef.current.state === "recording") {
@@ -397,8 +449,11 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
   const stopRecording = () => {
     if (!mediaRef.current) return;
     if (timerRef.current) clearInterval(timerRef.current);
+    cleanupAudioAnalyser();
+
     const mr = mediaRef.current;
     const finalRecTime = recTime;
+    const hadSound = maxAudioLevelRef.current > 1;
 
     mr.onstop = async () => {
       // Safely stop tracks inside onstop AFTER all chunks are collected
@@ -413,6 +468,10 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
       if (blob.size === 0) {
         alert("Recording was empty. Please check your microphone and try again.");
         return;
+      }
+
+      if (!hadSound && finalRecTime >= 2) {
+        alert("⚠️ No sound was picked up by your microphone during recording!\n\nPlease check:\n1. Windows Microphone is not muted (Volume Mixer & Windows Settings).\n2. The correct microphone device is selected in your browser (lock icon beside URL).\n3. Microphone volume slider in Windows is turned up.");
       }
 
       const file = new File([blob], `voice-${Date.now()}.${ext}`, { type: mime });
@@ -446,6 +505,8 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
   const cancelRecording = () => {
     if (!mediaRef.current) return;
     if (timerRef.current) clearInterval(timerRef.current);
+    cleanupAudioAnalyser();
+
     const mr = mediaRef.current;
     try {
       mr.stream.getTracks().forEach(t => t.stop());
@@ -471,9 +532,31 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
         </div>
       )}
       {recording && (
-        <div className="flex items-center gap-3 px-4 pt-3">
+        <div className="flex items-center gap-3 px-4 pt-3 flex-wrap">
           <span className={`w-2 h-2 rounded-full ${paused ? "bg-yellow-400" : "bg-red-500 animate-pulse"}`} />
           <span className="text-sm font-medium text-gray-700">{paused ? "Paused" : "Recording"} &mdash; {fmt(recTime)}</span>
+
+          {/* Live Waveform Indicator */}
+          <div className="flex items-center gap-1 h-4 px-2 py-0.5 bg-gray-100 rounded-md" title={`Mic input level: ${audioLevel}%`}>
+            {[1, 2, 3, 4, 5].map((bar) => {
+              const active = audioLevel >= bar * 16;
+              const height = active ? Math.max(4, Math.min(16, (audioLevel / 100) * 16)) : 4;
+              return (
+                <div
+                  key={bar}
+                  className={`w-1 rounded-full transition-all duration-75 ${active ? "bg-sky-500" : "bg-gray-300"}`}
+                  style={{ height: `${height}px` }}
+                />
+              );
+            })}
+          </div>
+
+          {audioLevel === 0 && recTime >= 2 && (
+            <span className="text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+              Mic muted or low volume
+            </span>
+          )}
+
           <button onClick={pauseRecording} className="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center gap-1 font-medium">
             {paused ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
             {paused ? "Resume" : "Pause"}
