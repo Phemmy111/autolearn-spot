@@ -29,7 +29,7 @@ export const scholarshipConfig = {
   // When switching to live mode:
   // 1. Change paystackMode to 'live'
   // 2. Set NEXT_PUBLIC_PAYSTACK_SCHOLARSHIP_LIVE_URL environment variable
-  // 3. Configure webhook URL in Paystack live dashboard: https://autolearn-spot.vercel.app/api/webhook/paystack
+  // 3. Configure webhook URL in Paystack live dashboard: https://www.autolearnspot.com/api/webhook/paystack
   // 4. Ensure PAYSTACK_WEBHOOK_SECRET is set in Vercel (for live mode)
   // 5. Ensure PAYSTACK_TEST_WEBHOOK_SECRET is set in Vercel (for test mode)
   

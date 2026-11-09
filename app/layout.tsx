@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 
   return {
-    metadataBase: new URL('https://autolearn-spot.vercel.app'),
+    metadataBase: new URL('https://www.autolearnspot.com'),
     title: settings.siteTitle || 'AutoLearn Spot - n8n & AI Automation Training',
     description: settings.metaDescription || 'A 4-week hands-on n8n automation training where every session ends with a working, deployable workflow.',
     generator: 'Codex',

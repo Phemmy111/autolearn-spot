@@ -119,7 +119,7 @@ export async function POST(request: Request) {
 
     // Update last login
     const tableName = partnerType === 'community' ? 'community_ambassadors' : 'influencers';
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
     try {
       await fetch(`${appUrl}/api/internal/update-last-login`, {
         method: 'POST',

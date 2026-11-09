@@ -123,7 +123,7 @@ export class FallbackVisionProvider implements AIProvider {
     }
 
     if (this.type === 'openrouter') {
-      headers['HTTP-Referer'] = 'https://autolearn-spot.vercel.app'
+      headers['HTTP-Referer'] = 'https://www.autolearnspot.com'
       headers['X-Title'] = 'ALEX Intelligence'
     }
 

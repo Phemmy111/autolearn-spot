@@ -11,12 +11,12 @@ import { NextResponse } from 'next/server';
  */
 export async function GET() {
   // Redirect to Clerk's sign-out page; after sign-out Clerk redirects to `redirect_url`
-  const afterSignOutUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app'}/author-sign-in`;
+  const afterSignOutUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com'}/author-sign-in`;
 
   // We can't call Clerk's server-side signOut here and redirect cleanly in a GET,
   // so we redirect to the sign-out page passing the return URL.
   return NextResponse.redirect(
-    `https://accounts.autolearn-spot.vercel.app/sign-out?redirect_url=${encodeURIComponent(afterSignOutUrl)}`,
+    `https://accounts.autolearnspot.com/sign-out?redirect_url=${encodeURIComponent(afterSignOutUrl)}`,
     { status: 302 }
   );
 }

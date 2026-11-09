@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
       .eq('id', existing.referral_code_id)
       .single();
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
     return NextResponse.json({
       id: existing.id,
       affiliate_url: `${appUrl}/marketplace/${product.slug}?ref=${refCode?.code}`,
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: linkError?.message || 'Failed to create affiliate link' }, { status: 500 });
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
   return NextResponse.json({
     id: link.id,
     affiliate_url: `${appUrl}/marketplace/${product.slug}?ref=${refCode.code}`,
@@ -144,7 +144,7 @@ export async function GET() {
 
   const codeMap = Object.fromEntries((codes || []).map((c: any) => [c.id, c.code]));
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
   const enriched = links.map((l: any) => {
     const product = productMap[l.learning_product_id] || {};
     const code = codeMap[l.referral_code_id] || '';

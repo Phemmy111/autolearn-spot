@@ -144,8 +144,8 @@ export class AmbassadorService {
             application.email,
             application.full_name,
             temporaryPassword,
-            'https://autolearn-spot.vercel.app/partners/login',
-            'https://autolearn-spot.vercel.app/partners/dashboard',
+            'https://www.autolearnspot.com/partners/login',
+            'https://www.autolearnspot.com/partners/dashboard',
             application.partner_type === 'influencer' ? 2500 : 1500
           );
           console.log('[AmbassadorService] Email send result:', emailResult);

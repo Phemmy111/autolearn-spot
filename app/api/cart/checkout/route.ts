@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
       },
       callback_url:
         callbackUrl ??
-        `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://autolearn-spot.vercel.app'}/checkout/success`,
+        `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.autolearnspot.com'}/checkout/success`,
       channels: ['card', 'bank', 'ussd', 'qr'],
     }),
   });

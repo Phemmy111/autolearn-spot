@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
           payment_type: 'direct_enrollment',
           full_name: fullName,
         },
-        callback_url: callbackUrl || `${process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app'}/enroll/success`,
+        callback_url: callbackUrl || `${process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com'}/enroll/success`,
         channels: ['card', 'bank', 'ussd', 'qr'],
       }),
     });

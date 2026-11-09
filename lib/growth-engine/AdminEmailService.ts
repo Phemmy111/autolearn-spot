@@ -333,7 +333,7 @@ export class AdminEmailService {
             <div style="background-color: #111317; border: 1px solid #1f2229; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
               <h3 style="color: #00f0ff; margin-top: 0;">Getting Started</h3>
               <ul style="color: #b9cacb; margin: 10px 0; padding-left: 20px;">
-                <li style="margin-bottom: 10px;">Login to your partner dashboard at <a href="https://autolearn-spot.vercel.app/partners/login" style="color: #00f0ff;">autolearn-spot.vercel.app/partners/login</a></li>
+                <li style="margin-bottom: 10px;">Login to your partner dashboard at <a href="https://www.autolearnspot.com/partners/login" style="color: #00f0ff;">autolearnspot.com/partners/login</a></li>
                 <li style="margin-bottom: 10px;">Access your marketing materials and referral link</li>
                 <li style="margin-bottom: 10px;">Start sharing your referral code to earn commissions</li>
                 <li style="margin-bottom: 10px;">Track your performance and earnings in real-time</li>

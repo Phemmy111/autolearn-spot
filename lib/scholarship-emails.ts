@@ -44,7 +44,7 @@ export async function sendApplicationReceivedEmail({ to, fullName, referenceNumb
       <div style="background: #111; padding: 20px; text-align: center; border-top: 1px solid #1f2229;">
         <p style="margin: 0; color: #b9cacb; font-size: 12px;">© 2026 AutoLearn Spot. All rights reserved.</p>
         <p style="margin: 10px 0 0 0; color: #5d5f63; font-size: 12px;">
-          <a href="https://autolearn-spot.vercel.app" style="color: #00f0ff; text-decoration: none;">autolearn-spot.vercel.app</a>
+          <a href="https://www.autolearnspot.com" style="color: #00f0ff; text-decoration: none;">autolearnspot.com</a>
         </p>
       </div>
     </div>
@@ -85,7 +85,7 @@ export async function sendUnderReviewEmail({ to, fullName, referenceNumber }: Em
       <div style="background: #111; padding: 20px; text-align: center; border-top: 1px solid #1f2229;">
         <p style="margin: 0; color: #b9cacb; font-size: 12px;">© 2026 AutoLearn Spot. All rights reserved.</p>
         <p style="margin: 10px 0 0 0; color: #5d5f63; font-size: 12px;">
-          <a href="https://autolearn-spot.vercel.app" style="color: #00f0ff; text-decoration: none;">autolearn-spot.vercel.app</a>
+          <a href="https://www.autolearnspot.com" style="color: #00f0ff; text-decoration: none;">autolearnspot.com</a>
         </p>
       </div>
     </div>
@@ -128,7 +128,7 @@ export async function sendShortlistedEmail({ to, fullName, referenceNumber }: Em
       <div style="background: #111; padding: 20px; text-align: center; border-top: 1px solid #1f2229;">
         <p style="margin: 0; color: #b9cacb; font-size: 12px;">© 2026 AutoLearn Spot. All rights reserved.</p>
         <p style="margin: 10px 0 0 0; color: #5d5f63; font-size: 12px;">
-          <a href="https://autolearn-spot.vercel.app" style="color: #00f0ff; text-decoration: none;">autolearn-spot.vercel.app</a>
+          <a href="https://www.autolearnspot.com" style="color: #00f0ff; text-decoration: none;">autolearnspot.com</a>
         </p>
       </div>
     </div>
@@ -195,7 +195,7 @@ export async function sendAcceptedEmail({ to, fullName, referenceNumber }: Email
       <div style="background: #111; padding: 20px; text-align: center; border-top: 1px solid #1f2229;">
         <p style="margin: 0; color: #b9cacb; font-size: 12px;">© 2026 AutoLearn Spot. All rights reserved.</p>
         <p style="margin: 10px 0 0 0; color: #5d5f63; font-size: 12px;">
-          <a href="https://autolearn-spot.vercel.app" style="color: #00f0ff; text-decoration: none;">autolearn-spot.vercel.app</a>
+          <a href="https://www.autolearnspot.com" style="color: #00f0ff; text-decoration: none;">autolearnspot.com</a>
         </p>
       </div>
     </div>
@@ -238,7 +238,7 @@ export async function sendWaitlistedEmail({ to, fullName, referenceNumber }: Ema
       <div style="background: #111; padding: 20px; text-align: center; border-top: 1px solid #1f2229;">
         <p style="margin: 0; color: #b9cacb; font-size: 12px;">© 2026 AutoLearn Spot. All rights reserved.</p>
         <p style="margin: 10px 0 0 0; color: #5d5f63; font-size: 12px;">
-          <a href="https://autolearn-spot.vercel.app" style="color: #00f0ff; text-decoration: none;">autolearn-spot.vercel.app</a>
+          <a href="https://www.autolearnspot.com" style="color: #00f0ff; text-decoration: none;">autolearnspot.com</a>
         </p>
       </div>
     </div>
@@ -276,7 +276,7 @@ export async function sendNotSelectedEmail({ to, fullName, referenceNumber }: Em
         <p style="font-size: 16px; line-height: 1.6;">If you would still like to join our programme, you can enroll normally at our regular course rate.</p>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://autolearn-spot.vercel.app" style="display: inline-block; background: #00f0ff; color: #00363a; padding: 15px 40px; text-decoration: none; font-size: 16px; font-weight: bold; border-radius: 5px; text-transform: uppercase;">Visit AutoLearn Spot</a>
+          <a href="https://www.autolearnspot.com" style="display: inline-block; background: #00f0ff; color: #00363a; padding: 15px 40px; text-decoration: none; font-size: 16px; font-weight: bold; border-radius: 5px; text-transform: uppercase;">Visit AutoLearn Spot</a>
         </div>
         
         <p style="font-size: 16px; line-height: 1.6;">We wish you the best in your learning journey.</p>
@@ -287,7 +287,7 @@ export async function sendNotSelectedEmail({ to, fullName, referenceNumber }: Em
       <div style="background: #111; padding: 20px; text-align: center; border-top: 1px solid #1f2229;">
         <p style="margin: 0; color: #b9cacb; font-size: 12px;">© 2026 AutoLearn Spot. All rights reserved.</p>
         <p style="margin: 10px 0 0 0; color: #5d5f63; font-size: 12px;">
-          <a href="https://autolearn-spot.vercel.app" style="color: #00f0ff; text-decoration: none;">autolearn-spot.vercel.app</a>
+          <a href="https://www.autolearnspot.com" style="color: #00f0ff; text-decoration: none;">autolearnspot.com</a>
         </p>
       </div>
     </div>
@@ -349,7 +349,7 @@ export async function sendWelcomeEmail({ to, fullName, referenceNumber }: EmailD
       <div style="background: #111; padding: 20px; text-align: center; border-top: 1px solid #1f2229;">
         <p style="margin: 0; color: #b9cacb; font-size: 12px;">© 2026 AutoLearn Spot. All rights reserved.</p>
         <p style="margin: 10px 0 0 0; color: #5d5f63; font-size: 12px;">
-          <a href="https://autolearn-spot.vercel.app" style="color: #00f0ff; text-decoration: none;">autolearn-spot.vercel.app</a>
+          <a href="https://www.autolearnspot.com" style="color: #00f0ff; text-decoration: none;">autolearnspot.com</a>
         </p>
       </div>
     </div>

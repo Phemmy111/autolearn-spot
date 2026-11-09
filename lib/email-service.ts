@@ -466,8 +466,8 @@ export class EmailService {
     amount: number,
     reference: string
   ): Promise<boolean> {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
-    const courseUrl = `${baseUrl}/marketplace`;
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
+    const studentDashboardUrl = `${baseUrl}/dashboard`;
 
     const template: EmailTemplate = {
       to: studentEmail,
@@ -486,7 +486,7 @@ export class EmailService {
           </div>
 
           <p>You can now access your course materials through your student dashboard.</p>
-          <p><a href="${courseUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Access Your Courses</a></p>
+          <p><a href="${studentDashboardUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Go to Student Dashboard</a></p>
 
           <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
           <p>Best regards,<br>The AutoLearn Spot Team</p>
@@ -567,7 +567,7 @@ export class EmailService {
     amount: number,
     authorEarnings: number
   ): Promise<boolean> {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
     const earningsUrl = `${baseUrl}/author/earnings`;
 
     const template: EmailTemplate = {
@@ -646,7 +646,7 @@ export class EmailService {
     reference: string
   ): Promise<boolean> {
     const recipients = await this.getEventRecipients('withdrawal_request');
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
     const adminUrl = `${baseUrl}/admin/withdrawals`;
 
     const template: EmailTemplateMultiple = {
@@ -685,7 +685,7 @@ export class EmailService {
     amount: number,
     reference: string
   ): Promise<boolean> {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
     const earningsUrl = `${baseUrl}/author/earnings`;
 
     const template: EmailTemplate = {
@@ -728,7 +728,7 @@ export class EmailService {
     reference: string,
     reason?: string
   ): Promise<boolean> {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
     const earningsUrl = `${baseUrl}/author/earnings`;
 
     const template: EmailTemplate = {
@@ -769,7 +769,7 @@ export class EmailService {
     reason: string
   ): Promise<boolean> {
     const recipients = await this.getEventRecipients('author_suspended');
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
     const adminUrl = `${baseUrl}/admin/authors`;
 
     const template: EmailTemplateMultiple = {
@@ -806,7 +806,7 @@ export class EmailService {
     authorEmail: string
   ): Promise<boolean> {
     const recipients = await this.getEventRecipients('author_reactivated');
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
     const adminUrl = `${baseUrl}/admin/authors`;
 
     const template: EmailTemplateMultiple = {
@@ -850,7 +850,7 @@ export class EmailService {
     }
   ): Promise<boolean> {
     const recipients = await this.getEventRecipients('product_submitted');
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
     const adminUrl = `${baseUrl}/admin/products`;
 
     // Parse description if it's JSON
@@ -903,7 +903,7 @@ export class EmailService {
     productId: string
   ): Promise<boolean> {
     const recipients = await this.getEventRecipients('product_published');
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
     const productUrl = `${baseUrl}/learning_products/${productId}`;
 
     const template: EmailTemplateMultiple = {
@@ -942,7 +942,7 @@ export class EmailService {
     feedback: string
   ): Promise<boolean> {
     const recipients = await this.getEventRecipients('product_rejected');
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
     const authorUrl = `${baseUrl}/author/products`;
 
     const template: EmailTemplateMultiple = {
@@ -984,7 +984,7 @@ export class EmailService {
     authorName: string
   ): Promise<boolean> {
     const recipients = await this.getEventRecipients('course_completion');
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
 
     const template: EmailTemplateMultiple = {
       to: recipients,
@@ -1059,7 +1059,7 @@ export class EmailService {
     authorName: string
   ): Promise<boolean> {
     const recipients = await this.getEventRecipients('assignment_submission');
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
 
     const template: EmailTemplateMultiple = {
       to: recipients,

@@ -19,7 +19,7 @@ export default function AdminCertificatesSettingsPage() {
     signatureUrl: '',
     signatureText: 'Founder',
     qrEnabled: 'true',
-    qrDestination: 'https://autolearn-spot.vercel.app/certificate/verify',
+    qrDestination: 'https://www.autolearnspot.com/certificate/verify',
     footer: 'AutoLearn Spot - AI Automation Training',
     accentColor: '#00f0ff',
     numberFormat: 'ALS-{year}-{cohort}-{sequence}',

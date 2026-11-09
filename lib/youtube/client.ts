@@ -103,7 +103,7 @@ export async function createResumableUploadSession(
   title: string,
   description: string,
   mimeType: string,
-  fileSize: number, origin: string = 'https://autolearn-spot.vercel.app') {
+  fileSize: number, origin: string = 'https://www.autolearnspot.com') {
   const connection = await getActiveConnection();
   if (!connection) {
     throw new Error('No active YouTube connection found. Please contact administration.');
