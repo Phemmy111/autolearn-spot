@@ -1160,4 +1160,44 @@ export class EmailService {
 
     return this.sendEmailMultiple(template);
   }
+
+  /**
+   * Send new direct message notification email
+   */
+  static async sendNewDirectMessageEmail(
+    toEmail: string,
+    recipientName: string,
+    senderName: string,
+    messagePreview: string,
+    actionUrl: string
+  ): Promise<boolean> {
+    const template: EmailTemplate = {
+      to: toEmail,
+      subject: `New message from ${senderName} on AutoLearn Spot`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #0284c7;">💬 New Message Received</h2>
+          <p>Hi ${recipientName},</p>
+          <p><strong>${senderName}</strong> sent you a message:</p>
+
+          <div style="background-color: #f8fafc; border-left: 4px solid #0284c7; padding: 16px 20px; border-radius: 4px; margin: 20px 0;">
+            <p style="margin: 0; color: #334155; font-size: 15px; white-space: pre-wrap;">${messagePreview}</p>
+          </div>
+
+          <p style="margin-top: 25px;">
+            <a href="${actionUrl}" style="background-color: #0284c7; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 500;">Open & Reply to Message</a>
+          </p>
+
+          <p style="color: #64748b; font-size: 13px; margin-top: 25px;">
+            Please reply directly on AutoLearn Spot to keep your communication safe and organized.
+          </p>
+          <p style="color: #64748b; font-size: 13px;">
+            Best regards,<br>The AutoLearn Spot Team
+          </p>
+        </div>
+      `,
+    };
+
+    return this.sendEmail(template);
+  }
 }

@@ -14,6 +14,8 @@ interface Conversation {
   created_at: string;
   updated_at: string;
   unread_count: number;
+  last_message?: string;
+  last_message_role?: string;
   learning_products: { id: string; title: string; thumbnail: string | null };
 }
 
@@ -110,7 +112,13 @@ export default function AuthorMessagesPage() {
     } catch {}
   }, []);
 
-  useEffect(() => { loadConvs(); loadProducts(); loadStudents(); }, [loadConvs, loadProducts, loadStudents]);
+  useEffect(() => {
+    loadConvs();
+    loadProducts();
+    loadStudents();
+    const interval = setInterval(loadConvs, 4000);
+    return () => clearInterval(interval);
+  }, [loadConvs, loadProducts, loadStudents]);
 
   const filtered = conversations.filter(c =>
     c.learning_products?.title?.toLowerCase().includes(search.toLowerCase())
@@ -173,14 +181,22 @@ export default function AuthorMessagesPage() {
                     <span className="text-purple-700 font-bold text-sm">{getStudentName(conv).charAt(0)}</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between gap-2">
                       <p className="font-semibold text-gray-900 truncate text-sm">{getStudentName(conv)}</p>
-                      {conv.unread_count > 0 && <span className="px-1.5 py-0.5 bg-sky-500 text-white text-[10px] font-bold rounded-full">{conv.unread_count}</span>}
+                      <span className="text-[10px] text-gray-400 flex-shrink-0 flex items-center gap-1">
+                        <Clock className="w-3 h-3" />{new Date(conv.updated_at || conv.created_at).toLocaleDateString()}
+                      </span>
                     </div>
-                    <p className="text-xs text-gray-500 truncate">{conv.learning_products?.title}</p>
-                    <p className="text-[10px] text-gray-400 flex items-center gap-1 mt-0.5">
-                      <Clock className="w-3 h-3" />{new Date(conv.updated_at).toLocaleDateString()}
-                    </p>
+                    {conv.last_message ? (
+                      <p className="text-xs text-gray-800 font-medium truncate mt-0.5 line-clamp-1">
+                        {conv.last_message_role === 'AUTHOR' ? <span className="text-gray-400 font-normal">You: </span> : null}
+                        {conv.last_message}
+                      </p>
+                    ) : null}
+                    <div className="flex items-center justify-between gap-2 mt-0.5">
+                      <p className="text-xs text-gray-500 truncate">{conv.learning_products?.title}</p>
+                      {conv.unread_count > 0 && <span className="px-1.5 py-0.5 bg-sky-500 text-white text-[10px] font-bold rounded-full flex-shrink-0">{conv.unread_count}</span>}
+                    </div>
                   </div>
                 </div>
               </button>

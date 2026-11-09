@@ -42,6 +42,9 @@ export async function GET(request: NextRequest) {
           thumbnail:thumbnail_url
         ),
         author_messages (
+          id,
+          content,
+          sender_role,
           created_at
         )
       `)
@@ -57,10 +60,28 @@ export async function GET(request: NextRequest) {
     const conversationIds = conversations?.map(c => c.id) || [];
     const unreadCounts = conversationIds.length > 0 ? await getUnreadCounts(conversationIds, author.id) : {};
 
-    const conversationsWithCounts = conversations?.map(conv => ({
-      ...conv,
-      unread_count: unreadCounts[conv.id] || 0,
-    })) || [];
+    const conversationsWithCounts = conversations?.map(conv => {
+      const msgs = (conv.author_messages || []).slice().sort(
+        (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      const latestMsg = msgs[0];
+      let snippet = '';
+      if (latestMsg) {
+        if (latestMsg.content?.includes('<!-- ATTACHMENTS:')) {
+          if (latestMsg.content.includes('audio/')) snippet = '🎙️ Voice note';
+          else snippet = '📎 Attachment';
+        } else {
+          snippet = latestMsg.content || '';
+        }
+      }
+
+      return {
+        ...conv,
+        last_message: snippet,
+        last_message_role: latestMsg?.sender_role || null,
+        unread_count: unreadCounts[conv.id] || 0,
+      };
+    }) || [];
 
     return NextResponse.json({ success: true, conversations: conversationsWithCounts });
   } catch (error) {

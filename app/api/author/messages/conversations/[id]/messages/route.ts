@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { PushNotificationService } from '@/lib/push-notification-service';
+import { EmailService } from '@/lib/email-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -277,6 +278,63 @@ export async function POST(
       );
     } catch (pushError) {
       console.error('[POST messages] Push notification failed:', pushError);
+    }
+
+    // Send email notification to recipient
+    try {
+      const previewText = messageBody || (attachmentsWithIds.length > 0 ? (attachmentsWithIds[0].mime_type?.startsWith('audio/') ? 'Sent a voice note' : 'Sent an attachment') : 'New message');
+      
+      if (isAuthor) {
+        // Author replied to Student -> Send email to student
+        let studentEmail: string | null = null;
+        let studentName = 'Student';
+        if (conversation.student_id?.startsWith('guest_')) {
+          const { data: ord } = await supabaseAdmin
+            .from('orders')
+            .select('customer_email, customer_name')
+            .eq('guest_id', conversation.student_id)
+            .maybeSingle();
+          if (ord) {
+            studentEmail = ord.customer_email;
+            studentName = ord.customer_name || studentName;
+          }
+        } else {
+          const { data: enr } = await supabaseAdmin
+            .from('enrollments')
+            .select('email, full_name')
+            .or(`clerk_user_id.eq.${conversation.student_id},email.eq.${conversation.student_id}`)
+            .maybeSingle();
+          if (enr) {
+            studentEmail = enr.email;
+            studentName = enr.full_name || studentName;
+          }
+        }
+
+        if (studentEmail) {
+          await EmailService.sendNewDirectMessageEmail(
+            studentEmail,
+            studentName,
+            author?.display_name || 'Your Instructor',
+            previewText,
+            'https://www.autolearnspot.com/student/messages'
+          );
+        }
+      } else {
+        // Student sent message to Author -> Send email to author
+        if (author?.email) {
+          const clerkUser = await currentUser();
+          const studentName = clerkUser?.fullName || clerkUser?.firstName || 'Student';
+          await EmailService.sendNewDirectMessageEmail(
+            author.email,
+            author.display_name || 'Author',
+            studentName,
+            previewText,
+            'https://www.autolearnspot.com/author/messages'
+          );
+        }
+      }
+    } catch (emailErr) {
+      console.warn('[POST messages] Direct message email notification failed (non-fatal):', emailErr);
     }
 
     const hasAudio = attachmentsWithIds.some((a: any) => a.mime_type?.startsWith('audio/'));
