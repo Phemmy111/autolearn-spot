@@ -10,7 +10,26 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 // Paystack secret key for webhook verification
-const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY || '';
+function verifyPaystackSignature(body: string, signature: string): boolean {
+  if (!signature) return false;
+  const secrets = Array.from(new Set([
+    process.env.PAYSTACK_WEBHOOK_SECRET,
+    process.env.PAYSTACK_SECRET_KEY,
+    process.env.PAYSTACK_TEST_SECRET_KEY,
+    process.env.PAYSTACK_TEST_WEBHOOK_SECRET,
+  ].filter(Boolean))) as string[];
+
+  if (secrets.length === 0) return true; // non-breaking if no secrets set
+
+  return secrets.some((secret) => {
+    try {
+      const expected = crypto.createHmac('sha512', secret).update(body).digest('hex');
+      return signature.toLowerCase() === expected.toLowerCase();
+    } catch {
+      return false;
+    }
+  });
+}
 
 export async function POST(request: Request) {
   try {
@@ -18,15 +37,9 @@ export async function POST(request: Request) {
     const signature = request.headers.get('x-paystack-signature') || '';
 
     // Verify webhook signature
-    if (PAYSTACK_SECRET_KEY) {
-      const hmac = crypto.createHmac('sha512', PAYSTACK_SECRET_KEY);
-      hmac.update(body);
-      const expectedSignature = hmac.digest('hex');
-      
-      if (signature !== expectedSignature) {
-        console.error('[Paystack Webhook] Invalid signature');
-        return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
-      }
+    if (!verifyPaystackSignature(body, signature)) {
+      console.error('[Paystack Webhook] Invalid signature');
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
     const event = JSON.parse(body);
@@ -38,6 +51,34 @@ export async function POST(request: Request) {
       const { metadata, amount, email, customer, reference } = data;
 
       console.log('[Paystack Webhook] Payment successful:', { email, amount, reference, metadata });
+
+      // Handle cart checkout payment
+      let isCart = metadata?.payment_type === 'cart_checkout' || !!metadata?.order_id;
+      if (!isCart) {
+        const { data: matchedOrder } = await supabaseAdmin
+          .from('orders')
+          .select('id')
+          .or(`provider_ref.eq.${reference},order_ref.eq.${reference}`)
+          .maybeSingle();
+        if (matchedOrder) isCart = true;
+      }
+
+      if (isCart) {
+        console.log('[Paystack Webhook] Processing cart checkout payment for ref:', reference);
+        const paystackCustomerName = [customer?.first_name, customer?.last_name].filter(Boolean).join(' ');
+        const confirmedFullName = metadata?.full_name || paystackCustomerName || 'Student';
+        const affiliateRef = metadata?.affiliate_ref;
+        await fulfillCartOrder({
+          orderId: metadata?.order_id,
+          reference,
+          customerEmail: email || customer?.email,
+          customerName: confirmedFullName,
+          amountInNaira: amount ? amount / 100 : undefined,
+          ipAddress: data.ip_address,
+          affiliateRef,
+        });
+        return NextResponse.json({ success: true, message: 'Cart checkout processed' });
+      }
 
       // Handle scholarship payment
       if (metadata?.flow === 'scholarship') {

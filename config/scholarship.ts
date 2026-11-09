@@ -22,7 +22,7 @@ export const scholarshipConfig = {
   
   // Payment Configuration
   // TEST MODE - Currently using test payment link
-  paystackMode: 'test' as 'test' | 'live', // Switch to 'live' when going to production
+  paystackMode: (process.env.PAYSTACK_MODE || 'live') as 'test' | 'live', // Default to live in production, override with PAYSTACK_MODE=test if testing
   paymentUrl: process.env.NEXT_PUBLIC_PAYSTACK_SCHOLARSHIP_URL || 'https://paystack.shop/pay/lk12tlisnj',
   livePaymentUrl: process.env.NEXT_PUBLIC_PAYSTACK_SCHOLARSHIP_LIVE_URL || '',
   

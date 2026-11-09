@@ -32,10 +32,30 @@ import { fulfillCartOrder } from '@/lib/order-fulfillment';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
-// Use test or live webhook secret based on paystackMode
-const webhookSecret = scholarshipConfig.paystackMode === 'test' 
-  ? (process.env.PAYSTACK_TEST_WEBHOOK_SECRET || process.env.PAYSTACK_TEST_SECRET_KEY || process.env.PAYSTACK_SECRET_KEY || '')
-  : (process.env.PAYSTACK_WEBHOOK_SECRET || process.env.PAYSTACK_SECRET_KEY || process.env.PAYSTACK_TEST_SECRET_KEY || '');
+// Support both live and test webhook secrets with resilient multi-key matching
+function verifyPaystackSignature(body: string, signature: string): boolean {
+  if (!signature) return false;
+  const secrets = Array.from(new Set([
+    process.env.PAYSTACK_WEBHOOK_SECRET,
+    process.env.PAYSTACK_SECRET_KEY,
+    process.env.PAYSTACK_TEST_SECRET_KEY,
+    process.env.PAYSTACK_TEST_WEBHOOK_SECRET,
+  ].filter(Boolean))) as string[];
+
+  if (secrets.length === 0) {
+    console.warn('No Paystack secrets configured for verification');
+    return false;
+  }
+
+  return secrets.some((secret) => {
+    try {
+      const expected = crypto.createHmac('sha512', secret).update(body).digest('hex');
+      return signature.toLowerCase() === expected.toLowerCase();
+    } catch {
+      return false;
+    }
+  });
+}
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -592,12 +612,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify webhook signature
-    const expectedSignature = crypto
-      .createHmac('sha512', webhookSecret)
-      .update(body)
-      .digest('hex');
-
-    if (signature !== expectedSignature) {
+    if (!verifyPaystackSignature(body, signature)) {
       await logSystemError({
         action: 'webhook_received',
         category: 'validation_error',
@@ -721,7 +736,19 @@ export async function POST(request: NextRequest) {
         return await processDirectEnrollment(data, reference, amountInNaira, pendingId);
       }
 
-      if (paymentType === 'cart_checkout') {
+      let isCartOrder = paymentType === 'cart_checkout' || !!data.metadata?.order_id;
+      if (!isCartOrder && paymentType !== 'direct_enrollment') {
+        const { data: matchedOrder } = await supabaseAdmin
+          .from('orders')
+          .select('id')
+          .or(`provider_ref.eq.${reference},order_ref.eq.${reference}`)
+          .maybeSingle();
+        if (matchedOrder) {
+          isCartOrder = true;
+        }
+      }
+
+      if (isCartOrder) {
         console.log('CART CHECKOUT: Processing via Cart Checkout flow', { reference });
         await logPaymentEvent({
           action: 'payment_flow_routed',
@@ -731,8 +758,6 @@ export async function POST(request: NextRequest) {
           status: 'success',
           metadata: { flow: 'cart_checkout', payment_type: paymentType, order_id: data.metadata?.order_id }
         });
-
-        // Process Cart Checkout flow
         return await processCartCheckout(data, reference, amountInNaira);
       }
 

@@ -25,6 +25,7 @@ export interface FulfillOrderParams {
   amountInNaira?: number;
   ipAddress?: string;
   affiliateRef?: string;
+  resendEmails?: boolean;
 }
 
 export interface FulfillmentResult {
@@ -74,6 +75,10 @@ export async function fulfillCartOrder(params: FulfillOrderParams): Promise<Fulf
   if (order.status === 'PAID') {
     console.log(`[Fulfillment] Order ${order.id} is already marked PAID. Verifying enrollments.`);
     await ensureEnrollmentsAndCapi(order, orderItems, email, confirmedFullName, firstName, lastName, reference, ipAddress);
+    if (params.resendEmails) {
+      console.log(`[Fulfillment] Resending fulfillment emails for order ${order.id}`);
+      await sendFulfillmentEmails(order, orderItems, email, confirmedFullName, affiliateRef);
+    }
     return { success: true, order, alreadyPaid: true };
   }
 
@@ -520,7 +525,7 @@ async function ensureEnrollmentsAndCapi(
 /**
  * Send automated fulfillment emails safely
  */
-async function sendFulfillmentEmails(
+export async function sendFulfillmentEmails(
   order: Order,
   orderItems: OrderItem[],
   email: string,
