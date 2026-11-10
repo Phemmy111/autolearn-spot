@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, Download, Clock, BookOpen, FileText, ClipboardCheck } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Download, Clock, BookOpen, FileText, ClipboardCheck, Star } from 'lucide-react'
 import VideoPlayer from '@/components/video-player'
+import CourseReviewModal from '@/components/CourseReviewModal'
 
 export default function VideoPageClient({ 
   lesson, 
@@ -14,7 +15,9 @@ export default function VideoPageClient({
   quizzes,
   assignments,
   backUrl,
-  backLabel
+  backLabel,
+  courseId,
+  courseTitle
 }: {
   lesson: any,
   nextLessonId: string | null,
@@ -23,18 +26,38 @@ export default function VideoPageClient({
   quizzes: any[],
   assignments: any[],
   backUrl: string,
-  backLabel: string
+  backLabel: string,
+  courseId?: string,
+  courseTitle?: string
 }) {
   const router = useRouter()
   const [isCompleted, setIsCompleted] = useState(false)
+  const [showReviewModal, setShowReviewModal] = useState(false)
+
+  const effectiveCourseId = courseId || lesson?.product_id || ''
+  const effectiveCourseTitle = courseTitle || 'Course'
 
   const handleComplete = () => {
     if (!isCompleted) {
       setIsCompleted(true)
-      // We could automatically route to next lesson here:
-      // if (nextLessonId) {
-      //   router.push(`/dashboard/video/${nextLessonId}`)
-      // }
+      
+      // Check if student has already reviewed or dismissed prompt recently
+      if (effectiveCourseId) {
+        try {
+          const alreadyReviewed = localStorage.getItem(`course_reviewed_${effectiveCourseId}`)
+          const dismissedAt = localStorage.getItem(`review_prompt_dismissed_${effectiveCourseId}`)
+          const now = Date.now()
+          const dismissedRecently = dismissedAt && (now - parseInt(dismissedAt, 10)) < 1000 * 60 * 60 * 24 // 24hr cooldown
+
+          if (!alreadyReviewed && !dismissedRecently) {
+            setTimeout(() => {
+              setShowReviewModal(true)
+            }, 1200)
+          }
+        } catch (e) {
+          // ignore localStorage error
+        }
+      }
     }
   }
 
@@ -228,7 +251,40 @@ export default function VideoPageClient({
             </div>
           </div>
         )}
+
+        {/* Quick Rate Course Action */}
+        {effectiveCourseId && (
+          <div className="mt-12 pt-8 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-6 rounded-2xl border">
+            <div>
+              <h4 className="text-sm font-bold text-neutral-900 flex items-center gap-1.5">
+                <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                Enjoying the course?
+              </h4>
+              <p className="text-xs text-neutral-500 mt-0.5">
+                Share your review and rating to help other students on AutoLearn Spot.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowReviewModal(true)}
+              className="px-4 py-2 text-xs font-semibold rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-800 transition-colors shrink-0"
+            >
+              Write a Review
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Review Modal */}
+      {showReviewModal && (
+        <CourseReviewModal
+          isOpen={showReviewModal}
+          onClose={() => setShowReviewModal(false)}
+          courseId={effectiveCourseId}
+          courseTitle={effectiveCourseTitle}
+          lessonId={lesson?.uuid_id || lesson?.id}
+          lessonTitle={lesson?.title}
+        />
+      )}
     </main>
   )
 }

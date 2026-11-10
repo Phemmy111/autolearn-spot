@@ -84,6 +84,7 @@ const navigation: NavSection[] = [
   {
     title: 'Students',
     items: [
+      { label: 'Student Activities', href: '/admin/students/activities', icon: Activity },
       { label: 'All Students', href: '/admin/students', icon: Users },
       { label: 'Enrollments', href: '/admin/enrollments', icon: Users },
       { label: 'Results', href: '/admin/results', icon: Trophy },

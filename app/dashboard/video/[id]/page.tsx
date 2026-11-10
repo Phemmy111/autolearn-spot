@@ -172,6 +172,17 @@ export default async function VideoPage({ params }: VideoPageProps) {
     }
   }
 
+  // Find course title
+  let courseTitle = 'Course';
+  if (lesson.product_id) {
+    const { data: prod } = await supabaseAdmin
+      .from('learning_products')
+      .select('title')
+      .eq('id', lesson.product_id)
+      .maybeSingle();
+    if (prod?.title) courseTitle = prod.title;
+  }
+
   return (
     <VideoPageClient 
       lesson={lesson}
@@ -182,6 +193,8 @@ export default async function VideoPage({ params }: VideoPageProps) {
       assignments={lessonAssignments || []}
       backUrl={backUrl}
       backLabel={backLabel}
+      courseId={lesson.product_id || lesson.cohort_id || ''}
+      courseTitle={courseTitle}
     />
   )
 }

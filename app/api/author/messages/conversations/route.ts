@@ -60,6 +60,31 @@ export async function GET(request: NextRequest) {
     const conversationIds = conversations?.map(c => c.id) || [];
     const unreadCounts = conversationIds.length > 0 ? await getUnreadCounts(conversationIds, author.id) : {};
 
+    // Fetch student info from enrollments and orders
+    const studentIds = [...new Set(conversations?.map(c => c.student_id).filter(Boolean) || [])];
+    const studentMap: Record<string, { full_name: string; email: string }> = {};
+    if (studentIds.length > 0) {
+      const { data: enrs } = await supabaseAdmin
+        .from('enrollments')
+        .select('clerk_user_id, email, full_name')
+        .or(`clerk_user_id.in.(${studentIds.map(s => `"${s}"`).join(',')}),email.in.(${studentIds.map(s => `"${s}"`).join(',')})`);
+      enrs?.forEach(e => {
+        if (e.clerk_user_id && e.full_name) studentMap[e.clerk_user_id] = { full_name: e.full_name, email: e.email };
+        if (e.email && e.full_name) studentMap[e.email] = { full_name: e.full_name, email: e.email };
+      });
+
+      const guestIds = studentIds.filter(id => id.startsWith('guest_') || id.startsWith('manual_'));
+      if (guestIds.length > 0) {
+        const { data: ords } = await supabaseAdmin
+          .from('orders')
+          .select('guest_id, customer_name, customer_email')
+          .in('guest_id', guestIds);
+        ords?.forEach(o => {
+          if (o.guest_id && o.customer_name) studentMap[o.guest_id] = { full_name: o.customer_name, email: o.customer_email };
+        });
+      }
+    }
+
     const conversationsWithCounts = conversations?.map(conv => {
       const msgs = (conv.author_messages || []).slice().sort(
         (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -75,8 +100,12 @@ export async function GET(request: NextRequest) {
         }
       }
 
+      const resolvedStudent = studentMap[conv.student_id];
+
       return {
         ...conv,
+        student_name: resolvedStudent?.full_name || null,
+        student_email: resolvedStudent?.email || null,
         last_message: snippet,
         last_message_role: latestMsg?.sender_role || null,
         unread_count: unreadCounts[conv.id] || 0,

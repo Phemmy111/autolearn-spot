@@ -16,6 +16,8 @@ interface Conversation {
   unread_count: number;
   last_message?: string;
   last_message_role?: string;
+  student_name?: string | null;
+  student_email?: string | null;
   learning_products: { id: string; title: string; thumbnail: string | null };
 }
 
@@ -127,7 +129,7 @@ export default function AuthorMessagesPage() {
   // Get student name from student_id
   const getStudentName = (conv: Conversation) => {
     const s = students.find(s => s.student_id === conv.student_id);
-    let name = s ? s.full_name : `Student ${conv.student_id.slice(0, 8)}`;
+    let name = conv.student_name || (s ? s.full_name : `Student ${conv.student_id.slice(0, 8)}`);
     if (user && conv.student_id === user.id) {
       name += " (You testing)";
     }

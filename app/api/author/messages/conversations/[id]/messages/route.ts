@@ -284,7 +284,7 @@ export async function POST(
     try {
       const previewText = messageBody || (attachmentsWithIds.length > 0 ? (attachmentsWithIds[0].mime_type?.startsWith('audio/') ? 'Sent a voice note' : 'Sent an attachment') : 'New message');
       
-      if (isAuthor) {
+      if (senderRole === 'AUTHOR') {
         // Author replied to Student -> Send email to student
         let studentEmail: string | null = null;
         let studentName = 'Student';
@@ -310,6 +310,19 @@ export async function POST(
           }
         }
 
+        // Check if student email can also be fetched from Clerk if still null
+        if (!studentEmail && conversation.student_id && !conversation.student_id.startsWith('guest_')) {
+          try {
+            const { clerkClient } = await import('@clerk/nextjs/server');
+            const client = await clerkClient();
+            const cu = await client.users.getUser(conversation.student_id);
+            studentEmail = cu.primaryEmailAddress?.emailAddress || cu.emailAddresses?.[0]?.emailAddress || null;
+            if (cu.fullName) studentName = cu.fullName;
+          } catch (e) {
+            console.warn('[POST messages] Could not resolve student Clerk email:', e);
+          }
+        }
+
         if (studentEmail) {
           await EmailService.sendNewDirectMessageEmail(
             studentEmail,
@@ -321,12 +334,35 @@ export async function POST(
         }
       } else {
         // Student sent message to Author -> Send email to author
-        if (author?.email) {
-          const clerkUser = await currentUser();
-          const studentName = clerkUser?.fullName || clerkUser?.firstName || 'Student';
+        const { data: targetAuthor } = await supabaseAdmin
+          .from('authors')
+          .select('id, display_name, email, clerk_user_id')
+          .eq('id', conversation.author_id)
+          .maybeSingle();
+
+        let authorEmail = targetAuthor?.email;
+        if (!authorEmail && targetAuthor?.clerk_user_id) {
+          try {
+            const { clerkClient } = await import('@clerk/nextjs/server');
+            const client = await clerkClient();
+            const cu = await client.users.getUser(targetAuthor.clerk_user_id);
+            authorEmail = cu.primaryEmailAddress?.emailAddress || cu.emailAddresses?.[0]?.emailAddress || null;
+          } catch (e) {
+            console.warn('[POST messages] Could not resolve author Clerk email:', e);
+          }
+        }
+
+        if (!authorEmail) {
+          authorEmail = process.env.ADMIN_EMAIL || 'femiadeleke2020@gmail.com';
+        }
+
+        const clerkUser = await currentUser();
+        const studentName = clerkUser?.fullName || clerkUser?.firstName || 'Student';
+
+        if (authorEmail) {
           await EmailService.sendNewDirectMessageEmail(
-            author.email,
-            author.display_name || 'Author',
+            authorEmail,
+            targetAuthor?.display_name || 'Instructor',
             studentName,
             previewText,
             'https://www.autolearnspot.com/author/messages'

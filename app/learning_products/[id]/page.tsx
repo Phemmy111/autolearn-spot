@@ -291,7 +291,7 @@ export default async function LearningProductPage({ params }: PageParams) {
             </div>
 
             {/* Student Reviews Section */}
-            <CourseStudentReviews courseTitle={product.title} courseSlug={product.slug || id} />
+            <CourseStudentReviews courseId={id} courseTitle={product.title} courseSlug={product.slug || id} />
 
           </div>
 

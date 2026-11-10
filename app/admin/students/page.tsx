@@ -1,5 +1,6 @@
 import React from 'react';
-import { User, BookOpen, Calendar, CreditCard, Users } from 'lucide-react';
+import Link from 'next/link';
+import { User, BookOpen, Calendar, CreditCard, Users, Activity } from 'lucide-react';
 import { requireAdmin } from '@/lib/admin';
 import { supabaseAdmin } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
@@ -82,12 +83,22 @@ export default async function AdminStudentsPage() {
 
   return (
     <div className="min-h-screen p-8 text-brand-text bg-brand-bg">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-extrabold capitalize">Product Purchasers</h1>
-        <div className="flex items-center gap-2 text-sm text-brand-text/60">
-          <Users className="h-4 w-4" />
-          <span>{purchasers.length} total purchasers</span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div>
+          <h1 className="text-3xl font-extrabold capitalize">Product Purchasers</h1>
+          <div className="flex items-center gap-2 text-sm text-brand-text/60 mt-1">
+            <Users className="h-4 w-4" />
+            <span>{purchasers.length} total purchasers</span>
+          </div>
         </div>
+
+        <Link
+          href="/admin/students/activities"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm self-start sm:self-auto"
+        >
+          <Activity className="w-4 h-4" />
+          <span>Student Activities &amp; Progress Dashboard</span>
+        </Link>
       </div>
       
       <ManualEnrollmentForm />
