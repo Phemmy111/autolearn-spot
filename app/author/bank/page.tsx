@@ -15,7 +15,9 @@ import {
 interface BankAccount {
   id: string
   bank_name: string
+  account_name?: string
   account_number: string
+  bank_code?: string
   routing_number: string
   created_at: string
   updated_at: string
@@ -33,6 +35,7 @@ export default function AuthorBankPage() {
   
   const [formData, setFormData] = useState({
     bank_name: '',
+    account_name: '',
     account_number: '',
     bank_code: ''
   })
@@ -74,9 +77,10 @@ export default function AuthorBankPage() {
         setBankAccount(data.bankAccount)
         if (data.bankAccount) {
           setFormData({
-            bank_name: data.bankAccount.bank_name,
+            bank_name: data.bankAccount.bank_name || '',
+            account_name: data.bankAccount.account_name || '',
             account_number: '', // Don't pre-fill account number for security
-            bank_code: '' // Don't pre-fill bank code for security
+            bank_code: data.bankAccount.bank_code || data.bankAccount.routing_number || ''
           })
         }
       } else {
@@ -133,7 +137,8 @@ export default function AuthorBankPage() {
 
     // Auto-fill bank code when bank is selected
     if (name === 'bank_name') {
-      const selectedBank = nigerianBanks.find(bank => bank.name === value)
+      const bankList = banks.length > 0 ? banks : nigerianBanks
+      const selectedBank = bankList.find(bank => bank.name === value)
       if (selectedBank) {
         setFormData(prev => ({
           ...prev,
@@ -260,8 +265,11 @@ export default function AuthorBankPage() {
                 <h3 className="font-semibold text-emerald-900 mb-2">Bank Account Configured</h3>
                 <div className="space-y-1 text-sm text-emerald-800">
                   <p><span className="font-medium">Bank:</span> {bankAccount.bank_name}</p>
+                  {bankAccount.account_name && (
+                    <p><span className="font-medium">Account Name:</span> {bankAccount.account_name}</p>
+                  )}
                   <p><span className="font-medium">Account Number:</span> {bankAccount.account_number}</p>
-                  <p><span className="font-medium">Bank Code:</span> {bankAccount.routing_number}</p>
+                  <p><span className="font-medium">Bank Code:</span> {bankAccount.bank_code || bankAccount.routing_number}</p>
                   <p className="text-emerald-600 text-xs mt-2">
                     Last updated: {new Date(bankAccount.updated_at).toLocaleDateString('en-NG', {
                       month: 'short',
@@ -347,6 +355,27 @@ export default function AuthorBankPage() {
               {loadingBanks && (
                 <p className="text-xs text-brand-text/60 mt-1">Loading banks from Paystack...</p>
               )}
+            </div>
+
+            {/* Account Name */}
+            <div>
+              <label htmlFor="account_name" className="block text-sm font-medium text-brand-text mb-2">
+                Account Name (Name on Account)
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  id="account_name"
+                  name="account_name"
+                  value={formData.account_name}
+                  onChange={handleChange}
+                  placeholder="Enter name registered with bank (e.g. Femi Adeleke)"
+                  className="w-full px-4 py-3 rounded-lg border border-brand-border bg-brand-bg text-brand-text placeholder-brand-text/50 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                />
+              </div>
+              <p className="text-xs text-brand-text/60 mt-1">
+                The name on your bank account for verification and withdrawal transfers
+              </p>
             </div>
 
             {/* Account Number */}

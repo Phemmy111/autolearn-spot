@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { createTransferRecipient } from '@/lib/paystack-transfer';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,48 +15,42 @@ export async function GET(req: Request) {
     // Get author ID from authenticated user
     const { data: author, error: authorErr } = await supabaseAdmin
       .from('authors')
-      .select('id')
-      .eq('clerk_user_id', userId)
-      .single();
+      .select('id, name, display_name')
+      .or(`clerk_user_id.eq.${userId},user_id.eq.${userId}`)
+      .maybeSingle();
 
     if (authorErr || !author) {
       return NextResponse.json({ error: 'Author not found' }, { status: 404 });
     }
 
-    // Fetch bank account details (masked)
+    // Fetch bank account details using actual columns in author_bank_accounts
     const { data: bankAccount, error } = await supabaseAdmin
       .from('author_bank_accounts')
-      .select('id, bank_name, account_number, routing_number, account_number_text, routing_number_text, created_at, updated_at')
+      .select('id, author_id, bank_name, bank_code, account_number, account_name, recipient_code, created_at, updated_at')
       .eq('author_id', author.id)
-      .single();
+      .maybeSingle();
 
-    if (error) {
-      // No bank account yet - return empty state
+    if (error || !bankAccount) {
       return NextResponse.json({
         success: true,
         bankAccount: null,
       });
     }
 
-    // Handle encrypted bytea data - use text columns if available
-    let accountNumber = 'ENCRYPTED';
-    let bankCode = 'ENCRYPTED';
-    
-    // Try to use text columns first (for transfer support)
-    if (bankAccount.account_number_text) {
-      accountNumber = '****' + bankAccount.account_number_text.slice(-4);
-    }
-    if (bankAccount.routing_number_text) {
-      bankCode = '****' + bankAccount.routing_number_text.slice(-4);
-    }
-    
+    const maskedNumber = bankAccount.account_number 
+      ? '****' + bankAccount.account_number.slice(-4)
+      : 'ENCRYPTED';
+
     return NextResponse.json({
       success: true,
       bankAccount: {
         id: bankAccount.id,
         bank_name: bankAccount.bank_name,
-        account_number: accountNumber,
-        bank_code: bankCode,
+        bank_code: bankAccount.bank_code,
+        routing_number: bankAccount.bank_code,
+        account_number: maskedNumber,
+        account_name: bankAccount.account_name,
+        recipient_code: bankAccount.recipient_code,
         created_at: bankAccount.created_at,
         updated_at: bankAccount.updated_at,
       },
@@ -73,63 +68,119 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get author ID from authenticated user
+    // Get author record
     const { data: author, error: authorErr } = await supabaseAdmin
       .from('authors')
-      .select('id')
-      .eq('clerk_user_id', userId)
-      .single();
+      .select('id, name, display_name')
+      .or(`clerk_user_id.eq.${userId},user_id.eq.${userId}`)
+      .maybeSingle();
 
     if (authorErr || !author) {
-      return NextResponse.json({ error: 'Author not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Author profile not found' }, { status: 404 });
     }
 
     const body = await req.json();
-    const { bank_name, account_number, bank_code } = body;
+    const { bank_name, account_number, bank_code, account_name } = body;
 
     if (!bank_name || !account_number || !bank_code) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json({ error: 'Please select a bank and enter your account number' }, { status: 400 });
     }
 
-    // Validate account number (Nigerian bank accounts are typically 10 digits)
-    // Allow for some flexibility as bank account formats can vary
-    if (!/^\d{8,12}$/.test(account_number)) {
+    const cleanAccountNumber = String(account_number).trim();
+    const cleanBankCode = String(bank_code).trim();
+    const cleanBankName = String(bank_name).trim();
+
+    // Validate account number (Nigerian bank accounts are typically 8-12 digits)
+    if (!/^\d{8,12}$/.test(cleanAccountNumber)) {
       return NextResponse.json({ error: 'Invalid account number. Must be 8-12 digits' }, { status: 400 });
     }
 
-    // Validate bank code (3-6 digits for Nigerian bank codes, including fintech like Opay)
-    if (!/^\d{3,6}$/.test(bank_code)) {
-      return NextResponse.json({ error: 'Invalid bank code. Must be 3-6 digits (e.g., 044 for Access Bank, 999992 for Opay)' }, { status: 400 });
+    // Validate bank code (3-6 digits, e.g. 044, 999992 for OPay)
+    if (!/^\d{3,6}$/.test(cleanBankCode)) {
+      return NextResponse.json({ error: 'Invalid bank code. Must be 3-6 digits' }, { status: 400 });
     }
 
-    // Save to both encrypted and text columns for transfer support
-    const { error: upsertErr } = await supabaseAdmin
+    // Resolve account holder name
+    const resolvedAccountName = (account_name || '').trim() || author.display_name || author.name || 'Author';
+
+    // Attempt to create Paystack transfer recipient if configured
+    let recipientCode: string | null = null;
+    try {
+      const recipient = await createTransferRecipient(
+        cleanAccountNumber,
+        cleanBankCode,
+        resolvedAccountName
+      );
+      if (recipient?.recipient_code) {
+        recipientCode = recipient.recipient_code;
+      }
+    } catch (paystackErr) {
+      console.warn('[Bank PUT] Paystack recipient creation skipped/failed (non-fatal):', (paystackErr as Error).message);
+    }
+
+    // Check if an existing bank account record exists for this author
+    const { data: existingAccount } = await supabaseAdmin
       .from('author_bank_accounts')
-      .upsert({
-        author_id: author.id,
-        bank_name,
-        account_number_text: account_number,
-        routing_number_text: bank_code,
-        // Also try to save to encrypted columns for RPC support
-        account_number: account_number,
-        routing_number: bank_code,
-        updated_at: new Date().toISOString(),
-      }, {
-        onConflict: 'author_id'
-      });
+      .select('id')
+      .eq('author_id', author.id)
+      .maybeSingle();
 
-    if (upsertErr) {
-      console.error('Bank account upsert error:', upsertErr);
-      return NextResponse.json({ error: 'Failed to save bank account' }, { status: 500 });
+    const now = new Date().toISOString();
+    let saveError = null;
+    let savedRecord = null;
+
+    if (existingAccount) {
+      const { data, error } = await supabaseAdmin
+        .from('author_bank_accounts')
+        .update({
+          bank_name: cleanBankName,
+          bank_code: cleanBankCode,
+          account_number: cleanAccountNumber,
+          account_name: resolvedAccountName,
+          recipient_code: recipientCode || null,
+          updated_at: now,
+        })
+        .eq('id', existingAccount.id)
+        .select()
+        .single();
+      saveError = error;
+      savedRecord = data;
+    } else {
+      const { data, error } = await supabaseAdmin
+        .from('author_bank_accounts')
+        .insert({
+          author_id: author.id,
+          bank_name: cleanBankName,
+          bank_code: cleanBankCode,
+          account_number: cleanAccountNumber,
+          account_name: resolvedAccountName,
+          recipient_code: recipientCode || null,
+          created_at: now,
+          updated_at: now,
+        })
+        .select()
+        .single();
+      saveError = error;
+      savedRecord = data;
     }
 
-    // Return success response
+    if (saveError) {
+      console.error('Bank account save error in Supabase:', saveError);
+      return NextResponse.json({ error: 'Failed to save bank account: ' + saveError.message }, { status: 500 });
+    }
+
     return NextResponse.json({
       success: true,
+      message: 'Bank account saved successfully',
       bankAccount: {
-        bank_name,
-        account_number: '****' + account_number.slice(-4),
-        bank_code: '****' + bank_code.slice(-4),
+        id: savedRecord?.id,
+        bank_name: cleanBankName,
+        bank_code: cleanBankCode,
+        routing_number: cleanBankCode,
+        account_name: resolvedAccountName,
+        account_number: '****' + cleanAccountNumber.slice(-4),
+        created_at: savedRecord?.created_at || now,
+        updated_at: savedRecord?.updated_at || now,
       },
     });
   } catch (error) {

@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     await requireAdmin();
     const { data: pending, error } = await supabaseAdmin
       .from('author_withdrawals')
-      .select('*, authors(display_name, email, clerk_user_id, author_bank_accounts(bank_name, account_number_text, routing_number_text))')
+      .select('*, authors(display_name, email, clerk_user_id, author_bank_accounts(bank_name, bank_code, account_number, account_name, recipient_code))')
       .order('requested_at', { ascending: false });
 
     if (error) {
@@ -195,44 +195,33 @@ export async function POST(request: Request) {
       try {
         const { data: bankAccount, error: bankError } = await supabaseAdmin
           .from('author_bank_accounts')
-          .select('id, bank_name, account_number, routing_number, account_number_text, routing_number_text')
+          .select('id, bank_name, bank_code, account_number, account_name, recipient_code')
           .eq('author_id', withdrawal.author_id)
-          .single();
+          .maybeSingle();
 
         if (bankError || !bankAccount) {
           return NextResponse.json({ error: 'Author bank account not found' }, { status: 400 });
         }
 
-        let accountNumber: string;
-        let bankCode: string;
+        const accountNumber = bankAccount.account_number;
+        const bankCode = bankAccount.bank_code;
 
-        if (bankAccount.account_number_text) {
-          accountNumber = bankAccount.account_number_text;
-        } else if (typeof bankAccount.account_number === 'string') {
-          accountNumber = bankAccount.account_number;
-        } else {
+        if (!accountNumber || !bankCode) {
           return NextResponse.json({
-            error: 'Bank account number not available for transfer',
+            error: 'Bank account number or bank code not available for transfer',
             message: 'Please update bank account details to enable automatic transfers.',
           }, { status: 400 });
         }
 
-        if (bankAccount.routing_number_text) {
-          bankCode = bankAccount.routing_number_text;
-        } else if (typeof bankAccount.routing_number === 'string') {
-          bankCode = bankAccount.routing_number;
-        } else {
-          return NextResponse.json({
-            error: 'Bank code not available for transfer',
-            message: 'Please update bank account details to enable automatic transfers.',
-          }, { status: 400 });
-        }
+        const accountHolderName = bankAccount.account_name || withdrawal.authors?.display_name || 'Author';
 
-        const recipient = await createTransferRecipient(
-          accountNumber,
-          bankCode,
-          withdrawal.authors?.display_name || 'Author'
-        );
+        const recipient = bankAccount.recipient_code 
+          ? { recipient_code: bankAccount.recipient_code }
+          : await createTransferRecipient(
+              accountNumber,
+              bankCode,
+              accountHolderName
+            );
 
         const transferRef = provider_reference || ('WD-' + withdrawal_id.slice(0, 8));
 

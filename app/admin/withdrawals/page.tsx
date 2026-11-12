@@ -8,6 +8,9 @@ import { ChevronDown, ChevronUp, Building2 } from "lucide-react";
 
 interface BankAccount {
   bank_name?: string;
+  bank_code?: string;
+  account_number?: string;
+  account_name?: string;
   account_number_text?: string;
   routing_number_text?: string;
 }
@@ -177,13 +180,19 @@ export default function AdminWithdrawalsPage() {
                               <p className="text-gray-500 text-xs uppercase tracking-wide font-medium mb-0.5">Bank Name</p>
                               <p className="font-semibold text-gray-900">{bank.bank_name || "—"}</p>
                             </div>
+                            {bank.account_name && (
+                              <div>
+                                <p className="text-gray-500 text-xs uppercase tracking-wide font-medium mb-0.5">Account Name</p>
+                                <p className="font-semibold text-gray-900">{bank.account_name}</p>
+                              </div>
+                            )}
                             <div>
                               <p className="text-gray-500 text-xs uppercase tracking-wide font-medium mb-0.5">Account Number</p>
-                              <p className="font-semibold text-gray-900 font-mono">{bank.account_number_text || "—"}</p>
+                              <p className="font-semibold text-gray-900 font-mono">{bank.account_number || bank.account_number_text || "—"}</p>
                             </div>
                             <div>
                               <p className="text-gray-500 text-xs uppercase tracking-wide font-medium mb-0.5">Bank Code</p>
-                              <p className="font-semibold text-gray-900 font-mono">{bank.routing_number_text || "—"}</p>
+                              <p className="font-semibold text-gray-900 font-mono">{bank.bank_code || bank.routing_number_text || "—"}</p>
                             </div>
                             <div className="ml-auto self-center">
                               <p className="text-xs text-blue-600 bg-blue-100 rounded px-2 py-1">
