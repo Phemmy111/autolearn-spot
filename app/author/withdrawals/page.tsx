@@ -46,6 +46,7 @@ export default function AuthorWithdrawalsPage() {
   const fetchData = async () => {
     try {
       setLoading(true)
+      setError(null)
       
       // Fetch available balance
       const balanceRes = await fetch('/api/author/financial-summary')
@@ -59,7 +60,8 @@ export default function AuthorWithdrawalsPage() {
       const data = await res.json()
 
       if (data.success) {
-        setWithdrawals(data.withdrawals)
+        setWithdrawals(data.withdrawals || [])
+        setError(null)
       } else {
         setError(data.error || 'Failed to load withdrawals')
       }
@@ -205,9 +207,21 @@ export default function AuthorWithdrawalsPage() {
                   className="w-full pl-8 pr-4 py-3 rounded-lg border border-brand-border bg-brand-bg text-brand-text placeholder-brand-text/50 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                 />
               </div>
-              <p className="text-xs text-brand-text/60 mt-1">
-                Available: {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(availableBalance)}
-              </p>
+              <div className="flex items-center justify-between text-xs mt-1.5">
+                <span className="text-brand-text/70 font-medium">
+                  Available: {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(availableBalance)}
+                </span>
+                {requestAmount && parseFloat(requestAmount) > availableBalance && (
+                  <span className="text-red-600 font-medium">
+                    Exceeds available balance
+                  </span>
+                )}
+                {requestAmount && parseFloat(requestAmount) > 0 && parseFloat(requestAmount) < 1000 && (
+                  <span className="text-amber-600 font-medium">
+                    Minimum is ₦1,000
+                  </span>
+                )}
+              </div>
             </div>
 
             <div className="flex items-start gap-3 p-4 bg-sky-50 border border-sky-200 rounded-lg">
@@ -225,7 +239,13 @@ export default function AuthorWithdrawalsPage() {
 
             <button
               type="submit"
-              disabled={isSubmitting || !requestAmount || parseFloat(requestAmount) > availableBalance}
+              disabled={
+                isSubmitting ||
+                !requestAmount ||
+                parseFloat(requestAmount) <= 0 ||
+                parseFloat(requestAmount) < 1000 ||
+                parseFloat(requestAmount) > availableBalance
+              }
               className="flex items-center gap-2 px-6 py-3 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors shadow-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
@@ -276,7 +296,7 @@ export default function AuthorWithdrawalsPage() {
                   {withdrawals.map((withdrawal) => (
                     <tr key={withdrawal.id} className="hover:bg-brand-bg/50 transition-colors">
                       <td className="py-4 text-brand-text">
-                        {new Date(withdrawal.requested_at).toLocaleDateString('en-NG', {
+                        {new Date(withdrawal.requested_at || (withdrawal as any).created_at || Date.now()).toLocaleDateString('en-NG', {
                           month: 'short',
                           day: 'numeric',
                           year: 'numeric'

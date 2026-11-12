@@ -145,8 +145,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Verify student has access to this product
-    const hasAccess = await verifyStudentAccess(userId, learning_product_id);
+    // Verify student has access to this product (allows enrolled students, purchasers, and author self-testing)
+    const hasAccess = await verifyStudentAccess(userId, learning_product_id, emails);
     if (!hasAccess) {
       return NextResponse.json({ error: 'You do not have access to this product' }, { status: 403 });
     }
@@ -224,8 +224,33 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Error creating conversation:', error);
-      return NextResponse.json({ error: 'Failed to create conversation' }, { status: 500 });
+      console.warn('Notice creating conversation, checking if already exists:', error);
+      // Fallback check in case of unique constraint race
+      const { data: fallbackConv } = await supabaseAdmin
+        .from('author_conversations')
+        .select('id, student_id, author_id, learning_product_id, created_at, last_message_at')
+        .eq('student_id', userId)
+        .eq('author_id', product.author_id)
+        .eq('learning_product_id', learning_product_id)
+        .maybeSingle();
+
+      if (fallbackConv) {
+        return NextResponse.json({
+          success: true,
+          conversation: {
+            ...fallbackConv,
+            updated_at: fallbackConv.last_message_at,
+            learning_products: {
+              id: product.id,
+              title: product.title,
+              thumbnail: product.thumbnail_url,
+            },
+            authors: authorInfo,
+          }
+        });
+      }
+
+      return NextResponse.json({ error: error.message || 'Failed to create conversation' }, { status: 500 });
     }
 
     return NextResponse.json({
@@ -247,15 +272,34 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function verifyStudentAccess(userId: string, productId: string): Promise<boolean> {
+async function verifyStudentAccess(userId: string, productId: string, emails: string[] = []): Promise<boolean> {
   if (!userId || !productId) return false;
 
-  // 1. Direct active enrollment match by clerk_user_id
+  // 0. Author self-testing support
+  const { data: author } = await supabaseAdmin
+    .from('authors')
+    .select('id')
+    .or(`clerk_user_id.eq.${userId},user_id.eq.${userId}`)
+    .maybeSingle();
+
+  if (author) {
+    const { data: prod } = await supabaseAdmin
+      .from('learning_products')
+      .select('id')
+      .eq('id', productId)
+      .eq('author_id', author.id)
+      .maybeSingle();
+    if (prod) return true;
+  }
+
+  const matchIdentifiers = [userId, ...emails].filter(Boolean);
+
+  // 1. Direct active enrollment match by clerk_user_id or email
   const { data: directEnrollments } = await supabaseAdmin
     .from('enrollments')
     .select('id, learning_product_id, status')
-    .eq('clerk_user_id', userId)
-    .in('status', ['active', 'not_started']);
+    .in('clerk_user_id', matchIdentifiers)
+    .in('status', ['active', 'not_started', 'completed']);
 
   if (directEnrollments && directEnrollments.some(e => e.learning_product_id === productId)) {
     return true;
@@ -265,7 +309,7 @@ async function verifyStudentAccess(userId: string, productId: string): Promise<b
   const { data: matchingOrders } = await supabaseAdmin
     .from('orders')
     .select('id')
-    .eq('user_id', userId)
+    .in('user_id', matchIdentifiers)
     .eq('status', 'PAID');
 
   if (matchingOrders && matchingOrders.length > 0) {
@@ -285,8 +329,8 @@ async function verifyStudentAccess(userId: string, productId: string): Promise<b
   const { data: legacyEnrollments } = await supabaseAdmin
     .from('enrollments')
     .select('cohort_id')
-    .eq('clerk_user_id', userId)
-    .in('status', ['active', 'not_started']);
+    .in('clerk_user_id', matchIdentifiers)
+    .in('status', ['active', 'not_started', 'completed']);
 
   if (legacyEnrollments && legacyEnrollments.length > 0) {
     const cohortIds = legacyEnrollments.map(e => e.cohort_id).filter(Boolean);

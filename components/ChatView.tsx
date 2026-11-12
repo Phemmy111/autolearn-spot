@@ -394,9 +394,13 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
 
   const startRecording = async () => {
     try {
-      let audioConstraint: any = true;
+      let audioConstraint: any = {
+        echoCancellation: true,
+        noiseSuppression: false,
+        autoGainControl: true,
+      };
       if (selectedDeviceId) {
-        audioConstraint = { deviceId: { exact: selectedDeviceId } };
+        audioConstraint.deviceId = { exact: selectedDeviceId };
       }
 
       let stream: MediaStream;
@@ -429,7 +433,7 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
         }
       } catch (e) {}
 
-      // Setup audio analyzer for live volume feedback
+      // Setup audio analyzer for live volume feedback (using Time Domain RMS for accurate volume meter)
       try {
         const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
         if (AudioCtx) {
@@ -439,19 +443,28 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
           }
           const src = actx.createMediaStreamSource(stream);
           const analyser = actx.createAnalyser();
-          analyser.fftSize = 64;
+          analyser.fftSize = 256;
+          analyser.smoothingTimeConstant = 0.4;
           src.connect(analyser);
           audioContextRef.current = actx;
           maxAudioLevelRef.current = 0;
 
-          const dataArray = new Uint8Array(analyser.frequencyBinCount);
+          const timeData = new Uint8Array(analyser.fftSize);
           const checkVolume = () => {
-            analyser.getByteFrequencyData(dataArray);
-            let sum = 0;
-            for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
-            const avg = sum / dataArray.length;
-            if (avg > maxAudioLevelRef.current) maxAudioLevelRef.current = avg;
-            setAudioLevel(Math.min(100, Math.round((avg / 64) * 100)));
+            analyser.getByteTimeDomainData(timeData);
+            let sumSquares = 0;
+            let peakDev = 0;
+            for (let i = 0; i < timeData.length; i++) {
+              const dev = Math.abs(timeData[i] - 128);
+              if (dev > peakDev) peakDev = dev;
+              const norm = dev / 128;
+              sumSquares += norm * norm;
+            }
+            const rms = Math.sqrt(sumSquares / timeData.length);
+            // Dynamic scale: peakDev typically 4-50 when speaking
+            const level = Math.min(100, Math.round(Math.max(peakDev * 2.5, rms * 280)));
+            if (level > maxAudioLevelRef.current) maxAudioLevelRef.current = level;
+            setAudioLevel(level);
             animFrameRef.current = requestAnimationFrame(checkVolume);
           };
           animFrameRef.current = requestAnimationFrame(checkVolume);
@@ -531,7 +544,6 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
 
     const mr = mediaRef.current;
     const finalRecTime = recTime;
-    const hadSound = maxAudioLevelRef.current > 1;
 
     mr.onstop = async () => {
       // Safely stop tracks inside onstop AFTER all chunks are collected
@@ -546,10 +558,6 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
       if (blob.size === 0) {
         alert("Recording was empty. Please check your microphone and try again.");
         return;
-      }
-
-      if (!hadSound && finalRecTime >= 2) {
-        alert("⚠️ No sound was picked up by your microphone during recording!\n\nPlease check:\n1. Windows Microphone is not muted (Volume Mixer & Windows Settings).\n2. The correct microphone device is selected in your browser (lock icon beside URL).\n3. Microphone volume slider in Windows is turned up.");
       }
 
       const file = new File([blob], `voice-${Date.now()}.${ext}`, { type: mime });
@@ -629,9 +637,9 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
             })}
           </div>
 
-          {audioLevel === 0 && recTime >= 2 && (
+          {!paused && maxAudioLevelRef.current < 4 && recTime >= 4 && (
             <span className="text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-              Mic muted or low volume
+              Low volume detected
             </span>
           )}
 
