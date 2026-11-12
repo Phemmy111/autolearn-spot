@@ -10,6 +10,7 @@ import { Suspense } from 'react';
 import { AffiliateRefCapture } from '@/components/affiliate/AffiliateRefCapture';
 import { TrackViewContent } from '@/components/analytics/TrackViewContent';
 import { CourseStudentReviews } from '@/components/marketplace/CourseStudentReviews';
+import { ReviewService } from '@/lib/review-service';
 
 interface PageParams {
   params: Promise<{ slug: string }>;
@@ -98,6 +99,29 @@ export default async function MarketplaceProductPage({ params }: PageParams) {
     .eq('status', 'PUBLISHED')
     .order('order_index', { ascending: true });
 
+  // Fetch real reviews and enrollment counts
+  let courseReviews: any[] = [];
+  let enrollmentsCount = 0;
+  try {
+    const [revs, enrollRes] = await Promise.all([
+      ReviewService.getCourseReviews(product.id, true),
+      supabaseAdmin
+        .from('enrollments')
+        .select('*', { count: 'exact', head: true })
+        .eq('learning_product_id', product.id)
+    ]);
+    courseReviews = revs || [];
+    enrollmentsCount = enrollRes.count || 0;
+  } catch (e) {
+    console.warn('[marketplace] Error loading reviews or enrollments:', e);
+  }
+
+  const reviewCount = courseReviews.length;
+  const averageRating = reviewCount > 0
+    ? Number((courseReviews.reduce((sum, r) => sum + (Number(r.rating) || 5), 0) / reviewCount).toFixed(1))
+    : 5.0;
+  const totalEnrolled = enrollmentsCount || 0;
+
   const formattedPrice = new Intl.NumberFormat('en-NG', {
     style: 'currency',
     currency: product.currency || 'NGN',
@@ -182,12 +206,18 @@ export default async function MarketplaceProductPage({ params }: PageParams) {
               
               <div className="flex flex-wrap items-center gap-4 text-muted-foreground font-medium">
                 <div className="flex items-center gap-1.5 text-amber-500">
-                  <Star className="w-5 h-5 fill-current" />
-                  <Star className="w-5 h-5 fill-current" />
-                  <Star className="w-5 h-5 fill-current" />
-                  <Star className="w-5 h-5 fill-current" />
-                  <Star className="w-5 h-5 fill-current opacity-30" />
-                  <span className="ml-1 text-foreground">4.8 (124 ratings)</span>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={`w-5 h-5 fill-current ${
+                        star <= Math.round(averageRating) ? 'text-amber-500' : 'text-amber-500/25'
+                      }`}
+                    />
+                  ))}
+                  <span className="ml-1 text-foreground font-semibold">{averageRating.toFixed(1)}</span>
+                  <span className="text-muted-foreground text-sm font-normal">
+                    ({reviewCount > 0 ? `${reviewCount} ${reviewCount === 1 ? 'rating' : 'ratings'}` : `${totalEnrolled} students`})
+                  </span>
                 </div>
                 <div className="hidden sm:block w-1 h-1 rounded-full bg-border" />
                 
