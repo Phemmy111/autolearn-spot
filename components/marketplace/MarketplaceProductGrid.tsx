@@ -104,7 +104,13 @@ export function MarketplaceProductGrid({ products }: MarketplaceProductGridProps
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 xl:gap-8">
             {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard
+                key={product.id}
+                product={product}
+                authorName={product.author_name}
+                rating={product.rating}
+                enrolledCount={product.enrolled_count}
+              />
             ))}
           </div>
         )}

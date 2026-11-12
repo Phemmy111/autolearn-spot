@@ -15,4 +15,8 @@ export interface LearningProduct {
   status: ProductStatus;
   created_at: string;
   updated_at: string;
+  author_name?: string;
+  rating?: number;
+  review_count?: number;
+  enrolled_count?: number;
 }

@@ -11,7 +11,11 @@ interface ProductCardProps {
   enrolledCount?: number;
 }
 
-export function ProductCard({ product, authorName = 'Expert Instructor', rating = 0, enrolledCount = 0 }: ProductCardProps) {
+export function ProductCard({ product, authorName, rating, enrolledCount }: ProductCardProps) {
+  const finalAuthor = authorName || product.author_name || 'Expert Instructor';
+  const finalRating = rating !== undefined && rating > 0 ? rating : (product.rating && product.rating > 0 ? product.rating : 5.0);
+  const finalEnrolled = enrolledCount !== undefined && enrolledCount > 0 ? enrolledCount : (product.enrolled_count || 0);
+
   const formattedPrice = new Intl.NumberFormat('en-NG', {
     style: 'currency',
     currency: product.currency || 'NGN',
@@ -35,8 +39,8 @@ export function ProductCard({ product, authorName = 'Expert Instructor', rating 
           </div>
         )}
         
-        {/* Category Pill */}
-        <div className="absolute top-3 left-3 bg-[var(--card)]/95 backdrop-blur-md text-brand-text text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm border border-brand-border/50">
+        {/* Category Pill positioned top-right so it doesn't cover top-left logos/branding */}
+        <div className="absolute top-3 right-3 bg-[var(--card)]/95 backdrop-blur-md text-brand-text text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm border border-brand-border/50">
           {product.product_type || 'Course'}
         </div>
         
@@ -47,15 +51,17 @@ export function ProductCard({ product, authorName = 'Expert Instructor', rating 
       {/* Content Area */}
       <div className="flex flex-col flex-1 p-5">
         <div className="flex items-center gap-1.5 text-xs text-brand-text/60 font-medium mb-2.5">
-          <div className="flex items-center text-amber-400">
-            <Star className="w-3.5 h-3.5 fill-current" />
-            <span className="ml-1 text-brand-text">{rating > 0 ? rating.toFixed(1) : '0.0'}</span>
+          <div className="flex items-center text-amber-500 font-semibold">
+            <Star className="w-3.5 h-3.5 fill-current text-amber-400" />
+            <span className="ml-1 text-brand-text">{finalRating.toFixed(1)}</span>
           </div>
-          <span className="text-[10px] ml-1">({enrolledCount})</span>
-          <span className="opacity-50">•</span>
-          <Link href={`/authors/${product.author_id}`} className="flex items-center gap-1 hover:text-brand-primary transition-colors">
-            <User className="w-3.5 h-3.5" />
-            {authorName}
+          <span className="text-[11px] text-brand-text/60 font-normal">
+            ({finalEnrolled > 0 ? `${finalEnrolled} ${finalEnrolled === 1 ? 'student' : 'students'}` : 'New'})
+          </span>
+          <span className="opacity-40">•</span>
+          <Link href={`/authors/${product.author_id}`} className="flex items-center gap-1 hover:text-brand-primary transition-colors font-medium">
+            <User className="w-3.5 h-3.5 text-brand-text/50" />
+            {finalAuthor}
           </Link>
         </div>
 
