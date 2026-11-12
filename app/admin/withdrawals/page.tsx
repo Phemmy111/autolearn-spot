@@ -47,16 +47,18 @@ export default function AdminWithdrawalsPage() {
 
   const fetchWithdrawals = async () => {
     try {
+      setLoading(true);
+      setError(null);
       const res = await fetch("/api/admin/withdrawals", {
         method: "GET",
         headers: { "Content-Type": "application/json" },
         cache: "no-store",
       });
       const data = await res.json();
-      if (!data.success) throw new Error(data.message || "Failed to load withdrawals");
+      if (!data.success) throw new Error(data.message || data.error || "Failed to load withdrawals");
       setWithdrawals(data.withdrawals || []);
     } catch (e: any) {
-      setError(e.message);
+      setError(e.message || "Failed to load withdrawals");
       setWithdrawals([]);
     } finally {
       setLoading(false);
@@ -84,7 +86,22 @@ export default function AdminWithdrawalsPage() {
   const toggleExpand = (id: string) => setExpandedId(prev => prev === id ? null : id);
 
   if (loading) return <LoadingSpinner />;
-  if (error) return <div className="p-6 text-red-500">{error}</div>;
+  if (error) {
+    return (
+      <div className="p-6 space-y-4">
+        <h1 className="text-2xl font-bold text-gray-900">Withdrawals</h1>
+        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm flex items-center justify-between">
+          <span>{error}</span>
+          <button
+            onClick={fetchWithdrawals}
+            className="px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 p-6">
@@ -174,7 +191,7 @@ export default function AdminWithdrawalsPage() {
                     {/* Collapsible bank details row */}
                     {isExpanded && bank && (
                       <tr className="bg-blue-50 border-b border-blue-100">
-                        <td colSpan={6} className="px-6 py-4">
+                        <td colSpan={7} className="px-6 py-4">
                           <div className="flex flex-wrap gap-6 text-sm">
                             <div>
                               <p className="text-gray-500 text-xs uppercase tracking-wide font-medium mb-0.5">Bank Name</p>

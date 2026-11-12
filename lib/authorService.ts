@@ -65,19 +65,78 @@ export async function processWithdrawal(
   newStatus: string,
   providerReference?: string,
 ): Promise<void> {
-  const { error } = await supabaseAdmin.rpc('process_withdrawal', {
-    p_withdrawal_id: withdrawalId,
-    p_new_status: newStatus,
-    p_provider_ref: providerReference ?? null,
-  });
+  const { data: currentWd, error: fetchErr } = await supabaseAdmin
+    .from('author_withdrawals')
+    .select('*')
+    .eq('id', withdrawalId)
+    .single();
+
+  if (fetchErr || !currentWd) {
+    throw new Error('Withdrawal not found');
+  }
+
+  const updatePayload: Record<string, any> = {
+    status: newStatus,
+    updated_at: new Date().toISOString(),
+  };
+  if (providerReference) {
+    updatePayload.reference = providerReference;
+  }
+
+  const { error } = await supabaseAdmin
+    .from('author_withdrawals')
+    .update(updatePayload)
+    .eq('id', withdrawalId);
+
   if (error) throw error;
+
+  // If rejected, refund the debit back to the author's transactions ledger
+  if (newStatus === 'REJECTED' && currentWd.status !== 'REJECTED') {
+    await supabaseAdmin
+      .from('author_transactions')
+      .insert({
+        author_id: currentWd.author_id,
+        type: 'CREDIT',
+        amount: currentWd.amount,
+        currency: 'NGN',
+        related_id: currentWd.id,
+        description: `Refund for rejected withdrawal request ${currentWd.reference || currentWd.id.slice(0, 8)}`,
+        created_at: new Date().toISOString(),
+      });
+  }
 }
 
 /** Get available balance for author using the authoritative ledger. */
 export async function getAvailableBalance(authorId: string): Promise<number> {
-  const { data, error } = await supabaseAdmin.rpc('available_balance', {
-    p_author_id: authorId,
+  const { data: transactions } = await supabaseAdmin
+    .from('author_transactions')
+    .select('type, amount')
+    .eq('author_id', authorId);
+
+  let totalCredits = 0;
+  let totalDebitsFromTx = 0;
+
+  (transactions || []).forEach(tx => {
+    const amt = Number(tx.amount) || 0;
+    const type = (tx.type || '').toUpperCase();
+    if (type === 'SALE_CREDIT' || type === 'CREDIT') {
+      totalCredits += amt;
+    } else if (type === 'WITHDRAWAL_DEBIT' || type === 'DEBIT') {
+      totalDebitsFromTx += amt;
+    }
   });
-  if (error) throw error;
-  return Number(data);
+
+  const { data: withdrawals } = await supabaseAdmin
+    .from('author_withdrawals')
+    .select('amount, status')
+    .eq('author_id', authorId)
+    .in('status', ['PENDING', 'PROCESSING', 'APPROVED', 'PAID']);
+
+  let totalWithdrawalsAmount = 0;
+  (withdrawals || []).forEach(w => {
+    totalWithdrawalsAmount += Number(w.amount) || 0;
+  });
+
+  const totalDebits = Math.max(totalDebitsFromTx, totalWithdrawalsAmount);
+  return Math.max(0, totalCredits - totalDebits);
 }
