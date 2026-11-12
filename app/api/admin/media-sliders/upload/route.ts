@@ -21,11 +21,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'No file provided' }, { status: 400 });
     }
 
-    // Validate file size (3MB limit to avoid Vercel 413 errors - Vercel free tier limit is 4.5MB)
-    const maxSize = 3 * 1024 * 1024; // 3MB
+    // Validate file size (up to 4.2MB for direct route to avoid Vercel 4.5MB payload limit; larger files use upload-url signed URL)
+    const maxSize = 4.2 * 1024 * 1024;
     if (file.size > maxSize) {
       const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-      return NextResponse.json({ success: false, error: `File size ${sizeMB}MB exceeds 3MB limit. Please compress or use a smaller file.` }, { status: 400 });
+      return NextResponse.json({ success: false, error: `File size ${sizeMB}MB exceeds direct upload limit. Please use a smaller file or compress it.` }, { status: 400 });
     }
 
     // Validate file type

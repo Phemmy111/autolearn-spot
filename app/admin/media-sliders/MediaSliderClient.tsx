@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, Image as ImageIcon, Video, Trash2, Save, Loader2, X } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 import { saveMediaSlider, deleteMediaSlider } from './actions';
 
 export default function MediaSliderClient({ initialSliders, skills }: { initialSliders: any[], skills: any[] }) {
@@ -18,13 +19,13 @@ export default function MediaSliderClient({ initialSliders, skills }: { initialS
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return;
     
-    // Validate file size before adding (Vercel limit is 4.5MB, use 3MB to be safe)
-    const maxSize = 3 * 1024 * 1024; // 3MB
+    // Support files up to 50MB (large files automatically use direct storage upload)
+    const maxSize = 50 * 1024 * 1024; // 50MB
     const invalidFiles = Array.from(e.target.files).filter(file => file.size > maxSize);
     
     if (invalidFiles.length > 0) {
       const fileNames = invalidFiles.map(f => `${f.name} (${(f.size / (1024 * 1024)).toFixed(2)}MB)`).join(', ');
-      alert(`The following files are too large (max 3MB): ${fileNames}\n\nPlease compress these files or use smaller images.`);
+      alert(`The following files exceed the 50MB maximum limit: ${fileNames}\n\nPlease use files under 50MB.`);
       return;
     }
     
@@ -78,26 +79,70 @@ export default function MediaSliderClient({ initialSliders, skills }: { initialS
         console.log(`[Client] Processing item ${idx}:`, item);
         if (item.url.startsWith('blob:') && item.file) {
           console.log(`[Client] Uploading file ${idx}:`, item.file.name, 'size:', item.file.size);
-          const formData = new FormData();
-          formData.append('file', item.file);
 
-          const response = await fetch('/api/admin/media-sliders/upload', {
-            method: 'POST',
-            body: formData,
-          });
+          let finalUrl = '';
 
-          const result = await response.json();
-          console.log(`[Client] Upload result for item ${idx}:`, result);
+          // For files > 4MB (or video files), upload directly to Supabase Storage via signed URL to avoid Vercel limits
+          if (item.file.size > 4 * 1024 * 1024 || item.type === 'video') {
+            try {
+              const urlRes = await fetch('/api/admin/media-sliders/upload-url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  fileName: item.file.name,
+                  fileType: item.file.type || 'video/mp4',
+                  fileSize: item.file.size,
+                }),
+              });
+              const urlData = await urlRes.json();
+              if (urlData.success && urlData.token && urlData.path) {
+                const { data: uploadData, error: uploadErr } = await supabase.storage
+                  .from('admin-media')
+                  .uploadToSignedUrl(urlData.path, urlData.token, item.file);
 
-          if (!result.success) {
-            // Check if it's a size-related error
-            if (result.error?.includes('413') || result.error?.includes('size') || result.error?.includes('limit')) {
-              const sizeMB = (item.file.size / (1024 * 1024)).toFixed(2);
-              throw new Error(`File "${item.file.name}" is too large (${sizeMB}MB). Please use a smaller file or compress it first.`);
+                if (!uploadErr && uploadData) {
+                  finalUrl = urlData.publicUrl;
+                } else if (uploadErr) {
+                  console.warn('[Client] uploadToSignedUrl error, trying direct fetch:', uploadErr);
+                }
+              }
+
+              if (!finalUrl && urlData.signedUrl) {
+                const putForm = new FormData();
+                putForm.append('cacheControl', '3600');
+                putForm.append('', item.file);
+                const putRes = await fetch(urlData.signedUrl, {
+                  method: 'PUT',
+                  body: putForm,
+                });
+                if (putRes.ok) {
+                  finalUrl = urlData.publicUrl;
+                }
+              }
+            } catch (directErr) {
+              console.warn('[Client] Direct upload failed, attempting standard route:', directErr);
             }
-            throw new Error(result.error || 'Upload failed');
           }
-          uploadedMedia.push({ url: result.url, type: item.type, orderIndex: idx });
+
+          // Fallback to standard upload route if not uploaded yet
+          if (!finalUrl) {
+            const formData = new FormData();
+            formData.append('file', item.file);
+
+            const response = await fetch('/api/admin/media-sliders/upload', {
+              method: 'POST',
+              body: formData,
+            });
+
+            const result = await response.json();
+            if (!result.success) {
+              const sizeMB = (item.file.size / (1024 * 1024)).toFixed(2);
+              throw new Error(result.error || `Failed to upload "${item.file.name}" (${sizeMB}MB)`);
+            }
+            finalUrl = result.url;
+          }
+
+          uploadedMedia.push({ url: finalUrl, type: item.type, orderIndex: idx });
         } else {
           console.log(`[Client] Using existing URL for item ${idx}:`, item.url);
           uploadedMedia.push({ url: item.url, type: item.type, orderIndex: idx });
@@ -203,7 +248,7 @@ export default function MediaSliderClient({ initialSliders, skills }: { initialS
             <div className="flex justify-between items-center mb-4">
               <div>
                 <h3 className="text-sm font-medium text-gray-700">Media Items (Order: Left to Right)</h3>
-                <p className="text-xs text-gray-500 mt-1">Maximum file size: 3MB per file</p>
+                <p className="text-xs text-gray-500 mt-1">Maximum file size: up to 50MB (Images & MP4 Videos)</p>
               </div>
               <label className="cursor-pointer flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                 <Plus className="w-4 h-4" /> Add Media
