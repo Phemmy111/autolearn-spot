@@ -18,24 +18,17 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get partner based on role or direct lookup
-    let partner;
-    if (session.role === 'community') {
-      partner = await PartnerService.getPartnerByCommunityAmbassadorId(session.userId);
-    } else if (session.role === 'influencer') {
-      partner = await PartnerService.getPartnerByInfluencerId(session.userId);
-    } else if (session.role === 'student') {
-      partner = await PartnerService.getPartnerByClerkUserId(session.userId);
-    }
+    // Get partner by session userId (matches partner.id, partner.user_id, or partner.partner_id)
+    let partner = null;
+    const { data: matchedPartners } = await supabaseAdmin
+      .from('partners')
+      .select('*')
+      .or(`id.eq.${session.userId},user_id.eq.${session.userId},partner_id.eq.${session.userId}`)
+      .order('created_at', { ascending: false })
+      .limit(1);
 
-    if (!partner) {
-      // Direct lookup in partners table by session userId or ambassador/influencer/clerk IDs
-      const { data } = await supabaseAdmin
-        .from('partners')
-        .select('*')
-        .or(`id.eq.${session.userId},community_ambassador_id.eq.${session.userId},influencer_id.eq.${session.userId},clerk_user_id.eq.${session.userId}`)
-        .maybeSingle();
-      partner = data;
+    if (matchedPartners && matchedPartners.length > 0) {
+      partner = matchedPartners[0];
     }
 
     if (!partner) {

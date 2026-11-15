@@ -457,6 +457,98 @@ export class EmailService {
   }
 
   /**
+   * Send login verification code to affiliate partner
+   */
+  static async sendPartnerLoginCode(
+    partnerEmail: string,
+    partnerName: string,
+    code: string
+  ): Promise<boolean> {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
+
+    const template: EmailTemplate = {
+      to: partnerEmail,
+      subject: `Your Affiliate Portal Login Code: ${code} | AutoLearn Spot`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Affiliate Login Code</title>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1f2937;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f3f4f6; padding: 30px 15px;">
+            <tr>
+              <td align="center">
+                <table role="presentation" width="100%" style="max-width: 520px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);">
+                  <tr>
+                    <td style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 28px 24px; text-align: center;">
+                      <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #ffffff;">
+                        Auto<span style="color: #10B981;">Learn</span> Spot
+                      </h1>
+                      <p style="margin: 6px 0 0; color: #94a3b8; font-size: 13px;">Affiliate Partner Portal</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 32px 28px;">
+                      <h2 style="margin: 0 0 12px; font-size: 20px; color: #111827; font-weight: 700;">
+                        Your Login Verification Code
+                      </h2>
+                      <p style="margin: 0 0 24px; font-size: 14px; color: #4b5563; line-height: 1.6;">
+                        Hello ${partnerName || 'Partner'}, here is your one-time verification code to sign in to your AutoLearn Spot Affiliate Partner dashboard:
+                      </p>
+
+                      <div style="background-color: #f0fdf4; border: 2px dashed #86efac; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 24px;">
+                        <span style="display: block; font-family: monospace; font-size: 36px; font-weight: 800; color: #065f46; letter-spacing: 8px;">
+                          ${code}
+                        </span>
+                        <p style="margin: 8px 0 0; font-size: 12px; color: #047857; font-weight: 600;">
+                          Valid for 10 minutes • Do not share this code with anyone
+                        </p>
+                      </div>
+
+                      <p style="margin: 0 0 16px; font-size: 13px; color: #64748b; line-height: 1.6;">
+                        If you did not request this login code, you can safely ignore this email. Your account remains secure.
+                      </p>
+
+                      <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.6;">
+                        Best regards,<br>
+                        <strong>The AutoLearn Spot Team</strong>
+                      </p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 18px 24px; text-align: center; font-size: 12px; color: #94a3b8;">
+                      © ${new Date().getFullYear()} AutoLearn Spot. All rights reserved.
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
+      `,
+      text: `
+Hello ${partnerName || 'Partner'},
+
+Your one-time login verification code for the AutoLearn Spot Affiliate Partner Portal is:
+
+${code}
+
+This code expires in 10 minutes. If you did not request this login code, you can safely ignore this email.
+
+Best regards,
+The AutoLearn Spot Team
+${baseUrl}
+      `.trim(),
+    };
+
+    return this.sendEmail(template);
+  }
+
+  /**
    * Send course purchase confirmation to student
    */
   static async sendCoursePurchaseConfirmation(

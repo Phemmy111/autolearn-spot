@@ -11,24 +11,14 @@ function generateAffiliateCode(): string {
 }
 
 async function resolvePartner(session: { userId: string; role?: string }) {
-  let partner = null;
-  if (session.role === 'community') {
-    partner = await PartnerService.getPartnerByCommunityAmbassadorId(session.userId);
-  } else if (session.role === 'influencer') {
-    partner = await PartnerService.getPartnerByInfluencerId(session.userId);
-  } else if (session.role === 'student') {
-    partner = await PartnerService.getPartnerByClerkUserId(session.userId);
-  }
+  const { data: matchedPartners } = await supabaseAdmin
+    .from('partners')
+    .select('*')
+    .or(`id.eq.${session.userId},user_id.eq.${session.userId},partner_id.eq.${session.userId}`)
+    .order('created_at', { ascending: false })
+    .limit(1);
 
-  if (!partner) {
-    const { data } = await supabaseAdmin
-      .from('partners')
-      .select('*')
-      .or(`id.eq.${session.userId},community_ambassador_id.eq.${session.userId},influencer_id.eq.${session.userId},clerk_user_id.eq.${session.userId}`)
-      .maybeSingle();
-    partner = data;
-  }
-  return partner;
+  return (matchedPartners && matchedPartners.length > 0) ? matchedPartners[0] : null;
 }
 
 // POST: Create an affiliate link for a product
