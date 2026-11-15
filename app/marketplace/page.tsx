@@ -1,9 +1,19 @@
+import type { Metadata } from 'next';
 import { getPublishedProducts } from '@/lib/public-product-service';
 import { MarketplaceProductGrid } from '@/components/marketplace/MarketplaceProductGrid';
 import { Home, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { AffiliateRefCapture } from '@/components/affiliate/AffiliateRefCapture';
+
+export const metadata: Metadata = {
+  title: 'Course Marketplace | Practical Tech & Digital Skills',
+  description: 'Discover premium digital skills, programming masterclasses, AI tools, and hands-on courses created by expert instructors on AutoLearn Spot.',
+  openGraph: {
+    title: 'Course Marketplace | AutoLearn Spot',
+    description: 'Discover premium digital skills, programming masterclasses, and hands-on tech courses.',
+  },
+};
 
 /**
  * Marketplace Landing Page

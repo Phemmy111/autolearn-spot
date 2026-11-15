@@ -13,6 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
     settings = await getPublicSettings([
       'site_title',
       'meta_description',
+      'keywords',
       'og_title',
       'og_description',
       'og_image',
@@ -23,33 +24,61 @@ export async function generateMetadata(): Promise<Metadata> {
     settings = {};
   }
 
+  const defaultTitle = settings.siteTitle || 'AutoLearn Spot | Modern Tech, Coding, AI & Digital Skills Marketplace';
+  const defaultDescription = settings.metaDescription || 'Master in-demand tech skills, AI automation, coding, digital workflows, and modern software tools with hands-on, project-based courses taught by industry experts. Build real projects, earn verified certificates, and accelerate your career.';
+  const defaultKeywords = settings.keywords || 'tech skills, online courses, AI automation, coding, software development, n8n training, digital skills, programming, workflow automation, python, web development, tech certifications, learn tech, AutoLearn Spot, practical courses, freelance skills, business automation';
+
   return {
     metadataBase: new URL('https://www.autolearnspot.com'),
-    title: settings.siteTitle || 'AutoLearn Spot - n8n & AI Automation Training',
-    description: settings.metaDescription || 'A 4-week hands-on n8n automation training where every session ends with a working, deployable workflow.',
+    title: {
+      default: defaultTitle,
+      template: '%s | AutoLearn Spot',
+    },
+    description: defaultDescription,
+    keywords: typeof defaultKeywords === 'string' ? defaultKeywords.split(',').map((k: string) => k.trim()) : defaultKeywords,
+    authors: [{ name: 'AutoLearn Spot', url: 'https://www.autolearnspot.com' }],
+    creator: 'AutoLearn Spot',
+    publisher: 'AutoLearn Spot',
     generator: 'Codex',
     icons: {
       icon: '/autolearn-brandmark.png',
       apple: '/autolearn-brandmark.png',
     },
+    alternates: {
+      canonical: 'https://www.autolearnspot.com',
+    },
     openGraph: {
-      title: settings.ogTitle || settings.siteTitle || 'AutoLearn Spot - n8n & AI Automation Training',
-      description: settings.ogDescription || settings.metaDescription || 'A 4-week hands-on n8n automation training where every session ends with a working, deployable workflow.',
+      title: settings.ogTitle || defaultTitle,
+      description: settings.ogDescription || defaultDescription,
+      url: 'https://www.autolearnspot.com',
+      siteName: 'AutoLearn Spot',
       images: [
         {
           url: settings.ogImage || '/og-image.png',
           width: 1200,
           height: 630,
-          alt: settings.ogTitle || settings.siteTitle || 'AutoLearn Spot - n8n & AI Automation Training',
+          alt: settings.ogTitle || defaultTitle,
         },
       ],
+      locale: 'en_US',
       type: 'website',
     },
     twitter: {
       card: (settings.twitterCardType as any) || 'summary_large_image',
-      title: settings.ogTitle || settings.siteTitle || 'AutoLearn Spot - n8n & AI Automation Training',
-      description: settings.ogDescription || settings.metaDescription || 'A 4-week hands-on n8n automation training where every session ends with a working, deployable workflow.',
+      title: settings.ogTitle || defaultTitle,
+      description: settings.ogDescription || defaultDescription,
       images: [settings.ogImage || '/og-image.png'],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
   }
 }

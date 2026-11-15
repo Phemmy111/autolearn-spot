@@ -464,34 +464,194 @@ export class EmailService {
     studentName: string,
     courseTitle: string,
     amount: number,
-    reference: string
+    reference: string,
+    customWhatsappUrl?: string
   ): Promise<boolean> {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
     const studentDashboardUrl = `${baseUrl}/dashboard`;
+    const whatsappCommunityUrl = customWhatsappUrl || process.env.WHATSAPP_GROUP_LINK || 'https://chat.whatsapp.com/JGZhpVPwZnr9WViOzkMFHy?s=cl&p=a&iam=2';
+
+    const formattedAmount = typeof amount === 'number' ? `₦${amount.toLocaleString()}` : `₦${amount}`;
 
     const template: EmailTemplate = {
       to: studentEmail,
-      subject: `Course Purchase Confirmed: ${courseTitle}`,
+      subject: `🎉 Enrollment Confirmed: ${courseTitle} | AutoLearn Spot`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h2 style="color: #10B981;">🎉 Course Purchase Confirmed!</h2>
-          <p>Dear ${studentName},</p>
-          <p>Thank you for your purchase! Your payment has been successfully processed.</p>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Course Purchase Confirmed</title>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1f2937;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f3f4f6; padding: 30px 15px;">
+            <tr>
+              <td align="center">
+                <table role="presentation" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);">
+                  
+                  <!-- Header with Logo -->
+                  <tr>
+                    <td style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 32px 30px; text-align: center;">
+                      <h1 style="margin: 0; font-size: 26px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">
+                        Auto<span style="color: #10B981;">Learn</span> Spot
+                      </h1>
+                      <p style="margin: 8px 0 0; color: #94a3b8; font-size: 14px;">Master Skills. Build Real Projects. Grow Your Future.</p>
+                    </td>
+                  </tr>
 
-          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #1f2937; margin-top: 0;">Purchase Details</h3>
-            <p><strong>Course:</strong> ${courseTitle}</p>
-            <p><strong>Amount Paid:</strong> ₦${amount.toLocaleString()}</p>
-            <p><strong>Transaction Reference:</strong> ${reference}</p>
-          </div>
+                  <!-- Main Content Area -->
+                  <tr>
+                    <td style="padding: 35px 30px;">
+                      
+                      <!-- Success Badge -->
+                      <div style="text-align: center; margin-bottom: 24px;">
+                        <span style="display: inline-block; background-color: #ecfdf5; color: #059669; font-size: 13px; font-weight: 700; padding: 6px 16px; border-radius: 50px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid #a7f3d0;">
+                          Payment Confirmed • Immediate Access
+                        </span>
+                        <h2 style="margin: 16px 0 8px; font-size: 22px; color: #111827; font-weight: 700;">
+                          Welcome to the Course, ${studentName}! 🎉
+                        </h2>
+                        <p style="margin: 0; font-size: 15px; color: #4b5563; line-height: 1.6;">
+                          Thank you for choosing AutoLearn Spot. Your enrollment has been verified and your course access is now fully active.
+                        </p>
+                      </div>
 
-          <p>You can now access your course materials through your student dashboard.</p>
-          <p><a href="${studentDashboardUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Go to Student Dashboard</a></p>
+                      <!-- Order Summary Card -->
+                      <table role="presentation" width="100%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 28px; padding: 20px;">
+                        <tr>
+                          <td>
+                            <h3 style="margin: 0 0 14px; font-size: 15px; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px; font-weight: 700;">
+                              Purchase Summary
+                            </h3>
+                            <table role="presentation" width="100%" style="font-size: 14px; line-height: 1.8;">
+                              <tr>
+                                <td style="color: #64748b; padding-bottom: 6px;">Course:</td>
+                                <td style="color: #0f172a; font-weight: 700; text-align: right; padding-bottom: 6px;">${courseTitle}</td>
+                              </tr>
+                              <tr>
+                                <td style="color: #64748b; padding-bottom: 6px;">Amount Paid:</td>
+                                <td style="color: #059669; font-weight: 700; text-align: right; padding-bottom: 6px;">${formattedAmount}</td>
+                              </tr>
+                              <tr>
+                                <td style="color: #64748b; padding-bottom: 6px;">Reference:</td>
+                                <td style="color: #0f172a; font-family: monospace; font-size: 12px; text-align: right; padding-bottom: 6px;">${reference}</td>
+                              </tr>
+                              <tr>
+                                <td style="color: #64748b;">Access Type:</td>
+                                <td style="color: #0f172a; font-weight: 600; text-align: right;">Lifetime Course Access</td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
 
-          <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
-          <p>Best regards,<br>The AutoLearn Spot Team</p>
-        </div>
+                      <!-- Primary CTA: Go to Dashboard -->
+                      <div style="text-align: center; margin-bottom: 30px;">
+                        <a href="${studentDashboardUrl}" target="_blank" style="display: inline-block; background-color: #4f46e5; color: #ffffff; font-size: 16px; font-weight: 700; text-decoration: none; padding: 14px 32px; border-radius: 10px; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);">
+                          Go to Your Student Dashboard →
+                        </a>
+                        <p style="margin: 10px 0 0; font-size: 12px; color: #64748b;">
+                          Direct link: <a href="${studentDashboardUrl}" style="color: #4f46e5; text-decoration: underline;">${studentDashboardUrl}</a>
+                        </p>
+                      </div>
+
+                      <!-- WhatsApp Community Box -->
+                      <table role="presentation" width="100%" style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 1.5px solid #86efac; border-radius: 14px; margin-bottom: 30px; padding: 22px;">
+                        <tr>
+                          <td>
+                            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                              <span style="font-size: 24px; margin-right: 10px;">💬</span>
+                              <h3 style="margin: 0; font-size: 17px; color: #065f46; font-weight: 700;">
+                                Join the Student WhatsApp Community
+                              </h3>
+                            </div>
+                            <p style="margin: 0 0 16px; font-size: 14px; color: #047857; line-height: 1.6;">
+                              Connect with fellow learners, get live class announcements, ask questions, interact with your instructor, and stay updated with the cohort.
+                            </p>
+                            <div style="text-align: center;">
+                              <a href="${whatsappCommunityUrl}" target="_blank" style="display: inline-block; background-color: #25D366; color: #ffffff; font-size: 15px; font-weight: 700; text-decoration: none; padding: 12px 28px; border-radius: 8px; box-shadow: 0 3px 10px rgba(37, 211, 102, 0.3);">
+                                Join WhatsApp Group Now
+                              </a>
+                              <p style="margin: 10px 0 0; font-size: 12px; color: #047857;">
+                                Group Link: <a href="${whatsappCommunityUrl}" style="color: #047857; text-decoration: underline; word-break: break-all;">${whatsappCommunityUrl}</a>
+                              </p>
+                            </div>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- Next Steps Section -->
+                      <div style="border-top: 1px solid #e5e7eb; padding-top: 24px; margin-bottom: 24px;">
+                        <h4 style="margin: 0 0 14px; font-size: 15px; color: #111827; font-weight: 700;">
+                          What to do next:
+                        </h4>
+                        <ol style="margin: 0; padding-left: 20px; font-size: 14px; color: #4b5563; line-height: 1.8;">
+                          <li><strong>Open Your Dashboard:</strong> Log in with <strong>${studentEmail}</strong> to watch your video lessons and download course resources.</li>
+                          <li><strong>Join the WhatsApp Community:</strong> Stay connected with instructors and fellow students for discussions and updates.</li>
+                          <li><strong>Complete Lessons & Quizzes:</strong> Follow through all sections at your own pace to earn your certificate of completion.</li>
+                        </ol>
+                      </div>
+
+                      <!-- Support Section -->
+                      <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.6;">
+                        Need help or have questions? Simply reply directly to this email or reach us at <a href="mailto:support@autolearnspot.com" style="color: #4f46e5; text-decoration: underline;">support@autolearnspot.com</a>.
+                      </p>
+
+                    </td>
+                  </tr>
+
+                  <!-- Footer -->
+                  <tr>
+                    <td style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 24px 30px; text-align: center; font-size: 12px; color: #94a3b8; line-height: 1.6;">
+                      <p style="margin: 0 0 6px;">© ${new Date().getFullYear()} AutoLearn Spot. All rights reserved.</p>
+                      <p style="margin: 0;">
+                        <a href="${baseUrl}" style="color: #64748b; text-decoration: none; margin: 0 8px;">Website</a> • 
+                        <a href="${studentDashboardUrl}" style="color: #64748b; text-decoration: none; margin: 0 8px;">Dashboard</a> • 
+                        <a href="${baseUrl}/terms" style="color: #64748b; text-decoration: none; margin: 0 8px;">Terms</a> • 
+                        <a href="${baseUrl}/contact" style="color: #64748b; text-decoration: none; margin: 0 8px;">Contact Support</a>
+                      </p>
+                    </td>
+                  </tr>
+
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
       `,
+      text: `
+🎉 Course Purchase Confirmed!
+
+Dear ${studentName},
+
+Thank you for your purchase on AutoLearn Spot! Your payment has been successfully processed and your course access is now active.
+
+PURCHASE DETAILS:
+- Course: ${courseTitle}
+- Amount Paid: ${formattedAmount}
+- Transaction Reference: ${reference}
+- Access: Lifetime Course Access
+
+NEXT STEPS:
+1. ACCESS YOUR STUDENT DASHBOARD:
+Go to: ${studentDashboardUrl}
+(Log in with ${studentEmail} to begin watching your lessons and access materials)
+
+2. JOIN THE STUDENTS WHATSAPP COMMUNITY:
+Join here: ${whatsappCommunityUrl}
+Connect with fellow learners, get live class updates, and ask questions.
+
+3. EARN YOUR CERTIFICATE:
+Complete your coursework and quizzes to earn your verified certificate.
+
+If you have any questions, reach out to support@autolearnspot.com.
+
+Best regards,
+The AutoLearn Spot Team
+${baseUrl}
+      `.trim(),
     };
 
     return this.sendEmail(template);

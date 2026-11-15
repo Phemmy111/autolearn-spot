@@ -1,8 +1,18 @@
+import type { Metadata } from 'next';
 import { MarketplaceNavigation } from '@/components/MarketplaceNavigation'
 import { Footer } from '@/components/footer'
 import { AnnouncementBanner } from '@/components/announcement-banner'
 import { Award, Users, Target, BookOpen, Globe, Heart } from 'lucide-react'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'About Us | Empowering Global Learners in Modern Skills',
+  description: 'Learn about AutoLearn Spot, our mission to democratize hands-on tech education, digital skills, coding, and AI tools with verified expert instructors.',
+  openGraph: {
+    title: 'About AutoLearn Spot | Modern Skills Marketplace',
+    description: 'Empowering learners worldwide with accessible, high-quality tech and digital education from verified industry instructors.',
+  },
+};
 
 export default function AboutPage() {
   return (

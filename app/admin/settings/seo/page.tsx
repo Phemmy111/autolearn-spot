@@ -6,11 +6,12 @@ import Link from 'next/link';
 
 export default function AdminSeoSettingsPage() {
   const [settings, setSettings] = useState({
-    siteTitle: 'AutoLearn Spot - AI Automation Training',
-    metaDescription: 'Master n8n automation and build powerful AI-powered workflows without coding. Join our hands-on training program.',
-    ogTitle: 'AutoLearn Spot - AI Automation Training',
-    ogDescription: 'Master n8n automation and build powerful AI-powered workflows without coding.',
-    ogImage: '/og-image.jpg',
+    siteTitle: 'AutoLearn Spot | Modern Tech, Coding, AI & Digital Skills Marketplace',
+    metaDescription: 'Master in-demand tech skills, AI automation, coding, digital workflows, and modern software tools with hands-on, project-based courses taught by industry experts. Build real projects, earn verified certificates, and accelerate your career.',
+    keywords: 'tech skills, online courses, AI automation, coding, software development, n8n training, digital skills, programming, workflow automation, python, web development, tech certifications, learn tech, AutoLearn Spot, practical courses, freelance skills, business automation',
+    ogTitle: 'AutoLearn Spot - Modern Tech, Coding, AI & Digital Skills Marketplace',
+    ogDescription: 'Learn in-demand tech skills, programming, AI automation, and digital workflows. Build real projects, earn certificates, and advance your career with top instructors.',
+    ogImage: '/og-image.png',
     twitterCardType: 'summary_large_image',
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -133,6 +134,16 @@ export default function AdminSeoSettingsPage() {
                   value={settings.metaDescription}
                   onChange={(e) => setSettings({ ...settings, metaDescription: e.target.value })}
                   rows={3}
+                  className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text focus:outline-none focus:border-[#10b981] resize-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">Meta Keywords (comma-separated)</label>
+                <textarea
+                  value={settings.keywords}
+                  onChange={(e) => setSettings({ ...settings, keywords: e.target.value })}
+                  rows={2}
+                  placeholder="tech skills, online courses, AI automation, coding..."
                   className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text focus:outline-none focus:border-[#10b981] resize-none"
                 />
               </div>

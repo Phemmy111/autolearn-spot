@@ -262,8 +262,10 @@ async function sendEnrollmentConfirmation(enrollment: any) {
             <li>Investment: ₦8,000</li>
           </ul>
           <p><strong>Next Steps:</strong></p>
-          <p>Join our WhatsApp community group for announcements, support, and networking:</p>
-          <p><a href="${process.env.WHATSAPP_GROUP_LINK || 'https://chat.whatsapp.com/your-group-link'}" style="background: #25D366; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; margin: 10px 0;">Join WhatsApp Group</a></p>
+          <p>1. Access your student dashboard to view course materials: <a href="https://www.autolearnspot.com/dashboard">https://www.autolearnspot.com/dashboard</a></p>
+          <p>2. Join our official WhatsApp community group for announcements, support, and networking:</p>
+          <p><a href="${process.env.WHATSAPP_GROUP_LINK || 'https://chat.whatsapp.com/JGZhpVPwZnr9WViOzkMFHy?s=cl&p=a&iam=2'}" style="background: #25D366; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; margin: 10px 0;">Join WhatsApp Group</a></p>
+          <p>Direct Link: <a href="${process.env.WHATSAPP_GROUP_LINK || 'https://chat.whatsapp.com/JGZhpVPwZnr9WViOzkMFHy?s=cl&p=a&iam=2'}">${process.env.WHATSAPP_GROUP_LINK || 'https://chat.whatsapp.com/JGZhpVPwZnr9WViOzkMFHy?s=cl&p=a&iam=2'}</a></p>
           <p>Your login credentials will be sent shortly.</p>
           <p>If you have any questions, feel free to reach out to our support team.</p>
           <p>Best regards,<br>AutoLearn Spot Team</p>

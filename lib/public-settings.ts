@@ -84,6 +84,7 @@ interface PublicSettings {
   // SEO
   siteTitle?: string;
   metaDescription?: string;
+  keywords?: string;
   ogTitle?: string;
   ogDescription?: string;
   ogImage?: string;
@@ -133,7 +134,7 @@ const DEFAULT_SETTINGS: PublicSettings = {
   supportPhone: '+234',
   supportWhatsApp: '+234',
   whatsappDirectLink: 'https://wa.me/',
-  whatsappCommunityLink: 'https://chat.whatsapp.com/',
+  whatsappCommunityLink: 'https://chat.whatsapp.com/JGZhpVPwZnr9WViOzkMFHy?s=cl&p=a&iam=2',
   instagramUrl: 'https://instagram.com/',
   tiktokUrl: 'https://tiktok.com/',
   youtubeUrl: 'https://youtube.com/',
@@ -158,10 +159,11 @@ const DEFAULT_SETTINGS: PublicSettings = {
   heroSecondaryCtaLink: '#',
 
   // SEO
-  siteTitle: 'AutoLearn Spot - n8n & AI Automation Training',
-  metaDescription: 'A 4-week hands-on n8n automation training where every session ends with a working, deployable workflow.',
-  ogTitle: 'AutoLearn Spot - n8n & AI Automation Training',
-  ogDescription: 'A 4-week hands-on n8n automation training where every session ends with a working, deployable workflow.',
+  siteTitle: 'AutoLearn Spot | Modern Tech, Coding, AI & Digital Skills Marketplace',
+  metaDescription: 'Master in-demand tech skills, AI automation, coding, digital workflows, and modern software tools with hands-on, project-based courses taught by industry experts. Build real projects, earn verified certificates, and accelerate your career.',
+  keywords: 'tech skills, online courses, AI automation, coding, software development, n8n training, digital skills, programming, workflow automation, python, web development, tech certifications, learn tech, AutoLearn Spot, practical courses, freelance skills, business automation',
+  ogTitle: 'AutoLearn Spot - Modern Tech, Coding, AI & Digital Skills Marketplace',
+  ogDescription: 'Learn in-demand tech skills, programming, AI automation, and digital workflows. Build real projects, earn certificates, and advance your career with top instructors.',
   ogImage: '/og-image.png',
   twitterCardType: 'summary_large_image',
 };
@@ -244,6 +246,7 @@ const KEY_MAPPING: Record<string, keyof PublicSettings> = {
   // SEO
   site_title: 'siteTitle',
   meta_description: 'metaDescription',
+  keywords: 'keywords',
   og_title: 'ogTitle',
   og_description: 'ogDescription',
   og_image: 'ogImage',

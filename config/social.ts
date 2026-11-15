@@ -30,7 +30,7 @@ export const socialLinks = {
     icon: '/social/x.png'
   },
   whatsapp: {
-    url: 'https://chat.whatsapp.com/DJrJYaW3nIy74xtFnZlJM3',
+    url: 'https://chat.whatsapp.com/JGZhpVPwZnr9WViOzkMFHy?s=cl&p=a&iam=2',
     name: 'WhatsApp Community',
     icon: '/social/Whatsapp.png'
   }

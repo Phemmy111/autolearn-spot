@@ -1,7 +1,17 @@
+import type { Metadata } from 'next';
 import { getPublishedProducts } from '@/lib/public-product-service';
 import { MarketplaceProductGrid } from '@/components/marketplace/MarketplaceProductGrid';
 import { BookOpen, Home, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'All Courses | Tech, Coding & Digital Skills',
+  description: 'Explore our catalog of hands-on courses in tech skills, AI automation, coding, digital workflows, and practical tools taught by experienced industry practitioners.',
+  openGraph: {
+    title: 'All Courses | Tech, Coding & Digital Skills - AutoLearn Spot',
+    description: 'Explore our catalog of hands-on courses in tech skills, AI automation, coding, digital workflows, and practical tools.',
+  },
+};
 
 export const dynamic = 'force-dynamic';
 

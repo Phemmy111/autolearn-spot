@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Tag, ArrowRight, Home, ChevronRight, Search } from 'lucide-react';
 import { supabaseAdmin } from '@/lib/supabase';
@@ -5,6 +6,15 @@ import { DynamicSlider } from '@/components/ui/DynamicSlider';
 import { SKILLS_BY_CATEGORY, CATEGORIES } from '@/lib/taxonomy';
 import { getSkillSliderMedia } from '@/lib/skill-slider-defaults';
 import SkillsSearch from './SkillsSearch';
+
+export const metadata: Metadata = {
+  title: 'Explore Skills | Tech, AI, Coding & Automation',
+  description: 'Discover in-demand tech and digital skills. From workflow automation and AI agents to web development and data systems, master the skills reshaping industries.',
+  openGraph: {
+    title: 'Explore Skills | Tech, AI, Coding & Automation - AutoLearn Spot',
+    description: 'Discover in-demand tech and digital skills. Master the tools and workflows reshaping modern careers.',
+  },
+};
 
 export const dynamic = 'force-dynamic';
 

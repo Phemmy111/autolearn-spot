@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { supabaseAdmin } from '@/lib/supabase';
 import AddToCartButton from '@/components/marketplace/AddToCartButton';
@@ -14,6 +15,41 @@ import { ReviewService } from '@/lib/review-service';
 
 interface PageParams {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
+  const { slug } = await params;
+  const { data: product } = await supabaseAdmin
+    .from('learning_products')
+    .select('title, description, thumbnail_url')
+    .or(`slug.eq.${slug},id.eq.${slug}`)
+    .maybeSingle();
+
+  if (!product) {
+    return {
+      title: 'Course Not Found',
+    };
+  }
+
+  const title = `${product.title} | AutoLearn Spot`;
+  const description = product.description?.slice(0, 160) || `Learn ${product.title} with hands-on lessons, practical projects, and certificate of completion.`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: product.thumbnail_url ? [{ url: product.thumbnail_url }] : ['/og-image.png'],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: product.thumbnail_url ? [product.thumbnail_url] : ['/og-image.png'],
+    },
+  };
 }
 
 export default async function MarketplaceProductPage({ params }: PageParams) {
