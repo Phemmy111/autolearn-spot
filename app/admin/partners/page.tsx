@@ -1,160 +1,122 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useState, useEffect, useMemo } from 'react';
 import { 
-  LayoutDashboard, 
   Users, 
   DollarSign, 
   TrendingUp, 
   Clock, 
-  Shield, 
-  Award,
-  FileText,
-  BarChart3,
-  Settings,
-  LogOut,
-  Search,
-  Filter,
-  Download,
-  Plus,
-  X,
-  CheckCircle,
-  XCircle,
-  Eye,
-  Phone,
-  Mail,
-  MessageCircle,
-  MoreHorizontal,
-  ChevronDown,
-  ArrowUp,
-  ArrowDown,
-  Upload,
-  Bell,
-  Settings as EditIcon
+  FileText, 
+  Settings, 
+  Search, 
+  Plus, 
+  X, 
+  CheckCircle, 
+  XCircle, 
+  Eye, 
+  Phone, 
+  Mail, 
+  Copy, 
+  Check, 
+  Download, 
+  RefreshCw, 
+  ExternalLink,
+  ShieldAlert,
+  ArrowUpRight,
+  Briefcase,
+  Share2,
+  FolderDown,
+  Building
 } from 'lucide-react';
 
-const navItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'applications', label: 'Applications', icon: FileText },
-  { id: 'affiliate', label: 'Affiliate Partners', icon: Users },
-  { id: 'withdrawals', label: 'Withdrawals', icon: DollarSign },
-  { id: 'marketing', label: 'Marketing Kit', icon: Shield },
-  { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-  { id: 'settings', label: 'Settings', icon: Settings },
-];
+interface Partner {
+  id: string;
+  partner_id: string;
+  name: string;
+  full_name?: string;
+  email: string;
+  phone?: string | null;
+  status: 'active' | 'pending' | 'suspended' | 'rejected' | string;
+  total_clicks: number;
+  total_registrations: number;
+  available_earnings: number;
+  total_earnings: number;
+  referral_code?: string;
+  created_at: string;
+  updated_at?: string;
+}
+
+interface Application {
+  id: string;
+  partner_id: string;
+  name: string;
+  full_name: string;
+  email: string;
+  phone?: string | null;
+  status: string;
+  created_at: string;
+}
+
+interface Withdrawal {
+  id: string;
+  amount: number;
+  status: string;
+  reference: string;
+  bank_name?: string;
+  account_number?: string;
+  account_name?: string;
+  created_at: string;
+  partners?: {
+    id: string;
+    full_name: string;
+    email: string;
+    partner_type?: string;
+  };
+}
 
 export default function AdminPartnersPage() {
-  const router = useRouter();
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [partners, setPartners] = useState<any[]>([]);
-  const [applications, setApplications] = useState<any[]>([]);
-  const [withdrawals, setWithdrawals] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'partners' | 'applications' | 'commissions' | 'withdrawals' | 'marketing' | 'settings'>('partners');
+  const [partners, setPartners] = useState<Partner[]>([]);
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
+  const [commissions, setCommissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedApp, setSelectedApp] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('pending');
-  const [showAddPartnerModal, setShowAddPartnerModal] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  
+  // Modals
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedPartnerDetail, setSelectedPartnerDetail] = useState<any>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  // New Partner Form State
   const [newPartner, setNewPartner] = useState({
-    full_name: '',
+    name: '',
     email: '',
     phone: '',
-    whatsapp: '',
-    partner_type: 'community',
-    commission_rate: 1500,
-    password: '',
     status: 'active'
   });
-  const [showUploadModal, setShowUploadModal] = useState(false);
-  const [marketingFile, setMarketingFile] = useState<File | null>(null);
-  const [uploadData, setUploadData] = useState({
-    name: '',
-    type: 'flyer',
-    category: 'general',
-    description: ''
-  });
-  const [marketingMaterials, setMarketingMaterials] = useState<any[]>([]);
-  const [selectedMaterial, setSelectedMaterial] = useState<any>(null);
-  const [showMaterialPreviewModal, setShowMaterialPreviewModal] = useState(false);
-  const [showMaterialEditModal, setShowMaterialEditModal] = useState(false);
-  const [editMaterialData, setEditMaterialData] = useState({
-    name: '',
-    type: 'flyer',
-    category: 'general',
-    description: ''
-  });
-  const [selectedPartner, setSelectedPartner] = useState<any>(null);
-  const [showPartnerDetailModal, setShowPartnerDetailModal] = useState(false);
+  const [submittingAdd, setSubmittingAdd] = useState(false);
+
+  // Partnership Platform Settings
   const [settings, setSettings] = useState({
-    studentCommission: 1500,
-    communityCommission: 2000,
-    influencerCommission: 3000,
-    holdingPeriod: 7,
-    minWithdrawal: 5000,
-    adminEmailEnabled: true,
-    partnerEmailEnabled: true,
-    currentCohort: 'Cohort 2',
-    coursePrice: 8000
+    commissionAmount: 1500,
+    minWithdrawal: 2000,
+    holdingPeriodDays: 7,
+    autoApproveApplications: false
   });
 
-  // Load settings from localStorage on mount
-  useEffect(() => {
-    const savedSettings = localStorage.getItem('partnerSettings');
-    if (savedSettings) {
-      try {
-        setSettings(JSON.parse(savedSettings));
-      } catch (e) {
-        console.error('Failed to parse saved settings:', e);
-      }
-    }
-  }, []);
-
-  // Save settings to localStorage when they change
-  useEffect(() => {
-    localStorage.setItem('partnerSettings', JSON.stringify(settings));
-  }, [settings]);
-
-  // Fetch marketing materials from database
-  const fetchMarketingMaterials = async () => {
-    try {
-      console.log('[Admin Partners] Fetching marketing materials');
-      const res = await fetch('/api/admin/marketing/materials');
-      console.log('[Admin Partners] Materials response status:', res.status);
-      
-      if (res.ok) {
-        const data = await res.json();
-        console.log('[Admin Partners] Materials data:', data);
-        setMarketingMaterials(data.materials || []);
-      } else {
-        const errorData = await res.json();
-        console.error('[Admin Partners] Failed to fetch materials:', errorData);
-      }
-    } catch (e) {
-      console.error('[Admin Partners] Failed to fetch marketing materials:', e);
-    }
-  };
-
-  useEffect(() => {
-    fetchMarketingMaterials();
-  }, []);
-
-  const overviewCards = [
-    { id: 'total', label: 'Total Partners', value: partners.length.toString(), growth: null, icon: Users, positive: true },
-    { id: 'pending', label: 'Pending Applications', value: applications.filter(a => a.status === 'pending').length.toString(), growth: null, icon: Clock, positive: true },
-    { id: 'community', label: 'Community Partners', value: partners.filter(p => p.partner_type === 'community').length.toString(), growth: null, icon: Users, positive: true },
-    { id: 'influencer', label: 'Influencers', value: partners.filter(p => p.partner_type === 'influencer').length.toString(), growth: null, icon: Award, positive: true },
-    { id: 'commission', label: 'Total Commission Paid', value: '₦0', growth: null, icon: DollarSign, positive: true },
-    { id: 'withdrawals', label: 'Pending Withdrawals', value: '₦0', growth: null, icon: TrendingUp, positive: false },
-  ];
-
-  const fetchAll = async () => {
+  // Fetch all initial data
+  const fetchAllData = async () => {
     setLoading(true);
     try {
-      const [pRes, aRes, wRes] = await Promise.all([
+      const [pRes, aRes, wRes, cRes] = await Promise.all([
         fetch('/api/admin/partners'),
         fetch('/api/admin/partners/applications'),
-        fetch('/api/admin/partner-withdrawals?status=pending')
+        fetch('/api/admin/partner-withdrawals?status=ALL'),
+        fetch('/api/admin/partner-referrals?partnerId=all').catch(() => null)
       ]);
 
       if (pRes.ok) {
@@ -169,1919 +131,1218 @@ export default function AdminPartnersPage() {
         const wData = await wRes.json();
         setWithdrawals(wData.withdrawals || []);
       }
-    } catch (e) {
-      console.error(e);
+
+      // Also fetch commissions list if available
+      try {
+        const commsRes = await fetch('/api/admin/growth/stats');
+        if (commsRes.ok) {
+          const cData = await commsRes.json();
+          // We can use stats or fetch direct
+        }
+      } catch (err) {
+        // ignore
+      }
+    } catch (err) {
+      console.error('[AdminPartners] Error fetching data:', err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
-    fetchAll();
+    fetchAllData();
   }, []);
 
-  const handleAddPartner = async () => {
+  // Filtered partners
+  const filteredPartners = useMemo(() => {
+    return partners.filter((p) => {
+      const name = (p.name || p.full_name || '').toLowerCase();
+      const email = (p.email || '').toLowerCase();
+      const pid = (p.partner_id || '').toLowerCase();
+      const ref = (p.referral_code || '').toLowerCase();
+      const q = searchQuery.toLowerCase().trim();
+
+      const matchesSearch = !q || name.includes(q) || email.includes(q) || pid.includes(q) || ref.includes(q);
+      const matchesStatus = statusFilter === 'all' || p.status?.toLowerCase() === statusFilter.toLowerCase();
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [partners, searchQuery, statusFilter]);
+
+  // Aggregate KPI metrics
+  const stats = useMemo(() => {
+    const totalPartners = partners.length;
+    const activePartners = partners.filter((p) => p.status === 'active').length;
+    const pendingApps = applications.length + partners.filter((p) => p.status === 'pending').length;
+    const totalReferrals = partners.reduce((sum, p) => sum + (Number(p.total_registrations) || 0), 0);
+    const totalClicks = partners.reduce((sum, p) => sum + (Number(p.total_clicks) || 0), 0);
+    const totalEarnings = partners.reduce((sum, p) => sum + (Number(p.total_earnings) || 0) + (Number(p.available_earnings) || 0), 0);
+    const pendingWithdrawalsCount = withdrawals.filter((w) => w.status?.toLowerCase() === 'pending').length;
+    const pendingWithdrawalsAmount = withdrawals
+      .filter((w) => w.status?.toLowerCase() === 'pending')
+      .reduce((sum, w) => sum + (Number(w.amount) || 0), 0);
+
+    return {
+      totalPartners,
+      activePartners,
+      pendingApps,
+      totalReferrals,
+      totalClicks,
+      totalEarnings,
+      pendingWithdrawalsCount,
+      pendingWithdrawalsAmount
+    };
+  }, [partners, applications, withdrawals]);
+
+  // Handle Add Partner
+  const handleAddPartner = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPartner.name || !newPartner.email) {
+      alert('Please fill in partner name and email');
+      return;
+    }
+
+    setSubmittingAdd(true);
     try {
-      console.log('[Admin Partners] Creating partner with data:', newPartner);
       const res = await fetch('/api/admin/partners', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newPartner)
       });
-      
-      console.log('[Admin Partners] Partner creation response status:', res.status);
-      
-      if (res.ok) {
-        const data = await res.json();
-        console.log('[Admin Partners] Partner created successfully:', data);
-        setShowAddPartnerModal(false);
-        setNewPartner({
-          full_name: '',
-          email: '',
-          phone: '',
-          whatsapp: '',
-          partner_type: 'community',
-          commission_rate: 1500,
-          password: '',
-          status: 'active'
-        });
-        fetchAll();
-        
-        // Show email status
-        const emailStatus = data.emailStatus || {};
-        let message = 'Partner added successfully';
-        if (!emailStatus.partnerEmail) {
-          message += '. Warning: Partner welcome email failed to send';
-        }
-        if (!emailStatus.adminEmail) {
-          message += '. Warning: Admin notification email failed to send';
-        }
-        alert(message);
-      } else {
-        const errorData = await res.json();
-        console.error('[Admin Partners] Failed to add partner:', errorData);
-        alert(`Failed to add partner: ${errorData.details || errorData.error}`);
-      }
-    } catch (e) {
-      console.error('[Admin Partners] Failed to add partner:', e);
-      alert('Failed to add partner');
-    }
-  };
-
-  const handleMarketingUpload = async () => {
-    if (!marketingFile || !uploadData.name) {
-      alert('Please select a file and enter a name');
-      return;
-    }
-
-    try {
-      const formData = new FormData();
-      formData.append('file', marketingFile);
-      formData.append('name', uploadData.name);
-      formData.append('type', uploadData.type);
-      formData.append('category', uploadData.category);
-      formData.append('description', uploadData.description);
-
-      const res = await fetch('/api/admin/marketing/upload', {
-        method: 'POST',
-        body: formData
-      });
-
-      if (res.ok) {
-        setShowUploadModal(false);
-        setMarketingFile(null);
-        setUploadData({
-          name: '',
-          type: 'flyer',
-          category: 'general',
-          description: ''
-        });
-        fetchMarketingMaterials(); // Refresh the materials list
-        alert('Marketing material uploaded successfully');
-      } else {
-        const errorData = await res.json();
-        alert(`Failed to upload marketing material: ${errorData.details || errorData.error}`);
-      }
-    } catch (e) {
-      console.error('[Admin Partners] Failed to upload marketing material:', e);
-      alert('Failed to upload marketing material');
-    }
-  };
-
-  const handleMaterialEdit = async () => {
-    if (!selectedMaterial) return;
-
-    try {
-      const res = await fetch(`/api/admin/marketing/materials/${selectedMaterial.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editMaterialData)
-      });
-
-      if (res.ok) {
-        setShowMaterialEditModal(false);
-        setSelectedMaterial(null);
-        fetchMarketingMaterials();
-        alert('Material updated successfully');
-      } else {
-        alert('Failed to update material');
-      }
-    } catch (e) {
-      console.error('[Admin Partners] Failed to update material:', e);
-      alert('Failed to update material');
-    }
-  };
-
-  const handleMaterialDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this material?')) return;
-
-    try {
-      const res = await fetch(`/api/admin/marketing/materials/${id}`, {
-        method: 'DELETE'
-      });
-
-      if (res.ok) {
-        fetchMarketingMaterials();
-        alert('Material deleted successfully');
-      } else {
-        alert('Failed to delete material');
-      }
-    } catch (e) {
-      console.error('[Admin Partners] Failed to delete material:', e);
-      alert('Failed to delete material');
-    }
-  };
-
-  const handleResendEmail = async (partnerId: string, emailType: 'welcome' | 'admin_notification') => {
-    try {
-      const res = await fetch(`/api/admin/partners/${partnerId}/resend-email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ emailType })
-      });
 
       const data = await res.json();
-      if (data.emailSent) {
-        alert('Email sent successfully');
+      if (res.ok && data.success) {
+        alert(`Partner added successfully! Partner ID: ${data.partner?.partner_id || 'Created'}`);
+        setShowAddModal(false);
+        setNewPartner({ name: '', email: '', phone: '', status: 'active' });
+        fetchAllData();
       } else {
-        alert(`Failed to send email: ${data.errorMessage || 'Unknown error'}`);
+        alert(`Error: ${data.error || 'Failed to add partner'}`);
       }
-    } catch (e) {
-      console.error('[Admin Partners] Failed to resend email:', e);
-      alert('Failed to resend email');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to submit new partner');
+    } finally {
+      setSubmittingAdd(false);
     }
   };
 
-  const openMaterialPreview = (material: any) => {
-    setSelectedMaterial(material);
-    setShowMaterialPreviewModal(true);
-  };
+  // Open Partner Details
+  const handleOpenDetail = async (partner: Partner) => {
+    setShowDetailModal(true);
+    setSelectedPartnerDetail(partner);
+    setDetailLoading(true);
 
-  const openMaterialEdit = (material: any) => {
-    setSelectedMaterial(material);
-    setEditMaterialData({
-      name: material.name,
-      type: material.type,
-      category: material.category,
-      description: material.description
-    });
-    setShowMaterialEditModal(true);
-  };
-
-  const handlePartnerClick = async (partner: any) => {
-    console.log('[Admin Partners] Clicked partner object:', partner);
-    console.log('[Admin Partners] Partner keys:', Object.keys(partner));
-    console.log('[Admin Partners] Partner.id:', partner.id);
-    console.log('[Admin Partners] Partner.partner_id:', partner.partner_id);
-    
-    // Use the correct ID field - try both id and partner_id
-    const partnerId = partner.id || partner.partner_id;
-    console.log('[Admin Partners] Using partner ID:', partnerId);
-    
-    if (!partnerId) {
-      console.error('[Admin Partners] No valid partner ID found!');
-      alert('Error: Partner ID not found. Please refresh and try again.');
-      return;
-    }
-    
-    setSelectedPartner(partner);
-    setShowPartnerDetailModal(true);
-    
-    // Fetch partner bank details and recent referrals
     try {
-      const [bankRes, referralsRes] = await Promise.all([
-        fetch(`/api/admin/partner-details?partnerId=${partnerId}`),
-        fetch(`/api/admin/partner-referrals?partnerId=${partnerId}`)
-      ]);
-      
-      console.log('[Admin Partners] Bank details response status:', bankRes.status);
-      console.log('[Admin Partners] Referrals response status:', referralsRes.status);
-      
-      if (bankRes.ok) {
-        const bankData = await bankRes.json();
-        console.log('[Admin Partners] Bank details data:', bankData);
-        setSelectedPartner(prev => ({ ...prev, bankDetails: bankData.bankDetails }));
-      } else {
-        console.error('[Admin Partners] Bank details error:', await bankRes.text());
+      const res = await fetch(`/api/admin/partner-details?partnerId=${partner.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedPartnerDetail({
+          ...partner,
+          ...data.partner,
+          bankDetails: data.bankDetails,
+          referralCodes: data.referralCodes,
+          affiliateLinks: data.affiliateLinks,
+          commissions: data.commissions
+        });
       }
-      
-      if (referralsRes.ok) {
-        const referralsData = await referralsRes.json();
-        console.log('[Admin Partners] Referrals data:', referralsData);
-        setSelectedPartner(prev => ({ ...prev, recentReferrals: referralsData.referrals }));
-      } else {
-        console.error('[Admin Partners] Referrals error:', await referralsRes.text());
-      }
-    } catch (error) {
-      console.error('[Admin Partners] Error fetching partner details:', error);
+    } catch (err) {
+      console.error('Failed to load partner detail:', err);
+    } finally {
+      setDetailLoading(false);
     }
   };
 
-  const handleProcessApplication = async (applicationId: string, action: 'approve' | 'reject') => {
+  // Toggle Partner Status
+  const handleToggleStatus = async (partnerId: string, currentStatus: string) => {
+    const nextStatus = currentStatus === 'active' ? 'suspended' : 'active';
+    const confirmMsg = `Are you sure you want to mark this partner as ${nextStatus.toUpperCase()}?`;
+    if (!confirm(confirmMsg)) return;
+
+    try {
+      const res = await fetch('/api/admin/partners', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: partnerId, status: nextStatus })
+      });
+
+      if (res.ok) {
+        fetchAllData();
+        if (selectedPartnerDetail?.id === partnerId) {
+          setSelectedPartnerDetail((prev: any) => ({ ...prev, status: nextStatus }));
+        }
+      } else {
+        alert('Failed to update partner status');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error updating status');
+    }
+  };
+
+  // Process Application (Approve / Reject)
+  const handleProcessApplication = async (appId: string, action: 'approve' | 'reject') => {
+    if (!confirm(`Are you sure you want to ${action.toUpperCase()} this partner application?`)) return;
+
     try {
       const res = await fetch('/api/admin/partners/applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ applicationId, action })
+        body: JSON.stringify({ applicationId: appId, action })
       });
-      
+
       if (res.ok) {
-        fetchAll();
         alert(`Application ${action}d successfully`);
+        fetchAllData();
       } else {
-        alert(`Failed to ${action} application`);
+        const data = await res.json();
+        alert(`Failed: ${data.error}`);
       }
-    } catch (e) {
-      console.error(e);
-      alert(`Failed to ${action} application`);
+    } catch (err) {
+      console.error(err);
+      alert('Error processing application');
     }
   };
 
-  const handleResendApplicationEmail = async (applicationId: string) => {
-    try {
-      const res = await fetch('/api/admin/partners/applications', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ applicationId })
-      });
-      
-      if (res.ok) {
-        alert('Email resent successfully');
-      } else {
-        const error = await res.json();
-        alert(`Failed to resend email: ${error.error}`);
-      }
-    } catch (e) {
-      console.error(e);
-      alert('Failed to resend email');
-    }
-  };
-
+  // Process Withdrawal (Approve / Reject)
   const handleProcessWithdrawal = async (withdrawalId: string, action: 'approve' | 'reject') => {
+    let paymentRef = '';
+    if (action === 'approve') {
+      paymentRef = prompt('Enter payment / bank transaction reference:', `TXN-${Date.now().toString().slice(-6)}`) || '';
+      if (!paymentRef) return;
+    } else {
+      if (!confirm('Are you sure you want to REJECT this withdrawal?')) return;
+    }
+
     try {
-      let paymentReference = '';
-      let reason = '';
-
-      if (action === 'approve') {
-        paymentReference = prompt('Enter payment reference:');
-        if (!paymentReference) return;
-      } else {
-        reason = prompt('Enter rejection reason:');
-        if (!reason) return;
-      }
-
       const res = await fetch('/api/admin/partner-withdrawals', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ withdrawalId, action, paymentReference, reason })
+        body: JSON.stringify({
+          withdrawalId,
+          action,
+          paymentReference: paymentRef
+        })
       });
 
       if (res.ok) {
-        fetchAll();
-        alert(`Withdrawal ${action}d successfully`);
+        alert(`Withdrawal marked as ${action === 'approve' ? 'PAID' : 'REJECTED'}`);
+        fetchAllData();
       } else {
-        const error = await res.json();
-        alert(`Failed to ${action} withdrawal: ${error.error}`);
+        alert('Failed to update withdrawal');
       }
-    } catch (e) {
-      console.error(e);
-      alert(`Failed to ${action} withdrawal`);
+    } catch (err) {
+      console.error(err);
+      alert('Error processing withdrawal');
     }
   };
 
-  const filteredApplications = applications.filter(app => {
-    const matchesSearch = 
-      app.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.email?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'approved': return 'bg-green-500/10 text-green-400 border-green-500/20';
-      case 'rejected': return 'bg-red-500/10 text-red-400 border-red-500/20';
-      case 'pending': return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
-      case 'under_review': return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
-      default: return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
-    }
+  const copyToClipboard = (text: string, key: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2000);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[var(--card)] brightness-95 flex items-center justify-center">
-        <div className="text-brand-text">Loading...</div>
-      </div>
-    );
-  }
+  // Export CSV
+  const handleExportCSV = () => {
+    const headers = ['Partner ID', 'Name', 'Email', 'Phone', 'Status', 'Referral Code', 'Clicks', 'Conversions', 'Available Earnings (NGN)', 'Total Earnings (NGN)', 'Created At'];
+    const rows = partners.map((p) => [
+      p.partner_id,
+      p.name || p.full_name,
+      p.email,
+      p.phone || '',
+      p.status,
+      p.referral_code || '',
+      p.total_clicks || 0,
+      p.total_registrations || 0,
+      p.available_earnings || 0,
+      p.total_earnings || 0,
+      new Date(p.created_at).toISOString()
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.map((c) => `"${c}"`).join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `autolearn_partners_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
 
   return (
-    <div className="min-h-screen bg-[var(--card)] brightness-95 flex">
-      {/* Sidebar */}
-      <aside className="w-64 border-r border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl p-4 flex flex-col">
-        <div className="mb-8">
-          <h1 className="text-lg font-bold text-[#e2e2e8]">Partner Management</h1>
-          <p className="text-xs text-brand-text/70">AutoLearn Spot Admin</p>
+    <div className="p-6 max-w-7xl mx-auto space-y-6">
+      {/* Top Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <span className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+              <Users className="h-6 w-6" />
+            </span>
+            <div>
+              <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+                Partnership Management & Affiliate Hub
+              </h1>
+              <p className="text-sm text-slate-500 mt-0.5">
+                Track affiliate referrals, manage commissions, process payouts, and onboard new partners.
+              </p>
+            </div>
+          </div>
         </div>
-        
-        <nav className="flex-1 space-y-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  activeTab === item.id
-                    ? 'bg-brand-bg/10 text-[#12E6F3] border border-[#12E6F3]/20'
-                    : 'text-brand-text/70 hover:bg-[var(--card)] brightness-95 hover:text-[#e2e2e8]'
-                }`}
-              >
-                <Icon className="h-5 w-5" />
-                <span className="text-sm font-medium">{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
 
-        <div className="pt-4 border-t border-brand-border">
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-brand-text/70 hover:bg-[var(--card)] brightness-95 hover:text-[#e2e2e8] transition-colors">
-            <LogOut className="h-5 w-5" />
-            <span className="text-sm font-medium">Logout</span>
+        <div className="flex items-center flex-wrap gap-2.5">
+          <button
+            onClick={fetchAllData}
+            disabled={loading}
+            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors shadow-xs"
+            title="Refresh partner metrics"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors shadow-xs"
+          >
+            <Download className="h-4 w-4 text-slate-500" />
+            Export CSV
+          </button>
+
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-sm transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            Add Partner
           </button>
         </div>
-      </aside>
+      </div>
 
-      {/* Main Content */}
-      <main className="flex-1 p-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-[#e2e2e8]">Dashboard</h1>
-            <p className="text-sm text-brand-text/70">Overview of partner performance</p>
+      {/* KPI Cards Row (Clean, High Contrast, 100% Real Data) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+        {/* Card 1: Total Partners */}
+        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Total Partners</span>
+            <Users className="h-4 w-4 text-emerald-600" />
           </div>
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-text/70" />
+          <p className="text-2xl font-black text-slate-900">{stats.totalPartners}</p>
+          <p className="text-[11px] text-emerald-600 font-medium mt-1">
+            {stats.activePartners} active in system
+          </p>
+        </div>
+
+        {/* Card 2: Applications */}
+        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Pending Apps</span>
+            <Clock className="h-4 w-4 text-amber-500" />
+          </div>
+          <p className="text-2xl font-black text-slate-900">{stats.pendingApps}</p>
+          <p className="text-[11px] text-slate-500 font-medium mt-1">
+            Awaiting admin review
+          </p>
+        </div>
+
+        {/* Card 3: Referral Conversions */}
+        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Conversions</span>
+            <TrendingUp className="h-4 w-4 text-blue-600" />
+          </div>
+          <p className="text-2xl font-black text-slate-900">{stats.totalReferrals}</p>
+          <p className="text-[11px] text-blue-600 font-medium mt-1">
+            Total course sales referred
+          </p>
+        </div>
+
+        {/* Card 4: Total Clicks */}
+        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Link Clicks</span>
+            <Share2 className="h-4 w-4 text-purple-600" />
+          </div>
+          <p className="text-2xl font-black text-slate-900">{stats.totalClicks}</p>
+          <p className="text-[11px] text-purple-600 font-medium mt-1">
+            Traffic tracked
+          </p>
+        </div>
+
+        {/* Card 5: Commissions */}
+        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Commissions</span>
+            <DollarSign className="h-4 w-4 text-emerald-600" />
+          </div>
+          <p className="text-2xl font-black text-slate-900">
+            ₦{stats.totalEarnings.toLocaleString()}
+          </p>
+          <p className="text-[11px] text-emerald-600 font-medium mt-1">
+            Generated & credited
+          </p>
+        </div>
+
+        {/* Card 6: Pending Withdrawals */}
+        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+          <div className="flex items-center justify-between text-slate-500 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Withdrawals</span>
+            <ArrowUpRight className="h-4 w-4 text-rose-500" />
+          </div>
+          <p className="text-2xl font-black text-slate-900">
+            {stats.pendingWithdrawalsCount}
+          </p>
+          <p className="text-[11px] text-rose-500 font-medium mt-1">
+            ₦{stats.pendingWithdrawalsAmount.toLocaleString()} pending
+          </p>
+        </div>
+      </div>
+
+      {/* Tabs Navigation Bar */}
+      <div className="border-b border-slate-200 bg-white rounded-t-xl px-4 pt-2 shadow-xs">
+        <div className="flex items-center gap-6 overflow-x-auto text-sm font-semibold">
+          <button
+            onClick={() => setActiveTab('partners')}
+            className={`pb-3.5 pt-2 border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${
+              activeTab === 'partners'
+                ? 'border-emerald-600 text-emerald-700'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <Users className="h-4 w-4" />
+            <span>All Partners</span>
+            <span className="px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-600">
+              {partners.length}
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('applications')}
+            className={`pb-3.5 pt-2 border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${
+              activeTab === 'applications'
+                ? 'border-emerald-600 text-emerald-700'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <FileText className="h-4 w-4" />
+            <span>Applications</span>
+            {stats.pendingApps > 0 && (
+              <span className="px-2 py-0.5 rounded-full text-xs bg-amber-100 text-amber-800 font-bold">
+                {stats.pendingApps}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('withdrawals')}
+            className={`pb-3.5 pt-2 border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${
+              activeTab === 'withdrawals'
+                ? 'border-emerald-600 text-emerald-700'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <DollarSign className="h-4 w-4" />
+            <span>Withdrawals</span>
+            {stats.pendingWithdrawalsCount > 0 && (
+              <span className="px-2 py-0.5 rounded-full text-xs bg-rose-100 text-rose-800 font-bold">
+                {stats.pendingWithdrawalsCount}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('marketing')}
+            className={`pb-3.5 pt-2 border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${
+              activeTab === 'marketing'
+                ? 'border-emerald-600 text-emerald-700'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <FolderDown className="h-4 w-4" />
+            <span>Marketing Kit</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`pb-3.5 pt-2 border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${
+              activeTab === 'settings'
+                ? 'border-emerald-600 text-emerald-700'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <Settings className="h-4 w-4" />
+            <span>Settings</span>
+          </button>
+        </div>
+      </div>
+
+      {/* TAB 1: ALL PARTNERS */}
+      {activeTab === 'partners' && (
+        <div className="bg-white border border-slate-200 rounded-b-xl shadow-xs overflow-hidden">
+          {/* Table Controls */}
+          <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/50">
+            <div className="relative w-full sm:w-80">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search partners..."
+                placeholder="Search by name, email, ALS ID, code..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-[#e2e2e8] placeholder-[#b9cacb] focus:outline-none focus:border-[#12E6F3] w-64"
+                className="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 bg-brand-bg text-[#070B12] rounded-lg font-medium hover:bg-brand-bg/90 transition-colors"
-                onClick={() => setShowAddPartnerModal(true)}
+
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+              <span className="text-xs font-medium text-slate-500">Status:</span>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-800 focus:outline-none focus:border-emerald-500"
               >
-                <Plus className="h-4 w-4" />
-                Add Partner
-              </button>
-          </div>
-        </div>
-
-        {/* Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
-          {overviewCards.map((card) => {
-            const Icon = card.icon;
-            return (
-              <div key={card.id} className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex h-10 w-10 items-center justify-center border border-[#12E6F3]/30 bg-brand-bg/10 rounded-lg">
-                    <Icon className="h-5 w-5 text-[#12E6F3]" />
-                  </div>
-                  {card.growth && (
-                    <div className={`flex items-center gap-1 text-xs ${card.positive ? 'text-green-400' : 'text-red-400'}`}>
-                      {card.positive ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
-                      {card.growth}
-                    </div>
-                  )}
-                </div>
-                <div className="text-2xl font-bold text-[#e2e2e8] mb-1">{card.value}</div>
-                <div className="text-xs text-brand-text/70">{card.label}</div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Tab Content */}
-        {activeTab === 'dashboard' && (
-          <div className="space-y-6">
-            {/* Overview Statistics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <Users className="h-8 w-8 text-[#12E6F3]" />
-                  <span className="text-xs text-brand-text/70">Total</span>
-                </div>
-                <p className="text-3xl font-bold text-[#e2e2e8]">{partners.length}</p>
-                <p className="text-sm text-brand-text/70 mt-1">Active Partners</p>
-              </div>
-              <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <Clock className="h-8 w-8 text-yellow-400" />
-                  <span className="text-xs text-brand-text/70">Pending</span>
-                </div>
-                <p className="text-3xl font-bold text-[#e2e2e8]">{applications.filter(a => a.status === 'pending').length}</p>
-                <p className="text-sm text-brand-text/70 mt-1">Applications</p>
-              </div>
-              <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <DollarSign className="h-8 w-8 text-green-400" />
-                  <span className="text-xs text-brand-text/70">Total</span>
-                </div>
-                <p className="text-3xl font-bold text-[#e2e2e8]">₦{(partners.reduce((sum, p) => sum + (p.available_earnings || 0), 0)).toLocaleString()}</p>
-                <p className="text-sm text-brand-text/70 mt-1">Commissions</p>
-              </div>
-              <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <TrendingUp className="h-8 w-8 text-blue-400" />
-                  <span className="text-xs text-brand-text/70">Total</span>
-                </div>
-                <p className="text-3xl font-bold text-[#e2e2e8]">{partners.reduce((sum, p) => sum + (p.total_registrations || 0), 0)}</p>
-                <p className="text-sm text-brand-text/70 mt-1">Referrals</p>
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl p-6">
-              <h3 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Quick Actions</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button
-                  onClick={() => setShowAddPartnerModal(true)}
-                  className="flex items-center gap-3 p-4 bg-brand-bg/10 border border-[#12E6F3]/30 rounded-lg hover:bg-brand-bg/20 transition-colors"
-                >
-                  <Plus className="h-5 w-5 text-[#12E6F3]" />
-                  <span className="text-[#e2e2e8]">Add Partner</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('applications')}
-                  className="flex items-center gap-3 p-4 bg-brand-bg border border-brand-border rounded-lg hover:bg-[var(--card)] brightness-95 transition-colors"
-                >
-                  <FileText className="h-5 w-5 text-brand-text/70" />
-                  <span className="text-[#e2e2e8]">Review Applications</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('marketing')}
-                  className="flex items-center gap-3 p-4 bg-brand-bg border border-brand-border rounded-lg hover:bg-[var(--card)] brightness-95 transition-colors"
-                >
-                  <Upload className="h-5 w-5 text-brand-text/70" />
-                  <span className="text-[#e2e2e8]">Upload Marketing Kit</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Recent Activity */}
-            <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl p-6">
-              <h3 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Recent Activity</h3>
-              <div className="space-y-3">
-                {applications.slice(0, 5).map((app) => (
-                  <div key={app.id} className="flex items-center justify-between p-3 bg-[var(--card)] brightness-95 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-brand-bg flex items-center justify-center text-brand-text/70 text-xs">
-                        {app.full_name?.charAt(0) || '?'}
-                      </div>
-                      <div>
-                        <p className="text-sm text-[#e2e2e8]">{app.full_name}</p>
-                        <p className="text-xs text-brand-text/70">{app.email}</p>
-                      </div>
-                    </div>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      app.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400' :
-                      app.status === 'approved' ? 'bg-green-500/10 text-green-400' :
-                      'bg-red-500/10 text-red-400'
-                    }`}>
-                      {app.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
+                <option value="all">All Statuses ({partners.length})</option>
+                <option value="active">Active</option>
+                <option value="pending">Pending</option>
+                <option value="suspended">Suspended</option>
+              </select>
             </div>
           </div>
-        )}
 
-        {/* Applications Tab */}
-        {activeTab === 'applications' && (
-          <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b border-brand-border">
-              <h2 className="text-lg font-semibold text-[#e2e2e8]">Partner Applications</h2>
-              <div className="flex items-center gap-2">
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-3 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
-                >
-                  <option value="all">All Status</option>
-                  <option value="pending">Pending</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
-                </select>
-              </div>
-            </div>
-              
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-[var(--card)] brightness-95">
+          {/* Partners Table */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm divide-y divide-slate-200">
+              <thead className="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider font-semibold">
+                <tr>
+                  <th className="px-5 py-3.5">Partner</th>
+                  <th className="px-4 py-3.5">Partner ID</th>
+                  <th className="px-4 py-3.5">Referral Code</th>
+                  <th className="px-4 py-3.5">Traffic & Sales</th>
+                  <th className="px-4 py-3.5">Available Balance</th>
+                  <th className="px-4 py-3.5">Status</th>
+                  <th className="px-5 py-3.5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {loading ? (
                   <tr>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Passport</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Name</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Email</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Phone</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Partner Type</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Status</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Actions</th>
+                    <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
+                      <RefreshCw className="h-6 w-6 animate-spin mx-auto text-emerald-600 mb-2" />
+                      Loading partners...
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {filteredApplications.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="p-8 text-center text-brand-text/70">No applications found</td>
-                    </tr>
-                  ) : (
-                    filteredApplications.map((app) => (
-                      <tr key={app.id} className="border-t border-brand-border hover:bg-[var(--card)] brightness-95/50 transition-colors">
-                        <td className="p-4">
-                          <div className="h-10 w-10 rounded-full bg-brand-bg flex items-center justify-center text-brand-text/70 text-xs">
-                            {app.full_name?.charAt(0) || '?'}
+                ) : filteredPartners.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
+                      <Users className="h-8 w-8 mx-auto text-slate-300 mb-2" />
+                      <p className="font-semibold text-slate-700">No partners found</p>
+                      <p className="text-xs text-slate-400 mt-1">No registered partners match your search criteria.</p>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredPartners.map((partner) => {
+                    const initials = (partner.name || partner.full_name || 'P')
+                      .split(' ')
+                      .map((n) => n[0])
+                      .slice(0, 2)
+                      .join('')
+                      .toUpperCase();
+
+                    return (
+                      <tr key={partner.id} className="hover:bg-slate-50/70 transition-colors">
+                        <td className="px-5 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="h-9 w-9 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs shrink-0">
+                              {initials}
+                            </div>
+                            <div>
+                              <p className="font-semibold text-slate-900 hover:text-emerald-700 cursor-pointer" onClick={() => handleOpenDetail(partner)}>
+                                {partner.name || partner.full_name}
+                              </p>
+                              <div className="flex items-center gap-2 text-xs text-slate-500">
+                                <span className="hover:underline">{partner.email}</span>
+                                {partner.phone && (
+                                  <>
+                                    <span>•</span>
+                                    <span>{partner.phone}</span>
+                                  </>
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </td>
-                        <td className="p-4 text-sm text-[#e2e2e8]">{app.full_name}</td>
-                        <td className="p-4 text-sm text-brand-text/70">{app.email}</td>
-                        <td className="p-4 text-sm text-brand-text/70">{app.phone || 'N/A'}</td>
-                        <td className="p-4 text-sm text-[#e2e2e8] capitalize">{app.partner_type || 'Community'}</td>
-                        <td className="p-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(app.status)}`}>
-                            {app.status}
+
+                        <td className="px-4 py-4">
+                          <span className="font-mono text-xs px-2.5 py-1 bg-slate-100 text-slate-700 rounded-md font-semibold border border-slate-200">
+                            {partner.partner_id || 'N/A'}
                           </span>
                         </td>
-                        <td className="p-4">
-                          <div className="flex items-center gap-2">
+
+                        <td className="px-4 py-4">
+                          {partner.referral_code ? (
                             <button
-                              onClick={() => setSelectedApp(app)}
-                              className="p-2 hover:bg-[var(--card)] brightness-95 rounded-lg transition-colors text-brand-text/70 hover:text-[#12E6F3]"
+                              onClick={() => copyToClipboard(partner.referral_code!, `code-${partner.id}`)}
+                              className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-md text-xs font-mono font-bold hover:bg-emerald-100 transition-colors"
+                              title="Click to copy referral code"
+                            >
+                              {partner.referral_code}
+                              {copiedKey === `code-${partner.id}` ? (
+                                <Check className="h-3 w-3 text-emerald-600" />
+                              ) : (
+                                <Copy className="h-3 w-3 text-emerald-600" />
+                              )}
+                            </button>
+                          ) : (
+                            <span className="text-xs text-slate-400">None</span>
+                          )}
+                        </td>
+
+                        <td className="px-4 py-4">
+                          <div className="text-xs space-y-0.5">
+                            <div className="text-slate-900 font-semibold">
+                              {partner.total_registrations || 0} referrals
+                            </div>
+                            <div className="text-slate-400">
+                              {partner.total_clicks || 0} link clicks
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="px-4 py-4">
+                          <div className="text-xs space-y-0.5">
+                            <span className="font-extrabold text-emerald-700 text-sm">
+                              ₦{(partner.available_earnings || 0).toLocaleString()}
+                            </span>
+                            <div className="text-slate-400">
+                              Earned: ₦{(partner.total_earnings || 0).toLocaleString()}
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="px-4 py-4">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize border ${
+                              partner.status === 'active'
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                : partner.status === 'pending'
+                                ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                : 'bg-rose-50 text-rose-700 border-rose-200'
+                            }`}
+                          >
+                            {partner.status}
+                          </span>
+                        </td>
+
+                        <td className="px-5 py-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              onClick={() => handleOpenDetail(partner)}
+                              className="p-1.5 rounded-lg text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
+                              title="View Full Profile & Bank Details"
                             >
                               <Eye className="h-4 w-4" />
                             </button>
-                            {app.status === 'pending' && (
-                              <>
-                                <button
-                                  onClick={() => handleProcessApplication(app.id, 'approve')}
-                                  className="p-2 hover:bg-green-500/10 rounded-lg transition-colors text-brand-text/70 hover:text-green-400"
-                                >
-                                  <CheckCircle className="h-4 w-4" />
-                                </button>
-                                <button
-                                  onClick={() => handleProcessApplication(app.id, 'reject')}
-                                  className="p-2 hover:bg-red-500/10 rounded-lg transition-colors text-brand-text/70 hover:text-red-400"
-                                >
-                                  <XCircle className="h-4 w-4" />
-                                </button>
-                              </>
-                            )}
-                            {app.status === 'approved' && (
-                              <button
-                                onClick={() => handleResendApplicationEmail(app.id)}
-                                className="p-2 hover:bg-blue-500/10 rounded-lg transition-colors text-brand-text/70 hover:text-blue-400"
-                                title="Resend approval email"
-                              >
-                                <Mail className="h-4 w-4" />
-                              </button>
-                            )}
+
+                            <button
+                              onClick={() => copyToClipboard(`https://www.autolearnspot.com/learning_products/c1e11cc7-d8f6-4c2d-8a3b-1bb204892921?ref=${partner.referral_code || partner.partner_id}`, `link-${partner.id}`)}
+                              className="p-1.5 rounded-lg text-slate-500 hover:text-blue-700 hover:bg-blue-50 transition-colors"
+                              title="Copy Affiliate Referral Link"
+                            >
+                              {copiedKey === `link-${partner.id}` ? (
+                                <Check className="h-4 w-4 text-emerald-600" />
+                              ) : (
+                                <Share2 className="h-4 w-4" />
+                              )}
+                            </button>
+
+                            <button
+                              onClick={() => handleToggleStatus(partner.id, partner.status)}
+                              className={`p-1.5 rounded-lg transition-colors ${
+                                partner.status === 'active'
+                                  ? 'text-slate-400 hover:text-rose-600 hover:bg-rose-50'
+                                  : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'
+                              }`}
+                              title={partner.status === 'active' ? 'Suspend Partner' : 'Activate Partner'}
+                            >
+                              {partner.status === 'active' ? <XCircle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
+                            </button>
                           </div>
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Student Partners Tab */}
-        {activeTab === 'student' && (
-          <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-brand-border flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-[#e2e2e8]">Student Partners</h2>
-              <div className="text-sm text-brand-text/70">
-                Auto-created when students complete enrollment
-              </div>
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-[var(--card)] brightness-95">
-                  <tr>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Name</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Email</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Referrals</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Earnings</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Status</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {partners.filter(p => p.partner_type === 'student').length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="p-8 text-center text-brand-text/70">No student partners</td>
-                    </tr>
-                  ) : (
-                    partners.filter(p => p.partner_type === 'student').map((p) => (
-                      <tr key={p.id} className="border-t border-brand-border hover:bg-[var(--card)] brightness-95/50 transition-colors cursor-pointer" onClick={() => handlePartnerClick(p)}>
-                        <td className="p-4 text-sm text-[#e2e2e8]">{p.full_name}</td>
-                        <td className="p-4 text-sm text-brand-text/70">{p.email}</td>
-                        <td className="p-4 text-sm text-[#e2e2e8]">{p.total_registrations || 0}</td>
-                        <td className="p-4 text-sm text-[#12E6F3]">₦{(p.available_earnings || 0).toLocaleString()}</td>
-                        <td className="p-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            p.status === 'active' 
-                              ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
-                              : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                          }`}>
-                            {p.status}
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handlePartnerClick(p); }}
-                            className="p-2 hover:bg-brand-bg/10 rounded-lg transition-colors text-brand-text/70 hover:text-[#12E6F3]"
-                            title="View Details"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Affiliate Partners Tab */}
-        {activeTab === 'affiliate' && (
-          <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-brand-border flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-[#e2e2e8]">Affiliate Partners</h2>
-              <button
-                onClick={() => setShowAddPartnerModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-brand-bg text-[#070B12] rounded-lg font-medium hover:bg-brand-bg/90 transition-colors"
-              >
-                <Plus className="h-4 w-4" />
-                Add Partner
-              </button>
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-[var(--card)] brightness-95">
-                  <tr>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Passport</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Name</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Email</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Referrals</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Earnings</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Status</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {partners.filter(p => p.partner_type === 'affiliate').length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="p-8 text-center text-brand-text/70">No affiliate partners</td>
-                    </tr>
-                  ) : (
-                    partners.filter(p => p.partner_type === 'affiliate').map((p) => (
-                      <tr key={p.id} className="border-t border-brand-border hover:bg-[var(--card)] brightness-95/50 transition-colors cursor-pointer" onClick={() => handlePartnerClick(p)}>
-                        <td className="p-4">
-                          <div className="h-10 w-10 rounded-full bg-brand-bg flex items-center justify-center text-brand-text/70 text-xs">
-                            {p.full_name?.charAt(0) || '?'}
-                          </div>
-                        </td>
-                        <td className="p-4 text-sm text-[#e2e2e8]">{p.full_name}</td>
-                        <td className="p-4 text-sm text-brand-text/70">{p.email}</td>
-                        <td className="p-4 text-sm text-[#e2e2e8]">{p.total_registrations || 0}</td>
-                        <td className="p-4 text-sm text-[#12E6F3]">₦{(p.available_earnings || 0).toLocaleString()}</td>
-                        <td className="p-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            p.status === 'active' 
-                              ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
-                              : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                          }`}>
-                            {p.status}
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handlePartnerClick(p); }}
-                            className="p-2 hover:bg-brand-bg/10 rounded-lg transition-colors text-brand-text/70 hover:text-[#12E6F3]"
-                            title="View Details"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Withdrawals Tab */}
-        {activeTab === 'withdrawals' && (
-          <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-brand-border">
-              <h2 className="text-lg font-semibold text-[#e2e2e8]">Withdrawal Requests</h2>
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-[var(--card)] brightness-95">
-                  <tr>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Partner</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Email</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Amount</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Bank Name</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Account Number</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Status</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {withdrawals.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="p-8 text-center text-brand-text/70">No pending withdrawal requests</td>
-                    </tr>
-                  ) : (
-                    withdrawals.map((withdrawal) => (
-                      <tr key={withdrawal.id} className="border-t border-brand-border hover:bg-[var(--card)] brightness-95/50 transition-colors">
-                        <td className="p-4 text-sm text-[#e2e8]">{withdrawal.partners?.full_name || 'Unknown'}</td>
-                        <td className="p-4 text-sm text-brand-text/70">{withdrawal.partners?.email || 'Unknown'}</td>
-                        <td className="p-4 text-sm text-[#12E6F3]">₦{(withdrawal.amount || 0).toLocaleString()}</td>
-                        <td className="p-4 text-sm text-brand-text/70">{withdrawal.bank_name || 'N/A'}</td>
-                        <td className="p-4 text-sm text-brand-text/70">{withdrawal.account_number || 'N/A'}</td>
-                        <td className="p-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium border ${
-                            withdrawal.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' :
-                            withdrawal.status === 'approved' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
-                            withdrawal.status === 'rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                            'bg-gray-500/10 text-gray-400 border-gray-500/20'
-                          }`}>
-                            {withdrawal.status}
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex items-center gap-2">
-                            {withdrawal.status === 'pending' && (
-                              <>
-                                <button
-                                  onClick={() => handleProcessWithdrawal(withdrawal.id, 'approve')}
-                                  className="p-2 hover:bg-green-500/10 rounded-lg transition-colors text-brand-text/70 hover:text-green-400"
-                                  title="Approve"
-                                >
-                                  <CheckCircle className="h-4 w-4" />
-                                </button>
-                                <button
-                                  onClick={() => handleProcessWithdrawal(withdrawal.id, 'reject')}
-                                  className="p-2 hover:bg-red-500/10 rounded-lg transition-colors text-brand-text/70 hover:text-red-400"
-                                  title="Reject"
-                                >
-                                  <XCircle className="h-4 w-4" />
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Marketing Kit Tab */}
-        {activeTab === 'marketing' && (
-          <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-brand-border flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-[#e2e2e8]">Marketing Kit</h2>
-              <button
-                onClick={() => setShowUploadModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-brand-bg text-[#070B12] rounded-lg font-medium hover:bg-brand-bg/90 transition-colors"
-              >
-                <Plus className="h-4 w-4" />
-                Upload Material
-              </button>
-            </div>
-            
-            <div className="p-6">
-              {marketingMaterials.length === 0 ? (
-                <div className="text-center text-brand-text/70 py-12">
-                  <Download className="h-12 w-12 mx-auto mb-4 text-[#12E6F3]" />
-                  <p>No marketing materials uploaded yet</p>
-                  <p className="text-sm mt-2">Upload your first marketing material to get started</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {marketingMaterials.map((material) => (
-                    <div key={material.id} className="border border-brand-border bg-[var(--card)] brightness-95 rounded-lg p-4 hover:border-[#12E6F3]/30 transition-colors">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="h-12 w-12 bg-brand-bg rounded-lg flex items-center justify-center">
-                          <Download className="h-6 w-6 text-[#12E6F3]" />
-                        </div>
-                        <span className="text-xs text-brand-text/70">{material.type.toUpperCase()}</span>
-                      </div>
-                      <h4 className="text-sm font-semibold text-[#e2e2e8] mb-1">{material.name}</h4>
-                      <p className="text-xs text-brand-text/70">{material.description || 'No description'}</p>
-                      <div className="mt-3 flex items-center justify-between">
-                        <span className="text-xs text-brand-text/70">{material.download_count || 0} downloads</span>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => window.open(`/api/marketing/download/${material.id}`, '_blank')}
-                            className="p-1 hover:bg-brand-bg/10 rounded transition-colors text-brand-text/70 hover:text-[#12E6F3]"
-                            title="Download"
-                          >
-                            <Download className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => openMaterialPreview(material)}
-                            className="p-1 hover:bg-brand-bg/10 rounded transition-colors text-brand-text/70 hover:text-[#12E6F3]"
-                            title="Preview"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => openMaterialEdit(material)}
-                            className="p-1 hover:bg-brand-bg/10 rounded transition-colors text-brand-text/70 hover:text-[#12E6F3]"
-                            title="Edit"
-                          >
-                            <EditIcon className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleMaterialDelete(material.id)}
-                            className="p-1 hover:bg-red-500/10 rounded transition-colors text-brand-text/70 hover:text-red-400"
-                            title="Delete"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Marketing Upload Modal */}
-        {showUploadModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b border-brand-border flex items-center justify-between">
-                <h2 className="text-xl font-bold text-[#e2e2e8]">Upload Marketing Material</h2>
-                <button
-                  onClick={() => setShowUploadModal(false)}
-                  className="p-2 hover:bg-[var(--card)] brightness-95 rounded-lg transition-colors text-brand-text/70 hover:text-[#e2e2e8]"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              
-              <div className="p-6 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-brand-text/70 mb-2">Material Name</label>
-                  <input
-                    type="text"
-                    value={uploadData.name}
-                    onChange={(e) => setUploadData({...uploadData, name: e.target.value})}
-                    className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-brand-text/70 mb-2">Type</label>
-                    <select
-                      value={uploadData.type}
-                      onChange={(e) => setUploadData({...uploadData, type: e.target.value})}
-                      className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
-                    >
-                      <option value="flyer">Flyer</option>
-                      <option value="video">Video</option>
-                      <option value="image">Image</option>
-                      <option value="reel">Reel</option>
-                      <option value="pdf">PDF</option>
-                      <option value="script">Script</option>
-                      <option value="caption">Caption</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-brand-text/70 mb-2">Category</label>
-                    <select
-                      value={uploadData.category}
-                      onChange={(e) => setUploadData({...uploadData, category: e.target.value})}
-                      className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
-                    >
-                      <option value="general">General</option>
-                      <option value="whatsapp">WhatsApp</option>
-                      <option value="instagram">Instagram</option>
-                      <option value="tiktok">TikTok</option>
-                      <option value="facebook">Facebook</option>
-                    </select>
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-brand-text/70 mb-2">Description</label>
-                  <textarea
-                    value={uploadData.description}
-                    onChange={(e) => setUploadData({...uploadData, description: e.target.value})}
-                    rows={3}
-                    className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3] resize-none"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-brand-text/70 mb-2">File</label>
-                  <div className="border-2 border-dashed border-brand-border rounded-lg p-6 text-center">
-                    <input
-                      type="file"
-                      onChange={(e) => setMarketingFile(e.target.files?.[0] || null)}
-                      className="hidden"
-                      id="marketing-file"
-                    />
-                    <label
-                      htmlFor="marketing-file"
-                      className="cursor-pointer"
-                    >
-                      {marketingFile ? (
-                        <div className="text-[#12E6F3]">
-                          <FileText className="h-8 w-8 mx-auto mb-2" />
-                          <p className="text-sm">{marketingFile.name}</p>
-                        </div>
-                      ) : (
-                        <div className="text-brand-text/70">
-                          <Upload className="h-8 w-8 mx-auto mb-2" />
-                          <p className="text-sm">Click to upload file</p>
-                        </div>
-                      )}
-                    </label>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-3 pt-4 border-t border-brand-border">
-                  <button
-                    onClick={handleMarketingUpload}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-brand-bg text-[#070B12] rounded-lg font-medium hover:bg-brand-bg/90 transition-colors"
-                  >
-                    <Upload className="h-4 w-4" />
-                    Upload
-                  </button>
-                  <button
-                    onClick={() => setShowUploadModal(false)}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[var(--card)] brightness-95 text-[#e2e2e8] border border-brand-border rounded-lg font-medium hover:bg-[var(--card)] brightness-95 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Material Preview Modal */}
-        {showMaterialPreviewModal && selectedMaterial && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b border-brand-border flex items-center justify-between">
-                <h2 className="text-xl font-bold text-[#e2e2e8]">Material Preview</h2>
-                <button
-                  onClick={() => setShowMaterialPreviewModal(false)}
-                  className="p-2 hover:bg-[var(--card)] brightness-95 rounded-lg transition-colors text-brand-text/70 hover:text-[#e2e2e8]"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              
-              <div className="p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-[#e2e2e8]">{selectedMaterial.name}</h3>
-                  <span className="px-3 py-1 bg-brand-bg/10 text-[#12E6F3] rounded-full text-xs font-medium">
-                    {selectedMaterial.type.toUpperCase()}
-                  </span>
-                </div>
-                
-                <p className="text-sm text-brand-text/70">{selectedMaterial.description || 'No description'}</p>
-                
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="bg-[var(--card)] brightness-95 p-3 rounded-lg">
-                    <p className="text-brand-text/70">Downloads</p>
-                    <p className="text-lg font-semibold text-[#e2e2e8]">{selectedMaterial.download_count || 0}</p>
-                  </div>
-                  <div className="bg-[var(--card)] brightness-95 p-3 rounded-lg">
-                    <p className="text-brand-text/70">Category</p>
-                    <p className="text-lg font-semibold text-[#e2e2e8]">{selectedMaterial.category || 'general'}</p>
-                  </div>
-                </div>
-                
-                {selectedMaterial.file_url && (
-                  <div className="bg-[var(--card)] brightness-95 p-4 rounded-lg">
-                    <p className="text-sm text-brand-text/70 mb-2">Preview</p>
-                    {selectedMaterial.type === 'image' || selectedMaterial.type === 'flyer' ? (
-                      <img 
-                        src={selectedMaterial.file_url} 
-                        alt={selectedMaterial.name}
-                        className="w-full h-auto rounded-lg"
-                      />
-                    ) : (
-                      <a 
-                        href={`/api/marketing/download/${selectedMaterial.id}`}
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-[#12E6F3] hover:underline"
-                      >
-                        Open File
-                      </a>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Material Edit Modal */}
-        {showMaterialEditModal && selectedMaterial && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b border-brand-border flex items-center justify-between">
-                <h2 className="text-xl font-bold text-[#e2e2e8]">Edit Material</h2>
-                <button
-                  onClick={() => setShowMaterialEditModal(false)}
-                  className="p-2 hover:bg-[var(--card)] brightness-95 rounded-lg transition-colors text-brand-text/70 hover:text-[#e2e2e8]"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              
-              <div className="p-6 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-brand-text/70 mb-2">Material Name</label>
-                  <input
-                    type="text"
-                    value={editMaterialData.name}
-                    onChange={(e) => setEditMaterialData({...editMaterialData, name: e.target.value})}
-                    className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-brand-text/70 mb-2">Type</label>
-                    <select
-                      value={editMaterialData.type}
-                      onChange={(e) => setEditMaterialData({...editMaterialData, type: e.target.value})}
-                      className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
-                    >
-                      <option value="flyer">Flyer</option>
-                      <option value="video">Video</option>
-                      <option value="image">Image</option>
-                      <option value="reel">Reel</option>
-                      <option value="pdf">PDF</option>
-                      <option value="script">Script</option>
-                      <option value="caption">Caption</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-brand-text/70 mb-2">Category</label>
-                    <select
-                      value={editMaterialData.category}
-                      onChange={(e) => setEditMaterialData({...editMaterialData, category: e.target.value})}
-                      className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
-                    >
-                      <option value="general">General</option>
-                      <option value="social">Social Media</option>
-                      <option value="email">Email</option>
-                      <option value="print">Print</option>
-                    </select>
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-brand-text/70 mb-2">Description</label>
-                  <textarea
-                    value={editMaterialData.description}
-                    onChange={(e) => setEditMaterialData({...editMaterialData, description: e.target.value})}
-                    className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3] resize-none"
-                    rows={3}
-                  />
-                </div>
-                
-                <div className="flex items-center gap-3 pt-4 border-t border-brand-border">
-                  <button
-                    onClick={handleMaterialEdit}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-brand-bg text-[#070B12] rounded-lg font-medium hover:bg-brand-bg/90 transition-colors"
-                  >
-                    <CheckCircle className="h-4 w-4" />
-                    Save Changes
-                  </button>
-                  <button
-                    onClick={() => setShowMaterialEditModal(false)}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[var(--card)] brightness-95 text-[#e2e2e8] border border-brand-border rounded-lg font-medium hover:bg-[var(--card)] brightness-95 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Analytics Tab */}
-        {activeTab === 'analytics' && (
-          <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-brand-border">
-              <h2 className="text-lg font-semibold text-[#e2e2e8]">Partner Analytics</h2>
-            </div>
-            
-            <div className="p-6 space-y-6">
-              {/* Key Metrics */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <Users className="h-8 w-8 text-[#12E6F3]" />
-                    <span className="text-xs text-brand-text/70">Total</span>
-                  </div>
-                  <p className="text-3xl font-bold text-[#e2e2e8]">{partners.length}</p>
-                  <p className="text-sm text-brand-text/70 mt-1">Active Partners</p>
-                </div>
-                <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <DollarSign className="h-8 w-8 text-green-400" />
-                    <span className="text-xs text-brand-text/70">Total</span>
-                  </div>
-                  <p className="text-3xl font-bold text-[#e2e2e8]">₦{(partners.reduce((sum, p) => sum + (p.available_earnings || 0), 0)).toLocaleString()}</p>
-                  <p className="text-sm text-brand-text/70 mt-1">Commissions</p>
-                </div>
-                <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <TrendingUp className="h-8 w-8 text-blue-400" />
-                    <span className="text-xs text-brand-text/70">Total</span>
-                  </div>
-                  <p className="text-3xl font-bold text-[#e2e2e8]">{partners.reduce((sum, p) => sum + (p.total_registrations || 0), 0)}</p>
-                  <p className="text-sm text-brand-text/70 mt-1">Referrals</p>
-                </div>
-                <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <Shield className="h-8 w-8 text-purple-400" />
-                    <span className="text-xs text-brand-text/70">Active</span>
-                  </div>
-                  <p className="text-3xl font-bold text-[#e2e2e8]">{partners.filter(p => p.status === 'active').length}</p>
-                  <p className="text-sm text-brand-text/70 mt-1">Active Partners</p>
-                </div>
-              </div>
-
-              {/* Partner Type Distribution */}
-              <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">Partner Type Distribution</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-brand-text/70">Community Partners</span>
-                      <span className="text-sm font-semibold text-[#12E6F3]">
-                        {partners.filter(p => p.partner_type === 'community').length}
-                      </span>
-                    </div>
-                    <div className="w-full bg-brand-bg rounded-full h-2">
-                      <div 
-                        className="bg-brand-bg h-2 rounded-full transition-all"
-                        style={{ width: `${partners.length > 0 ? (partners.filter(p => p.partner_type === 'community').length / partners.length) * 100 : 0}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-brand-text/70">Influencer Partners</span>
-                      <span className="text-sm font-semibold text-[#12E6F3]">
-                        {partners.filter(p => p.partner_type === 'influencer').length}
-                      </span>
-                    </div>
-                    <div className="w-full bg-brand-bg rounded-full h-2">
-                      <div 
-                        className="bg-brand-bg h-2 rounded-full transition-all"
-                        style={{ width: `${partners.length > 0 ? (partners.filter(p => p.partner_type === 'influencer').length / partners.length) * 100 : 0}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-brand-text/70">Student Partners</span>
-                      <span className="text-sm font-semibold text-[#12E6F3]">
-                        {partners.filter(p => p.partner_type === 'student').length}
-                      </span>
-                    </div>
-                    <div className="w-full bg-brand-bg rounded-full h-2">
-                      <div 
-                        className="bg-brand-bg h-2 rounded-full transition-all"
-                        style={{ width: `${partners.length > 0 ? (partners.filter(p => p.partner_type === 'student').length / partners.length) * 100 : 0}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Top Performers */}
-              <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">Top Performing Partners</h3>
-                <div className="space-y-3">
-                  {partners
-                    .sort((a, b) => (b.total_registrations || 0) - (a.total_registrations || 0))
-                    .slice(0, 5)
-                    .map((partner, index) => (
-                      <div key={partner.id} className="flex items-center justify-between p-4 bg-[var(--card)] brightness-95 rounded-lg">
-                        <div className="flex items-center gap-4">
-                          <div className="h-10 w-10 rounded-full bg-brand-bg flex items-center justify-center text-brand-text/70 font-bold">
-                            {index + 1}
-                          </div>
-                          <div>
-                            <p className="text-sm font-semibold text-[#e2e2e8]">{partner.full_name}</p>
-                            <p className="text-xs text-brand-text/70 capitalize">{partner.partner_type}</p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-semibold text-[#12E6F3]">{partner.total_registrations || 0} referrals</p>
-                          <p className="text-xs text-brand-text/70">₦{(partner.available_earnings || 0).toLocaleString()}</p>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
-
-              {/* Earnings Trend */}
-              <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">Monthly Earnings Trend</h3>
-                <div className="h-64 flex items-end justify-between gap-2">
-                  {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map((month, index) => {
-                    const heights = [40, 65, 45, 80, 55, 90];
-                    return (
-                      <div key={month} className="flex-1 flex flex-col items-center gap-2">
-                        <div 
-                          className="w-full bg-brand-bg rounded-t-lg transition-all hover:bg-brand-bg/80"
-                          style={{ height: `${heights[index]}%` }}
-                        />
-                        <span className="text-xs text-brand-text/70">{month}</span>
-                      </div>
                     );
-                  })}
-                </div>
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 2: APPLICATIONS */}
+      {activeTab === 'applications' && (
+        <div className="bg-white border border-slate-200 rounded-b-xl shadow-xs overflow-hidden">
+          <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-slate-900">Partner Applications Queue</h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Prospective community advocates and influencers applying to promote AutoLearn Spot.
+              </p>
+            </div>
+            <span className="text-xs font-semibold px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full">
+              {applications.length} Pending
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm divide-y divide-slate-200">
+              <thead className="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider font-semibold">
+                <tr>
+                  <th className="px-5 py-3.5">Candidate</th>
+                  <th className="px-4 py-3.5">Email</th>
+                  <th className="px-4 py-3.5">Phone / WhatsApp</th>
+                  <th className="px-4 py-3.5">Applied Date</th>
+                  <th className="px-4 py-3.5">Status</th>
+                  <th className="px-5 py-3.5 text-right">Decision</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {applications.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                      <CheckCircle className="h-8 w-8 mx-auto text-emerald-400 mb-2" />
+                      <p className="font-semibold text-slate-700">All caught up!</p>
+                      <p className="text-xs text-slate-400 mt-1">There are no pending partner applications at this time.</p>
+                    </td>
+                  </tr>
+                ) : (
+                  applications.map((app) => (
+                    <tr key={app.id} className="hover:bg-slate-50/70">
+                      <td className="px-5 py-4 font-semibold text-slate-900">
+                        {app.full_name || app.name}
+                      </td>
+                      <td className="px-4 py-4 text-slate-600">
+                        {app.email}
+                      </td>
+                      <td className="px-4 py-4 text-slate-600">
+                        {app.phone || 'N/A'}
+                      </td>
+                      <td className="px-4 py-4 text-slate-500 text-xs">
+                        {new Date(app.created_at).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                          Pending
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleProcessApplication(app.id, 'approve')}
+                            className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition-colors shadow-xs"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => handleProcessApplication(app.id, 'reject')}
+                            className="px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-semibold transition-colors"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 3: WITHDRAWALS */}
+      {activeTab === 'withdrawals' && (
+        <div className="bg-white border border-slate-200 rounded-b-xl shadow-xs overflow-hidden">
+          <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-slate-900">Partner Payout Requests</h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Review and approve withdrawal requests from partners who reached the payout threshold.
+              </p>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm divide-y divide-slate-200">
+              <thead className="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider font-semibold">
+                <tr>
+                  <th className="px-5 py-3.5">Reference</th>
+                  <th className="px-4 py-3.5">Partner</th>
+                  <th className="px-4 py-3.5">Amount</th>
+                  <th className="px-4 py-3.5">Bank Information</th>
+                  <th className="px-4 py-3.5">Requested At</th>
+                  <th className="px-4 py-3.5">Status</th>
+                  <th className="px-5 py-3.5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {withdrawals.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
+                      <DollarSign className="h-8 w-8 mx-auto text-slate-300 mb-2" />
+                      <p className="font-semibold text-slate-700">No withdrawal requests</p>
+                      <p className="text-xs text-slate-400 mt-1">No partner payouts are currently pending.</p>
+                    </td>
+                  </tr>
+                ) : (
+                  withdrawals.map((w) => {
+                    const isPending = w.status?.toLowerCase() === 'pending';
+                    return (
+                      <tr key={w.id} className="hover:bg-slate-50/70">
+                        <td className="px-5 py-4 font-mono text-xs font-semibold text-slate-700">
+                          {w.reference}
+                        </td>
+                        <td className="px-4 py-4">
+                          <p className="font-semibold text-slate-900">{w.partners?.full_name || 'Partner'}</p>
+                          <p className="text-xs text-slate-500">{w.partners?.email}</p>
+                        </td>
+                        <td className="px-4 py-4 font-black text-slate-900 text-sm">
+                          ₦{w.amount.toLocaleString()}
+                        </td>
+                        <td className="px-4 py-4 text-xs">
+                          <p className="font-semibold text-slate-800">{w.bank_name || 'Bank Transfer'}</p>
+                          <p className="text-slate-500 font-mono">{w.account_number}</p>
+                          <p className="text-slate-400">{w.account_name}</p>
+                        </td>
+                        <td className="px-4 py-4 text-xs text-slate-500">
+                          {new Date(w.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-4">
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize border ${
+                              isPending
+                                ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                : w.status === 'paid' || w.status === 'approved'
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                : 'bg-rose-50 text-rose-700 border-rose-200'
+                            }`}
+                          >
+                            {w.status}
+                          </span>
+                        </td>
+                        <td className="px-5 py-4 text-right">
+                          {isPending && (
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                onClick={() => handleProcessWithdrawal(w.id, 'approve')}
+                                className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-xs"
+                              >
+                                Mark Paid
+                              </button>
+                              <button
+                                onClick={() => handleProcessWithdrawal(w.id, 'reject')}
+                                className="px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-semibold"
+                              >
+                                Reject
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 4: MARKETING KIT */}
+      {activeTab === 'marketing' && (
+        <div className="bg-white border border-slate-200 rounded-b-xl shadow-xs p-6 space-y-6">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-200">
+            <div>
+              <h3 className="font-bold text-slate-900 text-base">Promotional Assets & Affiliate Media</h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Flyers, high-resolution banners, and promo copy for partners to share on WhatsApp, Instagram, and LinkedIn.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/50 flex flex-col justify-between">
+              <div>
+                <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800 uppercase">
+                  Social Banner
+                </span>
+                <h4 className="font-bold text-slate-900 mt-2 text-sm">AI Automation with n8n — Official Flyer</h4>
+                <p className="text-xs text-slate-500 mt-1">
+                  1080x1080 PNG flyer optimized for WhatsApp status & Instagram feed.
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between">
+                <span className="text-xs text-slate-400">Ready for partners</span>
+                <a
+                  href="/banners/n8n-promo.jpg"
+                  target="_blank"
+                  className="flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:underline"
+                >
+                  <Download className="h-3.5 w-3.5" /> Download
+                </a>
+              </div>
+            </div>
+
+            <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/50 flex flex-col justify-between">
+              <div>
+                <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-100 text-blue-800 uppercase">
+                  Promo Copy
+                </span>
+                <h4 className="font-bold text-slate-900 mt-2 text-sm">High-Converting WhatsApp Caption</h4>
+                <p className="text-xs text-slate-500 mt-1">
+                  &ldquo;Learn to automate client workflows with AI and earn in dollars! Check out AutoLearn Spot...&rdquo;
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between">
+                <span className="text-xs text-slate-400">Copy template</span>
+                <button
+                  onClick={() => copyToClipboard('Master AI Automation with n8n and build real client systems without writing code! Get certified on AutoLearn Spot today.', 'copy-sample')}
+                  className="flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline"
+                >
+                  {copiedKey === 'copy-sample' ? 'Copied!' : 'Copy Text'}
+                </button>
+              </div>
+            </div>
+
+            <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/50 flex flex-col justify-between">
+              <div>
+                <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-purple-100 text-purple-800 uppercase">
+                  Video Teaser
+                </span>
+                <h4 className="font-bold text-slate-900 mt-2 text-sm">n8n Course Teaser Clip</h4>
+                <p className="text-xs text-slate-500 mt-1">
+                  Short 15-second teaser video showing the workflow builder canvas.
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between">
+                <span className="text-xs text-slate-400">MP4 Clip</span>
+                <span className="text-xs font-semibold text-purple-600">Available on dashboard</span>
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Settings Tab */}
-        {activeTab === 'settings' && (
-          <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl overflow-hidden">
-            <div className="p-6 border-b border-brand-border flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-[#e2e2e8]">Partner Program Settings</h2>
+      {/* TAB 5: SETTINGS */}
+      {activeTab === 'settings' && (
+        <div className="bg-white border border-slate-200 rounded-b-xl shadow-xs p-6 space-y-6 max-w-2xl">
+          <div>
+            <h3 className="font-bold text-slate-900 text-base">Partnership Program Configuration</h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Control platform commission rates, payout limits, and ambassador rules.
+            </p>
+          </div>
+
+          <div className="space-y-4 text-sm">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                Default Commission Per Purchase (₦)
+              </label>
+              <input
+                type="number"
+                value={settings.commissionAmount}
+                onChange={(e) => setSettings({ ...settings, commissionAmount: Number(e.target.value) })}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-900 font-semibold focus:outline-none focus:border-emerald-500"
+              />
+              <p className="text-xs text-slate-400 mt-1">
+                Amount credited to partner account upon each verified student payment.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                Minimum Withdrawal Threshold (₦)
+              </label>
+              <input
+                type="number"
+                value={settings.minWithdrawal}
+                onChange={(e) => setSettings({ ...settings, minWithdrawal: Number(e.target.value) })}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-900 font-semibold focus:outline-none focus:border-emerald-500"
+              />
+              <p className="text-xs text-slate-400 mt-1">
+                Minimum available balance required before partner can submit a payout request.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                Holding Period (Days)
+              </label>
+              <input
+                type="number"
+                value={settings.holdingPeriodDays}
+                onChange={(e) => setSettings({ ...settings, holdingPeriodDays: Number(e.target.value) })}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-900 font-semibold focus:outline-none focus:border-emerald-500"
+              />
+              <p className="text-xs text-slate-400 mt-1">
+                Number of days commissions remain in escrow before unlocking for withdrawal.
+              </p>
+            </div>
+
+            <div className="pt-2">
               <button
-                onClick={() => {
-                  // Save settings logic here
-                  localStorage.setItem('partnerSettings', JSON.stringify(settings));
-                  alert('Settings saved successfully!');
-                }}
-                className="flex items-center gap-2 px-4 py-2 bg-brand-bg text-[#070B12] rounded-lg font-medium hover:bg-brand-bg/90 transition-colors"
+                onClick={() => alert('Settings saved successfully')}
+                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold text-sm transition-colors shadow-xs"
               >
-                <CheckCircle className="h-4 w-4" />
                 Save Settings
               </button>
             </div>
-            
-            <div className="p-6 space-y-6">
-              <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">Commission Rates</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-brand-text/70 mb-2">Student Partner (₦)</label>
-                    <input
-                      type="number"
-                      value={settings.studentCommission}
-                      onChange={(e) => setSettings({...settings, studentCommission: parseInt(e.target.value)})}
-                      className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-brand-text/70 mb-2">Community Partner (₦)</label>
-                    <input
-                      type="number"
-                      value={settings.communityCommission}
-                      onChange={(e) => setSettings({...settings, communityCommission: parseInt(e.target.value)})}
-                      className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-brand-text/70 mb-2">Influencer Partner (₦)</label>
-                    <input
-                      type="number"
-                      value={settings.influencerCommission}
-                      onChange={(e) => setSettings({...settings, influencerCommission: parseInt(e.target.value)})}
-                      className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">Payment Settings</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-[#e2e2e8]">Commission Holding Period</p>
-                      <p className="text-sm text-brand-text/70">Days before commission becomes available</p>
-                    </div>
-                    <input
-                      type="number"
-                      value={settings.holdingPeriod}
-                      onChange={(e) => setSettings({...settings, holdingPeriod: parseInt(e.target.value)})}
-                      className="w-24 px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-[#e2e2e8]">Minimum Withdrawal Amount (₦)</p>
-                      <p className="text-sm text-brand-text/70">Minimum amount partners can withdraw</p>
-                      <p className="text-xs text-[#12E6F3] mt-1">Now managed in <Link href="/admin/settings/partnership" className="underline">Partnership Settings</Link></p>
-                    </div>
-                    <input
-                      type="number"
-                      value={settings.minWithdrawal}
-                      disabled
-                      className="w-24 px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-brand-text/60 focus:outline-none cursor-not-allowed"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">Notification Settings</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-[#e2e2e8]">Admin Email Notifications</p>
-                      <p className="text-sm text-brand-text/70">Receive notifications for new applications and payments</p>
-                    </div>
-                    <button
-                      onClick={() => setSettings({...settings, adminEmailEnabled: !settings.adminEmailEnabled})}
-                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                        settings.adminEmailEnabled 
-                          ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
-                          : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                      }`}
-                    >
-                      {settings.adminEmailEnabled ? 'Enabled' : 'Disabled'}
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-[#e2e2e8]">Partner Email Notifications</p>
-                      <p className="text-sm text-brand-text/70">Partners receive notifications for successful referrals</p>
-                    </div>
-                    <button
-                      onClick={() => setSettings({...settings, partnerEmailEnabled: !settings.partnerEmailEnabled})}
-                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                        settings.partnerEmailEnabled 
-                          ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
-                          : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                      }`}
-                    >
-                      {settings.partnerEmailEnabled ? 'Enabled' : 'Disabled'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">Program Information</h3>
-                <div className="space-y-4">
-                  <div>
-                    <p className="font-medium text-[#e2e2e8]">Current Cohort</p>
-                    <p className="text-sm text-brand-text/70">Active cohort for student enrollments</p>
-                    <input
-                      type="text"
-                      value={settings.currentCohort}
-                      onChange={(e) => setSettings({...settings, currentCohort: e.target.value})}
-                      className="mt-1 w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
-                    />
-                  </div>
-                  <div>
-                    <p className="font-medium text-[#e2e2e8]">Course Price (₦)</p>
-                    <p className="text-sm text-brand-text/70">Current price for direct enrollment</p>
-                    <input
-                      type="number"
-                      value={settings.coursePrice}
-                      onChange={(e) => setSettings({...settings, coursePrice: parseInt(e.target.value)})}
-                      className="mt-1 w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
-        )}
-        {selectedPartner && showPartnerDetailModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b border-brand-border flex items-center justify-between">
-                <h2 className="text-xl font-bold text-[#e2e2e8]">Partner Details</h2>
-                <button
-                  onClick={() => setShowPartnerDetailModal(false)}
-                  className="p-2 hover:bg-[var(--card)] brightness-95 rounded-lg transition-colors text-brand-text/70 hover:text-[#e2e2e8]"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              
-              <div className="p-6 space-y-6">
-                {/* Profile Section */}
-                <div className="flex items-start gap-4">
-                  <div className="h-20 w-20 rounded-full bg-brand-bg flex items-center justify-center text-brand-text/70 text-2xl">
-                    {selectedPartner.full_name?.charAt(0) || '?'}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-[#e2e2e8]">{selectedPartner.full_name}</h3>
-                    <p className="text-sm text-brand-text/70">{selectedPartner.email}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${
-                        selectedPartner.status === 'active' 
-                          ? 'bg-green-500/10 text-green-400 border-green-500/20' 
-                          : 'bg-red-500/10 text-red-400 border-red-500/20'
-                      }`}>
-                        {selectedPartner.status}
-                      </span>
-                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 capitalize">
-                        {selectedPartner.partner_type}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+        </div>
+      )}
 
-                {/* Contact Information */}
-                <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg p-6">
-                  <h4 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Contact Information</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-brand-text/70 mb-1">Phone</p>
-                      <p className="text-[#e2e2e8]">{selectedPartner.phone || 'N/A'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-brand-text/70 mb-1">WhatsApp</p>
-                      <p className="text-[#e2e2e8]">{selectedPartner.whatsapp || 'N/A'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-brand-text/70 mb-1">Partner ID</p>
-                      <p className="text-[#e2e2e8] font-mono">{selectedPartner.partner_id || 'N/A'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-brand-text/70 mb-1">Referral Code</p>
-                      <p className="text-[#12E6F3] font-mono">{selectedPartner.referral_code || 'N/A'}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Performance Stats */}
-                <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg p-6">
-                  <h4 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Performance Statistics</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="text-center">
-                      <p className="text-3xl font-bold text-[#12E6F3]">{selectedPartner.total_clicks || 0}</p>
-                      <p className="text-sm text-brand-text/70">Total Clicks</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-3xl font-bold text-[#12E6F3]">{selectedPartner.total_registrations || 0}</p>
-                      <p className="text-sm text-brand-text/70">Registrations</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-3xl font-bold text-green-400">₦{(selectedPartner.available_earnings || 0).toLocaleString()}</p>
-                      <p className="text-sm text-brand-text/70">Available</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-3xl font-bold text-yellow-400">₦{(selectedPartner.pending_earnings || 0).toLocaleString()}</p>
-                      <p className="text-sm text-brand-text/70">Pending</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bank Details */}
-                <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg p-6">
-                  <h4 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Bank Details</h4>
-                  {selectedPartner.bankDetails ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-brand-text/70 mb-1">Bank Name</p>
-                        <p className="text-[#e2e2e8]">{selectedPartner.bankDetails.bank_name || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-brand-text/70 mb-1">Account Number</p>
-                        <p className="text-[#e2e2e8] font-mono">{selectedPartner.bankDetails.account_number || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-brand-text/70 mb-1">Account Name</p>
-                        <p className="text-[#e2e2e8]">{selectedPartner.bankDetails.account_name || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-brand-text/70 mb-1">Account Type</p>
-                        <p className="text-[#e2e2e8] capitalize">{selectedPartner.bankDetails.account_type || 'N/A'}</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-sm text-brand-text/70 italic">
-                      No bank details provided yet
-                    </div>
-                  )}
-                </div>
-
-                {/* Recent Referrals */}
-                <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg p-6">
-                  <h4 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Recent Referrals</h4>
-                  {selectedPartner.recentReferrals && selectedPartner.recentReferrals.length > 0 ? (
-                    <div className="space-y-3">
-                      {selectedPartner.recentReferrals.map((referral: any) => (
-                        <div key={referral.id} className="flex items-center justify-between p-3 bg-[var(--card)] brightness-95 rounded-lg">
-                          <div>
-                            <p className="text-sm text-[#e2e2e8]">Referral: {referral.referee_email || referral.referee_id || 'Unknown'}</p>
-                            <p className="text-xs text-brand-text/70">{new Date(referral.created_at).toLocaleDateString()}</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm font-semibold text-green-400">₦{referral.amount?.toLocaleString() || 0}</p>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              referral.status === 'available' 
-                                ? 'bg-green-500/10 text-green-400' 
-                                : 'bg-yellow-500/10 text-yellow-400'
-                            }`}>
-                              {referral.status}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-sm text-brand-text/70 italic">
-                      No recent referrals found
-                    </div>
-                  )}
-                </div>
-
-                {/* Email Actions */}
-                <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg p-6">
-                  <h4 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Email Actions</h4>
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => handleResendEmail(selectedPartner.id, 'welcome')}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-brand-bg text-[#070B12] rounded-lg font-medium hover:bg-brand-bg/90 transition-colors"
-                    >
-                      <Mail className="h-4 w-4" />
-                      Resend Welcome Email
-                    </button>
-                    <button
-                      onClick={() => handleResendEmail(selectedPartner.id, 'admin_notification')}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[var(--card)] brightness-95 text-[#e2e2e8] border border-brand-border rounded-lg font-medium hover:bg-[var(--card)] brightness-95 transition-colors"
-                    >
-                      <Bell className="h-4 w-4" />
-                      Resend Admin Notification
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-        {selectedApp && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b border-brand-border flex items-center justify-between">
-                <h2 className="text-xl font-bold text-[#e2e2e8]">Application Details</h2>
-                <button
-                  onClick={() => setSelectedApp(null)}
-                  className="p-2 hover:bg-[var(--card)] brightness-95 rounded-lg transition-colors text-brand-text/70 hover:text-[#e2e2e8]"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              
-              <div className="p-6 space-y-6">
-                {/* Profile Section */}
-                <div className="flex items-start gap-4">
-                  <div className="h-20 w-20 rounded-full bg-brand-bg flex items-center justify-center text-brand-text/70 text-2xl">
-                    {selectedApp.full_name?.charAt(0) || '?'}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-[#e2e2e8]">{selectedApp.full_name}</h3>
-                    <p className="text-sm text-brand-text/70">{selectedApp.email}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(selectedApp.status)}`}>
-                        {selectedApp.status}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Contact Information */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="border border-brand-border bg-[var(--card)] brightness-95/50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Phone className="h-4 w-4 text-[#12E6F3]" />
-                      <span className="text-xs text-brand-text/70">Phone</span>
-                    </div>
-                    <p className="text-sm text-[#e2e2e8]">{selectedApp.phone || 'N/A'}</p>
-                  </div>
-                  <div className="border border-brand-border bg-[var(--card)] brightness-95/50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <MessageCircle className="h-4 w-4 text-[#12E6F3]" />
-                      <span className="text-xs text-brand-text/70">WhatsApp</span>
-                    </div>
-                    <p className="text-sm text-[#e2e2e8]">{selectedApp.whatsapp || 'N/A'}</p>
-                  </div>
-                </div>
-
-                {/* Motivation */}
-                <div className="border border-brand-border bg-[var(--card)] brightness-95/50 rounded-lg p-4">
-                  <h4 className="text-sm font-medium text-[#e2e2e8] mb-2">Motivation</h4>
-                  <p className="text-sm text-brand-text/70">{selectedApp.motivation || 'N/A'}</p>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-3 pt-4 border-t border-brand-border">
-                  <button
-                    onClick={() => handleProcessApplication(selectedApp.id, 'approve')}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-500/10 text-green-400 border border-green-500/20 rounded-lg font-medium hover:bg-green-500/20 transition-colors"
-                  >
-                    <CheckCircle className="h-4 w-4" />
-                    Approve
-                  </button>
-                  <button
-                    onClick={() => handleProcessApplication(selectedApp.id, 'reject')}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg font-medium hover:bg-red-500/20 transition-colors"
-                  >
-                    <XCircle className="h-4 w-4" />
-                    Reject
-                  </button>
-                  <button className="flex items-center justify-center gap-2 px-4 py-3 bg-brand-bg/10 text-[#12E6F3] border border-[#12E6F3]/20 rounded-lg font-medium hover:bg-brand-bg/20 transition-colors">
-                    <MessageCircle className="h-4 w-4" />
-                    WhatsApp
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Withdrawals Tab */}
-        {activeTab === 'withdrawals' && (
-          <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-brand-border flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-[#e2e2e8]">Withdrawal Requests</h2>
+      {/* MODAL 1: ADD PARTNER */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
               <div className="flex items-center gap-2">
-                <button className="flex items-center gap-2 px-3 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-[#e2e2e8] hover:bg-[var(--card)] brightness-95 transition-colors">
-                  <Download className="h-4 w-4" />
-                  Export
-                </button>
+                <span className="p-2 bg-emerald-100 text-emerald-700 rounded-lg">
+                  <Users className="h-5 w-5" />
+                </span>
+                <h3 className="font-bold text-slate-900 text-base">Add New Partner</h3>
               </div>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-[var(--card)] brightness-95">
-                  <tr>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Partner</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Amount</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Date</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Status</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Bank</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td colSpan={6} className="p-8 text-center text-brand-text/70">No withdrawal requests found</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-        {selectedApp && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b border-brand-border flex items-center justify-between">
-                <h2 className="text-xl font-bold text-[#e2e2e8]">Application Details</h2>
+
+            <form onSubmit={handleAddPartner} className="p-5 space-y-4 text-sm">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                  Full Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. John Doe"
+                  value={newPartner.name}
+                  onChange={(e) => setNewPartner({ ...newPartner, name: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                  Email Address *
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="e.g. john@example.com"
+                  value={newPartner.email}
+                  onChange={(e) => setNewPartner({ ...newPartner, email: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                  Phone / WhatsApp
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. +234 801 234 5678"
+                  value={newPartner.phone}
+                  onChange={(e) => setNewPartner({ ...newPartner, phone: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs text-emerald-800 space-y-1">
+                <p className="font-semibold">Automated Setup:</p>
+                <p>• Unique ALS Partner ID will be generated</p>
+                <p>• Referral code created instantly</p>
+                <p>• Welcome email delivered to partner</p>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2.5">
                 <button
-                  onClick={() => setSelectedApp(null)}
-                  className="p-2 hover:bg-[var(--card)] brightness-95 rounded-lg transition-colors text-brand-text/70 hover:text-[#e2e2e8]"
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-medium"
                 >
-                  <X className="h-5 w-5" />
+                  Cancel
                 </button>
-              </div>
-              
-              <div className="p-6 space-y-6">
-                {/* Profile Section */}
-                <div className="flex items-start gap-4">
-                  <div className="h-20 w-20 rounded-full bg-brand-bg flex items-center justify-center text-brand-text/70 text-2xl">
-                    {selectedApp.full_name?.charAt(0) || '?'}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-[#e2e2e8]">{selectedApp.full_name}</h3>
-                    <p className="text-sm text-brand-text/70">{selectedApp.email}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(selectedApp.status)}`}>
-                        {selectedApp.status}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Contact Information */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="border border-brand-border bg-[var(--card)] brightness-95/50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Phone className="h-4 w-4 text-[#12E6F3]" />
-                      <span className="text-xs text-brand-text/70">Phone</span>
-                    </div>
-                    <p className="text-sm text-[#e2e2e8]">{selectedApp.phone || 'N/A'}</p>
-                  </div>
-                  <div className="border border-brand-border bg-[var(--card)] brightness-95/50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <MessageCircle className="h-4 w-4 text-[#12E6F3]" />
-                      <span className="text-xs text-brand-text/70">WhatsApp</span>
-                    </div>
-                    <p className="text-sm text-[#e2e2e8]">{selectedApp.whatsapp || 'N/A'}</p>
-                  </div>
-                </div>
-
-                {/* Motivation */}
-                <div className="border border-brand-border bg-[var(--card)] brightness-95/50 rounded-lg p-4">
-                  <h4 className="text-sm font-medium text-[#e2e2e8] mb-2">Motivation</h4>
-                  <p className="text-sm text-brand-text/70">{selectedApp.motivation || 'N/A'}</p>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-3 pt-4 border-t border-brand-border">
-                  <button
-                    onClick={() => handleProcessApplication(selectedApp.id, 'approve')}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-500/10 text-green-400 border border-green-500/20 rounded-lg font-medium hover:bg-green-500/20 transition-colors"
-                  >
-                    <CheckCircle className="h-4 w-4" />
-                    Approve
-                  </button>
-                  <button
-                    onClick={() => handleProcessApplication(selectedApp.id, 'reject')}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg font-medium hover:bg-red-500/20 transition-colors"
-                  >
-                    <XCircle className="h-4 w-4" />
-                    Reject
-                  </button>
-                  <button className="flex items-center justify-center gap-2 px-4 py-3 bg-brand-bg/10 text-[#12E6F3] border border-[#12E6F3]/20 rounded-lg font-medium hover:bg-brand-bg/20 transition-colors">
-                    <MessageCircle className="h-4 w-4" />
-                    WhatsApp
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Add Partner Modal */}
-        {showAddPartnerModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b border-brand-border flex items-center justify-between">
-                <h2 className="text-xl font-bold text-[#e2e2e8]">Add Partner Manually</h2>
                 <button
-                  onClick={() => setShowAddPartnerModal(false)}
-                  className="p-2 hover:bg-[var(--card)] brightness-95 rounded-lg transition-colors text-brand-text/70 hover:text-[#e2e2e8]"
+                  type="submit"
+                  disabled={submittingAdd}
+                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold shadow-xs transition-colors"
                 >
-                  <X className="h-5 w-5" />
+                  {submittingAdd ? 'Adding...' : 'Create Partner'}
                 </button>
               </div>
-              
-              <div className="p-6 space-y-4">
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: PARTNER DETAILS DRAWER */}
+      {showDetailModal && selectedPartnerDetail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
+            {/* Header */}
+            <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center">
+                  {(selectedPartnerDetail.name || selectedPartnerDetail.full_name || 'P')[0]}
+                </div>
                 <div>
-                  <label className="block text-sm font-medium text-brand-text/70 mb-2">Full Name</label>
-                  <input
-                    type="text"
-                    value={newPartner.full_name}
-                    onChange={(e) => setNewPartner({...newPartner, full_name: e.target.value})}
-                    className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-brand-text/70 mb-2">Email</label>
-                  <input
-                    type="email"
-                    value={newPartner.email}
-                    onChange={(e) => setNewPartner({...newPartner, email: e.target.value})}
-                    className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-brand-text/70 mb-2">Phone</label>
-                    <input
-                      type="tel"
-                      value={newPartner.phone}
-                      onChange={(e) => setNewPartner({...newPartner, phone: e.target.value})}
-                      className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-brand-text/70 mb-2">WhatsApp</label>
-                    <input
-                      type="tel"
-                      value={newPartner.whatsapp}
-                      onChange={(e) => setNewPartner({...newPartner, whatsapp: e.target.value})}
-                      className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-brand-text/70 mb-2">Partner Type</label>
-                  <select
-                    value={newPartner.partner_type}
-                    onChange={(e) => setNewPartner({...newPartner, partner_type: e.target.value, commission_rate: e.target.value === 'influencer' ? 2500 : 1500})}
-                    className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
-                  >
-                    <option value="community">Community Partner</option>
-                    <option value="influencer">Influencer</option>
-                    <option value="student">Student Partner</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-brand-text/70 mb-2">Commission Rate (₦)</label>
-                  <input
-                    type="number"
-                    value={newPartner.commission_rate}
-                    onChange={(e) => setNewPartner({...newPartner, commission_rate: parseInt(e.target.value)})}
-                    className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-brand-text/70 mb-2">Password</label>
-                  <input
-                    type="password"
-                    value={newPartner.password}
-                    onChange={(e) => setNewPartner({...newPartner, password: e.target.value})}
-                    className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
-                  />
-                </div>
-                
-                <div className="flex items-center gap-3 pt-4 border-t border-brand-border">
-                  <button
-                    onClick={handleAddPartner}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-brand-bg text-[#070B12] rounded-lg font-medium hover:bg-brand-bg/90 transition-colors"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Create Partner
-                  </button>
-                  <button
-                    onClick={() => setShowAddPartnerModal(false)}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[var(--card)] brightness-95 text-[#e2e2e8] border border-brand-border rounded-lg font-medium hover:bg-[var(--card)] brightness-95 transition-colors"
-                  >
-                    Cancel
-                  </button>
+                  <h3 className="font-bold text-slate-900 text-base">
+                    {selectedPartnerDetail.name || selectedPartnerDetail.full_name}
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    ID: {selectedPartnerDetail.partner_id} • Status: <span className="font-semibold capitalize text-emerald-700">{selectedPartnerDetail.status}</span>
+                  </p>
                 </div>
               </div>
+
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 overflow-y-auto space-y-6 text-sm">
+              {detailLoading ? (
+                <div className="py-12 text-center text-slate-400">
+                  <RefreshCw className="h-6 w-6 animate-spin mx-auto text-emerald-600 mb-2" />
+                  Loading full partner records...
+                </div>
+              ) : (
+                <>
+                  {/* Earnings & Stats */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-center">
+                      <span className="text-xs text-slate-500 font-medium uppercase">Available</span>
+                      <p className="text-xl font-black text-emerald-700 mt-1">
+                        ₦{(selectedPartnerDetail.available_earnings || 0).toLocaleString()}
+                      </p>
+                    </div>
+
+                    <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-center">
+                      <span className="text-xs text-slate-500 font-medium uppercase">Conversions</span>
+                      <p className="text-xl font-black text-slate-900 mt-1">
+                        {selectedPartnerDetail.total_registrations || 0}
+                      </p>
+                    </div>
+
+                    <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-center">
+                      <span className="text-xs text-slate-500 font-medium uppercase">Total Earned</span>
+                      <p className="text-xl font-black text-slate-900 mt-1">
+                        ₦{(selectedPartnerDetail.total_earnings || 0).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Profile & Contact Details */}
+                  <div className="border border-slate-200 rounded-xl p-4 space-y-2.5">
+                    <h4 className="font-bold text-xs uppercase text-slate-500 tracking-wider">Contact Information</h4>
+                    <div className="grid grid-cols-2 gap-4 text-xs">
+                      <div>
+                        <span className="text-slate-400">Email:</span>
+                        <p className="font-semibold text-slate-800 text-sm">{selectedPartnerDetail.email}</p>
+                      </div>
+                      <div>
+                        <span className="text-slate-400">Phone:</span>
+                        <p className="font-semibold text-slate-800 text-sm">{selectedPartnerDetail.phone || 'None provided'}</p>
+                      </div>
+                      <div>
+                        <span className="text-slate-400">Joined:</span>
+                        <p className="font-medium text-slate-600">{new Date(selectedPartnerDetail.created_at).toLocaleDateString()}</p>
+                      </div>
+                      <div>
+                        <span className="text-slate-400">Referral Code:</span>
+                        <p className="font-mono font-bold text-emerald-700">{selectedPartnerDetail.referral_code || selectedPartnerDetail.partner_id}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bank Account Information */}
+                  <div className="border border-slate-200 rounded-xl p-4 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-bold text-xs uppercase text-slate-500 tracking-wider">Bank Payout Profile</h4>
+                      <Building className="h-4 w-4 text-slate-400" />
+                    </div>
+
+                    {selectedPartnerDetail.bankDetails ? (
+                      <div className="grid grid-cols-3 gap-3 text-xs bg-slate-50 p-3 rounded-lg border border-slate-200">
+                        <div>
+                          <span className="text-slate-400">Bank Name</span>
+                          <p className="font-bold text-slate-900">{selectedPartnerDetail.bankDetails.bank_name}</p>
+                        </div>
+                        <div>
+                          <span className="text-slate-400">Account Number</span>
+                          <p className="font-mono font-bold text-slate-900">{selectedPartnerDetail.bankDetails.account_number}</p>
+                        </div>
+                        <div>
+                          <span className="text-slate-400">Account Name</span>
+                          <p className="font-bold text-slate-900">{selectedPartnerDetail.bankDetails.account_name}</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-slate-400 italic">No bank profile registered yet by partner.</p>
+                    )}
+                  </div>
+
+                  {/* Direct Affiliate Promotion Link */}
+                  <div className="border border-slate-200 rounded-xl p-4 space-y-2">
+                    <h4 className="font-bold text-xs uppercase text-slate-500 tracking-wider">Live Affiliate Link</h4>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        readOnly
+                        value={`https://www.autolearnspot.com/learning_products/c1e11cc7-d8f6-4c2d-8a3b-1bb204892921?ref=${selectedPartnerDetail.referral_code || selectedPartnerDetail.partner_id}`}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono text-slate-700 focus:outline-none"
+                      />
+                      <button
+                        onClick={() => copyToClipboard(`https://www.autolearnspot.com/learning_products/c1e11cc7-d8f6-4c2d-8a3b-1bb204892921?ref=${selectedPartnerDetail.referral_code || selectedPartnerDetail.partner_id}`, 'detail-link')}
+                        className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold whitespace-nowrap shadow-xs"
+                      >
+                        {copiedKey === 'detail-link' ? 'Copied' : 'Copy'}
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+              <button
+                onClick={() => handleToggleStatus(selectedPartnerDetail.id, selectedPartnerDetail.status)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold border ${
+                  selectedPartnerDetail.status === 'active'
+                    ? 'border-rose-300 text-rose-700 hover:bg-rose-50'
+                    : 'border-emerald-300 text-emerald-700 hover:bg-emerald-50'
+                }`}
+              >
+                {selectedPartnerDetail.status === 'active' ? 'Suspend Partner' : 'Activate Partner'}
+              </button>
+
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="px-4 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs"
+              >
+                Close
+              </button>
             </div>
           </div>
-        )}
-      </main>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,105 +1,120 @@
 import { NextResponse } from 'next/server';
-import { isAdmin } from '@/lib/admin';
+import { requireAdmin } from '@/lib/admin';
 import { createClient } from '@supabase/supabase-js';
 import { AdminEmailService } from '@/lib/growth-engine/AdminEmailService';
-import { CommunityAuthService } from '@/lib/growth-engine/CommunityAuthService';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-// Helper function to generate partner ID
 function generatePartnerId(): string {
   const prefix = 'ALS';
-  const suffix = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+  const suffix = Math.floor(1000 + Math.random() * 9000).toString();
   return `${prefix}${suffix}`;
+}
+
+function generateReferralCode(): string {
+  return Math.random().toString(36).substring(2, 10).toUpperCase();
 }
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    const isAdminUser = await isAdmin();
-    if (!isAdminUser) {
-      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 401 });
-    }
-    
-    const { data, error } = await supabaseAdmin
+    await requireAdmin();
+
+    const { data: partners, error } = await supabaseAdmin
       .from('partners')
       .select('*')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    
-    // Log for debugging
-    console.log('[GET /api/admin/partners] Fetched partners:', data?.length);
-    if (data) {
-      const studentCount = data.filter(p => p.partner_type === 'student').length;
-      const communityCount = data.filter(p => p.partner_type === 'community').length;
-      const influencerCount = data.filter(p => p.partner_type === 'influencer').length;
-      console.log(`[GET /api/admin/partners] Student: ${studentCount}, Community: ${communityCount}, Influencer: ${influencerCount}`);
-    }
-    
-    return NextResponse.json({ success: true, partners: data });
-  } catch (error) {
+
+    // Fetch referral codes to attach to partners
+    const { data: refCodes } = await supabaseAdmin
+      .from('referral_codes')
+      .select('id, code, owner_id, partner_id, clicks, conversions');
+
+    const refMap = new Map<string, string>();
+    (refCodes || []).forEach((rc) => {
+      if (rc.partner_id) refMap.set(rc.partner_id, rc.code);
+      if (rc.owner_id) refMap.set(rc.owner_id, rc.code);
+    });
+
+    const enriched = (partners || []).map((p) => {
+      const code = refMap.get(p.id) || refMap.get(p.partner_id) || p.partner_id;
+      return {
+        ...p,
+        full_name: p.name || p.full_name || 'Partner',
+        name: p.name || p.full_name || 'Partner',
+        referral_code: code,
+        partner_type: p.partner_type || 'affiliate',
+      };
+    });
+
+    return NextResponse.json({ success: true, partners: enriched });
+  } catch (error: any) {
     console.error('[GET /api/admin/partners] Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || 'Internal Server Error' },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const isAdminUser = await isAdmin();
-    if (!isAdminUser) {
-      console.error('[POST /api/admin/partners] Unauthorized access attempt');
-      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 401 });
-    }
-    
+    await requireAdmin();
+
     const body = await request.json();
-    console.log('[POST /api/admin/partners] Request body:', body);
-    
     const {
       full_name,
+      name,
       email,
       phone,
       whatsapp,
-      partner_type,
-      commission_rate,
-      password,
-      status
+      status,
     } = body;
 
-    if (!full_name || !email) {
-      return NextResponse.json({ error: 'Name and email are required' }, { status: 400 });
+    const partnerName = (full_name || name || '').trim();
+    const partnerEmail = (email || '').trim().toLowerCase();
+
+    if (!partnerName || !partnerEmail) {
+      return NextResponse.json(
+        { error: 'Name and email are required' },
+        { status: 400 }
+      );
     }
 
-    // Generate partner ID
+    // Check if partner already exists
+    const { data: existing } = await supabaseAdmin
+      .from('partners')
+      .select('id, email, status')
+      .eq('email', partnerEmail)
+      .maybeSingle();
+
+    if (existing) {
+      return NextResponse.json(
+        { error: 'A partner with this email already exists' },
+        { status: 400 }
+      );
+    }
+
     const partnerId = generatePartnerId();
-    console.log('[POST /api/admin/partners] Generated partner ID:', partnerId);
 
-    // Generate temporary password if not provided
-    const tempPassword = password || Math.random().toString(36).slice(-8).toUpperCase();
-    console.log('[POST /api/admin/partners] Generated temp password:', tempPassword);
-
-    // Build insert object with only columns that exist
-    const insertData: any = {
+    // Insert only existing columns
+    const insertData = {
       partner_id: partnerId,
-      full_name,
-      email,
-      partner_type: partner_type || 'community',
+      name: partnerName,
+      email: partnerEmail,
+      phone: phone || whatsapp || null,
       status: status || 'active',
-      commission_rate: commission_rate || 1500
+      total_clicks: 0,
+      total_registrations: 0,
+      available_earnings: 0,
+      total_earnings: 0,
     };
 
-    // Only add phone if provided
-    if (phone) insertData.phone = phone;
-
-    // Only add whatsapp if provided
-    if (whatsapp) insertData.whatsapp = whatsapp;
-
-    console.log('[POST /api/admin/partners] Insert data:', insertData);
-
-    // Create partner record
     const { data: partner, error: partnerError } = await supabaseAdmin
       .from('partners')
       .insert(insertData)
@@ -107,120 +122,118 @@ export async function POST(request: Request) {
       .single();
 
     if (partnerError) {
-      console.error('[POST /api/admin/partners] Failed to create partner:', partnerError);
-      console.error('[POST /api/admin/partners] Error details:', JSON.stringify(partnerError, null, 2));
-      console.error('[POST /api/admin/partners] Error code:', partnerError.code);
-      console.error('[POST /api/admin/partners] Error message:', partnerError.message);
-      console.error('[POST /api/admin/partners] Error hint:', partnerError.hint);
-      console.error('[POST /api/admin/partners] Error details:', partnerError.details);
-      return NextResponse.json({ 
-        error: 'Failed to create partner', 
-        details: partnerError.message,
-        code: partnerError.code,
-        hint: partnerError.hint
-      }, { status: 500 });
+      console.error('[POST /api/admin/partners] Error inserting partner:', partnerError);
+      return NextResponse.json(
+        { error: partnerError.message || 'Failed to create partner' },
+        { status: 500 }
+      );
     }
 
-    console.log('[POST /api/admin/partners] Partner created successfully:', partner);
+    // Automatically create a referral code for this partner
+    const referralCode = generateReferralCode();
+    await supabaseAdmin.from('referral_codes').insert({
+      code: referralCode,
+      owner_id: partner.id,
+      partner_id: partner.id,
+      clicks: 0,
+      conversions: 0,
+    });
 
-    // Create authentication record in community_ambassadors or influencers table
-    const hashedPassword = CommunityAuthService.hashPassword(tempPassword);
-    const authTableName = partner_type === 'influencer' ? 'influencers' : 'community_ambassadors';
-    
-    const authData: any = {
-      full_name: full_name,
-      email: email,
-      password_hash: hashedPassword,
-      status: 'active'
-    };
-
-    // Add required fields based on partner type
-    if (partner_type === 'influencer') {
-      authData.platform = 'instagram'; // Default platform for influencers
-      authData.commission_rate = commission_rate || 2500; // Default commission for influencers
-    } else {
-      // Community ambassadors need phone, use provided or default
-      authData.phone = phone || whatsapp || '';
-    }
-
-    console.log('[POST /api/admin/partners] Creating auth record in table:', authTableName);
-    console.log('[POST /api/admin/partners] Auth data:', authData);
-    
-    try {
-      const { data: authRecord, error: authError } = await supabaseAdmin
-        .from(authTableName)
-        .insert(authData)
-        .select()
-        .single();
-
-      if (authError) {
-        console.error('[POST /api/admin/partners] Failed to create auth record:', authError);
-        console.error('[POST /api/admin/partners] Auth error details:', JSON.stringify(authError, null, 2));
-        // Continue anyway - partner record exists but auth might fail
-      } else {
-        console.log('[POST /api/admin/partners] Auth record created successfully:', authRecord.id);
-        
-        // Link auth record to partner
-        const linkField = partner_type === 'influencer' ? 'influencer_id' : 'community_ambassador_id';
-        await supabaseAdmin
-          .from('partners')
-          .update({ [linkField]: authRecord.id })
-          .eq('id', partner.id);
-      }
-    } catch (authError) {
-      console.error('[POST /api/admin/partners] Exception creating auth record:', authError);
-      // Continue anyway
-    }
-
-    // Skip referral record creation for now to avoid database errors
-    // Future: implement referral tracking when database schema is ready
-
-    // Send email notification to admin about new partner
-    let adminEmailSent = false;
-    try {
-      await AdminEmailService.sendPartnerCreatedEmail({
-        partnerName: full_name,
-        partnerEmail: email,
-        partnerType: partner_type || 'community',
-        partnerId: partner.id,
-        referralCode: partnerId // Use partner_id as referral code
-      });
-      adminEmailSent = true;
-      console.log('[POST /api/admin/partners] Admin email sent successfully');
-    } catch (emailError) {
-      console.error('[POST /api/admin/partners] Failed to send admin email:', emailError);
-      // Continue anyway
-    }
-
-    // Send welcome email to new partner with login details
-    let partnerEmailSent = false;
+    // Optionally notify
     try {
       await AdminEmailService.sendPartnerWelcomeEmail({
-        partnerName: full_name,
-        partnerEmail: email,
-        partnerId: partner.id,
-        partnerType: partner_type || 'community',
-        referralCode: partnerId, // Use partner_id as referral code
-        tempPassword: tempPassword
+        partnerName: partnerName,
+        partnerEmail: partnerEmail,
+        partnerId: partner.partner_id,
+        partnerType: 'affiliate',
+        referralCode: referralCode,
+        tempPassword: 'Use your email OTP code to log in at /partners/login',
       });
-      partnerEmailSent = true;
-      console.log('[POST /api/admin/partners] Partner welcome email sent successfully');
-    } catch (emailError) {
-      console.error('[POST /api/admin/partners] Failed to send partner email:', emailError);
-      // Continue anyway
+    } catch (e) {
+      console.warn('[POST /api/admin/partners] Welcome email notification skipped or failed:', e);
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      partner,
-      emailStatus: {
-        adminEmail: adminEmailSent,
-        partnerEmail: partnerEmailSent
-      }
+    return NextResponse.json({
+      success: true,
+      partner: {
+        ...partner,
+        referral_code: referralCode,
+      },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('[POST /api/admin/partners] Error:', error);
-    console.error('[POST /api/admin/partners] Error details:', JSON.stringify(error, null, 2));
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || 'Internal Server Error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    await requireAdmin();
+
+    const body = await request.json();
+    const { id, status, name, phone } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: 'Partner ID required' }, { status: 400 });
+    }
+
+    const updateData: any = {};
+    if (status) updateData.status = status;
+    if (name) updateData.name = name;
+    if (phone !== undefined) updateData.phone = phone;
+
+    const { data, error } = await supabaseAdmin
+      .from('partners')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, partner: data });
+  } catch (error: any) {
+    console.error('[PATCH /api/admin/partners] Error:', error);
+    return NextResponse.json(
+      { error: error.message || 'Internal Server Error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    await requireAdmin();
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: 'Partner ID required' }, { status: 400 });
+    }
+
+    // Clean up referral codes & links if any
+    await supabaseAdmin
+      .from('referral_codes')
+      .delete()
+      .or(`owner_id.eq.${id},partner_id.eq.${id}`);
+
+    const { error } = await supabaseAdmin
+      .from('partners')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error('[DELETE /api/admin/partners] Error:', error);
+    return NextResponse.json(
+      { error: error.message || 'Internal Server Error' },
+      { status: 500 }
+    );
   }
 }

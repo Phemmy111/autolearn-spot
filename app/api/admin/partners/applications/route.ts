@@ -1,171 +1,124 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin';
 import { createClient } from '@supabase/supabase-js';
-import { AmbassadorService } from '@/lib/growth-engine/AmbassadorService';
-import { PartnerEmailService } from '@/lib/growth-engine/PartnerEmailService';
-import { CommunityAuthService } from '@/lib/growth-engine/CommunityAuthService';
-import { auth } from '@clerk/nextjs/server';
+import { AdminEmailService } from '@/lib/growth-engine/AdminEmailService';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
+function generateReferralCode(): string {
+  return Math.random().toString(36).substring(2, 10).toUpperCase();
+}
+
 export const dynamic = 'force-dynamic';
 
+/**
+ * GET /api/admin/partners/applications
+ * Returns all partner applications (partners with status = 'pending')
+ */
 export async function GET(request: Request) {
   try {
     await requireAdmin();
+
     const { data, error } = await supabaseAdmin
-      .from('partner_applications')
+      .from('partners')
       .select('*')
+      .eq('status', 'pending')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return NextResponse.json({ success: true, applications: data });
-  } catch (error) {
+
+    const mapped = (data || []).map((app) => ({
+      ...app,
+      full_name: app.name,
+      partner_type: 'affiliate',
+    }));
+
+    return NextResponse.json({ success: true, applications: mapped });
+  } catch (error: any) {
     console.error('[GET /api/admin/partners/applications] Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || 'Internal Server Error' },
+      { status: 500 }
+    );
   }
 }
 
+/**
+ * POST /api/admin/partners/applications
+ * Approve or Reject a partner application
+ */
 export async function POST(request: Request) {
   try {
     await requireAdmin();
-    const { userId: adminId } = await auth();
-    if (!adminId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await request.json();
-    console.log('[POST /api/admin/partners/applications] Request body:', body);
-    const { applicationId, action, notes } = body;
+    const { applicationId, action } = body;
 
-    if (!applicationId || !action || !['approve', 'reject'].includes(action)) {
-      console.error('[POST /api/admin/partners/applications] Invalid payload:', { applicationId, action });
+    if (!applicationId || !['approve', 'reject'].includes(action)) {
       return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
     }
 
-    const result = await AmbassadorService.processApplication({
-      applicationId,
-      action: action as 'approve' | 'reject',
-      adminId,
-      notes
-    });
+    const newStatus = action === 'approve' ? 'active' : 'rejected';
 
-    console.log('[POST /api/admin/partners/applications] Result:', result);
-
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 400 });
-    }
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('[POST /api/admin/partners/applications] Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-  }
-}
-
-export async function PUT(request: Request) {
-  try {
-    await requireAdmin();
-    const body = await request.json();
-    const { applicationId } = body;
-
-    if (!applicationId) {
-      return NextResponse.json({ error: 'Application ID required' }, { status: 400 });
-    }
-
-    // Get application details
-    const { data: application, error: appError } = await supabaseAdmin
-      .from('partner_applications')
-      .select('*')
-      .eq('id', applicationId)
-      .single();
-
-    if (appError || !application) {
-      return NextResponse.json({ error: 'Application not found' }, { status: 404 });
-    }
-
-    if (application.status !== 'approved') {
-      return NextResponse.json({ error: 'Only approved applications can have emails resent' }, { status: 400 });
-    }
-
-    // Get partner record to get commission rate (fallback to application partner_type)
-    let commissionRate = application.partner_type === 'influencer' ? 2500 : 1500;
-    const { data: partner, error: partnerError } = await supabaseAdmin
+    const { data: partner, error: updateError } = await supabaseAdmin
       .from('partners')
-      .select('commission_rate')
-      .eq('email', application.email)
+      .update({ status: newStatus })
+      .eq('id', applicationId)
+      .select()
       .single();
 
-    if (!partnerError && partner) {
-      commissionRate = partner.commission_rate;
+    if (updateError || !partner) {
+      return NextResponse.json(
+        { error: updateError?.message || 'Partner not found' },
+        { status: 400 }
+      );
     }
 
-    // Generate new temporary password
-    const temporaryPassword = Math.random().toString(36).slice(-8);
-    console.log('[PUT /api/admin/partners/applications] Generated temporary password for email:', temporaryPassword);
-    const passwordHash = CommunityAuthService.hashPassword(temporaryPassword);
-    console.log('[PUT /api/admin/partners/applications] Generated password hash:', passwordHash.substring(0, 20) + '...');
+    // If approved, ensure referral code exists
+    let refCode = partner.partner_id;
+    if (newStatus === 'active') {
+      const { data: existingCode } = await supabaseAdmin
+        .from('referral_codes')
+        .select('code')
+        .or(`owner_id.eq.${partner.id},partner_id.eq.${partner.id}`)
+        .maybeSingle();
 
-    // First, try to create the ambassador account if it doesn't exist
-    const { data: existingAmbassador } = await supabaseAdmin
-      .from('community_ambassadors')
-      .select('id')
-      .eq('email', application.email)
-      .single();
-
-    if (!existingAmbassador) {
-      console.log('[PUT /api/admin/partners/applications] Ambassador account not found, creating new one');
-      const { error: createError } = await supabaseAdmin
-        .from('community_ambassadors')
-        .insert({
-          email: application.email,
-          password_hash: passwordHash,
-          full_name: application.full_name,
-          phone: application.phone,
-          status: 'active'
+      if (!existingCode) {
+        refCode = generateReferralCode();
+        await supabaseAdmin.from('referral_codes').insert({
+          code: refCode,
+          owner_id: partner.id,
+          partner_id: partner.id,
+          clicks: 0,
+          conversions: 0,
         });
-
-      if (createError) {
-        console.error('[PUT /api/admin/partners/applications] Failed to create ambassador account:', createError);
-        return NextResponse.json({ error: 'Failed to create ambassador account' }, { status: 500 });
+      } else {
+        refCode = existingCode.code;
       }
-      console.log('[PUT /api/admin/partners/applications] Successfully created ambassador account');
-    } else {
-      // Update existing password
-      console.log('[PUT /api/admin/partners/applications] Ambassador account exists, updating password');
-      const { error: updateError } = await supabaseAdmin
-        .from('community_ambassadors')
-        .update({ password_hash: passwordHash })
-        .eq('email', application.email);
 
-      if (updateError) {
-        console.error('Failed to update ambassador password:', updateError);
-        return NextResponse.json({ error: 'Failed to update ambassador password' }, { status: 500 });
+      // Send approval welcome email
+      try {
+        await AdminEmailService.sendPartnerWelcomeEmail({
+          partnerName: partner.name,
+          partnerEmail: partner.email,
+          partnerId: partner.partner_id,
+          partnerType: 'affiliate',
+          referralCode: refCode,
+          tempPassword: 'Use your email OTP code to log in at /partners/login',
+        });
+      } catch (err) {
+        console.warn('Could not send approval email:', err);
       }
-      console.log('[PUT /api/admin/partners/applications] Password updated successfully in database');
     }
 
-    // Send email
-    console.log('[PUT /api/admin/partners/applications] Attempting to send email to:', application.email);
-    const emailResult = await PartnerEmailService.sendApplicationApprovedEmail(
-      application.email,
-      application.full_name,
-      temporaryPassword,
-      'https://www.autolearnspot.com/partners/login',
-      'https://www.autolearnspot.com/partners/dashboard',
-      commissionRate
+    return NextResponse.json({ success: true, partner });
+  } catch (error: any) {
+    console.error('[POST /api/admin/partners/applications] Error:', error);
+    return NextResponse.json(
+      { error: error.message || 'Internal Server Error' },
+      { status: 500 }
     );
-
-    console.log('[PUT /api/admin/partners/applications] Email result:', emailResult);
-
-    if (!emailResult) {
-      console.error('[PUT /api/admin/partners/applications] Email sending failed');
-      return NextResponse.json({ error: 'Failed to send email' }, { status: 500 });
-    }
-
-    return NextResponse.json({ success: true, message: 'Email resent successfully' });
-  } catch (error) {
-    console.error('[PUT /api/admin/partners/applications] Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

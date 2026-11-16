@@ -114,57 +114,41 @@ export async function POST(request: Request) {
     }
     */
 
-    // Check if application already exists for this email
-    const { data: existingApplication } = await supabaseAdmin
-      .from('partner_applications')
+    // Check if application or partner already exists for this email
+    const cleanEmail = email.toLowerCase().trim();
+    const { data: existingPartner } = await supabaseAdmin
+      .from('partners')
       .select('id, status')
-      .eq('email', email)
-      .single();
+      .eq('email', cleanEmail)
+      .maybeSingle();
 
-    if (existingApplication) {
-      if (existingApplication.status === 'pending' || existingApplication.status === 'under_review') {
-        return NextResponse.json({ error: 'You already have a pending application' }, { status: 400 });
+    if (existingPartner) {
+      if (existingPartner.status === 'pending') {
+        return NextResponse.json({ error: 'You already have a pending application under review.' }, { status: 400 });
       }
-      if (existingApplication.status === 'approved') {
-        return NextResponse.json({ error: 'You are already a partner' }, { status: 400 });
+      if (existingPartner.status === 'active') {
+        return NextResponse.json({ error: 'You are already an active partner. Please sign in at /partners/login.' }, { status: 400 });
       }
     }
 
-    // Create application
-    console.log('[POST /api/partners/apply] Creating application with data:', {
-      full_name,
-      email,
-      phone,
-      whatsapp,
-      state,
-      occupation,
-      motivation,
-      promotion_method,
-      has_organization: !!organization,
-      has_website: !!website
-    });
+    // Generate ALS Partner ID
+    const prefix = 'ALS';
+    const suffix = Math.floor(1000 + Math.random() * 9000).toString();
+    const newPartnerId = `${prefix}${suffix}`;
 
+    // Create partner application in partners table
     const { data: application, error } = await supabaseAdmin
-      .from('partner_applications')
+      .from('partners')
       .insert({
-        full_name,
-        email,
-        phone,
-        whatsapp,
-        state,
-        occupation,
-        motivation,
-        promotion_method,
-        organization,
-        website,
-        facebook,
-        instagram,
-        tiktok,
-        linkedin,
-        youtube,
-        experience,
-        // passport_url - temporarily removed due to schema issues
-        status: 'pending'
+        partner_id: newPartnerId,
+        name: full_name,
+        email: cleanEmail,
+        phone: phone || whatsapp,
+        status: 'pending',
+        total_clicks: 0,
+        total_registrations: 0,
+        available_earnings: 0,
+        total_earnings: 0
       })
       .select()
       .single();

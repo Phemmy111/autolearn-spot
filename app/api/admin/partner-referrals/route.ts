@@ -1,68 +1,61 @@
 import { NextResponse } from 'next/server';
-import { isAdmin } from '@/lib/admin';
+import { requireAdmin } from '@/lib/admin';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
-    const isAdminUser = await isAdmin();
-    if (!isAdminUser) {
-      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 401 });
-    }
-    
+    await requireAdmin();
+
     const { searchParams } = new URL(request.url);
     const partnerId = searchParams.get('partnerId');
-    
+
     if (!partnerId) {
       return NextResponse.json({ error: 'Partner ID required' }, { status: 400 });
     }
-    
-    console.log('[GET /api/admin/partner-referrals] V2 - Fetching for partner ID:', partnerId);
-    
-    // Get partner type to determine referrer_id
-    const { data: partner, error: partnerError } = await supabaseAdmin
+
+    // Resolve partner
+    const { data: partner } = await supabaseAdmin
       .from('partners')
-      .select('partner_type, clerk_user_id')
-      .eq('id', partnerId)
+      .select('id, name, email')
+      .or(`id.eq.${partnerId},partner_id.eq.${partnerId}`)
       .single();
-    
-    console.log('[GET /api/admin/partner-referrals] V2 - Partner query result:', partner, partnerError);
-    
+
     if (!partner) {
-      console.error('[GET /api/admin/partner-referrals] V2 - Partner not found. Error:', partnerError);
-      return NextResponse.json({ error: 'Partner not found', details: partnerError }, { status: 404 });
+      return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
     }
-    
-    // For student partners, use clerk_user_id as referrer_id
-    // For community/influencer partners, use partner.id
-    const referrerId = partner.partner_type === 'student' ? partner.clerk_user_id : partnerId;
-    
-    console.log('[GET /api/admin/partner-referrals] V2 - Partner:', partnerId, 'Type:', partner.partner_type, 'Referrer ID:', referrerId);
-    
-    // Fetch recent referrals for this partner
-    const { data: referrals, error } = await supabaseAdmin
+
+    // Fetch commissions / referral transactions
+    const { data: commissions, error: commError } = await supabaseAdmin
       .from('commissions')
       .select('*')
-      .eq('referrer_id', referrerId)
-      .order('created_at', { ascending: false })
-      .limit(10);
-    
-    console.log('[GET /api/admin/partner-referrals] V2 - Referrals found:', referrals?.length, 'Error:', error);
-    
-    if (error) {
-      console.error('Error fetching referrals:', error);
-      return NextResponse.json({ error: 'Failed to fetch referrals', details: error }, { status: 500 });
-    }
-    
+      .eq('referrer_id', partner.id)
+      .order('created_at', { ascending: false });
+
+    if (commError) throw commError;
+
+    // Fetch referral codes
+    const { data: refCodes } = await supabaseAdmin
+      .from('referral_codes')
+      .select('*')
+      .or(`owner_id.eq.${partner.id},partner_id.eq.${partner.id}`);
+
     return NextResponse.json({
       success: true,
-      referrals: referrals || []
+      partner,
+      referrals: commissions || [],
+      referralCodes: refCodes || [],
     });
-  } catch (error) {
-    console.error('[GET /api/admin/partner-referrals] V2 - Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error', details: String(error) }, { status: 500 });
+  } catch (error: any) {
+    console.error('[GET /api/admin/partner-referrals] Error:', error);
+    return NextResponse.json(
+      { error: error.message || 'Internal Server Error' },
+      { status: 500 }
+    );
   }
 }

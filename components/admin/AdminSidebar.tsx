@@ -130,6 +130,7 @@ const navigation: NavSection[] = [
   {
     title: 'AI & ALEX',
     items: [
+      { label: 'ALEX Chat Monitor', href: '/admin/alex-monitor', icon: MessageSquare },
       { label: 'ALEX Providers', href: '/admin/alex-providers', icon: Bot },
       { label: 'AI Playground', href: '/admin/ai-playground', icon: Sparkles },
       { label: 'AI Prompts', href: '/admin/ai-prompts', icon: MessageSquare },

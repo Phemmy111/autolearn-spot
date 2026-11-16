@@ -43,52 +43,45 @@ export class PartnerWithdrawalService {
         return { success: false, error: 'Insufficient balance' };
       }
 
-      // Create withdrawal request
+      // Create withdrawal request in author_withdrawals
+      const reference = `WD-P-${Date.now().toString(36).toUpperCase()}`;
       const { data: withdrawalData, error: withdrawalError } = await supabase
-        .from('partner_withdrawals')
+        .from('author_withdrawals')
         .insert({
-          partner_id: partnerId,
+          author_id: partnerId,
           amount: amount,
-          status: 'pending',
-          bank_name: bankName,
-          account_number: accountNumber,
-          account_name: accountName
+          status: 'PENDING',
+          reference: reference
         })
         .select()
         .single();
 
       if (withdrawalError) {
-        console.error('Error creating withdrawal:', withdrawalError);
+        console.error('Error creating withdrawal in author_withdrawals:', withdrawalError);
         return { success: false, error: 'Failed to create withdrawal request' };
       }
 
-      // Deduct from available earnings (temporarily)
+      // Upsert bank profile for record
+      try {
+        await supabase
+          .from('partner_bank_profiles')
+          .upsert({
+            partner_id: partnerId,
+            bank_name: bankName,
+            account_number: accountNumber,
+            account_name: accountName
+          }, { onConflict: 'partner_id' });
+      } catch (be) {
+        console.warn('Bank profile upsert note:', be);
+      }
+
+      // Deduct from available earnings
       await supabase
         .from('partners')
         .update({
-          available_earnings: partner.available_earnings - amount
+          available_earnings: Math.max(0, (partner.available_earnings || 0) - amount)
         })
         .eq('id', partnerId);
-
-      // Log activity
-      await supabase.from('partner_activity_logs').insert({
-        partner_id: partnerId,
-        activity_type: 'withdrawal_requested',
-        activity_data: {
-          amount: amount,
-          bank_name: bankName,
-          account_number: accountNumber
-        }
-      });
-
-      // Create notification
-      await supabase.from('partner_notifications').insert({
-        partner_id: partnerId,
-        title: 'Withdrawal Request Submitted',
-        message: `Your withdrawal request of ₦${amount} has been submitted and is being reviewed.`,
-        notification_type: 'withdrawal',
-        action_url: '/partners/dashboard?tab=withdrawals'
-      });
 
       return { success: true, withdrawal: withdrawalData };
     } catch (error) {
