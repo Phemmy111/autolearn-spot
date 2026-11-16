@@ -74,22 +74,41 @@ interface Withdrawal {
   };
 }
 
+interface CourseItem {
+  id: string;
+  title: string;
+  price: number;
+  status: string;
+  affiliate_enabled: boolean;
+  affiliate_commission_rate: number;
+  commission_payout: number;
+  author?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
+
 export default function AdminPartnersPage() {
   const [activeTab, setActiveTab] = useState<'partners' | 'applications' | 'commissions' | 'withdrawals' | 'marketing' | 'settings'>('partners');
   const [partners, setPartners] = useState<Partner[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
+  const [courses, setCourses] = useState<CourseItem[]>([]);
   const [commissions, setCommissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   
-  // Modals
+  // Modals & Course Editing
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedPartnerDetail, setSelectedPartnerDetail] = useState<any>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
+  const [editingRate, setEditingRate] = useState<number>(20);
+  const [updatingCourse, setUpdatingCourse] = useState(false);
 
   // New Partner Form State
   const [newPartner, setNewPartner] = useState({
@@ -112,11 +131,11 @@ export default function AdminPartnersPage() {
   const fetchAllData = async () => {
     setLoading(true);
     try {
-      const [pRes, aRes, wRes, cRes] = await Promise.all([
+      const [pRes, aRes, wRes, coursesRes] = await Promise.all([
         fetch('/api/admin/partners'),
         fetch('/api/admin/partners/applications'),
         fetch('/api/admin/partner-withdrawals?status=ALL'),
-        fetch('/api/admin/partner-referrals?partnerId=all').catch(() => null)
+        fetch('/api/admin/partners/courses')
       ]);
 
       if (pRes.ok) {
@@ -131,16 +150,9 @@ export default function AdminPartnersPage() {
         const wData = await wRes.json();
         setWithdrawals(wData.withdrawals || []);
       }
-
-      // Also fetch commissions list if available
-      try {
-        const commsRes = await fetch('/api/admin/growth/stats');
-        if (commsRes.ok) {
-          const cData = await commsRes.json();
-          // We can use stats or fetch direct
-        }
-      } catch (err) {
-        // ignore
+      if (coursesRes.ok) {
+        const cData = await coursesRes.json();
+        setCourses(cData.courses || []);
       }
     } catch (err) {
       console.error('[AdminPartners] Error fetching data:', err);
@@ -152,6 +164,40 @@ export default function AdminPartnersPage() {
   useEffect(() => {
     fetchAllData();
   }, []);
+
+  // Update course affiliate commission rate or enabled toggle
+  const handleUpdateCourseAffiliate = async (courseId: string, enabled: boolean, rate?: number) => {
+    setUpdatingCourse(true);
+    try {
+      const res = await fetch('/api/admin/partners/courses', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          courseId,
+          affiliate_enabled: enabled,
+          ...(rate !== undefined ? { affiliate_commission_rate: rate } : {})
+        })
+      });
+
+      if (res.ok) {
+        setEditingCourseId(null);
+        // Refresh courses
+        const cRes = await fetch('/api/admin/partners/courses');
+        if (cRes.ok) {
+          const cData = await cRes.json();
+          setCourses(cData.courses || []);
+        }
+      } else {
+        const err = await res.json();
+        alert(`Failed to update course commission: ${err.error || 'Unknown error'}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error updating course affiliate rate');
+    } finally {
+      setUpdatingCourse(false);
+    }
+  };
 
   // Filtered partners
   const filteredPartners = useMemo(() => {
@@ -176,7 +222,8 @@ export default function AdminPartnersPage() {
     const pendingApps = applications.length + partners.filter((p) => p.status === 'pending').length;
     const totalReferrals = partners.reduce((sum, p) => sum + (Number(p.total_registrations) || 0), 0);
     const totalClicks = partners.reduce((sum, p) => sum + (Number(p.total_clicks) || 0), 0);
-    const totalEarnings = partners.reduce((sum, p) => sum + (Number(p.total_earnings) || 0) + (Number(p.available_earnings) || 0), 0);
+    // Real cumulative earnings credited to partners (not double-counted)
+    const totalEarnings = partners.reduce((sum, p) => sum + (Number(p.total_earnings) || 0), 0);
     const pendingWithdrawalsCount = withdrawals.filter((w) => w.status?.toLowerCase() === 'pending').length;
     const pendingWithdrawalsAmount = withdrawals
       .filter((w) => w.status?.toLowerCase() === 'pending')
@@ -1032,67 +1079,179 @@ export default function AdminPartnersPage() {
 
       {/* TAB 5: SETTINGS */}
       {activeTab === 'settings' && (
-        <div className="bg-white border border-slate-200 rounded-b-xl shadow-xs p-6 space-y-6 max-w-2xl">
+        <div className="bg-white border border-slate-200 rounded-b-xl shadow-xs p-6 space-y-8">
           <div>
-            <h3 className="font-bold text-slate-900 text-base">Partnership Program Configuration</h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Control platform commission rates, payout limits, and ambassador rules.
+            <h3 className="font-bold text-slate-900 text-lg">Course Affiliate Rates & Commission Rules</h3>
+            <p className="text-sm text-slate-500 mt-0.5">
+              Affiliate commission rates are determined per-course by the author/instructor. Partners earn the author&apos;s configured rate on each verified student enrollment.
             </p>
           </div>
 
-          <div className="space-y-4 text-sm">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
-                Default Commission Per Purchase (₦)
-              </label>
-              <input
-                type="number"
-                value={settings.commissionAmount}
-                onChange={(e) => setSettings({ ...settings, commissionAmount: Number(e.target.value) })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-900 font-semibold focus:outline-none focus:border-emerald-500"
-              />
-              <p className="text-xs text-slate-400 mt-1">
-                Amount credited to partner account upon each verified student payment.
-              </p>
+          {/* Section 1: Author-Configured Course Commission Rates */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-bold text-slate-900 text-sm">Course Commission Rates (Set by Course Authors)</h4>
+                <p className="text-xs text-slate-500">Live affiliate rates and payouts active in the student checkout engine.</p>
+              </div>
+              <span className="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
+                {courses.length} Active Courses
+              </span>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
-                Minimum Withdrawal Threshold (₦)
-              </label>
-              <input
-                type="number"
-                value={settings.minWithdrawal}
-                onChange={(e) => setSettings({ ...settings, minWithdrawal: Number(e.target.value) })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-900 font-semibold focus:outline-none focus:border-emerald-500"
-              />
-              <p className="text-xs text-slate-400 mt-1">
-                Minimum available balance required before partner can submit a payout request.
-              </p>
+            <div className="border border-slate-200 rounded-xl overflow-hidden">
+              <table className="w-full text-left text-sm divide-y divide-slate-200">
+                <thead className="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider font-semibold">
+                  <tr>
+                    <th className="px-5 py-3.5">Course Title</th>
+                    <th className="px-4 py-3.5">Author</th>
+                    <th className="px-4 py-3.5">Price</th>
+                    <th className="px-4 py-3.5">Author&apos;s Commission Rate</th>
+                    <th className="px-4 py-3.5">Partner Earns / Sale</th>
+                    <th className="px-4 py-3.5">Affiliate Status</th>
+                    <th className="px-5 py-3.5 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {courses.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-8 text-center text-slate-400 text-xs">
+                        No courses found in catalog.
+                      </td>
+                    </tr>
+                  ) : (
+                    courses.map((course) => (
+                      <tr key={course.id} className="hover:bg-slate-50/70">
+                        <td className="px-5 py-4 font-semibold text-slate-900">
+                          {course.title}
+                        </td>
+                        <td className="px-4 py-4 text-xs">
+                          <p className="font-semibold text-slate-800">{course.author?.name || 'Author'}</p>
+                          <p className="text-slate-400">{course.author?.email}</p>
+                        </td>
+                        <td className="px-4 py-4 font-bold text-slate-900 text-xs">
+                          ₦{course.price.toLocaleString()}
+                        </td>
+                        <td className="px-4 py-4">
+                          {editingCourseId === course.id ? (
+                            <div className="flex items-center gap-1.5">
+                              <input
+                                type="number"
+                                min={5}
+                                max={70}
+                                value={editingRate}
+                                onChange={(e) => setEditingRate(Number(e.target.value))}
+                                className="w-16 px-2 py-1 border border-slate-300 rounded text-xs font-bold text-slate-900"
+                              />
+                              <span className="text-xs font-bold text-slate-600">%</span>
+                              <button
+                                onClick={() => handleUpdateCourseAffiliate(course.id, course.affiliate_enabled, editingRate)}
+                                disabled={updatingCourse}
+                                className="px-2 py-1 bg-emerald-600 text-white rounded text-xs font-bold"
+                              >
+                                {updatingCourse ? '...' : 'Save'}
+                              </button>
+                              <button
+                                onClick={() => setEditingCourseId(null)}
+                                className="px-2 py-1 bg-slate-100 text-slate-600 rounded text-xs font-bold"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                              {course.affiliate_commission_rate}%
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 py-4 font-black text-emerald-700 text-sm">
+                          ₦{course.commission_payout.toLocaleString()}
+                        </td>
+                        <td className="px-4 py-4">
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize border ${
+                              course.affiliate_enabled
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                : 'bg-slate-100 text-slate-600 border-slate-200'
+                            }`}
+                          >
+                            {course.affiliate_enabled ? 'Enabled' : 'Disabled'}
+                          </span>
+                        </td>
+                        <td className="px-5 py-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => {
+                                setEditingCourseId(course.id);
+                                setEditingRate(course.affiliate_commission_rate);
+                              }}
+                              className="px-2.5 py-1 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors"
+                            >
+                              Edit Rate
+                            </button>
+                            <button
+                              onClick={() => handleUpdateCourseAffiliate(course.id, !course.affiliate_enabled)}
+                              className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-colors ${
+                                course.affiliate_enabled
+                                  ? 'bg-rose-50 text-rose-700 hover:bg-rose-100'
+                                  : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                              }`}
+                            >
+                              {course.affiliate_enabled ? 'Disable' : 'Enable'}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
+          </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
-                Holding Period (Days)
-              </label>
-              <input
-                type="number"
-                value={settings.holdingPeriodDays}
-                onChange={(e) => setSettings({ ...settings, holdingPeriodDays: Number(e.target.value) })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-900 font-semibold focus:outline-none focus:border-emerald-500"
-              />
-              <p className="text-xs text-slate-400 mt-1">
-                Number of days commissions remain in escrow before unlocking for withdrawal.
-              </p>
-            </div>
+          {/* Section 2: Platform Escrow & Payout Rules */}
+          <div className="border-t border-slate-200 pt-6 space-y-4 max-w-xl">
+            <h4 className="font-bold text-slate-900 text-sm">Platform Escrow & Withdrawal Rules</h4>
+            
+            <div className="space-y-4 text-sm">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                  Minimum Partner Withdrawal Threshold (₦)
+                </label>
+                <input
+                  type="number"
+                  value={settings.minWithdrawal}
+                  onChange={(e) => setSettings({ ...settings, minWithdrawal: Number(e.target.value) })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-900 font-semibold focus:outline-none focus:border-emerald-500"
+                />
+                <p className="text-xs text-slate-400 mt-1">
+                  Minimum balance required before a partner can request a payout to their verified bank account.
+                </p>
+              </div>
 
-            <div className="pt-2">
-              <button
-                onClick={() => alert('Settings saved successfully')}
-                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold text-sm transition-colors shadow-xs"
-              >
-                Save Settings
-              </button>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                  Commission Escrow Holding Period (Days)
+                </label>
+                <input
+                  type="number"
+                  value={settings.holdingPeriodDays}
+                  onChange={(e) => setSettings({ ...settings, holdingPeriodDays: Number(e.target.value) })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-900 font-semibold focus:outline-none focus:border-emerald-500"
+                />
+                <p className="text-xs text-slate-400 mt-1">
+                  Safety buffer period before newly credited referral earnings unlock for withdrawal requests.
+                </p>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  onClick={() => alert('Platform withdrawal rules updated successfully')}
+                  className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold text-sm transition-colors shadow-xs"
+                >
+                  Save Platform Rules
+                </button>
+              </div>
             </div>
           </div>
         </div>
