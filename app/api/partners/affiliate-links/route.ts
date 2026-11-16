@@ -43,50 +43,69 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'This product does not accept affiliates' }, { status: 400 });
   }
 
-  // Check if already exists
-  const { data: existing } = await supabaseAdmin
-    .from('affiliate_links')
-    .select('id, referral_code_id')
-    .eq('partner_id', partner.id)
-    .eq('learning_product_id', learning_product_id)
-    .single();
+  // 1. Fetch partner's existing referral codes
+  const { data: partnerCodes } = await supabaseAdmin
+    .from('referral_codes')
+    .select('id, code, clicks, conversions')
+    .or(`owner_id.eq.${partner.id},partner_id.eq.${partner.id}`);
 
-  if (existing) {
-    const { data: refCode } = await supabaseAdmin
+  const codeIds = (partnerCodes || []).map((c: any) => c.id);
+
+  // 2. Check if an affiliate link already exists for this partner & product
+  if (codeIds.length > 0) {
+    const { data: existing } = await supabaseAdmin
+      .from('affiliate_links')
+      .select('id, referral_code_id, unique_code')
+      .eq('learning_product_id', learning_product_id)
+      .in('referral_code_id', codeIds)
+      .limit(1)
+      .maybeSingle();
+
+    if (existing) {
+      const matchingCode = partnerCodes?.find((c: any) => c.id === existing.referral_code_id);
+      const codeStr = existing.unique_code || matchingCode?.code;
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
+      return NextResponse.json({
+        id: existing.id,
+        affiliate_url: `${appUrl}/marketplace/${product.slug || product.id}?ref=${codeStr}`,
+        code: codeStr,
+        already_existed: true,
+      });
+    }
+  }
+
+  // 3. Use partner's existing referral code or create a new one
+  let refCode = partnerCodes?.[0];
+  if (!refCode) {
+    const code = generateAffiliateCode();
+    const { data: createdCode, error: refError } = await supabaseAdmin
       .from('referral_codes')
-      .select('code')
-      .eq('id', existing.referral_code_id)
+      .insert({
+        owner_id: partner.id,
+        partner_id: partner.id,
+        code,
+        clicks: 0,
+        conversions: 0,
+      })
+      .select('id, code')
       .single();
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
-    return NextResponse.json({
-      id: existing.id,
-      affiliate_url: `${appUrl}/marketplace/${product.slug}?ref=${refCode?.code}`,
-      code: refCode?.code,
-      already_existed: true,
-    });
+    if (refError || !createdCode) {
+      console.error('[Affiliate Links POST] Error creating referral code:', refError);
+      return NextResponse.json({ error: refError?.message || 'Failed to create referral code' }, { status: 500 });
+    }
+    refCode = createdCode;
   }
 
-  // Create referral code with valid owner_type matching table constraint
-  const ownerType = partner.partner_type === 'influencer' ? 'influencer' : 
-                   partner.partner_type === 'student' ? 'student' : 'community';
-
-  const code = generateAffiliateCode();
-  const { data: refCode, error: refError } = await supabaseAdmin
-    .from('referral_codes')
-    .insert({ owner_id: partner.id, owner_type: ownerType, code, status: 'Active' })
-    .select('id, code')
-    .single();
-
-  if (refError || !refCode) {
-    console.error('[Affiliate Links POST] Error creating referral code:', refError);
-    return NextResponse.json({ error: refError?.message || 'Failed to create referral code' }, { status: 500 });
-  }
-
+  // 4. Create affiliate link record in affiliate_links
   const { data: link, error: linkError } = await supabaseAdmin
     .from('affiliate_links')
-    .insert({ partner_id: partner.id, learning_product_id, referral_code_id: refCode.id })
-    .select('id')
+    .insert({
+      referral_code_id: refCode.id,
+      learning_product_id,
+      unique_code: refCode.code,
+    })
+    .select('id, unique_code')
     .single();
 
   if (linkError || !link) {
@@ -97,7 +116,7 @@ export async function POST(request: NextRequest) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
   return NextResponse.json({
     id: link.id,
-    affiliate_url: `${appUrl}/marketplace/${product.slug}?ref=${refCode.code}`,
+    affiliate_url: `${appUrl}/marketplace/${product.slug || product.id}?ref=${refCode.code}`,
     code: refCode.code,
     already_existed: false,
   });
@@ -111,10 +130,22 @@ export async function GET() {
   const partner = await resolvePartner(session);
   if (!partner) return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
 
+  // 1. Get all referral codes owned by this partner
+  const { data: partnerCodes } = await supabaseAdmin
+    .from('referral_codes')
+    .select('id, code, clicks, conversions')
+    .or(`owner_id.eq.${partner.id},partner_id.eq.${partner.id}`);
+
+  if (!partnerCodes || partnerCodes.length === 0) return NextResponse.json([]);
+
+  const codeMap = Object.fromEntries(partnerCodes.map((c: any) => [c.id, c]));
+  const codeIds = partnerCodes.map((c: any) => c.id);
+
+  // 2. Fetch affiliate links for these codes
   const { data: links } = await supabaseAdmin
     .from('affiliate_links')
-    .select('id, learning_product_id, referral_code_id, clicks, conversions, total_earned, created_at')
-    .eq('partner_id', partner.id)
+    .select('id, learning_product_id, referral_code_id, unique_code, created_at')
+    .in('referral_code_id', codeIds)
     .order('created_at', { ascending: false });
 
   if (!links || links.length === 0) return NextResponse.json([]);
@@ -127,22 +158,18 @@ export async function GET() {
 
   const productMap = Object.fromEntries((products || []).map((p: any) => [p.id, p]));
 
-  const codeIds = links.map((l: any) => l.referral_code_id).filter(Boolean);
-  const { data: codes } = codeIds.length > 0
-    ? await supabaseAdmin.from('referral_codes').select('id, code').in('id', codeIds)
-    : { data: [] };
-
-  const codeMap = Object.fromEntries((codes || []).map((c: any) => [c.id, c.code]));
-
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
   const enriched = links.map((l: any) => {
     const product = productMap[l.learning_product_id] || {};
-    const code = codeMap[l.referral_code_id] || '';
+    const refCodeObj = codeMap[l.referral_code_id];
+    const code = l.unique_code || refCodeObj?.code || '';
     return {
       ...l,
       product,
       code,
-      affiliate_url: product.slug ? `${appUrl}/marketplace/${product.slug}?ref=${code}` : null,
+      clicks: refCodeObj?.clicks || 0,
+      conversions: refCodeObj?.conversions || 0,
+      affiliate_url: product.slug ? `${appUrl}/marketplace/${product.slug}?ref=${code}` : `${appUrl}/marketplace/${l.learning_product_id}?ref=${code}`,
     };
   });
 

@@ -35,11 +35,21 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Check which ones the partner is already promoting
-  const { data: existingLinks } = await supabaseAdmin
-    .from('affiliate_links')
-    .select('id, learning_product_id')
-    .eq('partner_id', partner.id);
+  // 1. Fetch partner's referral codes
+  const { data: partnerCodes } = await supabaseAdmin
+    .from('referral_codes')
+    .select('id')
+    .or(`owner_id.eq.${partner.id},partner_id.eq.${partner.id}`);
+
+  const codeIds = (partnerCodes || []).map((c: any) => c.id);
+
+  // 2. Check which products the partner already has links for
+  const { data: existingLinks } = codeIds.length > 0
+    ? await supabaseAdmin
+        .from('affiliate_links')
+        .select('id, learning_product_id')
+        .in('referral_code_id', codeIds)
+    : { data: [] };
 
   const promotingSet = new Set((existingLinks || []).map((l: any) => l.learning_product_id));
 

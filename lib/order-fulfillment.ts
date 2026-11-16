@@ -298,15 +298,18 @@ async function processAffiliateCommission(
     for (const item of orderItems) {
       const { data: refCode } = await supabaseAdmin
         .from('referral_codes')
-        .select('id, owner_id, owner_type')
+        .select('id, owner_id, partner_id, conversions')
         .eq('code', affiliateRef)
         .maybeSingle();
 
       if (!refCode) continue;
 
+      const partnerId = refCode.partner_id || refCode.owner_id;
+      if (!partnerId) continue;
+
       const { data: affLink } = await supabaseAdmin
         .from('affiliate_links')
-        .select('id, partner_id')
+        .select('id, referral_code_id, learning_product_id, unique_code')
         .eq('referral_code_id', refCode.id)
         .eq('learning_product_id', item.learning_product_id)
         .maybeSingle();
@@ -327,58 +330,46 @@ async function processAffiliateCommission(
 
       const { data: currentPartner } = await supabaseAdmin
         .from('partners')
-        .select('id, email, full_name, user_type, available_earnings, lifetime_earnings')
-        .eq('id', affLink.partner_id)
+        .select('id, email, name, available_earnings, total_earnings, total_registrations')
+        .eq('id', partnerId)
         .maybeSingle();
 
-      const referrerType = currentPartner?.user_type === 'ambassador' ? 'ambassador' : 'partner';
-
-      // Insert commission
+      // Insert commission matching commissions table schema
       await supabaseAdmin.from('commissions').insert({
-        referrer_id: affLink.partner_id,
-        referrer_type: referrerType,
-        referee_email: email,
-        referral_code: affiliateRef,
-        payment_reference: reference,
+        referrer_id: partnerId,
+        learning_product_id: item.learning_product_id,
         amount: affiliateAmount,
         status: 'available',
-        learning_product_id: item.learning_product_id,
-        holding_period_ends_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        payment_reference: reference,
+        payment_date: new Date().toISOString(),
+        holding_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
       });
 
-      // Credit partner earnings
+      // Credit partner earnings & registrations
       if (currentPartner) {
         await supabaseAdmin.from('partners').update({
           available_earnings: (currentPartner.available_earnings || 0) + affiliateAmount,
-          lifetime_earnings: (currentPartner.lifetime_earnings || 0) + affiliateAmount,
-        }).eq('id', affLink.partner_id);
+          total_earnings: (currentPartner.total_earnings || 0) + affiliateAmount,
+          total_registrations: (currentPartner.total_registrations || 0) + 1,
+        }).eq('id', partnerId);
       }
 
-      // Update link stats
-      const { data: currentLink } = await supabaseAdmin
-        .from('affiliate_links')
-        .select('conversions, total_earned')
-        .eq('id', affLink.id)
-        .single();
-
-      if (currentLink) {
-        await supabaseAdmin.from('affiliate_links').update({
-          conversions: (currentLink.conversions || 0) + 1,
-          total_earned: (currentLink.total_earned || 0) + affiliateAmount,
-        }).eq('id', affLink.id);
-      }
+      // Update referral_codes conversions
+      await supabaseAdmin.from('referral_codes').update({
+        conversions: (refCode.conversions || 0) + 1,
+      }).eq('id', refCode.id);
 
       // Partner notification
       if (currentPartner?.email) {
         try {
           await PartnerEmailService.sendCommissionEarnedEmail(
             currentPartner.email,
-            currentPartner.full_name || 'Partner',
+            currentPartner.name || 'Partner',
             affiliateAmount,
             email
           );
           await PartnerNotificationService.createNotification({
-            partnerId: affLink.partner_id,
+            partnerId: partnerId,
             type: 'commission_earned',
             title: 'Commission Earned! 💰',
             message: `You earned ₦${affiliateAmount.toLocaleString()} from a course referral.`,

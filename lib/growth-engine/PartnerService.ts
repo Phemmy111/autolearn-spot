@@ -465,10 +465,10 @@ export class PartnerService {
         .eq('referred_by_code', referralCode.code)
         .eq('status', 'active');
 
-      // Update referral_codes total_registrations
+      // Update referral_codes conversions and clicks
       await supabaseAdmin
         .from('referral_codes')
-        .update({ total_registrations: totalRegistrations || 0 })
+        .update({ conversions: totalRegistrations || 0, clicks: totalClicks || 0 })
         .eq('id', referralCode.id);
 
       // Get commission stats using appropriate referrer_id

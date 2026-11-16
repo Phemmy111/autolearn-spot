@@ -27,8 +27,10 @@ export class ReferralService {
       const { data: existingCode, error: fetchError } = await supabaseAdmin
         .from('referral_codes')
         .select('*')
-        .eq('owner_id', ownerId)
-        .single();
+        .or(`owner_id.eq.${ownerId},partner_id.eq.${ownerId}`)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (existingCode) {
         return existingCode as ReferralCode;
@@ -44,10 +46,11 @@ export class ReferralService {
       const { data: createdCode, error: insertError } = await supabaseAdmin
         .from('referral_codes')
         .insert({
-          owner_id: ownerId, // This should be the partner.id (UUID)
+          owner_id: ownerId,
+          partner_id: ownerId,
           code: newCode,
-          status: 'Active',
-          owner_type: ownerType
+          clicks: 0,
+          conversions: 0,
         })
         .select()
         .single();
@@ -76,25 +79,23 @@ export class ReferralService {
    * Validates a referral code and ensures it doesn't belong to the applicant (self-referral prevention).
    */
   static async validateAndAttribute(code: string, applicantUserId?: string): Promise<{ valid: boolean; code?: string; owner_type?: string; owner_id?: string }> {
-    if (!code || code.length !== 8) return { valid: false };
+    if (!code) return { valid: false };
 
     try {
       const { data, error } = await supabaseAdmin
         .from('referral_codes')
-        .select('status, owner_id, owner_type')
+        .select('id, code, owner_id, partner_id, clicks, conversions')
         .eq('code', code)
-        .single();
+        .maybeSingle();
 
       if (error || !data) return { valid: false };
       
-      if (data.status !== 'Active') return { valid: false };
-      
       // Prevent self-referral
-      if (applicantUserId && data.owner_id === applicantUserId) {
+      if (applicantUserId && (data.owner_id === applicantUserId || data.partner_id === applicantUserId)) {
         return { valid: false };
       }
       
-      return { valid: true, code, owner_type: data.owner_type, owner_id: data.owner_id };
+      return { valid: true, code, owner_type: 'community', owner_id: data.owner_id || data.partner_id };
     } catch (error) {
       console.error('Exception in validateAndAttribute:', error);
       return { valid: false };
@@ -150,12 +151,19 @@ export class ReferralService {
     try {
       const { data, error } = await supabaseAdmin
         .from('referral_codes')
-        .select('code, total_clicks, total_registrations, owner_type')
-        .eq('owner_id', ownerId)
-        .single();
+        .select('code, clicks, conversions')
+        .or(`owner_id.eq.${ownerId},partner_id.eq.${ownerId}`)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (error || !data) return null;
-      return { code: data.code, totalClicks: data.total_clicks, totalRegistrations: data.total_registrations, ownerType: data.owner_type };
+      return {
+        code: data.code,
+        totalClicks: data.clicks || 0,
+        totalRegistrations: data.conversions || 0,
+        ownerType: 'community'
+      };
     } catch (error) {
       console.error('Exception in getReferralStats:', error);
       return null;
