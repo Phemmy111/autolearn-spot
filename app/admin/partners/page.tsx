@@ -26,7 +26,9 @@ import {
   Briefcase,
   Share2,
   FolderDown,
-  Building
+  Building,
+  BookOpen,
+  Sparkles
 } from 'lucide-react';
 
 interface Partner {
@@ -42,6 +44,8 @@ interface Partner {
   available_earnings: number;
   total_earnings: number;
   referral_code?: string;
+  promoted_products?: any[];
+  promoted_products_count?: number;
   created_at: string;
   updated_at?: string;
 }
@@ -109,6 +113,12 @@ export default function AdminPartnersPage() {
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
   const [editingRate, setEditingRate] = useState<number>(20);
   const [updatingCourse, setUpdatingCourse] = useState(false);
+
+  // Product Links Modal (Product-based affiliate system)
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [selectedProductModalPartner, setSelectedProductModalPartner] = useState<Partner | null>(null);
+  const [selectedCourseForModal, setSelectedCourseForModal] = useState<string>('');
+  const [generatingLink, setGeneratingLink] = useState(false);
 
   // New Partner Form State
   const [newPartner, setNewPartner] = useState({
@@ -327,6 +337,63 @@ export default function AdminPartnersPage() {
     }
   };
 
+  // Open Product Links Management Modal
+  const openProductLinksModal = (partner: Partner) => {
+    setSelectedProductModalPartner(partner);
+    setShowProductModal(true);
+    if (courses.length > 0 && !selectedCourseForModal) {
+      setSelectedCourseForModal(courses[0].id);
+    }
+  };
+
+  // Generate a Product-Specific Affiliate Link for a Partner
+  const handleGenerateLink = async (partnerId: string, courseId: string) => {
+    if (!courseId) {
+      alert('Please select a course');
+      return;
+    }
+    setGeneratingLink(true);
+    try {
+      const res = await fetch('/api/admin/partners/generate-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ partnerId, learningProductId: courseId })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        alert(`Affiliate link ready for "${data.link?.product_title}"!\nURL: ${data.link?.url}`);
+        await fetchAllData();
+
+        // Refresh modal partner view
+        const pRes = await fetch('/api/admin/partners');
+        if (pRes.ok) {
+          const pData = await pRes.json();
+          const refreshed = (pData.partners || []).find((p: any) => p.id === partnerId);
+          if (refreshed) setSelectedProductModalPartner(refreshed);
+        }
+
+        // Refresh detail modal if open
+        if (selectedPartnerDetail?.id === partnerId) {
+          const dRes = await fetch(`/api/admin/partner-details?partnerId=${partnerId}`);
+          if (dRes.ok) {
+            const dData = await dRes.json();
+            setSelectedPartnerDetail((prev: any) => ({
+              ...prev,
+              affiliateLinks: dData.affiliateLinks,
+              promotedProducts: dData.affiliateLinks
+            }));
+          }
+        }
+      } else {
+        alert(data.error || 'Failed to generate link');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Error generating link');
+    } finally {
+      setGeneratingLink(false);
+    }
+  };
+
   // Process Application (Approve / Reject)
   const handleProcessApplication = async (appId: string, action: 'approve' | 'reject') => {
     if (!confirm(`Are you sure you want to ${action.toUpperCase()} this partner application?`)) return;
@@ -392,14 +459,14 @@ export default function AdminPartnersPage() {
 
   // Export CSV
   const handleExportCSV = () => {
-    const headers = ['Partner ID', 'Name', 'Email', 'Phone', 'Status', 'Referral Code', 'Clicks', 'Conversions', 'Available Earnings (NGN)', 'Total Earnings (NGN)', 'Created At'];
+    const headers = ['Partner ID', 'Name', 'Email', 'Phone', 'Status', 'Promoted Courses', 'Clicks', 'Conversions', 'Available Earnings (NGN)', 'Total Earnings (NGN)', 'Created At'];
     const rows = partners.map((p) => [
-      p.partner_id,
+      p.partner_id || 'N/A',
       p.name || p.full_name,
       p.email,
       p.phone || '',
       p.status,
-      p.referral_code || '',
+      p.promoted_products?.map((l: any) => l.title).join('; ') || 'None',
       p.total_clicks || 0,
       p.total_registrations || 0,
       p.available_earnings || 0,
@@ -661,7 +728,7 @@ export default function AdminPartnersPage() {
                 <tr>
                   <th className="px-5 py-3.5">Partner</th>
                   <th className="px-4 py-3.5">Partner ID</th>
-                  <th className="px-4 py-3.5">Referral Code</th>
+                  <th className="px-4 py-3.5">Promoted Courses</th>
                   <th className="px-4 py-3.5">Traffic & Sales</th>
                   <th className="px-4 py-3.5">Available Balance</th>
                   <th className="px-4 py-3.5">Status</th>
@@ -718,37 +785,61 @@ export default function AdminPartnersPage() {
                         </td>
 
                         <td className="px-4 py-4">
-                          <span className="font-mono text-xs px-2.5 py-1 bg-slate-100 text-slate-700 rounded-md font-semibold border border-slate-200">
-                            {partner.partner_id || 'N/A'}
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-mono text-xs px-2.5 py-1 bg-slate-100 text-slate-800 rounded-md font-bold border border-slate-200">
+                              {partner.partner_id || 'N/A'}
+                            </span>
+                            {partner.partner_id && partner.partner_id !== 'N/A' && (
+                              <button
+                                onClick={() => copyToClipboard(partner.partner_id, `pid-${partner.id}`)}
+                                className="text-slate-400 hover:text-slate-600 p-1"
+                                title="Copy Partner ID"
+                              >
+                                {copiedKey === `pid-${partner.id}` ? (
+                                  <Check className="h-3.5 w-3.5 text-emerald-600" />
+                                ) : (
+                                  <Copy className="h-3.5 w-3.5" />
+                                )}
+                              </button>
+                            )}
+                          </div>
                         </td>
 
                         <td className="px-4 py-4">
-                          {partner.referral_code ? (
-                            <button
-                              onClick={() => copyToClipboard(partner.referral_code!, `code-${partner.id}`)}
-                              className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-md text-xs font-mono font-bold hover:bg-emerald-100 transition-colors"
-                              title="Click to copy referral code"
-                            >
-                              {partner.referral_code}
-                              {copiedKey === `code-${partner.id}` ? (
-                                <Check className="h-3 w-3 text-emerald-600" />
-                              ) : (
-                                <Copy className="h-3 w-3 text-emerald-600" />
-                              )}
-                            </button>
+                          {partner.promoted_products && partner.promoted_products.length > 0 ? (
+                            <div className="space-y-1">
+                              <button
+                                onClick={() => openProductLinksModal(partner)}
+                                className="group inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg text-xs font-semibold hover:bg-emerald-100 transition-colors shadow-2xs cursor-pointer"
+                                title="Click to view & copy course affiliate links"
+                              >
+                                <Globe className="h-3.5 w-3.5 text-emerald-600 group-hover:scale-110 transition-transform" />
+                                <span>{partner.promoted_products.length} {partner.promoted_products.length === 1 ? 'Course' : 'Courses'}</span>
+                                <ExternalLink className="h-3 w-3 text-emerald-600 opacity-60 group-hover:opacity-100" />
+                              </button>
+                              <p className="text-[11px] text-slate-500 truncate max-w-[170px]" title={partner.promoted_products.map((p: any) => p.title).join(', ')}>
+                                {partner.promoted_products.map((p: any) => p.title).join(', ')}
+                              </p>
+                            </div>
                           ) : (
-                            <span className="text-xs text-slate-400">None</span>
+                            <button
+                              onClick={() => openProductLinksModal(partner)}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 text-slate-600 border border-slate-200 rounded-lg text-xs font-medium hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700 transition-colors cursor-pointer"
+                              title="No courses promoted yet. Click to generate an affiliate link."
+                            >
+                              <span>No links</span>
+                              <span className="text-emerald-600 font-bold">+ Create</span>
+                            </button>
                           )}
                         </td>
 
                         <td className="px-4 py-4">
                           <div className="text-xs space-y-0.5">
                             <div className="text-slate-900 font-semibold">
-                              {partner.total_registrations || 0} referrals
+                              {partner.total_registrations || 0} sales
                             </div>
                             <div className="text-slate-400">
-                              {partner.total_clicks || 0} link clicks
+                              {partner.total_clicks || 0} clicks
                             </div>
                           </div>
                         </td>
@@ -783,15 +874,15 @@ export default function AdminPartnersPage() {
                             <button
                               onClick={() => handleOpenDetail(partner)}
                               className="p-1.5 rounded-lg text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
-                              title="View Full Profile & Bank Details"
+                              title="View Full Profile, Bank & Product Links"
                             >
                               <Eye className="h-4 w-4" />
                             </button>
 
                             <button
-                              onClick={() => copyToClipboard(`https://www.autolearnspot.com/learning_products/c1e11cc7-d8f6-4c2d-8a3b-1bb204892921?ref=${partner.referral_code || partner.partner_id}`, `link-${partner.id}`)}
+                              onClick={() => openProductLinksModal(partner)}
                               className="p-1.5 rounded-lg text-slate-500 hover:text-blue-700 hover:bg-blue-50 transition-colors"
-                              title="Copy Affiliate Referral Link"
+                              title="Manage & Copy Product Affiliate Links"
                             >
                               {copiedKey === `link-${partner.id}` ? (
                                 <Check className="h-4 w-4 text-emerald-600" />
@@ -1424,8 +1515,8 @@ export default function AdminPartnersPage() {
                         <p className="font-medium text-slate-600">{new Date(selectedPartnerDetail.created_at).toLocaleDateString()}</p>
                       </div>
                       <div>
-                        <span className="text-slate-400">Referral Code:</span>
-                        <p className="font-mono font-bold text-emerald-700">{selectedPartnerDetail.referral_code || selectedPartnerDetail.partner_id}</p>
+                        <span className="text-slate-400">Promoted Courses:</span>
+                        <p className="font-bold text-emerald-700">{selectedPartnerDetail.affiliateLinks?.length || 0} active</p>
                       </div>
                     </div>
                   </div>
@@ -1457,22 +1548,87 @@ export default function AdminPartnersPage() {
                     )}
                   </div>
 
-                  {/* Direct Affiliate Promotion Link */}
-                  <div className="border border-slate-200 rounded-xl p-4 space-y-2">
-                    <h4 className="font-bold text-xs uppercase text-slate-500 tracking-wider">Live Affiliate Link</h4>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        readOnly
-                        value={`https://www.autolearnspot.com/learning_products/c1e11cc7-d8f6-4c2d-8a3b-1bb204892921?ref=${selectedPartnerDetail.referral_code || selectedPartnerDetail.partner_id}`}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono text-slate-700 focus:outline-none"
-                      />
-                      <button
-                        onClick={() => copyToClipboard(`https://www.autolearnspot.com/learning_products/c1e11cc7-d8f6-4c2d-8a3b-1bb204892921?ref=${selectedPartnerDetail.referral_code || selectedPartnerDetail.partner_id}`, 'detail-link')}
-                        className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold whitespace-nowrap shadow-xs"
-                      >
-                        {copiedKey === 'detail-link' ? 'Copied' : 'Copy'}
-                      </button>
+                  {/* Product-Specific Affiliate Links */}
+                  <div className="border border-slate-200 rounded-xl p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Globe className="h-4 w-4 text-emerald-600" />
+                        <h4 className="font-bold text-xs uppercase text-slate-700 tracking-wider">
+                          Course-Specific Affiliate Links
+                        </h4>
+                      </div>
+                      <span className="text-xs text-slate-400">
+                        Links are generated per product
+                      </span>
+                    </div>
+
+                    {selectedPartnerDetail.affiliateLinks && selectedPartnerDetail.affiliateLinks.length > 0 ? (
+                      <div className="space-y-2.5">
+                        {selectedPartnerDetail.affiliateLinks.map((link: any) => (
+                          <div key={link.id} className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-slate-900 text-xs">{link.title}</span>
+                              <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[11px] font-bold">
+                                {link.commission_rate}% commission (₦{link.commission_amount?.toLocaleString()})
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="text"
+                                readOnly
+                                value={link.url}
+                                className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-700 focus:outline-none"
+                              />
+                              <button
+                                onClick={() => copyToClipboard(link.url, `detail-link-${link.id}`)}
+                                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold whitespace-nowrap shadow-xs"
+                              >
+                                {copiedKey === `detail-link-${link.id}` ? 'Copied' : 'Copy'}
+                              </button>
+                              <a
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1.5 border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 rounded-lg"
+                                title="Open in new tab"
+                              >
+                                <ExternalLink className="h-3.5 w-3.5" />
+                              </a>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-center text-xs text-slate-500">
+                        No product links generated yet. Affiliates create links from the Affiliate Marketplace.
+                      </div>
+                    )}
+
+                    {/* Quick Course Link Generator for Admin */}
+                    <div className="pt-3 border-t border-slate-100 space-y-2">
+                      <p className="text-xs font-bold text-slate-700">Generate Affiliate Link for Course:</p>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={selectedCourseForModal}
+                          onChange={(e) => setSelectedCourseForModal(e.target.value)}
+                          className="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-emerald-500"
+                        >
+                          <option value="">Select a course to promote...</option>
+                          {courses.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.title} (₦{c.price.toLocaleString()} • {c.affiliate_commission_rate}% commission)
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => handleGenerateLink(selectedPartnerDetail.id, selectedCourseForModal)}
+                          disabled={generatingLink || !selectedCourseForModal}
+                          className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold disabled:opacity-50 transition-colors shadow-xs"
+                        >
+                          {generatingLink ? 'Creating...' : 'Create Link'}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </>
@@ -1495,6 +1651,147 @@ export default function AdminPartnersPage() {
               <button
                 onClick={() => setShowDetailModal(false)}
                 className="px-4 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: PRODUCT-SPECIFIC AFFILIATE LINKS MODAL */}
+      {showProductModal && selectedProductModalPartner && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-2xl max-w-xl w-full max-h-[85vh] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
+            {/* Header */}
+            <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+              <div className="flex items-center gap-2.5">
+                <span className="p-2 bg-emerald-100 text-emerald-800 rounded-xl">
+                  <Globe className="h-5 w-5" />
+                </span>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-base">
+                    Course Affiliate Links
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Partner: <span className="font-semibold text-slate-800">{selectedProductModalPartner.name || selectedProductModalPartner.full_name}</span> ({selectedProductModalPartner.partner_id})
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowProductModal(false)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 overflow-y-auto space-y-4 text-sm">
+              <div className="p-3 bg-emerald-50/60 border border-emerald-200/80 rounded-xl text-xs text-emerald-900">
+                <p className="font-semibold flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+                  Product-Based Referral System
+                </p>
+                <p className="text-emerald-700 mt-0.5">
+                  Affiliate earnings are tracked per product. When students purchase through a course affiliate link, this partner receives author-configured commissions.
+                </p>
+              </div>
+
+              {selectedProductModalPartner.promoted_products && selectedProductModalPartner.promoted_products.length > 0 ? (
+                <div className="space-y-3">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">Active Course Links ({selectedProductModalPartner.promoted_products.length})</h4>
+                  {selectedProductModalPartner.promoted_products.map((link: any) => (
+                    <div key={link.id} className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <BookOpen className="h-4 w-4 text-emerald-600" />
+                          <span className="font-bold text-slate-900 text-sm">{link.title}</span>
+                        </div>
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
+                          {link.commission_rate}% commission (₦{link.commission_amount?.toLocaleString()})
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          readOnly
+                          value={link.url}
+                          className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono text-slate-700 focus:outline-none"
+                        />
+                        <button
+                          onClick={() => copyToClipboard(link.url, `prod-link-${link.id}`)}
+                          className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold whitespace-nowrap shadow-xs flex items-center gap-1.5"
+                        >
+                          {copiedKey === `prod-link-${link.id}` ? (
+                            <>
+                              <Check className="h-3.5 w-3.5" />
+                              Copied
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-3.5 w-3.5" />
+                              Copy
+                            </>
+                          )}
+                        </button>
+                        <a
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2 border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 rounded-lg"
+                          title="Open course page in new tab"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-8 text-center bg-slate-50 border border-slate-200 rounded-xl p-4">
+                  <Globe className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+                  <p className="font-bold text-slate-700 text-sm">No course links generated yet</p>
+                  <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+                    This affiliate partner has not yet generated links for any learning products. You can generate a link for them below.
+                  </p>
+                </div>
+              )}
+
+              {/* Generate New Link for this Partner */}
+              <div className="border-t border-slate-200 pt-4 space-y-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">Generate Course Link</h4>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={selectedCourseForModal}
+                    onChange={(e) => setSelectedCourseForModal(e.target.value)}
+                    className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-emerald-500 font-medium"
+                  >
+                    <option value="">Select a course from marketplace...</option>
+                    {courses.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.title} (₦{c.price.toLocaleString()} • {c.affiliate_commission_rate}% commission)
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => handleGenerateLink(selectedProductModalPartner.id, selectedCourseForModal)}
+                    disabled={generatingLink || !selectedCourseForModal}
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold disabled:opacity-50 transition-colors shadow-xs whitespace-nowrap"
+                  >
+                    {generatingLink ? 'Creating...' : 'Create Link'}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-end">
+              <button
+                onClick={() => setShowProductModal(false)}
+                className="px-4 py-2 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs"
               >
                 Close
               </button>

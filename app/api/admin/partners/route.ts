@@ -30,24 +30,78 @@ export async function GET(request: Request) {
 
     if (error) throw error;
 
-    // Fetch referral codes to attach to partners
+    // Fetch all referral codes to associate with partners
     const { data: refCodes } = await supabaseAdmin
       .from('referral_codes')
       .select('id, code, owner_id, partner_id, clicks, conversions');
 
-    const refMap = new Map<string, string>();
+    // Fetch all product-specific affiliate links with product details
+    const { data: affiliateLinks } = await supabaseAdmin
+      .from('affiliate_links')
+      .select(`
+        id,
+        unique_code,
+        referral_code_id,
+        learning_product_id,
+        created_at,
+        learning_products (
+          id,
+          title,
+          slug,
+          price,
+          affiliate_commission_rate,
+          thumbnail_url
+        )
+      `);
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
+
+    // Map referral_code_id -> array of product links
+    const linksByRefCodeId = new Map<string, any[]>();
+    (affiliateLinks || []).forEach((link: any) => {
+      const prod = link.learning_products;
+      const formatted = {
+        id: link.id,
+        product_id: link.learning_product_id,
+        title: prod?.title || 'Course',
+        slug: prod?.slug,
+        price: prod?.price || 0,
+        commission_rate: prod?.affiliate_commission_rate || 20,
+        commission_amount: prod?.price ? Math.round((prod.price * (prod.affiliate_commission_rate || 20)) / 100) : 0,
+        unique_code: link.unique_code,
+        url: `${appUrl}/marketplace/${prod?.slug || link.learning_product_id}?ref=${link.unique_code}`,
+        created_at: link.created_at,
+      };
+      const arr = linksByRefCodeId.get(link.referral_code_id) || [];
+      arr.push(formatted);
+      linksByRefCodeId.set(link.referral_code_id, arr);
+    });
+
+    // Map partner identifiers -> array of product links
+    const linksByPartnerId = new Map<string, any[]>();
     (refCodes || []).forEach((rc) => {
-      if (rc.partner_id) refMap.set(rc.partner_id, rc.code);
-      if (rc.owner_id) refMap.set(rc.owner_id, rc.code);
+      const links = linksByRefCodeId.get(rc.id) || [];
+      if (links.length > 0) {
+        if (rc.partner_id) {
+          const arr = linksByPartnerId.get(rc.partner_id) || [];
+          linksByPartnerId.set(rc.partner_id, [...arr, ...links]);
+        }
+        if (rc.owner_id && rc.owner_id !== rc.partner_id) {
+          const arr = linksByPartnerId.get(rc.owner_id) || [];
+          linksByPartnerId.set(rc.owner_id, [...arr, ...links]);
+        }
+      }
     });
 
     const enriched = (partners || []).map((p) => {
-      const code = refMap.get(p.id) || refMap.get(p.partner_id) || p.partner_id;
+      const partnerLinks = linksByPartnerId.get(p.id) || linksByPartnerId.get(p.partner_id) || [];
       return {
         ...p,
         full_name: p.name || p.full_name || 'Partner',
         name: p.name || p.full_name || 'Partner',
-        referral_code: code,
+        partner_id: p.partner_id || 'N/A',
+        promoted_products: partnerLinks,
+        promoted_products_count: partnerLinks.length,
         partner_type: p.partner_type || 'affiliate',
       };
     });
