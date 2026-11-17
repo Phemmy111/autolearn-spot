@@ -341,7 +341,7 @@ export default function AdminPartnersPage() {
   const openProductLinksModal = (partner: Partner) => {
     setSelectedProductModalPartner(partner);
     setShowProductModal(true);
-    if (courses.length > 0 && !selectedCourseForModal) {
+    if (Array.isArray(courses) && courses.length > 0 && !selectedCourseForModal) {
       setSelectedCourseForModal(courses[0].id);
     }
   };
@@ -607,7 +607,7 @@ export default function AdminPartnersPage() {
             {stats.pendingWithdrawalsCount}
           </p>
           <p className="text-[11px] text-rose-500 font-medium mt-1">
-            ₦{stats.pendingWithdrawalsAmount.toLocaleString()} pending
+            ₦{(Number(stats.pendingWithdrawalsAmount) || 0).toLocaleString()} pending
           </p>
         </div>
       </div>
@@ -753,12 +753,14 @@ export default function AdminPartnersPage() {
                   </tr>
                 ) : (
                   filteredPartners.map((partner) => {
-                    const initials = (partner.name || partner.full_name || 'P')
-                      .split(' ')
+                    const rawName = (partner.name || partner.full_name || 'Partner').trim();
+                    const initials = rawName
+                      .split(/\s+/)
+                      .filter(Boolean)
                       .map((n) => n[0])
                       .slice(0, 2)
                       .join('')
-                      .toUpperCase();
+                      .toUpperCase() || 'P';
 
                     return (
                       <tr key={partner.id} className="hover:bg-slate-50/70 transition-colors">
@@ -806,7 +808,7 @@ export default function AdminPartnersPage() {
                         </td>
 
                         <td className="px-4 py-4">
-                          {partner.promoted_products && partner.promoted_products.length > 0 ? (
+                          {Array.isArray(partner.promoted_products) && partner.promoted_products.length > 0 ? (
                             <div className="space-y-1">
                               <button
                                 onClick={() => openProductLinksModal(partner)}
@@ -817,8 +819,8 @@ export default function AdminPartnersPage() {
                                 <span>{partner.promoted_products.length} {partner.promoted_products.length === 1 ? 'Course' : 'Courses'}</span>
                                 <ExternalLink className="h-3 w-3 text-emerald-600 opacity-60 group-hover:opacity-100" />
                               </button>
-                              <p className="text-[11px] text-slate-500 truncate max-w-[170px]" title={partner.promoted_products.map((p: any) => p.title).join(', ')}>
-                                {partner.promoted_products.map((p: any) => p.title).join(', ')}
+                              <p className="text-[11px] text-slate-500 truncate max-w-[170px]" title={partner.promoted_products.map((p: any) => p?.title || 'Course').join(', ')}>
+                                {partner.promoted_products.map((p: any) => p?.title || 'Course').join(', ')}
                               </p>
                             </div>
                           ) : (
@@ -1042,7 +1044,7 @@ export default function AdminPartnersPage() {
                           <p className="text-xs text-slate-500">{w.partners?.email}</p>
                         </td>
                         <td className="px-4 py-4 font-black text-slate-900 text-sm">
-                          ₦{w.amount.toLocaleString()}
+                          ₦{(Number(w.amount) || 0).toLocaleString()}
                         </td>
                         <td className="px-4 py-4 text-xs">
                           <p className="font-semibold text-slate-800">{w.bank_name || 'Bank Transfer'}</p>
@@ -1050,7 +1052,7 @@ export default function AdminPartnersPage() {
                           <p className="text-slate-400">{w.account_name}</p>
                         </td>
                         <td className="px-4 py-4 text-xs text-slate-500">
-                          {new Date(w.created_at).toLocaleDateString()}
+                          {w.created_at ? new Date(w.created_at).toLocaleDateString() : 'N/A'}
                         </td>
                         <td className="px-4 py-4">
                           <span
@@ -1221,7 +1223,7 @@ export default function AdminPartnersPage() {
                           <p className="text-slate-400">{course.author?.email}</p>
                         </td>
                         <td className="px-4 py-4 font-bold text-slate-900 text-xs">
-                          ₦{course.price.toLocaleString()}
+                          ₦{(Number(course.price) || 0).toLocaleString()}
                         </td>
                         <td className="px-4 py-4">
                           {editingCourseId === course.id ? (
@@ -1251,12 +1253,12 @@ export default function AdminPartnersPage() {
                             </div>
                           ) : (
                             <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                              {course.affiliate_commission_rate}%
+                              {Number(course.affiliate_commission_rate) || 20}%
                             </span>
                           )}
                         </td>
                         <td className="px-4 py-4 font-black text-emerald-700 text-sm">
-                          ₦{course.commission_payout.toLocaleString()}
+                          ₦{(Number(course.commission_payout) || 0).toLocaleString()}
                         </td>
                         <td className="px-4 py-4">
                           <span
@@ -1512,7 +1514,7 @@ export default function AdminPartnersPage() {
                       </div>
                       <div>
                         <span className="text-slate-400">Joined:</span>
-                        <p className="font-medium text-slate-600">{new Date(selectedPartnerDetail.created_at).toLocaleDateString()}</p>
+                        <p className="font-medium text-slate-600">{selectedPartnerDetail.created_at ? new Date(selectedPartnerDetail.created_at).toLocaleDateString() : 'N/A'}</p>
                       </div>
                       <div>
                         <span className="text-slate-400">Promoted Courses:</span>
@@ -1569,7 +1571,7 @@ export default function AdminPartnersPage() {
                             <div className="flex items-center justify-between">
                               <span className="font-bold text-slate-900 text-xs">{link.title}</span>
                               <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[11px] font-bold">
-                                {link.commission_rate}% commission (₦{link.commission_amount?.toLocaleString()})
+                                {link.commission_rate}% commission (₦{(Number(link.commission_amount) || 0).toLocaleString()})
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
@@ -1616,7 +1618,7 @@ export default function AdminPartnersPage() {
                           <option value="">Select a course to promote...</option>
                           {courses.map((c) => (
                             <option key={c.id} value={c.id}>
-                              {c.title} (₦{c.price.toLocaleString()} • {c.affiliate_commission_rate}% commission)
+                              {c.title} (₦{(Number(c.price) || 0).toLocaleString()} • {Number(c.affiliate_commission_rate) || 20}% commission)
                             </option>
                           ))}
                         </select>
@@ -1709,7 +1711,7 @@ export default function AdminPartnersPage() {
                           <span className="font-bold text-slate-900 text-sm">{link.title}</span>
                         </div>
                         <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
-                          {link.commission_rate}% commission (₦{link.commission_amount?.toLocaleString()})
+                          {link.commission_rate}% commission (₦{(Number(link.commission_amount) || 0).toLocaleString()})
                         </span>
                       </div>
                       
@@ -1771,7 +1773,7 @@ export default function AdminPartnersPage() {
                     <option value="">Select a course from marketplace...</option>
                     {courses.map((c) => (
                       <option key={c.id} value={c.id}>
-                        {c.title} (₦{c.price.toLocaleString()} • {c.affiliate_commission_rate}% commission)
+                        {c.title} (₦{(Number(c.price) || 0).toLocaleString()} • {Number(c.affiliate_commission_rate) || 20}% commission)
                       </option>
                     ))}
                   </select>
