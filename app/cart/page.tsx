@@ -106,6 +106,16 @@ export default function CartPage() {
         const raw = typeof window !== 'undefined' ? localStorage.getItem('affiliate_ref') : null;
         if (raw) refValue = raw;
       }
+
+      // Cookie fallback for mobile & private browsing
+      if (!refValue && typeof document !== 'undefined') {
+        const cookieRow = document.cookie
+          .split('; ')
+          .find((row) => row.startsWith('affiliate_ref=') || row.startsWith('referral_code=') || row.startsWith('als_referral='));
+        if (cookieRow) {
+          refValue = decodeURIComponent(cookieRow.split('=')[1] || '');
+        }
+      }
       
       const res = await fetch('/api/cart/checkout', {
         method: 'POST',

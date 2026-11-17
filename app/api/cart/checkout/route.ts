@@ -28,6 +28,10 @@ export async function POST(request: NextRequest) {
     guestEmail = body?.email;
     guestName = body?.fullName;
     affiliateRef = body?.affiliate_ref;
+    if (!affiliateRef) {
+      const cookieStore = await cookies();
+      affiliateRef = cookieStore.get('affiliate_ref')?.value || cookieStore.get('referral_code')?.value || cookieStore.get('als_referral')?.value;
+    }
   } catch {
     // ignore
   }

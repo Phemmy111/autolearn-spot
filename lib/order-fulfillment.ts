@@ -296,25 +296,44 @@ async function processAffiliateCommission(
 ) {
   try {
     for (const item of orderItems) {
-      const { data: refCode } = await supabaseAdmin
-        .from('referral_codes')
-        .select('id, owner_id, partner_id, conversions')
-        .eq('code', affiliateRef)
-        .maybeSingle();
+      let partnerId: string | null = null;
+      let refCodeRecord: any = null;
 
-      if (!refCode) continue;
-
-      const partnerId = refCode.partner_id || refCode.owner_id;
-      if (!partnerId) continue;
-
-      const { data: affLink } = await supabaseAdmin
+      // 1. Direct match on affiliate_links.unique_code for this course
+      const { data: directLink } = await supabaseAdmin
         .from('affiliate_links')
-        .select('id, referral_code_id, learning_product_id, unique_code')
-        .eq('referral_code_id', refCode.id)
+        .select('id, referral_code_id, unique_code')
+        .eq('unique_code', affiliateRef)
         .eq('learning_product_id', item.learning_product_id)
         .maybeSingle();
 
-      if (!affLink) continue;
+      if (directLink?.referral_code_id) {
+        const { data: rc } = await supabaseAdmin
+          .from('referral_codes')
+          .select('id, owner_id, partner_id, conversions')
+          .eq('id', directLink.referral_code_id)
+          .maybeSingle();
+        if (rc) {
+          refCodeRecord = rc;
+          partnerId = rc.partner_id || rc.owner_id;
+        }
+      }
+
+      // 2. Fallback: match by referral_codes.code
+      if (!partnerId) {
+        const { data: refCode } = await supabaseAdmin
+          .from('referral_codes')
+          .select('id, owner_id, partner_id, conversions')
+          .eq('code', affiliateRef)
+          .maybeSingle();
+
+        if (refCode) {
+          refCodeRecord = refCode;
+          partnerId = refCode.partner_id || refCode.owner_id;
+        }
+      }
+
+      if (!partnerId) continue;
 
       const { data: affProduct } = await supabaseAdmin
         .from('learning_products')
@@ -331,12 +350,14 @@ async function processAffiliateCommission(
       const { data: currentPartner } = await supabaseAdmin
         .from('partners')
         .select('id, email, name, available_earnings, total_earnings, total_registrations')
-        .eq('id', partnerId)
+        .or(`id.eq.${partnerId},partner_id.eq.${partnerId},user_id.eq.${partnerId}`)
         .maybeSingle();
+
+      const finalPartnerId = currentPartner?.id || partnerId;
 
       // Insert commission matching commissions table schema
       await supabaseAdmin.from('commissions').insert({
-        referrer_id: partnerId,
+        referrer_id: finalPartnerId,
         learning_product_id: item.learning_product_id,
         amount: affiliateAmount,
         status: 'available',
@@ -351,13 +372,15 @@ async function processAffiliateCommission(
           available_earnings: (currentPartner.available_earnings || 0) + affiliateAmount,
           total_earnings: (currentPartner.total_earnings || 0) + affiliateAmount,
           total_registrations: (currentPartner.total_registrations || 0) + 1,
-        }).eq('id', partnerId);
+        }).eq('id', currentPartner.id);
       }
 
       // Update referral_codes conversions
-      await supabaseAdmin.from('referral_codes').update({
-        conversions: (refCode.conversions || 0) + 1,
-      }).eq('id', refCode.id);
+      if (refCodeRecord) {
+        await supabaseAdmin.from('referral_codes').update({
+          conversions: (refCodeRecord.conversions || 0) + 1,
+        }).eq('id', refCodeRecord.id);
+      }
 
       // Partner notification
       if (currentPartner?.email) {
