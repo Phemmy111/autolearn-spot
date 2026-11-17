@@ -1391,15 +1391,16 @@ export default function PartnerDashboard() {
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify(bankFormData)
                 });
+                const data = await res.json().catch(() => ({}));
                 if (res.ok) {
                   setShowBankModal(false);
                   fetchDashboardData();
-                  alert('Bank profile saved successfully');
+                  alert('Bank profile saved successfully!');
                 } else {
-                  alert('Failed to save bank profile');
+                  alert(`Failed to save bank profile: ${data.error || 'Server error'}`);
                 }
               } catch (error) {
-                alert('Error saving bank profile');
+                alert('Error saving bank profile. Please try again.');
               } finally {
                 setIsSavingBank(false);
               }
@@ -1448,7 +1449,7 @@ export default function PartnerDashboard() {
                 <button
                   type="submit"
                   disabled={isSavingBank}
-                  className="flex-1 py-3 bg-brand-bg text-white rounded-lg font-bold hover:bg-brand-bg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 py-3 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                 >
                   {isSavingBank ? 'Saving...' : 'Save Profile'}
                 </button>
