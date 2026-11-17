@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/admin';
+import { isAdmin } from '@/lib/admin';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -14,7 +14,10 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET() {
   try {
-    await requireAdmin();
+    const isUserAdmin = await isAdmin();
+    if (!isUserAdmin) {
+      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 401 });
+    }
 
     const { data: products, error: prodErr } = await supabaseAdmin
       .from('learning_products')
@@ -68,7 +71,10 @@ export async function GET() {
  */
 export async function PATCH(request: Request) {
   try {
-    await requireAdmin();
+    const isUserAdmin = await isAdmin();
+    if (!isUserAdmin) {
+      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 401 });
+    }
 
     const body = await request.json();
     const { courseId, affiliate_enabled, affiliate_commission_rate } = body;
