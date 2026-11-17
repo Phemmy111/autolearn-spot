@@ -92,17 +92,28 @@ export async function GET(request: Request) {
       referred_name: nameMap[c.referee_email] || (c.referee_email ? c.referee_email.split('@')[0] : 'Student Referral')
     }));
 
-    // Get withdrawal history
-    const withdrawals = await WithdrawalService.listWithdrawals({
-      userId: partner.id
-    });
+    // Get withdrawal history from author_withdrawals (used by partner withdrawal service)
+    const { data: authorWithdrawals } = await supabaseAdmin
+      .from('author_withdrawals')
+      .select('*')
+      .eq('author_id', partner.id)
+      .order('created_at', { ascending: false });
+
+    const formattedWithdrawals = (authorWithdrawals || []).map((w: any) => ({
+      id: w.id,
+      amount: Number(w.amount) || 0,
+      status: (w.status || 'pending').toLowerCase(),
+      reference: w.reference || (w.id ? w.id.slice(0, 8) : 'WD-REF'),
+      created_at: w.created_at,
+      updated_at: w.updated_at
+    }));
 
     // Get bank profile
     const { data: bankProfile } = await supabaseAdmin
       .from('partner_bank_profiles')
       .select('*')
       .eq('partner_id', partner.id)
-      .single();
+      .maybeSingle();
 
     // Get notifications
     const { data: notifications } = await supabaseAdmin
@@ -166,7 +177,7 @@ export async function GET(request: Request) {
       },
       bankProfile,
       recentCommissions,
-      withdrawals,
+      withdrawals: formattedWithdrawals,
       notifications,
       unreadCount: unreadCount || 0,
       marketingResources: transformedMarketingResources

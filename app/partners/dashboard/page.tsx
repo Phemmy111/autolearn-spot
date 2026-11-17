@@ -18,6 +18,9 @@ import {
   CreditCard,
   History,
   TrendingUp,
+  Building,
+  AlertTriangle,
+  ShieldCheck,
   Download,
   FileText,
   Share2,
@@ -863,72 +866,257 @@ export default function PartnerDashboard() {
 
             {activeTab === "withdrawals" && (
               <div className="space-y-6">
-                <div className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl p-6">
-                  <h3 className="font-semibold text-brand-text mb-4">Request Withdrawal</h3>
-                  <form onSubmit={handleWithdraw} className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium text-brand-text/60 block mb-2">Amount (₦)</label>
-                      <input
-                        type="number"
-                        value={withdrawAmount}
-                        onChange={(e) => setWithdrawAmount(e.target.value)}
-                        min={minWithdrawal}
-                        className="w-full bg-brand-bg/60 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary transition-colors text-brand-text"
-                        placeholder={`Minimum ₦${minWithdrawal.toLocaleString()}`}
-                      />
+                {/* Available Balance & Payout SLA Header Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl p-5 shadow-xs">
+                    <div className="flex items-center gap-2 mb-2 text-emerald-600">
+                      <Wallet className="h-4 w-4" />
+                      <span className="font-mono text-xs uppercase tracking-wider font-semibold">Available for Payout</span>
                     </div>
-                    {!bankProfile && (
+                    <p className="text-2xl font-black text-emerald-600">
+                      ₦{stats?.availableEarnings?.toLocaleString() || 0}
+                    </p>
+                    <p className="text-xs text-brand-text/60 mt-1">
+                      Ready to transfer to your bank
+                    </p>
+                  </div>
+
+                  <div className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl p-5 shadow-xs">
+                    <div className="flex items-center gap-2 mb-2 text-slate-500">
+                      <Clock className="h-4 w-4 text-amber-500" />
+                      <span className="font-mono text-xs uppercase tracking-wider font-semibold">Minimum Threshold</span>
+                    </div>
+                    <p className="text-2xl font-black text-brand-text">
+                      ₦{minWithdrawal.toLocaleString()}
+                    </p>
+                    <p className="text-xs text-brand-text/60 mt-1">
+                      Minimum required per request
+                    </p>
+                  </div>
+
+                  <div className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl p-5 shadow-xs">
+                    <div className="flex items-center gap-2 mb-2 text-blue-600">
+                      <ShieldCheck className="h-4 w-4" />
+                      <span className="font-mono text-xs uppercase tracking-wider font-semibold">Processing Window</span>
+                    </div>
+                    <p className="text-2xl font-black text-brand-text">24–48 hrs</p>
+                    <p className="text-xs text-brand-text/60 mt-1">
+                      Direct Nigerian bank deposit
+                    </p>
+                  </div>
+                </div>
+
+                {/* Main Withdrawal Request Card */}
+                <div className="border border-brand-border bg-brand-bg/90 backdrop-blur-xl rounded-2xl p-6 sm:p-8 shadow-xs space-y-6">
+                  <div className="border-b border-brand-border pb-4">
+                    <h3 className="text-lg font-bold text-brand-text">Request Payout to Bank</h3>
+                    <p className="text-xs text-brand-text/60 mt-0.5">
+                      Enter the amount you wish to withdraw to your verified bank account.
+                    </p>
+                  </div>
+
+                  {/* Bank Destination Profile Card */}
+                  {bankProfile ? (
+                    <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-emerald-500/20 text-emerald-600 flex items-center justify-center font-bold shrink-0">
+                          <Building className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-brand-text text-sm">{bankProfile.bank_name}</span>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 font-bold uppercase tracking-wide">
+                              Verified Bank
+                            </span>
+                          </div>
+                          <p className="text-xs text-brand-text/70 mt-0.5 font-mono">
+                            {bankProfile.account_number} • {bankProfile.account_name}
+                          </p>
+                        </div>
+                      </div>
                       <button
                         type="button"
                         onClick={() => setShowBankModal(true)}
-                        className="w-full py-3 border border-brand-primary bg-brand-bg/10 text-brand-primary rounded-xl font-semibold hover:bg-brand-bg/20 transition-colors"
+                        className="text-xs font-bold text-emerald-600 hover:text-emerald-700 underline px-2 py-1 self-start sm:self-auto"
                       >
-                        Setup Bank Profile
+                        Change Bank Details
                       </button>
-                    )}
+                    </div>
+                  ) : (
+                    <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-start gap-3">
+                        <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-bold text-amber-700 dark:text-amber-400 text-sm">Payout Bank Account Missing</p>
+                          <p className="text-xs text-brand-text/70 mt-0.5">
+                            You must add your bank account details before submitting a withdrawal request.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowBankModal(true)}
+                        className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-xs cursor-pointer"
+                      >
+                        Set Up Bank Account
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Form */}
+                  <form onSubmit={handleWithdraw} className="space-y-5">
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-xs font-bold uppercase tracking-wider text-brand-text/70">
+                          Withdrawal Amount (₦)
+                        </label>
+                        <span className="text-xs text-brand-text/60">
+                          Available: <strong className="text-emerald-600">₦{(stats?.availableEarnings || 0).toLocaleString()}</strong>
+                        </span>
+                      </div>
+
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-text/50 font-bold text-base">
+                          ₦
+                        </span>
+                        <input
+                          type="number"
+                          value={withdrawAmount}
+                          onChange={(e) => setWithdrawAmount(e.target.value)}
+                          min={minWithdrawal}
+                          max={stats?.availableEarnings || 0}
+                          className="w-full bg-brand-bg/60 border border-brand-border rounded-xl pl-9 pr-24 py-3.5 focus:outline-none focus:border-emerald-500 text-brand-text text-lg font-bold transition-colors placeholder:text-brand-text/30"
+                          placeholder={`Min. ${minWithdrawal.toLocaleString()}`}
+                        />
+                        {(stats?.availableEarnings || 0) > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => setWithdrawAmount(String(stats?.availableEarnings || 0))}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 font-bold text-xs transition-colors"
+                          >
+                            Withdraw All
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Quick Presets */}
+                      <div className="flex items-center gap-2 mt-2.5 flex-wrap">
+                        <span className="text-[11px] text-brand-text/50 font-medium">Quick amounts:</span>
+                        {[1000, 2000, 4000].map((amt) => {
+                          if (amt > (stats?.availableEarnings || 0) && amt !== minWithdrawal) return null;
+                          return (
+                            <button
+                              key={amt}
+                              type="button"
+                              onClick={() => setWithdrawAmount(String(amt))}
+                              className="px-2.5 py-1 rounded-md text-xs font-semibold bg-brand-bg/60 hover:bg-brand-bg border border-brand-border text-brand-text/80 transition-colors"
+                            >
+                              ₦{amt.toLocaleString()}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Validation hints */}
+                      {withdrawAmount && Number(withdrawAmount) > (stats?.availableEarnings || 0) && (
+                        <p className="text-xs text-rose-500 font-semibold mt-2 flex items-center gap-1">
+                          <AlertTriangle className="h-3.5 w-3.5" /> Amount exceeds your available balance of ₦{(stats?.availableEarnings || 0).toLocaleString()}
+                        </p>
+                      )}
+                      {withdrawAmount && Number(withdrawAmount) < minWithdrawal && (
+                        <p className="text-xs text-amber-500 font-semibold mt-2 flex items-center gap-1">
+                          <AlertTriangle className="h-3.5 w-3.5" /> Minimum withdrawal amount is ₦{minWithdrawal.toLocaleString()}
+                        </p>
+                      )}
+                    </div>
+
                     <button
-                      disabled={isWithdrawing || !bankProfile}
+                      disabled={
+                        isWithdrawing || 
+                        !bankProfile || 
+                        !withdrawAmount || 
+                        Number(withdrawAmount) < minWithdrawal || 
+                        Number(withdrawAmount) > (stats?.availableEarnings || 0)
+                      }
                       type="submit"
-                      className="w-full py-3 border border-brand-primary bg-brand-bg text-white rounded-xl font-bold hover:bg-brand-bg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-xl font-bold transition-all shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base cursor-pointer"
                     >
                       {isWithdrawing ? (
                         <>
                           <Loader2 className="h-5 w-5 animate-spin" />
-                          Processing...
+                          <span>Processing Payout Request...</span>
                         </>
                       ) : (
                         <>
                           <CreditCard className="h-5 w-5" />
-                          Submit Withdrawal
+                          <span>
+                            {withdrawAmount && Number(withdrawAmount) > 0 
+                              ? `Submit Withdrawal Request (₦${Number(withdrawAmount).toLocaleString()})` 
+                              : "Submit Withdrawal Request"}
+                          </span>
                         </>
                       )}
                     </button>
                   </form>
                 </div>
 
-                <div className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl p-6">
-                  <h3 className="font-semibold text-brand-text mb-4">Withdrawal History</h3>
-                  <div className="space-y-4">
+                {/* Withdrawal History Card */}
+                <div className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl p-6 shadow-xs space-y-4">
+                  <div className="flex items-center justify-between border-b border-brand-border pb-3">
+                    <h3 className="font-bold text-brand-text text-base">Withdrawal History</h3>
+                    <span className="text-xs text-brand-text/50">
+                      {data?.withdrawals?.length || 0} total requests
+                    </span>
+                  </div>
+
+                  <div className="space-y-3">
                     {data?.withdrawals && data.withdrawals.length > 0 ? (
-                      data.withdrawals.map((withdrawal: any) => (
-                        <div key={withdrawal.id} className="flex items-center justify-between p-4 border border-brand-border bg-brand-bg/60 rounded-lg">
-                          <div>
-                            <p className="text-sm font-medium text-brand-text">₦{withdrawal.amount?.toLocaleString()}</p>
-                            <p className="text-xs text-brand-text/60">{new Date(withdrawal.created_at).toLocaleDateString()}</p>
+                      data.withdrawals.map((withdrawal: any) => {
+                        const status = (withdrawal.status || 'pending').toLowerCase();
+                        const isCompleted = status === 'completed' || status === 'paid' || status === 'approved';
+                        const isPending = status === 'pending';
+                        
+                        return (
+                          <div 
+                            key={withdrawal.id} 
+                            className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-brand-border bg-brand-bg/60 rounded-xl gap-2 hover:bg-brand-bg/80 transition-colors"
+                          >
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-base font-extrabold text-brand-text">
+                                  ₦{Number(withdrawal.amount || 0).toLocaleString()}
+                                </span>
+                                <span className="font-mono text-[11px] text-brand-text/50 px-2 py-0.5 rounded bg-brand-bg border border-brand-border">
+                                  {withdrawal.reference || (withdrawal.id ? withdrawal.id.slice(0, 8) : 'WD-REF')}
+                                </span>
+                              </div>
+                              <p className="text-xs text-brand-text/60">
+                                Requested on {new Date(withdrawal.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                              </p>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <span className={`px-3 py-1 text-xs rounded-full font-bold uppercase tracking-wider ${
+                                isCompleted
+                                  ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
+                                  : isPending
+                                  ? 'bg-amber-500/10 text-amber-600 border border-amber-500/20'
+                                  : 'bg-rose-500/10 text-rose-600 border border-rose-500/20'
+                              }`}>
+                                {withdrawal.status || 'pending'}
+                              </span>
+                            </div>
                           </div>
-                          <span className={`px-3 py-1 text-xs rounded-full ${
-                            withdrawal.status === "completed" 
-                              ? "bg-green-500/10 text-green-400" 
-                              : withdrawal.status === "pending"
-                              ? "bg-yellow-500/10 text-yellow-400"
-                              : "bg-red-500/10 text-red-400"
-                          }`}>
-                            {withdrawal.status}
-                          </span>
-                        </div>
-                      ))
+                        );
+                      })
                     ) : (
-                      <p className="text-sm text-brand-text/60 text-center py-4">No withdrawal history yet</p>
+                      <div className="py-10 text-center text-brand-text/50 space-y-2">
+                        <CreditCard className="h-8 w-8 mx-auto text-brand-text/30" />
+                        <p className="text-sm font-semibold">No withdrawal requests yet</p>
+                        <p className="text-xs text-brand-text/40 max-w-xs mx-auto">
+                          When you request a payout from your available balance, your transaction history will appear here.
+                        </p>
+                      </div>
                     )}
                   </div>
                 </div>
