@@ -28,7 +28,8 @@ import {
   FolderDown,
   Building,
   BookOpen,
-  Sparkles
+  Sparkles,
+  Globe
 } from 'lucide-react';
 
 interface Partner {
