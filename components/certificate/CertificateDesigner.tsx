@@ -23,21 +23,21 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
   const [selectedElement, setSelectedElement] = useState<string | null>(null)
   const [selectedElements, setSelectedElements] = useState<string[]>([])
   const [isDragging, setIsDragging] = useState(false)
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [unsavedChanges, setUnsavedChanges] = useState(false)
-  const [history, setHistory] = useState<CertificateLayout[]>([])
-  const [historyIndex, setHistoryIndex] = useState(-1)
+  const [canUndo, setCanUndo] = useState(false)
+  const [canRedo, setCanRedo] = useState(false)
   const [clipboard, setClipboard] = useState<CertificateElement | null>(null)
   const [zoom, setZoom] = useState(1)
   const [pan, setPan] = useState({ x: 0, y: 0 })
+  const [panStart, setPanStart] = useState({ x: 0, y: 0 })
   const [isPanning, setIsPanning] = useState(false)
   const [activeTab, setActiveTab] = useState<'position' | 'style' | 'text' | 'layers'>('position')
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false)
   const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false)
   const [leftSidebarWidth, setLeftSidebarWidth] = useState(256)
   const [rightSidebarWidth, setRightSidebarWidth] = useState(320)
-  const [snapToGrid, setSnapToGrid] = useState(true)
-  const [showGrid, setShowGrid] = useState(true)
+  const [snapToGrid, setSnapToGrid] = useState(false)
+  const [showGrid, setShowGrid] = useState(false)
   const [alignmentGuides, setAlignmentGuides] = useState<{ horizontal: number[]; vertical: number[] }>({ horizontal: [], vertical: [] })
   const [isResizing, setIsResizing] = useState(false)
   const [resizeHandle, setResizeHandle] = useState<string | null>(null)
@@ -50,85 +50,263 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
   const canvasRef = useRef<HTMLDivElement>(null)
   const canvasContainerRef = useRef<HTMLDivElement>(null)
 
-  // Track unsaved changes and manage history
+  // Keep latest layout in a ref to avoid stale closures during high-frequency events
+  const latestLayoutRef = useRef<CertificateLayout>(layout)
   useEffect(() => {
-    setUnsavedChanges(true)
-    
-    // Add to history for undo/redo
-    const validation = validateLayout(layout)
-    if (validation.valid) {
-      setHistory(prev => {
-        const newHistory = prev.slice(0, historyIndex + 1)
-        newHistory.push(layout)
-        // Keep only last 50 states
-        if (newHistory.length > 50) {
-          newHistory.shift()
-        }
-        return newHistory
-      })
-      setHistoryIndex(prev => Math.min(prev + 1, 49))
-    }
+    latestLayoutRef.current = layout
   }, [layout])
 
-  // Initialize history with current layout
+  // Dedicated history management for rock-solid Undo / Redo
+  const historyRef = useRef<CertificateLayout[]>([])
+  const historyIndexRef = useRef<number>(-1)
+
+  // Initialize history on mount
   useEffect(() => {
-    const validation = validateLayout(layout)
-    if (validation.valid && history.length === 0) {
-      setHistory([layout])
-      setHistoryIndex(0)
+    if (historyRef.current.length === 0 && layout) {
+      historyRef.current = [cloneLayout(layout)]
+      historyIndexRef.current = 0
+      setCanUndo(false)
+      setCanRedo(false)
     }
   }, [])
+
+  const recordHistory = useCallback((newLayout: CertificateLayout) => {
+    const cloned = cloneLayout(newLayout)
+    const curIdx = historyIndexRef.current
+    const newHist = historyRef.current.slice(0, curIdx + 1)
+    newHist.push(cloned)
+    if (newHist.length > 50) {
+      newHist.shift()
+    }
+    historyRef.current = newHist
+    historyIndexRef.current = newHist.length - 1
+    setCanUndo(historyIndexRef.current > 0)
+    setCanRedo(false)
+    setUnsavedChanges(true)
+  }, [])
+
+  const handleUndo = useCallback(() => {
+    if (historyIndexRef.current > 0) {
+      historyIndexRef.current -= 1
+      const target = cloneLayout(historyRef.current[historyIndexRef.current])
+      latestLayoutRef.current = target
+      onLayoutChange(target)
+      setCanUndo(historyIndexRef.current > 0)
+      setCanRedo(historyIndexRef.current < historyRef.current.length - 1)
+      setUnsavedChanges(true)
+    }
+  }, [onLayoutChange])
+
+  const handleRedo = useCallback(() => {
+    if (historyIndexRef.current < historyRef.current.length - 1) {
+      historyIndexRef.current += 1
+      const target = cloneLayout(historyRef.current[historyIndexRef.current])
+      latestLayoutRef.current = target
+      onLayoutChange(target)
+      setCanUndo(historyIndexRef.current > 0)
+      setCanRedo(historyIndexRef.current < historyRef.current.length - 1)
+      setUnsavedChanges(true)
+    }
+  }, [onLayoutChange])
+
+  // Drag & Resize interaction tracking in screen-to-canvas coordinates
+  const interactionRef = useRef<{
+    active: boolean
+    mode: 'drag' | 'resize'
+    elementId: string
+    handle?: string
+    startClientX: number
+    startClientY: number
+    initialX: number
+    initialY: number
+    initialWidth: number
+    initialHeight: number
+    hasMoved: boolean
+  }>({
+    active: false,
+    mode: 'drag',
+    elementId: '',
+    startClientX: 0,
+    startClientY: 0,
+    initialX: 0,
+    initialY: 0,
+    initialWidth: 0,
+    initialHeight: 0,
+    hasMoved: false,
+  })
+
+  // Global window listeners for 100% fluid, continuous drag & resize tracking
+  useEffect(() => {
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      const interaction = interactionRef.current
+      if (!interaction.active) return
+
+      const canvas = canvasRef.current
+      if (!canvas) return
+      const rect = canvas.getBoundingClientRect()
+      const scaleX = rect.width / CANVAS_WIDTH
+      const scaleY = rect.height / CANVAS_HEIGHT
+      if (scaleX <= 0 || scaleY <= 0) return
+
+      const deltaX = (e.clientX - interaction.startClientX) / scaleX
+      const deltaY = (e.clientY - interaction.startClientY) / scaleY
+
+      if (Math.abs(deltaX) > 0.5 || Math.abs(deltaY) > 0.5) {
+        interaction.hasMoved = true
+      }
+
+      if (interaction.mode === 'drag') {
+        let newX = Math.round(interaction.initialX + deltaX)
+        let newY = Math.round(interaction.initialY + deltaY)
+
+        if (snapToGrid) {
+          newX = Math.round(newX / 10) * 10
+          newY = Math.round(newY / 10) * 10
+        }
+
+        // Keep inside canvas bounds
+        newX = Math.max(0, Math.min(newX, CANVAS_WIDTH - interaction.initialWidth))
+        newY = Math.max(0, Math.min(newY, CANVAS_HEIGHT - interaction.initialHeight))
+
+        const updated = cloneLayout(latestLayoutRef.current)
+        const target = updated.elements.find(el => el.id === interaction.elementId)
+        if (target) {
+          target.x = newX
+          target.y = newY
+          latestLayoutRef.current = updated
+          onLayoutChange(updated)
+        }
+      } else if (interaction.mode === 'resize' && interaction.handle) {
+        const handle = interaction.handle
+        let newX = interaction.initialX
+        let newY = interaction.initialY
+        let newWidth = interaction.initialWidth
+        let newHeight = interaction.initialHeight
+
+        const minW = 20
+        const minH = 15
+
+        // East (Right)
+        if (handle.includes('e')) {
+          newWidth = Math.max(minW, Math.round(interaction.initialWidth + deltaX))
+        }
+        // South (Bottom)
+        if (handle.includes('s')) {
+          newHeight = Math.max(minH, Math.round(interaction.initialHeight + deltaY))
+        }
+        // West (Left)
+        if (handle.includes('w')) {
+          const clampedW = Math.max(minW, Math.round(interaction.initialWidth - deltaX))
+          newX = Math.round(interaction.initialX + (interaction.initialWidth - clampedW))
+          newWidth = clampedW
+        }
+        // North (Top)
+        if (handle.includes('n')) {
+          const clampedH = Math.max(minH, Math.round(interaction.initialHeight - deltaY))
+          newY = Math.round(interaction.initialY + (interaction.initialHeight - clampedH))
+          newHeight = clampedH
+        }
+
+        if (snapToGrid) {
+          newWidth = Math.round(newWidth / 10) * 10
+          newHeight = Math.round(newHeight / 10) * 10
+          newX = Math.round(newX / 10) * 10
+          newY = Math.round(newY / 10) * 10
+        }
+
+        // Boundary constraints
+        newX = Math.max(0, newX)
+        newY = Math.max(0, newY)
+        newWidth = Math.min(newWidth, CANVAS_WIDTH - newX)
+        newHeight = Math.min(newHeight, CANVAS_HEIGHT - newY)
+
+        const updated = cloneLayout(latestLayoutRef.current)
+        const target = updated.elements.find(el => el.id === interaction.elementId)
+        if (target) {
+          target.x = newX
+          target.y = newY
+          target.width = newWidth
+          target.height = newHeight
+          latestLayoutRef.current = updated
+          onLayoutChange(updated)
+        }
+      }
+    }
+
+    const handleGlobalMouseUp = () => {
+      const interaction = interactionRef.current
+      if (interaction.active) {
+        if (interaction.hasMoved) {
+          // Record single clean history snapshot on drag/resize release!
+          recordHistory(latestLayoutRef.current)
+        }
+        interactionRef.current = {
+          active: false,
+          mode: 'drag',
+          elementId: '',
+          startClientX: 0,
+          startClientY: 0,
+          initialX: 0,
+          initialY: 0,
+          initialWidth: 0,
+          initialHeight: 0,
+          hasMoved: false,
+        }
+        setIsDragging(false)
+        setIsResizing(false)
+        setResizeHandle(null)
+      }
+    }
+
+    window.addEventListener('mousemove', handleGlobalMouseMove)
+    window.addEventListener('mouseup', handleGlobalMouseUp)
+    return () => {
+      window.removeEventListener('mousemove', handleGlobalMouseMove)
+      window.removeEventListener('mouseup', handleGlobalMouseUp)
+    }
+  }, [snapToGrid, recordHistory, onLayoutChange])
 
   const handleElementMouseDown = useCallback((e: React.MouseEvent, element: CertificateElement, handle?: string) => {
     if (readOnly || element.locked) return
 
     e.stopPropagation()
-    
-    // Handle resize handles
+    e.preventDefault()
+
+    setSelectedElement(element.id)
+    setSelectedElements([element.id])
+
     if (handle) {
       setIsResizing(true)
       setResizeHandle(handle)
-      setSelectedElement(element.id)
-      const canvas = canvasRef.current
-      if (!canvas) return
-      const rect = canvas.getBoundingClientRect()
-      const scale = SCALE
-      setDragOffset({
-        x: (e.clientX - rect.left) / scale,
-        y: (e.clientY - rect.top) / scale,
-      })
-      return
-    }
-    
-    // Handle multi-select with Shift+click
-    if (e.shiftKey) {
-      if (selectedElements.includes(element.id)) {
-        setSelectedElements(prev => prev.filter(id => id !== element.id))
-        if (selectedElement === element.id && selectedElements.length > 1) {
-          setSelectedElement(selectedElements.find(id => id !== element.id) || null)
-        }
-      } else {
-        setSelectedElements(prev => [...prev, element.id])
-        setSelectedElement(element.id)
+      interactionRef.current = {
+        active: true,
+        mode: 'resize',
+        elementId: element.id,
+        handle,
+        startClientX: e.clientX,
+        startClientY: e.clientY,
+        initialX: element.x,
+        initialY: element.y,
+        initialWidth: element.width,
+        initialHeight: element.height,
+        hasMoved: false,
       }
     } else {
-      setSelectedElement(element.id)
-      setSelectedElements([element.id])
+      setIsDragging(true)
+      interactionRef.current = {
+        active: true,
+        mode: 'drag',
+        elementId: element.id,
+        startClientX: e.clientX,
+        startClientY: e.clientY,
+        initialX: element.x,
+        initialY: element.y,
+        initialWidth: element.width,
+        initialHeight: element.height,
+        hasMoved: false,
+      }
     }
-    
-    setIsDragging(true)
-
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const rect = canvas.getBoundingClientRect()
-    const scale = SCALE
-
-    setDragOffset({
-      x: (e.clientX - rect.left) / scale - element.x,
-      y: (e.clientY - rect.top) / scale - element.y
-    })
-  }, [readOnly, selectedElements, selectedElement])
+  }, [readOnly])
 
   const handleElementDoubleClick = useCallback((element: CertificateElement) => {
     if (readOnly || element.locked || element.binding) return
@@ -247,11 +425,13 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
 
   const handleLoadTemplate = useCallback((templateLayout: CertificateLayout) => {
     if (confirm('Load template? This will replace your current layout.')) {
+      latestLayoutRef.current = templateLayout
       onLayoutChange(templateLayout)
+      recordHistory(templateLayout)
       setSelectedElement(null)
       setUnsavedChanges(true)
     }
-  }, [onLayoutChange])
+  }, [onLayoutChange, recordHistory])
 
   const handleSaveAsTemplate = useCallback(() => {
     const templateName = prompt('Enter template name:')
@@ -275,7 +455,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
   const handleExportPreview = useCallback(() => {
     // Trigger a download of the current certificate
     const element = document.querySelector('a[href="/api/certificate/download"]')
-    if (element) {
+    if (element && element instanceof HTMLElement) {
       element.click()
     } else {
       // Fallback: navigate to download page
@@ -284,7 +464,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
   }, [])
 
   const handleMoveLayerUp = useCallback((elementId: string) => {
-    const updatedLayout = cloneLayout(layout)
+    const updatedLayout = cloneLayout(latestLayoutRef.current)
     const elements = [...updatedLayout.elements]
     const currentIndex = elements.findIndex(el => el.id === elementId)
     
@@ -292,12 +472,14 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
       const [element] = elements.splice(currentIndex, 1)
       elements.splice(currentIndex - 1, 0, element)
       updatedLayout.elements = elements
+      latestLayoutRef.current = updatedLayout
       onLayoutChange(updatedLayout)
+      recordHistory(updatedLayout)
     }
-  }, [layout, onLayoutChange])
+  }, [onLayoutChange, recordHistory])
 
   const handleMoveLayerDown = useCallback((elementId: string) => {
-    const updatedLayout = cloneLayout(layout)
+    const updatedLayout = cloneLayout(latestLayoutRef.current)
     const elements = [...updatedLayout.elements]
     const currentIndex = elements.findIndex(el => el.id === elementId)
     
@@ -305,9 +487,11 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
       const [element] = elements.splice(currentIndex, 1)
       elements.splice(currentIndex + 1, 0, element)
       updatedLayout.elements = elements
+      latestLayoutRef.current = updatedLayout
       onLayoutChange(updatedLayout)
+      recordHistory(updatedLayout)
     }
-  }, [layout, onLayoutChange])
+  }, [onLayoutChange, recordHistory])
 
   const handleImageUpload = useCallback(async (file: File) => {
     if (!file) return
@@ -352,6 +536,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
         y: 100,
         width: 200,
         height: 200,
+        rotation: 0,
         style: {
           objectFit: 'contain'
         },
@@ -361,7 +546,9 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
       }
       
       updatedLayout.elements.push(newImageElement)
+      latestLayoutRef.current = updatedLayout
       onLayoutChange(updatedLayout)
+      recordHistory(updatedLayout)
       setSelectedElement(newImageElement.id)
       
     } catch (error) {
@@ -370,222 +557,93 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
     } finally {
       setUploadingImage(false)
     }
-  }, [layout, onLayoutChange])
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    // Handle resizing
-    if (isResizing && selectedElement && resizeHandle && !readOnly) {
-      const canvas = canvasRef.current
-      if (!canvas) return
-
-      const rect = canvas.getBoundingClientRect()
-      const scale = SCALE
-      const mouseX = (e.clientX - rect.left) / scale
-      const mouseY = (e.clientY - rect.top) / scale
-
-      const element = layout.elements.find(el => el.id === selectedElement)
-      if (!element) return
-
-      const updatedLayout = cloneLayout(layout)
-      const updatedElement = updatedLayout.elements.find(el => el.id === selectedElement)
-      if (!updatedElement) return
-
-      let newWidth = element.width
-      let newHeight = element.height
-      let newX = element.x
-      let newY = element.y
-
-      // Handle different resize handles
-      if (resizeHandle.includes('e')) {
-        newWidth = Math.max(20, mouseX - element.x)
-      }
-      if (resizeHandle.includes('w')) {
-        newWidth = Math.max(20, element.width + element.x - mouseX)
-        newX = mouseX
-      }
-      if (resizeHandle.includes('s')) {
-        newHeight = Math.max(20, mouseY - element.y)
-      }
-      if (resizeHandle.includes('n')) {
-        newHeight = Math.max(20, element.height + element.y - mouseY)
-        newY = mouseY
-      }
-
-      // Snap to grid
-      if (snapToGrid) {
-        newWidth = Math.round(newWidth / GRID_SIZE) * GRID_SIZE
-        newHeight = Math.round(newHeight / GRID_SIZE) * GRID_SIZE
-        newX = Math.round(newX / GRID_SIZE) * GRID_SIZE
-        newY = Math.round(newY / GRID_SIZE) * GRID_SIZE
-      }
-
-      updatedElement.width = newWidth
-      updatedElement.height = newHeight
-      updatedElement.x = newX
-      updatedElement.y = newY
-
-      onLayoutChange(updatedLayout)
-      return
-    }
-
-    // Handle dragging
-    if (!isDragging || !selectedElement || readOnly) return
-
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const rect = canvas.getBoundingClientRect()
-    const scale = SCALE
-
-    let newX = (e.clientX - rect.left) / scale - dragOffset.x
-    let newY = (e.clientY - rect.top) / scale - dragOffset.y
-
-    const element = layout.elements.find(el => el.id === selectedElement)
-    if (!element) return
-
-    // Snap to grid
-    if (snapToGrid) {
-      newX = Math.round(newX / GRID_SIZE) * GRID_SIZE
-      newY = Math.round(newY / GRID_SIZE) * GRID_SIZE
-    }
-
-    // Calculate alignment guides
-    const horizontalGuides: number[] = []
-    const verticalGuides: number[] = []
-
-    layout.elements.forEach(otherElement => {
-      if (otherElement.id === selectedElement) return
-
-      // Check for horizontal alignment (center)
-      if (Math.abs((otherElement.x + otherElement.width / 2) - (newX + element.width / 2)) < SNAP_THRESHOLD) {
-        newX = otherElement.x + otherElement.width / 2 - element.width / 2
-        horizontalGuides.push(otherElement.y + otherElement.height / 2)
-      }
-
-      // Check for vertical alignment (center)
-      if (Math.abs((otherElement.y + otherElement.height / 2) - (newY + element.height / 2)) < SNAP_THRESHOLD) {
-        newY = otherElement.y + otherElement.height / 2 - element.height / 2
-        verticalGuides.push(otherElement.x + otherElement.width / 2)
-      }
-
-      // Check for left edge alignment
-      if (Math.abs(otherElement.x - newX) < SNAP_THRESHOLD) {
-        newX = otherElement.x
-        verticalGuides.push(otherElement.x)
-      }
-
-      // Check for right edge alignment
-      if (Math.abs((otherElement.x + otherElement.width) - (newX + element.width)) < SNAP_THRESHOLD) {
-        newX = otherElement.x + otherElement.width - element.width
-        verticalGuides.push(otherElement.x + otherElement.width)
-      }
-
-      // Check for top edge alignment
-      if (Math.abs(otherElement.y - newY) < SNAP_THRESHOLD) {
-        newY = otherElement.y
-        horizontalGuides.push(otherElement.y)
-      }
-
-      // Check for bottom edge alignment
-      if (Math.abs((otherElement.y + otherElement.height) - (newY + element.height)) < SNAP_THRESHOLD) {
-        newY = otherElement.y + otherElement.height - element.height
-        horizontalGuides.push(otherElement.y + otherElement.height)
-      }
-    })
-
-    setAlignmentGuides({ horizontal: horizontalGuides, vertical: verticalGuides })
-
-    // Constrain to canvas bounds
-    const constrainedX = Math.max(0, Math.min(newX, CANVAS_WIDTH - element.width))
-    const constrainedY = Math.max(0, Math.min(newY, CANVAS_HEIGHT - element.height))
-
-    const updatedLayout = cloneLayout(layout)
-    const updatedElement = updatedLayout.elements.find(el => el.id === selectedElement)
-    if (updatedElement) {
-      updatedElement.x = constrainedX
-      updatedElement.y = constrainedY
-      onLayoutChange(updatedLayout)
-    }
-  }, [isDragging, isResizing, selectedElement, resizeHandle, dragOffset, layout, onLayoutChange, readOnly, snapToGrid])
-
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false)
-    setIsResizing(false)
-    setResizeHandle(null)
-    setAlignmentGuides({ horizontal: [], vertical: [] })
-  }, [])
+  }, [onLayoutChange, recordHistory])
 
   const handleSelectElement = useCallback((elementId: string) => {
     setSelectedElement(elementId)
   }, [])
 
   const handleToggleVisible = useCallback((elementId: string) => {
-    const updatedLayout = cloneLayout(layout)
+    const updatedLayout = cloneLayout(latestLayoutRef.current)
     const element = updatedLayout.elements.find(el => el.id === elementId)
     if (element) {
       element.visible = !element.visible
+      latestLayoutRef.current = updatedLayout
       onLayoutChange(updatedLayout)
+      recordHistory(updatedLayout)
     }
-  }, [layout, onLayoutChange])
+  }, [onLayoutChange, recordHistory])
 
   const handleToggleLock = useCallback((elementId: string) => {
-    const updatedLayout = cloneLayout(layout)
+    const updatedLayout = cloneLayout(latestLayoutRef.current)
     const element = updatedLayout.elements.find(el => el.id === elementId)
     if (element) {
       element.locked = !element.locked
+      latestLayoutRef.current = updatedLayout
       onLayoutChange(updatedLayout)
+      recordHistory(updatedLayout)
     }
-  }, [layout, onLayoutChange])
+  }, [onLayoutChange, recordHistory])
 
   const handleStyleChange = useCallback((property: string, value: any) => {
     if (!selectedElement) return
 
-    const updatedLayout = cloneLayout(layout)
+    const updatedLayout = cloneLayout(latestLayoutRef.current)
     const element = updatedLayout.elements.find(el => el.id === selectedElement)
     if (element) {
       if (!element.style) {
         element.style = {}
       }
-      element.style[property] = value
+      (element.style as any)[property] = value
+      latestLayoutRef.current = updatedLayout
       onLayoutChange(updatedLayout)
+      recordHistory(updatedLayout)
     }
-  }, [selectedElement, layout, onLayoutChange])
+  }, [selectedElement, onLayoutChange, recordHistory])
 
   const handleTextChange = useCallback((text: string) => {
     if (!selectedElement) return
 
-    const updatedLayout = cloneLayout(layout)
+    const updatedLayout = cloneLayout(latestLayoutRef.current)
     const element = updatedLayout.elements.find(el => el.id === selectedElement)
     if (element && !element.binding) {
       element.text = text
+      latestLayoutRef.current = updatedLayout
       onLayoutChange(updatedLayout)
+      recordHistory(updatedLayout)
     }
-  }, [selectedElement, layout, onLayoutChange])
+  }, [selectedElement, onLayoutChange, recordHistory])
 
   const handleCenterElement = useCallback((elementId?: string) => {
     const idToCenter = elementId || selectedElement
     if (!idToCenter) return
-    const updatedLayout = cloneLayout(layout)
+    const updatedLayout = cloneLayout(latestLayoutRef.current)
     const element = updatedLayout.elements.find(el => el.id === idToCenter)
     if (element) {
       element.x = Math.round((CANVAS_WIDTH - element.width) / 2)
+      latestLayoutRef.current = updatedLayout
       onLayoutChange(updatedLayout)
+      recordHistory(updatedLayout)
     }
-  }, [selectedElement, layout, onLayoutChange])
+  }, [selectedElement, onLayoutChange, recordHistory])
 
   const handleReset = useCallback(() => {
     if (confirm('Reset canvas to the official AutoLearn Luxury Parchment Template?\n\nThis will restore all 15 elements (bold brandmark, gold seal medal, real signature, scannable QR verification card, student name, and course title) to their perfected coordinates and typography.')) {
-      onLayoutChange(resetToDefault())
+      const def = resetToDefault()
+      latestLayoutRef.current = def
+      onLayoutChange(def)
+      recordHistory(def)
       setSelectedElement(null)
-      setUnsavedChanges(true)
     }
-  }, [onLayoutChange])
+  }, [onLayoutChange, recordHistory])
 
   const handleDeleteElement = useCallback((elementId: string) => {
     if (confirm('Are you sure you want to delete this element?')) {
-      const updatedLayout = cloneLayout(layout)
+      const updatedLayout = cloneLayout(latestLayoutRef.current)
       updatedLayout.elements = updatedLayout.elements.filter(el => el.id !== elementId)
+      latestLayoutRef.current = updatedLayout
       onLayoutChange(updatedLayout)
+      recordHistory(updatedLayout)
       if (selectedElement === elementId) {
         setSelectedElement(null)
       }
@@ -593,168 +651,142 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
         setSelectedElements(prev => prev.filter(id => id !== elementId))
       }
     }
-  }, [layout, onLayoutChange, selectedElement, selectedElements])
-
-  const handleUndo = useCallback(() => {
-    if (historyIndex > 0) {
-      const newHistoryIndex = historyIndex - 1
-      setHistoryIndex(newHistoryIndex)
-      onLayoutChange(history[newHistoryIndex])
-    }
-  }, [history, historyIndex, onLayoutChange])
-
-  const handleRedo = useCallback(() => {
-    if (historyIndex < history.length - 1) {
-      const newHistoryIndex = historyIndex + 1
-      setHistoryIndex(newHistoryIndex)
-      onLayoutChange(history[newHistoryIndex])
-    }
-  }, [history, historyIndex, onLayoutChange])
+  }, [selectedElement, selectedElements, onLayoutChange, recordHistory])
 
   const handleCopy = useCallback(() => {
     if (selectedElement) {
-      const element = layout.elements.find(el => el.id === selectedElement)
+      const element = latestLayoutRef.current.elements.find(el => el.id === selectedElement)
       if (element) {
         setClipboard(JSON.parse(JSON.stringify(element)))
       }
     }
-  }, [selectedElement, layout])
+  }, [selectedElement])
 
   const handlePaste = useCallback(() => {
     if (clipboard) {
-      const updatedLayout = cloneLayout(layout)
+      const updatedLayout = cloneLayout(latestLayoutRef.current)
       const newElement = JSON.parse(JSON.stringify(clipboard))
       newElement.id = `${clipboard.id}_copy_${Date.now()}`
-      newElement.x += 20
-      newElement.y += 20
+      newElement.x = Math.min(CANVAS_WIDTH - newElement.width, newElement.x + 20)
+      newElement.y = Math.min(CANVAS_HEIGHT - newElement.height, newElement.y + 20)
       updatedLayout.elements.push(newElement)
+      latestLayoutRef.current = updatedLayout
       onLayoutChange(updatedLayout)
+      recordHistory(updatedLayout)
       setSelectedElement(newElement.id)
     }
-  }, [clipboard, layout, onLayoutChange])
+  }, [clipboard, onLayoutChange, recordHistory])
 
   const handleDuplicate = useCallback(() => {
     if (selectedElement) {
-      const element = layout.elements.find(el => el.id === selectedElement)
+      const element = latestLayoutRef.current.elements.find(el => el.id === selectedElement)
       if (element) {
-        const updatedLayout = cloneLayout(layout)
+        const updatedLayout = cloneLayout(latestLayoutRef.current)
         const newElement = JSON.parse(JSON.stringify(element))
         newElement.id = `${element.id}_copy_${Date.now()}`
-        newElement.x += 20
-        newElement.y += 20
+        newElement.x = Math.min(CANVAS_WIDTH - newElement.width, newElement.x + 20)
+        newElement.y = Math.min(CANVAS_HEIGHT - newElement.height, newElement.y + 20)
         updatedLayout.elements.push(newElement)
+        latestLayoutRef.current = updatedLayout
         onLayoutChange(updatedLayout)
+        recordHistory(updatedLayout)
         setSelectedElement(newElement.id)
       }
     }
-  }, [selectedElement, layout, onLayoutChange])
+  }, [selectedElement, onLayoutChange, recordHistory])
 
-  // Keyboard shortcuts
+  // Universal Keyboard Shortcuts (Windows & Mac)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (readOnly) return
-      if (editingText) return // Don't handle shortcuts when editing text
+      if (editingText) return // Don't handle shortcuts while typing inside textarea
 
       const activeElement = document.activeElement
-      const isInput = activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA'
+      const isInput = activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')
+      if (isInput) return
 
-      // Ctrl+Z for undo
-      if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
+      const key = e.key.toLowerCase()
+      const isModifier = e.ctrlKey || e.metaKey
+
+      // Undo: Ctrl+Z or Cmd+Z
+      if (isModifier && key === 'z' && !e.shiftKey) {
         e.preventDefault()
-        if (historyIndex > 0) {
-          const newHistoryIndex = historyIndex - 1
-          setHistoryIndex(newHistoryIndex)
-          onLayoutChange(history[newHistoryIndex])
-        }
+        handleUndo()
+        return
       }
-      // Ctrl+Shift+Z or Ctrl+Y for redo
-      else if ((e.ctrlKey && e.shiftKey && e.key === 'z') || (e.ctrlKey && e.key === 'y')) {
+
+      // Redo: Ctrl+Y, Cmd+Shift+Z, Ctrl+Shift+Z
+      if ((isModifier && e.shiftKey && key === 'z') || (isModifier && key === 'y')) {
         e.preventDefault()
-        if (historyIndex < history.length - 1) {
-          const newHistoryIndex = historyIndex + 1
-          setHistoryIndex(newHistoryIndex)
-          onLayoutChange(history[newHistoryIndex])
-        }
+        handleRedo()
+        return
       }
-      // Delete key
-      else if (e.key === 'Delete' || e.key === 'Backspace') {
-        if (selectedElement && !isInput) {
+
+      // Delete: Delete or Backspace
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (selectedElement) {
           e.preventDefault()
           handleDeleteElement(selectedElement)
         }
+        return
       }
-      // Ctrl+C for copy
-      else if (e.ctrlKey && e.key === 'c') {
-        if (selectedElement && !isInput) {
+
+      // Copy: Ctrl+C or Cmd+C
+      if (isModifier && key === 'c') {
+        if (selectedElement) {
           e.preventDefault()
-          const element = layout.elements.find(el => el.id === selectedElement)
-          if (element) {
-            setClipboard(JSON.parse(JSON.stringify(element)))
-          }
+          handleCopy()
         }
+        return
       }
-      // Ctrl+V for paste
-      else if (e.ctrlKey && e.key === 'v') {
-        if (clipboard && !isInput) {
+
+      // Paste: Ctrl+V or Cmd+V
+      if (isModifier && key === 'v') {
+        e.preventDefault()
+        handlePaste()
+        return
+      }
+
+      // Duplicate: Ctrl+D or Cmd+D
+      if (isModifier && key === 'd') {
+        if (selectedElement) {
           e.preventDefault()
-          const updatedLayout = cloneLayout(layout)
-          const newElement = JSON.parse(JSON.stringify(clipboard))
-          newElement.id = `${clipboard.id}_copy_${Date.now()}`
-          newElement.x += 20
-          newElement.y += 20
-          updatedLayout.elements.push(newElement)
-          onLayoutChange(updatedLayout)
-          setSelectedElement(newElement.id)
+          handleDuplicate()
         }
+        return
       }
-      // Ctrl+D for duplicate
-      else if (e.ctrlKey && e.key === 'd') {
-        if (selectedElement && !isInput) {
-          e.preventDefault()
-          const element = layout.elements.find(el => el.id === selectedElement)
-          if (element) {
-            const updatedLayout = cloneLayout(layout)
-            const newElement = JSON.parse(JSON.stringify(element))
-            newElement.id = `${element.id}_copy_${Date.now()}`
-            newElement.x += 20
-            newElement.y += 20
-            updatedLayout.elements.push(newElement)
-            onLayoutChange(updatedLayout)
-            setSelectedElement(newElement.id)
-          }
-        }
-      }
+
       // Arrow keys for nudge
-      else if (selectedElement && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-        if (!isInput) {
-          e.preventDefault()
-          const updatedLayout = cloneLayout(layout)
-          const element = updatedLayout.elements.find(el => el.id === selectedElement)
-          if (element) {
-            const nudgeAmount = e.shiftKey ? 10 : 1
-            switch (e.key) {
-              case 'ArrowUp':
-                element.y -= nudgeAmount
-                break
-              case 'ArrowDown':
-                element.y += nudgeAmount
-                break
-              case 'ArrowLeft':
-                element.x -= nudgeAmount
-                break
-              case 'ArrowRight':
-                element.x += nudgeAmount
-                break
-            }
-            onLayoutChange(updatedLayout)
+      if (selectedElement && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        e.preventDefault()
+        const updatedLayout = cloneLayout(latestLayoutRef.current)
+        const element = updatedLayout.elements.find(el => el.id === selectedElement)
+        if (element) {
+          const nudgeAmount = e.shiftKey ? 10 : 1
+          switch (e.key) {
+            case 'ArrowUp':
+              element.y = Math.max(0, element.y - nudgeAmount)
+              break
+            case 'ArrowDown':
+              element.y = Math.min(CANVAS_HEIGHT - element.height, element.y + nudgeAmount)
+              break
+            case 'ArrowLeft':
+              element.x = Math.max(0, element.x - nudgeAmount)
+              break
+            case 'ArrowRight':
+              element.x = Math.min(CANVAS_WIDTH - element.width, element.x + nudgeAmount)
+              break
           }
+          latestLayoutRef.current = updatedLayout
+          onLayoutChange(updatedLayout)
+          recordHistory(updatedLayout)
         }
       }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [readOnly, selectedElement, clipboard, layout, history, historyIndex, handleDeleteElement, onLayoutChange, editingText])
+  }, [readOnly, editingText, selectedElement, handleUndo, handleRedo, handleDeleteElement, handleCopy, handlePaste, handleDuplicate, onLayoutChange, recordHistory])
 
   // Auto-save every 30 seconds when there are unsaved changes
   useEffect(() => {
@@ -764,7 +796,9 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
       const now = Date.now()
       if (now - lastAutoSave >= 30000) {
         // Trigger save via parent's onSave function
-        onSave()
+        if (onSave) {
+          onSave({ preventDefault: () => {} } as React.FormEvent)
+        }
         setLastAutoSave(now)
         console.log('[CertificateDesigner] Auto-saved layout')
       }
@@ -804,15 +838,15 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
   const handlePanStart = useCallback((e: React.MouseEvent) => {
     if (e.button === 1 || (e.button === 0 && e.altKey)) { // Middle mouse or Alt+left click
       setIsPanning(true)
-      setDragOffset({ x: e.clientX - pan.x, y: e.clientY - pan.y })
+      setPanStart({ x: e.clientX - pan.x, y: e.clientY - pan.y })
     }
   }, [pan])
 
   const handlePanMove = useCallback((e: React.MouseEvent) => {
     if (isPanning) {
-      setPan({ x: e.clientX - dragOffset.x, y: e.clientY - dragOffset.y })
+      setPan({ x: e.clientX - panStart.x, y: e.clientY - panStart.y })
     }
-  }, [isPanning, dragOffset])
+  }, [isPanning, panStart])
 
   const handlePanEnd = useCallback(() => {
     setIsPanning(false)
@@ -1224,18 +1258,18 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
           <button
             type="button"
             onClick={handleUndo}
-            disabled={historyIndex <= 0 || readOnly}
-            className="p-2 bg-brand-bg text-brand-text/60 rounded hover:bg-neutral-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Undo (Ctrl+Z)"
+            disabled={!canUndo || readOnly}
+            className="p-2 bg-brand-bg text-brand-text/60 rounded hover:bg-neutral-200 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            title="Undo (Ctrl+Z / Cmd+Z)"
           >
             <Undo className="h-4 w-4" />
           </button>
           <button
             type="button"
             onClick={handleRedo}
-            disabled={historyIndex >= history.length - 1 || readOnly}
-            className="p-2 bg-brand-bg text-brand-text/60 rounded hover:bg-neutral-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Redo (Ctrl+Y)"
+            disabled={!canRedo || readOnly}
+            className="p-2 bg-brand-bg text-brand-text/60 rounded hover:bg-neutral-200 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            title="Redo (Ctrl+Y / Cmd+Shift+Z)"
           >
             <Redo className="h-4 w-4" />
           </button>
@@ -1611,9 +1645,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                 ` : 'none',
                 backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px`,
               }}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
+              
             >
               {/* Background */}
               <img
