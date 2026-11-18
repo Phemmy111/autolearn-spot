@@ -306,7 +306,7 @@ export const DEFAULT_CERTIFICATE_LAYOUT: CertificateLayout = {
       zIndex: 10,
     },
 
-    // 5. Certificate Title: "CERTIFICATE OF COMPLETION"
+    // 5. Certificate Title: "Certificate of Completion"
     {
       id: 'title',
       type: 'title',
@@ -318,7 +318,7 @@ export const DEFAULT_CERTIFICATE_LAYOUT: CertificateLayout = {
       visible: true,
       locked: false,
       binding: 'title',
-      text: 'CERTIFICATE OF COMPLETION',
+      text: 'Certificate of Completion',
       style: {
         color: '#0f172a',
         fontSize: 42,
@@ -330,7 +330,7 @@ export const DEFAULT_CERTIFICATE_LAYOUT: CertificateLayout = {
       zIndex: 10,
     },
 
-    // 6. Presentation Lead: "This certificate is proudly presented to"
+    // 6. Presentation Lead: "This certifies that"
     {
       id: 'subtitle',
       type: 'subtitle',
@@ -342,7 +342,7 @@ export const DEFAULT_CERTIFICATE_LAYOUT: CertificateLayout = {
       visible: true,
       locked: false,
       binding: 'subtitle',
-      text: 'This certificate is proudly presented to',
+      text: 'This certifies that',
       style: {
         color: '#334155',
         fontSize: 19,
@@ -480,7 +480,7 @@ export const DEFAULT_CERTIFICATE_LAYOUT: CertificateLayout = {
       zIndex: 10,
     },
 
-    // 13. Founder Name: "A. Femi Adeleke"
+    // 13. Founder Name: "AutoLearn Spot"
     {
       id: 'founderName',
       type: 'founderName',
@@ -492,7 +492,7 @@ export const DEFAULT_CERTIFICATE_LAYOUT: CertificateLayout = {
       visible: true,
       locked: false,
       binding: 'founderName',
-      text: 'A. Femi Adeleke',
+      text: 'AutoLearn Spot',
       style: {
         color: '#0f172a',
         fontSize: 16,
@@ -503,7 +503,7 @@ export const DEFAULT_CERTIFICATE_LAYOUT: CertificateLayout = {
       zIndex: 10,
     },
 
-    // 14. Founder Title: "Founder & Lead Instructor"
+    // 14. Founder Title: "Founder"
     {
       id: 'signatureText',
       type: 'signatureText',
@@ -515,7 +515,7 @@ export const DEFAULT_CERTIFICATE_LAYOUT: CertificateLayout = {
       visible: true,
       locked: false,
       binding: 'signatureText',
-      text: 'Founder & Lead Instructor',
+      text: 'Founder',
       style: {
         color: '#64748b',
         fontSize: 13,
@@ -949,11 +949,11 @@ export function getElementText(
   if (element.binding) {
     switch (element.binding) {
       case 'title':
-        return element.text || settings.title || 'CERTIFICATE OF COMPLETION'
+        return settings.title || element.text || 'Certificate of Completion'
       case 'subtitle':
-        return element.text || settings.subtitle || 'This certificate is proudly presented to'
+        return settings.subtitle || element.text || 'This certifies that'
       case 'bodyText':
-        return element.text || settings.bodyText || 'In Recognition of Completing the'
+        return settings.bodyText || element.text || 'has successfully completed the'
       case 'studentName':
         return data.student_name || data.name || element.text || 'Femi Adeleke'
       case 'course':
@@ -961,13 +961,13 @@ export function getElementText(
       case 'date':
         return data.issue_date || data.date || element.text || 'November 18, 2026'
       case 'signatureText':
-        return element.text || settings.signatureText || 'Founder & Lead Instructor'
+        return settings.signatureText || element.text || 'Founder'
       case 'founderName':
-        return element.text || settings.founderName || 'A. Femi Adeleke'
+        return settings.founderName || element.text || 'AutoLearn Spot'
       case 'certificateId':
         return data.certificate_id || data.certificateId || element.text || 'CERT-07D13D81'
       case 'footer':
-        return element.text || settings.footer || 'AutoLearn Spot • Learn • Automate • Succeed'
+        return settings.footer || element.text || 'AutoLearn Spot • Learn • Automate • Succeed'
       default:
         return element.text || ''
     }

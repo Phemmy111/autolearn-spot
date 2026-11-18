@@ -130,7 +130,15 @@ export function AlexInputArea({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (isComposing) return // Don't handle keys while composing (IME input)
 
-    if (isMobile) {
+    const isMobileDevice =
+      isMobile ||
+      (typeof window !== 'undefined' &&
+        (window.innerWidth <= 768 ||
+          'ontouchstart' in window ||
+          navigator.maxTouchPoints > 0 ||
+          /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)))
+
+    if (isMobileDevice) {
       // Mobile: Enter always creates newline, never sends
       return
     }

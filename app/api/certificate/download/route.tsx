@@ -26,6 +26,21 @@ function getAssetArrayBuffer(relativePath: string): ArrayBuffer | null {
   return null
 }
 
+function getAssetDataUri(relativePath: string): string | null {
+  try {
+    const fullPath = path.join(process.cwd(), 'public', relativePath.replace(/^\//, ''))
+    if (fs.existsSync(fullPath)) {
+      const buf = fs.readFileSync(fullPath)
+      const ext = path.extname(relativePath).toLowerCase().replace('.', '') || 'png'
+      const mime = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : ext === 'svg' ? 'image/svg+xml' : 'image/png'
+      return `data:${mime};base64,${buf.toString('base64')}`
+    }
+  } catch (err) {
+    console.warn(`Could not read asset as data URI (${relativePath}):`, err)
+  }
+  return null
+}
+
 export async function GET(request: Request) {
   try {
     const { userId } = await auth()
@@ -176,6 +191,11 @@ export async function GET(request: Request) {
 
     // Certificate settings
     const certSettings = await getPublicSettings([
+      'certificateTitle',
+      'certificateSubtitle',
+      'certificateBodyText',
+      'certificateFounderName',
+      'certificateSignatureText',
       'certificateSignatureUrl',
       'certificateAccentColor',
       'certificateQrEnabled',
@@ -214,26 +234,32 @@ export async function GET(request: Request) {
     const robotoData = await robotoRes.arrayBuffer()
 
     const bgAsset =
+      getAssetDataUri('certificate-template-parchment-clean.png') ||
       getAssetArrayBuffer('certificate-template-parchment-clean.png') ||
-      `${baseUrl}/certificate-template-parchment-clean.png`
+      'https://www.autolearnspot.com/certificate-template-parchment-clean.png'
 
     const logoAsset =
+      getAssetDataUri('autolearn-brandmark-bold.png') ||
+      getAssetDataUri('autolearn-brandmark.png') ||
       getAssetArrayBuffer('autolearn-brandmark-bold.png') ||
-      getAssetArrayBuffer('autolearn-brandmark.png') ||
-      `${baseUrl}/autolearn-brandmark-bold.png`
+      'https://www.autolearnspot.com/autolearn-brandmark-bold.png'
 
     const sealAsset =
+      getAssetDataUri('certificate-gold-seal.png') ||
       getAssetArrayBuffer('certificate-gold-seal.png') ||
-      `${baseUrl}/certificate-gold-seal.png`
+      'https://www.autolearnspot.com/certificate-gold-seal.png'
 
     const signatureAsset =
       certSettings.certificateSignatureUrl && certSettings.certificateSignatureUrl.startsWith('http')
         ? certSettings.certificateSignatureUrl
-        : getAssetArrayBuffer('signature-femi-real.png') || `${baseUrl}/signature-femi-real.png`
+        : getAssetDataUri('signature-femi-real.png') ||
+          getAssetArrayBuffer('signature-femi-real.png') ||
+          'https://www.autolearnspot.com/signature-femi-real.png'
 
     const qrAsset =
+      getAssetDataUri('certificate-qr-sample.png') ||
       getAssetArrayBuffer('certificate-qr-sample.png') ||
-      `${baseUrl}/certificate-qr-sample.png`
+      'https://www.autolearnspot.com/certificate-qr-sample.png'
 
     const imageResponse = new ImageResponse(
       (
@@ -249,6 +275,11 @@ export async function GET(request: Request) {
           sealSrc={sealAsset}
           signatureUrl={signatureAsset}
           qrSrc={qrAsset}
+          title={certSettings.certificateTitle}
+          subtitle={certSettings.certificateSubtitle}
+          bodyText={certSettings.certificateBodyText}
+          founderName={certSettings.certificateFounderName}
+          signatureText={certSettings.certificateSignatureText}
           footer={certSettings.certificateFooter || ''}
           accentColor={accentColor}
         />

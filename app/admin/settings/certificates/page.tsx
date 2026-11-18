@@ -49,16 +49,29 @@ export default function AdminCertificatesSettingsPage() {
       if (res.ok) {
         const data = await res.json();
         if (data.settings) {
-          setSettings(prev => ({ ...prev, ...data.settings }));
+          const raw = data.settings;
+          const normalized = {
+            ...raw,
+            title: raw.title || raw.certificate_title || raw.certificateTitle || settings.title,
+            subtitle: raw.subtitle || raw.certificate_subtitle || raw.certificateSubtitle || settings.subtitle,
+            bodyText: raw.bodyText || raw.certificate_body_text || raw.certificateBodyText || settings.bodyText,
+            founderName: raw.founderName || raw.certificate_founder_name || raw.certificateFounderName || settings.founderName,
+            signatureText: raw.signatureText || raw.certificate_signature_text || raw.certificateSignatureText || settings.signatureText,
+            footer: raw.footer || raw.certificate_footer || raw.certificateFooter || settings.footer,
+            accentColor: raw.accentColor || raw.certificate_accent_color || raw.certificateAccentColor || settings.accentColor,
+            layout: raw.layout || raw.certificate_layout || raw.certificateLayout || null,
+          };
+          setSettings(prev => ({ ...prev, ...normalized }));
           
           // Load layout if it exists
-          if (data.settings.layout) {
+          const layoutSource = normalized.layout;
+          if (layoutSource) {
             try {
-              const parsedLayout = typeof data.settings.layout === 'string'
-                ? JSON.parse(data.settings.layout)
-                : data.settings.layout;
+              const parsedLayout = typeof layoutSource === 'string'
+                ? JSON.parse(layoutSource)
+                : layoutSource;
               const validation = validateLayout(parsedLayout);
-              // Check if it's the old dark theme layout (e.g. background color was #06101f or course had dark box or missing elements)
+              // Check if it's the old dark theme layout
               const hasOldDarkTheme = 
                 !parsedLayout?.elements ||
                 parsedLayout.elements.length < 12 ||
@@ -132,17 +145,49 @@ export default function AdminCertificatesSettingsPage() {
         uploadedSignatureUrl = uploadData.signatureUrl || uploadedSignatureUrl;
       }
 
+      // Synchronize layout elements with current form settings before persisting
+      const synchronizedLayout = layout && layout.elements ? {
+        ...layout,
+        elements: layout.elements.map(el => {
+          if (el.id === 'title' || el.type === 'title') {
+            return { ...el, text: settings.title };
+          }
+          if (el.id === 'subtitle' || el.type === 'subtitle') {
+            return { ...el, text: settings.subtitle };
+          }
+          if (el.id === 'bodyText' || el.type === 'bodyText') {
+            return { ...el, text: settings.bodyText };
+          }
+          if (el.id === 'founderName' || el.type === 'founderName') {
+            return { ...el, text: settings.founderName };
+          }
+          if (el.id === 'signatureText' || el.type === 'signatureText') {
+            return { ...el, text: settings.signatureText };
+          }
+          if (el.id === 'footer' || el.type === 'footer') {
+            return { ...el, text: settings.footer };
+          }
+          return el;
+        })
+      } : layout;
+
       // Update settings with uploaded URLs and current layout
       const updatedSettings = {
         ...settings,
         backgroundUrl: uploadedBackgroundUrl || settings.backgroundUrl,
         logoUrl: uploadedLogoUrl || settings.logoUrl,
         signatureUrl: uploadedSignatureUrl || settings.signatureUrl,
-        layout: layout,
+        layout: synchronizedLayout,
+        certificateTitle: settings.title,
+        certificateSubtitle: settings.subtitle,
+        certificateBodyText: settings.bodyText,
+        certificateFounderName: settings.founderName,
+        certificateSignatureText: settings.signatureText,
+        certificateFooter: settings.footer,
       };
 
       // Only save layout if it's not null/undefined
-      if (!layout || Object.keys(layout).length === 0) {
+      if (!synchronizedLayout || Object.keys(synchronizedLayout).length === 0) {
         delete updatedSettings.layout;
       }
 
@@ -171,6 +216,43 @@ export default function AdminCertificatesSettingsPage() {
     } finally {
       setIsSaving(false);
       setIsUploading(false);
+    }
+  };
+
+  const handleLayoutChange = (newLayout: CertificateLayout) => {
+    setLayout(newLayout);
+    if (newLayout?.elements) {
+      setSettings(prev => {
+        let changed = false;
+        const next = { ...prev };
+        newLayout.elements.forEach(el => {
+          if ((el.id === 'title' || el.type === 'title') && el.text && el.text !== next.title) {
+            next.title = el.text;
+            changed = true;
+          }
+          if ((el.id === 'subtitle' || el.type === 'subtitle') && el.text && el.text !== next.subtitle) {
+            next.subtitle = el.text;
+            changed = true;
+          }
+          if ((el.id === 'bodyText' || el.type === 'bodyText') && el.text && el.text !== next.bodyText) {
+            next.bodyText = el.text;
+            changed = true;
+          }
+          if ((el.id === 'founderName' || el.type === 'founderName') && el.text && el.text !== next.founderName) {
+            next.founderName = el.text;
+            changed = true;
+          }
+          if ((el.id === 'signatureText' || el.type === 'signatureText') && el.text && el.text !== next.signatureText) {
+            next.signatureText = el.text;
+            changed = true;
+          }
+          if ((el.id === 'footer' || el.type === 'footer') && el.text && el.text !== next.footer) {
+            next.footer = el.text;
+            changed = true;
+          }
+        });
+        return changed ? next : prev;
+      });
     }
   };
 
@@ -257,7 +339,7 @@ export default function AdminCertificatesSettingsPage() {
             </div>
             <CertificateDesigner
               layout={layout}
-              onLayoutChange={setLayout}
+              onLayoutChange={handleLayoutChange}
               settings={settings}
               onSave={handleSave}
               isSaving={isSaving}

@@ -36,7 +36,19 @@ const CANVAS_HEIGHT = 800
 const isValidImage = (src?: any): boolean => {
   if (!src) return false
   if (typeof src !== 'string') return true // ArrayBuffer or Buffer is valid in Satori
-  return src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:') || src.startsWith('/')
+  return src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')
+}
+
+const resolveImageSrc = (src?: any): any => {
+  if (!src) return undefined
+  if (typeof src !== 'string') return src
+  if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) {
+    return src
+  }
+  if (src.startsWith('/')) {
+    return `https://www.autolearnspot.com${src}`
+  }
+  return src
 }
 
 export function CertificateTemplate({
@@ -420,7 +432,39 @@ export function CertificateTemplate({
                 )
               }
 
-              // 7. Date Block
+              // 8. Custom Images
+              if (el.type === 'image' || el.id?.startsWith('image_')) {
+                const customImgSrc = resolveImageSrc(el.src)
+                if (customImgSrc) {
+                  return (
+                    <div
+                      key={el.id}
+                      style={{
+                        position: 'absolute',
+                        left: `${el.x}px`,
+                        top: `${el.y}px`,
+                        width: `${el.width}px`,
+                        height: `${el.height}px`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: el.zIndex || 10,
+                      }}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={customImgSrc}
+                        alt="Custom Graphic"
+                        width={el.width}
+                        height={el.height}
+                        style={{ width: `${el.width}px`, height: `${el.height}px` }}
+                      />
+                    </div>
+                  )
+                }
+              }
+
+              // 9. Date Block
               if (el.id === 'date' || el.type === 'date') {
                 return (
                   <div
@@ -469,17 +513,17 @@ export function CertificateTemplate({
               } else if (el.id === 'course' || el.type === 'course') {
                 textContent = displayCourse
               } else if (el.id === 'title' || el.type === 'title') {
-                textContent = el.text || title || 'CERTIFICATE OF COMPLETION'
+                textContent = (title && title.trim()) ? title : (el.text || 'Certificate of Completion')
               } else if (el.id === 'subtitle' || el.type === 'subtitle') {
-                textContent = el.text || subtitle || 'This certificate is proudly presented to'
+                textContent = (subtitle && subtitle.trim()) ? subtitle : (el.text || 'This certifies that')
               } else if (el.id === 'bodyText' || el.type === 'bodyText') {
-                textContent = el.text || bodyText || 'In Recognition of Completing the'
+                textContent = (bodyText && bodyText.trim()) ? bodyText : (el.text || 'has successfully completed the')
               } else if (el.id === 'founderName' || el.type === 'founderName') {
-                textContent = el.text || displayFounder
+                textContent = (founderName && founderName.trim()) ? founderName : (el.text || displayFounder)
               } else if (el.id === 'signatureText' || el.type === 'signatureText') {
-                textContent = el.text || displayFounderTitle
+                textContent = (signatureText && signatureText.trim()) ? signatureText : (el.text || displayFounderTitle)
               } else if (el.id === 'footer' || el.type === 'footer') {
-                textContent = el.text || displayFooter
+                textContent = (footer && footer.trim()) ? footer : (el.text || displayFooter)
               }
 
               return (
@@ -634,7 +678,7 @@ export function CertificateTemplate({
               </div>
             </div>
 
-            {/* 3. Certificate Title: "CERTIFICATE OF COMPLETION" */}
+            {/* 3. Certificate Title: "Certificate of Completion" */}
             <div
               style={{
                 position: 'absolute',
@@ -654,11 +698,11 @@ export function CertificateTemplate({
                   letterSpacing: '3.5px',
                 }}
               >
-                CERTIFICATE OF COMPLETION
+                {title || 'Certificate of Completion'}
               </span>
             </div>
 
-            {/* 4. Presentation Lead: "This certificate is proudly presented to" */}
+            {/* 4. Presentation Lead: "This certifies that" */}
             <div
               style={{
                 position: 'absolute',
@@ -678,7 +722,7 @@ export function CertificateTemplate({
                   letterSpacing: '0.5px',
                 }}
               >
-                This certificate is proudly presented to
+                {subtitle || 'This certifies that'}
               </span>
             </div>
 
@@ -707,7 +751,7 @@ export function CertificateTemplate({
               </span>
             </div>
 
-            {/* 6. In Recognition of Completing the */}
+            {/* 6. Body Text */}
             <div
               style={{
                 position: 'absolute',
@@ -727,7 +771,7 @@ export function CertificateTemplate({
                   letterSpacing: '0.4px',
                 }}
               >
-                In Recognition of Completing the
+                {bodyText || 'has successfully completed the'}
               </span>
             </div>
 

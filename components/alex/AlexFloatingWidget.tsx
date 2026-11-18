@@ -62,6 +62,7 @@ export function AlexFloatingWidget() {
   const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Load chat history & conversation ID from localStorage on mount
   useEffect(() => {
@@ -632,13 +633,38 @@ export function AlexFloatingWidget() {
                     <Paperclip className="w-4 h-4" />
                   </button>
 
-                  <input
-                    type="text"
+                  <textarea
+                    ref={textareaRef}
+                    rows={1}
                     value={input}
-                    onChange={(e) => setInput(e.target.value)}
+                    onChange={(e) => {
+                      setInput(e.target.value);
+                      e.target.style.height = 'auto';
+                      e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+                    }}
+                    onKeyDown={(e) => {
+                      const isMobile =
+                        typeof window !== 'undefined' &&
+                        (window.innerWidth <= 768 ||
+                          'ontouchstart' in window ||
+                          navigator.maxTouchPoints > 0 ||
+                          /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+
+                      if (e.key === 'Enter') {
+                        if (isMobile) {
+                          // Mobile: Enter always creates newline, never sends
+                          return;
+                        }
+                        // Desktop: Enter sends, Shift+Enter creates newline
+                        if (!e.shiftKey) {
+                          e.preventDefault();
+                          handleSend();
+                        }
+                      }
+                    }}
                     placeholder={attachedFiles.length > 0 ? "Add a message or press send..." : "Ask Alex anything..."}
                     disabled={isLoading}
-                    className="flex-1 bg-neutral-100 hover:bg-neutral-50 focus:bg-white text-neutral-900 placeholder:text-neutral-400 text-xs sm:text-sm rounded-xl px-3.5 py-2.5 border border-neutral-200 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+                    className="flex-1 bg-neutral-100 hover:bg-neutral-50 focus:bg-white text-neutral-900 placeholder:text-neutral-400 text-xs sm:text-sm rounded-xl px-3.5 py-2.5 border border-neutral-200 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all resize-none max-h-[120px] overflow-y-auto leading-relaxed"
                   />
                   <button
                     type="submit"

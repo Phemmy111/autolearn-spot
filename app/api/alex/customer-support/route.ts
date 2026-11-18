@@ -1,70 +1,126 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
-import { AIEngine } from '@/lib/alex/ai-engine';
-import { AlexMode } from '@/lib/alex/types';
+import { ProviderRegistry } from '@/lib/alex/provider/provider-registry';
+import { ProviderManager } from '@/lib/alex/provider/provider-manager';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 45;
 
-const PLATFORM_KNOWLEDGE = `
-You are ALEX, the friendly, highly intelligent, and authoritative AI Customer Support Concierge and Admissions Advisor for AutoLearn Spot (autolearnspot.com).
+interface CourseSummary {
+  title: string;
+  price: number;
+  slug: string;
+  description: string;
+}
 
-AutoLearn Spot Overview:
-- Mission: Nigeria and Africa's premier practical digital & tech skills academy. We equip individuals and professionals with real-world skills in AI automation, software engineering, and modern digital tools to earn high income.
-- Flagship Course: "AI Automation with n8n"
-  • Current Promo Price: ₦3,000 (one-time payment, lifetime access, originally ₦30,000).
-  • Curriculum: 12 hands-on video lessons, AI agents, Telegram bots, webhook integrations, CRM sync, viral content automations, error handling.
-  • Self-paced learning with lifetime access on all devices (mobile, laptop, tablet).
+// Dynamically compile the latest live platform knowledge from the database
+async function getLivePlatformKnowledge(): Promise<{
+  knowledgeText: string;
+  courses: CourseSummary[];
+}> {
+  let courses: CourseSummary[] = [];
+  try {
+    const { data: lpData } = await supabaseAdmin
+      .from('learning_products')
+      .select('id, title, slug, price, status, metadata')
+      .eq('status', 'published')
+      .limit(20);
+
+    if (lpData && lpData.length > 0) {
+      courses = lpData.map((item: any) => {
+        const meta = typeof item.metadata === 'string' ? JSON.parse(item.metadata || '{}') : (item.metadata || {});
+        return {
+          title: item.title,
+          price: Number(item.price) || 3000,
+          slug: item.slug || '',
+          description: meta.short_description || meta.full_description || 'Hands-on practical training with verified certification.',
+        };
+      });
+    }
+  } catch (err) {
+    console.warn('[ALEX Concierge] Could not load dynamic learning products:', err);
+  }
+
+  if (courses.length === 0) {
+    courses = [
+      {
+        title: 'AI Automation with n8n',
+        price: 3000,
+        slug: 'ai-automation-with-n8n',
+        description: 'Hands-on AI workflow automation, bots, and integrations. ₦3,000 promo.',
+      },
+    ];
+  }
+
+  const coursesList = courses
+    .map((c) => `• "${c.title}" at ₦${c.price.toLocaleString()} (https://www.autolearnspot.com/marketplace/${c.slug || 'ai-automation-with-n8n'}) - ${c.description}`)
+    .join('\n');
+
+  const knowledgeText = `
+You are ALEX, the friendly, brilliant, and persuasive AI Admissions Concierge and Assistant for AutoLearn Spot (autolearnspot.com).
+Your mission is to welcome visitors, answer questions accurately, and enthusiastically convince them to learn, teach, or partner with AutoLearn Spot.
+
+LIVE PLATFORM FACTS & KNOWLEDGE:
+- Mission: Nigeria & Africa's #1 practical tech skills academy. Hands-on, project-based video training designed to help students earn high income.
+- Live Available Courses & Pricing:
+${coursesList}
+- Flagship Course: "AI Automation with n8n" currently on a limited-time promo price of ₦3,000 (one-time payment, lifetime access, originally ₦30,000). Students learn to build Telegram bots, AI agents, CRM syncs, and viral pipelines.
 - Guaranteed Verified Certificate:
-  • Every student who completes the course receives a verifiable digital Certificate of Completion.
-  • Features student's full name, unique verification hash, and instant QR code verification.
-- Risk-Free Guarantee:
-  • 30-Day Money-Back Guarantee. If students aren't satisfied, full refund with no hassles.
-- Payment Methods:
-  • Paystack & Flutterwave secure checkout.
-  • Supports Nigerian Debit Cards (Mastercard, Visa, Verve), Direct Bank Transfer, USSD, and Opay.
-- Affiliate / Partner Program (/partners):
-  • Anyone can join as an affiliate partner for free.
-  • Authors set custom course commission rates up to 70% per sale (e.g. ₦600 to ₦2,100+ per sale on ₦3,000+ courses).
-  • Fast 24–48 hour direct payouts to all Nigerian banks (GTBank, Access, Kuda, Opay, PalmPay, etc.).
-  • Comprehensive dashboard with real-time conversion and link tracking.
-- Contact & Human Support Channels:
-  • Founder & Lead Instructor: Femi Adeleke (Certified AI & Workflow Automation Engineer).
-  • WhatsApp Support (Fastest, < 15 mins response): https://wa.me/2348120934828 (08120934828 / +234 812 093 4828).
-  • Official Email: autolearnspot@gmail.com and support@autolearnspot.com.
-  • Direct Telephone: 08120934828.
+  • Every student who finishes their lessons receives an official, tamper-proof Certificate of Completion with unique verification ID and instant QR code verification (/certificate/verify).
+- 30-Day Money-Back Guarantee:
+  • 100% risk-free. If a student is not satisfied within 30 days, they receive a full refund with no hassle.
+- Payment Options:
+  • Instant, secure checkout via Paystack & Flutterwave.
+  • Accepts Nigerian Debit Cards (Mastercard, Visa, Verve), Direct Bank Transfer, USSD, and Opay.
+- Become an Author / Instructor (/author/register):
+  • Tech professionals, developers, and educators can publish courses on AutoLearn Spot, access course creation tools, and earn up to 70% revenue share.
+- Become an Affiliate Partner (/partners):
+  • Free to join. Affiliates earn up to 70% commission per referral.
+  • Automated, fast 24–48 hour direct payouts to all Nigerian bank accounts (GTBank, Access, Kuda, Opay, PalmPay, etc.). Real-time conversion tracking.
+- Founder & Direct Human Support:
+  • Founder & Lead Instructor: Femi Adeleke (Certified AI Automation Specialist).
+  • WhatsApp: https://wa.me/2348120934828 (08120934828). Fast response under 15 minutes!
+  • Email: autolearnspot@gmail.com and support@autolearnspot.com.
 
-Response Guidelines:
-- Be welcoming, professional, concise, and helpful.
-- When answering pricing, certificates, or courses, provide specific facts (₦3,000 promo price, QR certificate, 30-day guarantee).
-- For complex inquiries, author applications, bulk corporate training, or if the user requests human assistance, provide founder Femi Adeleke's direct WhatsApp link (https://wa.me/2348120934828) and phone number (08120934828).
-- Keep answers formatted with clean markdown, bullet points, and high readability.
+STRICT CONVERSATIONAL CONSTRAINT:
+1. Normal conversational responses MUST be strictly between 2 to 3 short sentences. Never write long essays or walls of text.
+2. Be warm, persuasive, and directly answer what the user asked.
+3. Clean formatting: Never output clumsy spaces inside bold asterisks (write "**word**", not "** word **").
 `;
 
-// Fallback intelligent answers if AI engine is temporarily unreachable
-function getSmartFallbackReply(userMessage: string): string {
+  return { knowledgeText, courses };
+}
+
+// Clean fallback adhering to the 2-3 sentence rule
+function getSmartFallbackReply(userMessage: string, courses: CourseSummary[]): string {
   const lower = userMessage.toLowerCase();
 
   if (lower.includes('price') || lower.includes('cost') || lower.includes('how much') || lower.includes('fee')) {
-    return `Our flagship practical course, **AI Automation with n8n**, is currently available at a special promotional price of **₦3,000** (one-time payment, lifetime access, originally ₦30,000).\n\n• Includes 12 hands-on video lessons\n• Verifiable Certificate of Completion with QR code\n• 30-Day Money-Back Guarantee\n• Instant access upon payment via Card, Transfer, or USSD\n\nYou can enroll directly or reach our founder **Femi Adeleke** on WhatsApp at [08120934828](https://wa.me/2348120934828).`;
+    const flagship = courses[0] || { title: 'AI Automation with n8n', price: 3000 };
+    return `Our flagship course, ${flagship.title}, is currently available at a special promo price of ₦${flagship.price.toLocaleString()} for lifetime access. It includes 12 hands-on video lessons, a verified QR certificate, and our 30-day money-back guarantee. You can enroll instantly or message founder Femi Adeleke on WhatsApp at [08120934828](https://wa.me/2348120934828)!`;
   }
 
-  if (lower.includes('certificate') || lower.includes('guarantee') || lower.includes('verified')) {
-    return `Yes, absolutely! Every course on AutoLearn Spot comes with a **Guaranteed Verified Certificate of Completion**.\n\n• Issued in your official name upon course completion\n• Features an tamper-proof cryptographic verification hash and scannable QR code\n• Ready for your LinkedIn profile, CV, and client portfolios\n• Backed by our **30-Day 100% Money-Back Guarantee**!`;
+  if (lower.includes('certificate') || lower.includes('verified') || lower.includes('guarantee')) {
+    return `Yes! Every course includes an official, tamper-proof Certificate of Completion with a unique QR code for instant employer verification. It is backed by our 100% 30-day money-back guarantee. You can showcase it proudly on LinkedIn and your resume!`;
+  }
+
+  if (lower.includes('author') || lower.includes('teach') || lower.includes('create course') || lower.includes('instructor')) {
+    return `You can teach on AutoLearn Spot and earn up to 70% revenue share on every student enrollment! We provide full author tooling and marketing support to help your course succeed. Register as an author today at [/author/register](https://www.autolearnspot.com/author/register)!`;
   }
 
   if (lower.includes('affiliate') || lower.includes('partner') || lower.includes('commission') || lower.includes('earn')) {
-    return `You can earn significant income with the **AutoLearn Spot Affiliate Program**!\n\n• Earn custom commissions set by authors—**up to 70% per course sale**\n• Direct 24–48h payouts to all Nigerian bank accounts (GTBank, Access, Kuda, Opay, etc.)\n• Real-time tracking dashboard and unique course referral links\n• 100% free to join at [/partners](https://www.autolearnspot.com/partners)\n\nHave questions about becoming a partner? Chat with us directly on WhatsApp at [08120934828](https://wa.me/2348120934828).`;
+    return `Our Affiliate Partner Program allows you to earn up to 70% commission on every course referral! Payouts are made directly to all Nigerian bank accounts within 24–48 hours with real-time tracking. Join for free right now at [/partners](https://www.autolearnspot.com/partners)!`;
   }
 
-  if (lower.includes('contact') || lower.includes('phone') || lower.includes('whatsapp') || lower.includes('human') || lower.includes('call') || lower.includes('email') || lower.includes('founder') || lower.includes('femi')) {
-    return `Here are our official contact details:\n\n• **Founder & Lead Instructor:** Femi Adeleke\n• **WhatsApp Direct Chat:** [Chat on WhatsApp](https://wa.me/2348120934828) (08120934828)\n• **Phone:** 08120934828 (+234 812 093 4828)\n• **Email:** [autolearnspot@gmail.com](mailto:autolearnspot@gmail.com)\n\nOur team is online and responds in under 15 minutes on WhatsApp!`;
+  if (lower.includes('founder') || lower.includes('femi') || lower.includes('human') || lower.includes('contact') || lower.includes('whatsapp') || lower.includes('phone')) {
+    return `You can chat directly with our founder, Femi Adeleke, on WhatsApp at [08120934828](https://wa.me/2348120934828) for quick support in under 15 minutes. You can also call 08120934828 or email autolearnspot@gmail.com anytime. How else can I assist your learning journey today?`;
   }
 
-  if (lower.includes('course') || lower.includes('n8n') || lower.includes('learn') || lower.includes('syllabus')) {
-    return `AutoLearn Spot provides hands-on, project-based tech courses designed for career growth:\n\n1. **AI Automation with n8n (Flagship):** Build autonomous AI agents, Telegram bots, CRM syncs, and viral content pipelines without complex code. Price: **₦3,000**.\n2. **Verified Certification:** Issued upon course completion.\n3. **Lifetime Access:** Watch on phone or computer anytime.\n\nWould you like guidance on enrolling, or do you have specific questions for founder **Femi Adeleke**? You can also message him directly on WhatsApp at [08120934828](https://wa.me/2348120934828).`;
+  if (lower.includes('course') || lower.includes('n8n') || lower.includes('learn') || lower.includes('what do you teach')) {
+    return `AutoLearn Spot offers practical tech courses, led by our popular AI Automation with n8n course for just ₦3,000 promo. You will build real-world AI agents, Telegram bots, and automated business workflows with lifetime access. Would you like me to guide you through enrollment?`;
   }
 
-  return `Hello! I'm **ALEX**, your AutoLearn Spot AI Concierge.\n\nI can help you with:\n• **Course Catalog & ₦3,000 Promo:** AI Automation with n8n\n• **Guaranteed Certificates:** Digital verified credentials with QR validation\n• **Affiliate Partner Program:** Earn up to 70% commission per referral\n• **Direct Human Support:** Connect with founder Femi Adeleke on WhatsApp at [08120934828](https://wa.me/2348120934828)\n\nHow can I help you today? Feel free to ask any question or leave your inquiry!`;
+  return `Welcome to AutoLearn Spot! I can help you enroll in our ₦3,000 AI Automation course, explain our verified certificates, or show you how to earn up to 70% as an affiliate partner. What would you like to explore today?`;
 }
 
 export async function POST(request: NextRequest) {
@@ -77,50 +133,72 @@ export async function POST(request: NextRequest) {
     }
 
     const trimmed = message.trim();
+    const { knowledgeText, courses } = await getLivePlatformKnowledge();
 
-    // Check if AI engine can process the message
+    // Attempt generation through registered AI providers (Groq / Gemini)
     try {
-      const historyFormatted = (conversationHistory || []).slice(-6).map((item: any) => ({
-        role: item.role === 'user' ? 'user' : 'assistant',
-        content: item.content
-      }));
+      const registry = new ProviderRegistry();
+      const providerManager = new ProviderManager(registry);
+      await providerManager.loadProviders();
 
-      // Augment user prompt with platform context
-      const promptWithContext = `${PLATFORM_KNOWLEDGE}\n\nUser Question: ${trimmed}`;
+      const activeProviders = registry.getEnabledProviders();
 
-      const aiResponse = await AIEngine.processChat({
-        content: promptWithContext,
-        mode: 'general' as AlexMode,
-        conversationHistory: historyFormatted,
-        enableRetrieval: false,
-        enableWebResearch: false,
-        enableMemory: false,
-        enableTools: false,
-        enableAgent: false,
-      });
+      if (activeProviders && activeProviders.length > 0) {
+        const formattedHistory = (conversationHistory || []).slice(-6).map((item: any) => ({
+          role: (item.role === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
+          content: String(item.content || ''),
+        }));
 
-      if (aiResponse && aiResponse.message && aiResponse.message.trim().length > 0) {
-        return NextResponse.json({
-          reply: aiResponse.message,
-          source: 'alex_ai'
-        });
+        let aiReply = '';
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('AI Provider timeout')), 12000)
+        );
+
+        const streamPromise = (async () => {
+          for await (const chunk of providerManager.executeStreamingWithFallback({
+            messages: [
+              { role: 'system', content: knowledgeText },
+              ...formattedHistory,
+              { role: 'user', content: trimmed },
+            ],
+            model: activeProviders[0]?.model,
+            temperature: 0.6,
+            maxTokens: 300,
+            stream: true,
+            disableTools: true,
+          })) {
+            if (chunk.type === 'delta' && chunk.data?.text) {
+              aiReply += chunk.data.text;
+            }
+          }
+          return aiReply;
+        })();
+
+        await Promise.race([streamPromise, timeoutPromise]);
+
+        const cleanReply = aiReply.trim();
+        if (cleanReply.length > 0) {
+          return NextResponse.json({
+            reply: cleanReply,
+            source: 'alex_ai',
+          });
+        }
       }
-    } catch (aiError) {
-      console.warn('[ALEX Customer Support] AI engine exception, falling back to smart concierge:', aiError);
+    } catch (aiErr) {
+      console.warn('[ALEX Concierge] AI provider call fallback:', aiErr);
     }
 
-    // Fallback to high-quality smart concierge reply
-    const fallbackReply = getSmartFallbackReply(trimmed);
+    // Dynamic smart fallback
+    const fallbackReply = getSmartFallbackReply(trimmed, courses);
     return NextResponse.json({
       reply: fallbackReply,
-      source: 'smart_concierge'
+      source: 'smart_concierge',
     });
-
   } catch (error) {
-    console.error('[ALEX Customer Support] Error:', error);
+    console.error('[ALEX Customer Support] Route Error:', error);
     return NextResponse.json({
-      reply: `I'm here to assist you! For immediate help, please reach out to our team and founder Femi Adeleke directly on WhatsApp at [08120934828](https://wa.me/2348120934828) or email autolearnspot@gmail.com.`,
-      source: 'error_fallback'
+      reply: `AutoLearn Spot is Nigeria's top practical tech academy, featuring our ₦3,000 AI Automation with n8n promo and verified certificates. You can chat directly with founder Femi Adeleke on WhatsApp at [08120934828](https://wa.me/2348120934828) for instant support!`,
+      source: 'fallback',
     });
   }
 }

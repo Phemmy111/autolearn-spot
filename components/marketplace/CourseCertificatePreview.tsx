@@ -31,25 +31,41 @@ export function CourseCertificatePreview({
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
 
-  // If initial layout not provided, fetch current saved master certificate layout from DB
+  const [certTitle, setCertTitle] = useState("Certificate of Completion");
+  const [certSubtitle, setCertSubtitle] = useState("This certifies that");
+  const [certBodyText, setCertBodyText] = useState("has successfully completed the");
+  const [certFounder, setCertFounder] = useState("AutoLearn Spot");
+  const [certFounderTitle, setCertFounderTitle] = useState("Founder");
+  const [certFooter, setCertFooter] = useState("AutoLearn Spot • Learn • Automate • Succeed");
+
+  // If initial layout not provided, fetch current saved master certificate layout and settings from DB
   useEffect(() => {
     if (initialLayout && initialLayout.elements && initialLayout.elements.length > 0) {
       setLayout(initialLayout);
     } else {
-      fetch('/api/settings/public?keys=certificate_layout')
+      fetch('/api/settings/public?keys=certificate_layout,certificate_title,certificate_subtitle,certificate_body_text,certificate_founder_name,certificate_signature_text,certificate_footer')
         .then((res) => res.json())
         .then((data) => {
-          if (data.settings?.certificate_layout) {
-            try {
-              const parsed =
-                typeof data.settings.certificate_layout === 'string'
-                  ? JSON.parse(data.settings.certificate_layout)
-                  : data.settings.certificate_layout;
-              if (parsed && Array.isArray(parsed.elements) && parsed.elements.length > 0) {
-                setLayout(parsed);
+          if (data.settings) {
+            if (data.settings.certificate_title) setCertTitle(data.settings.certificate_title);
+            if (data.settings.certificate_subtitle) setCertSubtitle(data.settings.certificate_subtitle);
+            if (data.settings.certificate_body_text) setCertBodyText(data.settings.certificate_body_text);
+            if (data.settings.certificate_founder_name) setCertFounder(data.settings.certificate_founder_name);
+            if (data.settings.certificate_signature_text) setCertFounderTitle(data.settings.certificate_signature_text);
+            if (data.settings.certificate_footer) setCertFooter(data.settings.certificate_footer);
+
+            if (data.settings.certificate_layout) {
+              try {
+                const parsed =
+                  typeof data.settings.certificate_layout === 'string'
+                    ? JSON.parse(data.settings.certificate_layout)
+                    : data.settings.certificate_layout;
+                if (parsed && Array.isArray(parsed.elements) && parsed.elements.length > 0) {
+                  setLayout(parsed);
+                }
+              } catch (err) {
+                console.warn('Failed to parse certificate layout', err);
               }
-            } catch (err) {
-              console.warn('Failed to parse certificate layout', err);
             }
           }
         })
@@ -155,12 +171,12 @@ export function CourseCertificatePreview({
             sealSrc="/certificate-gold-seal.png"
             signatureUrl="/signature-femi-real.png"
             qrSrc="/certificate-qr-sample.png"
-            title={layout?.elements?.find((el: any) => el.id === 'title')?.text || "CERTIFICATE OF COMPLETION"}
-            subtitle={layout?.elements?.find((el: any) => el.id === 'subtitle')?.text || "This certificate is proudly presented to"}
-            bodyText={layout?.elements?.find((el: any) => el.id === 'bodyText')?.text || "In Recognition of Completing the"}
-            founderName={layout?.elements?.find((el: any) => el.id === 'founderName')?.text || authorName || "A. Femi Adeleke"}
-            signatureText={layout?.elements?.find((el: any) => el.id === 'signatureText')?.text || "Founder & Lead Instructor"}
-            footer={layout?.elements?.find((el: any) => el.id === 'footer')?.text || "AutoLearn Spot • Learn • Automate • Succeed"}
+            title={certTitle || layout?.elements?.find((el: any) => el.id === 'title')?.text || "Certificate of Completion"}
+            subtitle={certSubtitle || layout?.elements?.find((el: any) => el.id === 'subtitle')?.text || "This certifies that"}
+            bodyText={certBodyText || layout?.elements?.find((el: any) => el.id === 'bodyText')?.text || "has successfully completed the"}
+            founderName={certFounder || layout?.elements?.find((el: any) => el.id === 'founderName')?.text || authorName || "AutoLearn Spot"}
+            signatureText={certFounderTitle || layout?.elements?.find((el: any) => el.id === 'signatureText')?.text || "Founder"}
+            footer={certFooter || layout?.elements?.find((el: any) => el.id === 'footer')?.text || "AutoLearn Spot • Learn • Automate • Succeed"}
           />
         </div>
       </div>

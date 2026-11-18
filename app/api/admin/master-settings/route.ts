@@ -77,20 +77,29 @@ const KEY_MAPPING: Record<string, string> = {
   cohortEndDate: 'cohort_end_date',
   pageHeadline: 'enrollment_page_headline',
   pageDescription: 'enrollment_page_description',
-  // Certificate
+  // Certificate (prefixed keys to avoid collision)
+  certificateBackgroundUrl: 'certificate_background_url',
+  certificateLogoUrl: 'certificate_logo_url',
+  certificateTitle: 'certificate_title',
+  certificateSubtitle: 'certificate_subtitle',
+  certificateBodyText: 'certificate_body_text',
+  certificateCourse: 'certificate_course',
+  certificateFounderName: 'certificate_founder_name',
+  certificateSignatureUrl: 'certificate_signature_url',
+  certificateSignatureText: 'certificate_signature_text',
+  certificateQrEnabled: 'certificate_qr_enabled',
+  certificateQrDestination: 'certificate_qr_destination',
+  certificateFooter: 'certificate_footer',
+  certificateAccentColor: 'certificate_accent_color',
+  certificateNumberFormat: 'certificate_number_format',
+  certificateLayout: 'certificate_layout',
   backgroundUrl: 'certificate_background_url',
   logoUrl: 'certificate_logo_url',
-  title: 'certificate_title',
-  subtitle: 'certificate_subtitle',
-  bodyText: 'certificate_body_text',
-  course: 'certificate_course',
   founderName: 'certificate_founder_name',
   signatureUrl: 'certificate_signature_url',
   signatureText: 'certificate_signature_text',
   qrEnabled: 'certificate_qr_enabled',
   qrDestination: 'certificate_qr_destination',
-  footer: 'certificate_footer',
-  accentColor: 'certificate_accent_color',
   numberFormat: 'certificate_number_format',
   layout: 'certificate_layout',
   // SEO
@@ -128,16 +137,56 @@ const KEY_MAPPING: Record<string, string> = {
 };
 
 // Reverse mapping: database snake_case -> frontend camelCase
-const REVERSE_KEY_MAPPING: Record<string, string> = Object.fromEntries(
-  Object.entries(KEY_MAPPING).map(([k, v]) => [v, k])
-);
+const REVERSE_KEY_MAPPING: Record<string, string> = {
+  ...Object.fromEntries(Object.entries(KEY_MAPPING).map(([k, v]) => [v, k])),
+  certificate_background_url: 'backgroundUrl',
+  certificate_logo_url: 'logoUrl',
+  certificate_title: 'title',
+  certificate_subtitle: 'subtitle',
+  certificate_body_text: 'bodyText',
+  certificate_course: 'course',
+  certificate_founder_name: 'founderName',
+  certificate_signature_url: 'signatureUrl',
+  certificate_signature_text: 'signatureText',
+  certificate_qr_enabled: 'qrEnabled',
+  certificate_qr_destination: 'qrDestination',
+  certificate_footer: 'footer',
+  certificate_accent_color: 'accentColor',
+  certificate_number_format: 'numberFormat',
+  certificate_layout: 'layout',
+};
 
 function convertToDatabaseKeys(settings: Record<string, any>): Record<string, any> {
   const converted: Record<string, any> = {};
+  const isCertificateSettings =
+    'founderName' in settings ||
+    'signatureText' in settings ||
+    'layout' in settings ||
+    'certificateTitle' in settings ||
+    'certificateLayout' in settings ||
+    'bodyText' in settings;
+
   for (const [key, value] of Object.entries(settings)) {
-    const dbKey = KEY_MAPPING[key] || key;
+    let dbKey = KEY_MAPPING[key] || key;
+
+    // Explicit override for certificate context to resolve duplicate naming collisions (e.g. title, footer)
+    if (isCertificateSettings) {
+      if (key === 'title') dbKey = 'certificate_title';
+      if (key === 'subtitle') dbKey = 'certificate_subtitle';
+      if (key === 'bodyText') dbKey = 'certificate_body_text';
+      if (key === 'course') dbKey = 'certificate_course';
+      if (key === 'founderName') dbKey = 'certificate_founder_name';
+      if (key === 'signatureText') dbKey = 'certificate_signature_text';
+      if (key === 'footer') dbKey = 'certificate_footer';
+      if (key === 'accentColor') dbKey = 'certificate_accent_color';
+      if (key === 'layout') dbKey = 'certificate_layout';
+      if (key === 'backgroundUrl') dbKey = 'certificate_background_url';
+      if (key === 'logoUrl') dbKey = 'certificate_logo_url';
+      if (key === 'signatureUrl') dbKey = 'certificate_signature_url';
+    }
+
     // Handle JSON values (like layout) - keep as object, will be stringified later
-    if (key === 'layout' && typeof value === 'object') {
+    if ((key === 'layout' || key === 'certificate_layout' || dbKey === 'certificate_layout') && typeof value === 'object') {
       converted[dbKey] = value;
       console.log('Converting layout to database key:', dbKey, 'Value length:', JSON.stringify(value).length);
     } else {

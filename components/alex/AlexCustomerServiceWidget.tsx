@@ -74,8 +74,16 @@ function formatAlexMarkdown(text: string): string {
 export function AlexCustomerServiceWidget() {
   const pathname = usePathname();
 
-  // Hide on full-screen AI chat page or dashboard studio to prevent clutter
-  if (pathname === '/autolearn-ai' || pathname === '/dashboard/alex') {
+  // Hide on student dashboard, authenticated studio, learning pages, author, admin, or full-screen AI to eliminate duplicate Alex icons
+  if (
+    !pathname ||
+    pathname === '/autolearn-ai' ||
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/student') ||
+    pathname.startsWith('/learn') ||
+    pathname.startsWith('/author') ||
+    pathname.startsWith('/admin')
+  ) {
     return null;
   }
 
