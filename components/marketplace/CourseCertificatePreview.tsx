@@ -22,15 +22,18 @@ interface CourseCertificatePreviewProps {
 
 export function CourseCertificatePreview({
   courseTitle,
-  authorName = "Lead Instructor",
+  authorName = "Femi Adeleke",
   category = "Professional Certification",
 }: CourseCertificatePreviewProps) {
-  const [studentName, setStudentName] = useState("Alex Johnson");
+  const [studentName, setStudentName] = useState("Femi Adeleke");
+  
+  // Format current date in executive certificate style (e.g. November 18, 2026)
   const currentDate = new Date().toLocaleDateString("en-US", {
     month: "long",
+    day: "numeric",
     year: "numeric",
   });
-  const certId = "ALS-2026-CERT-8841";
+  const certId = "CERT-07D13D81";
 
   return (
     <div className="bg-[var(--card)]/90 backdrop-blur-xl border border-brand-border rounded-3xl p-6 sm:p-8 lg:p-10 shadow-xl transition-all animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
@@ -68,321 +71,233 @@ export function CourseCertificatePreview({
         </div>
       </div>
 
-      {/* Ultra-High-Resolution Luxury Certificate Canvas (1200x800 Vector SVG) */}
-      <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl border-2 border-emerald-500/30 group">
+      {/* High-Resolution Luxury Parchment Certificate Canvas (1024x682 Vector SVG) */}
+      <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl border-2 border-emerald-700/20 group">
         
         {/* Floating Guaranteed Ribbon */}
-        <div className="absolute top-3 left-3 sm:top-5 sm:left-5 z-20 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white text-[10px] sm:text-xs font-bold shadow-md">
+        <div className="absolute top-3 left-3 sm:top-5 sm:left-5 z-20 flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/80 backdrop-blur-md border border-white/20 text-white text-[10px] sm:text-xs font-bold shadow-md">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
           <span>Accredited AutoLearn Credential</span>
         </div>
 
-        <div className="absolute top-3 right-3 sm:top-5 sm:right-5 z-20 hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-600 text-white text-[10px] sm:text-xs font-bold shadow-md">
+        <div className="absolute top-3 right-3 sm:top-5 sm:right-5 z-20 hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-700 text-white text-[10px] sm:text-xs font-bold shadow-md">
           <Sparkles className="w-3.5 h-3.5 text-amber-300" />
           <span>Verifiable Online</span>
         </div>
 
         {/* Vector SVG Certificate Canvas */}
         <svg
-          viewBox="0 0 1200 800"
-          className="w-full h-auto block select-none bg-[#030712]"
+          viewBox="0 0 1024 682"
+          className="w-full h-auto block select-none bg-[#fbf6ec]"
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
-            {/* Background Radial Gradient */}
-            <radialGradient id="cert-bg-grad" cx="50%" cy="50%" r="70%">
-              <stop offset="0%" stopColor="#0B192C" />
-              <stop offset="60%" stopColor="#050B14" />
-              <stop offset="100%" stopColor="#020408" />
-            </radialGradient>
-
-            {/* Metallic Gold Gradient */}
-            <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#F59E0B" />
-              <stop offset="25%" stopColor="#FDE68A" />
-              <stop offset="50%" stopColor="#D97706" />
-              <stop offset="75%" stopColor="#FCD34D" />
-              <stop offset="100%" stopColor="#B45309" />
+            {/* Soft Shadow Filter */}
+            <filter id="soft-text-shadow" x="-10%" y="-10%" width="120%" height="120%">
+              <feDropShadow dx="0" dy="1" stdDeviation="1" floodColor="#000000" floodOpacity="0.12" />
+            </filter>
+            
+            {/* Metallic Gold Gradient for Filigree */}
+            <linearGradient id="parchment-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#C59B27" />
+              <stop offset="50%" stopColor="#DFBA55" />
+              <stop offset="100%" stopColor="#9E7616" />
             </linearGradient>
-
-            {/* Metallic Emerald Gradient */}
-            <linearGradient id="emerald-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#059669" />
-              <stop offset="50%" stopColor="#10B981" />
-              <stop offset="100%" stopColor="#047857" />
-            </linearGradient>
-
-            {/* Guilloche Corner Pattern Definition */}
-            <pattern id="guilloche-dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
-              <circle cx="12" cy="12" r="0.75" fill="#D4AF37" opacity="0.15" />
-            </pattern>
           </defs>
 
-          {/* Deep Canvas Background */}
-          <rect width="1200" height="800" fill="url(#cert-bg-grad)" />
-
-          {/* Subtle Geometric Security Mesh */}
-          <rect width="1200" height="800" fill="url(#guilloche-dots)" />
-
-          {/* Outer Gold Border Frame */}
-          <rect
-            x="24"
-            y="24"
-            width="1152"
-            height="752"
-            rx="12"
-            fill="none"
-            stroke="url(#gold-grad)"
-            strokeWidth="3"
-            opacity="0.85"
+          {/* High-Resolution Textured Parchment Background with Victorian Corner Filigree & Gold/Emerald Seal */}
+          <image
+            href="/certificate-template-parchment-clean.png"
+            x="0"
+            y="0"
+            width="1024"
+            height="682"
+            preserveAspectRatio="xMidYMid slice"
           />
 
-          {/* Inner Emerald Border Frame */}
-          <rect
-            x="36"
-            y="36"
-            width="1128"
-            height="728"
-            rx="8"
-            fill="none"
-            stroke="url(#emerald-grad)"
-            strokeWidth="1.5"
-            strokeDasharray="6,3"
-            opacity="0.6"
-          />
+          {/* ─── DYNAMIC OVERLAYS MATCHING IMAGE 2 SPECIFICATION ─── */}
 
-          {/* Fine Hairline Border */}
-          <rect
-            x="44"
-            y="44"
-            width="1112"
-            height="712"
-            rx="6"
-            fill="none"
-            stroke="#ffffff"
-            strokeWidth="0.5"
-            opacity="0.2"
-          />
-
-          {/* Ornate Corner Accents */}
-          {/* Top Left */}
-          <path d="M 24 64 L 64 64 L 64 24" fill="none" stroke="url(#gold-grad)" strokeWidth="3" />
-          <circle cx="64" cy="64" r="3" fill="#F59E0B" />
-
-          {/* Top Right */}
-          <path d="M 1176 64 L 1136 64 L 1136 24" fill="none" stroke="url(#gold-grad)" strokeWidth="3" />
-          <circle cx="1136" cy="64" r="3" fill="#F59E0B" />
-
-          {/* Bottom Left */}
-          <path d="M 24 736 L 64 736 L 64 776" fill="none" stroke="url(#gold-grad)" strokeWidth="3" />
-          <circle cx="64" cy="736" r="3" fill="#F59E0B" />
-
-          {/* Bottom Right */}
-          <path d="M 1176 736 L 1136 736 L 1136 776" fill="none" stroke="url(#gold-grad)" strokeWidth="3" />
-          <circle cx="1136" cy="736" r="3" fill="#F59E0B" />
-
-          {/* Certificate Header Insignia / Crest */}
-          <g transform="translate(600, 105)">
-            {/* Laurel Wreath Left */}
-            <path
-              d="M -30 -10 C -45 5 -45 25 -30 40 C -40 25 -40 10 -28 0"
-              fill="url(#gold-grad)"
-              opacity="0.9"
-            />
-            {/* Laurel Wreath Right */}
-            <path
-              d="M 30 -10 C 45 5 45 25 30 40 C 40 25 40 10 28 0"
-              fill="url(#gold-grad)"
-              opacity="0.9"
-            />
-            {/* Shield Crest Center */}
-            <path
-              d="M 0 -18 L 18 -6 L 18 14 C 18 26 0 34 0 34 C 0 34 -18 26 -18 14 L -18 -6 Z"
-              fill="#059669"
-              stroke="url(#gold-grad)"
-              strokeWidth="1.5"
-            />
-            {/* Star Inside Crest */}
-            <polygon
-              points="0, -3 3, 5 10, 5 5, 9 7, 16 0, 12 -7, 16 -5, 9 -10, 5 -3, 5"
-              fill="#FDE68A"
-              transform="scale(0.8) translate(0, -2)"
-            />
+          {/* 1. Recipient Student Name (Dynamic from Preview Input) */}
+          <g transform="translate(512, 298)">
+            <text
+              x="0"
+              y="0"
+              textAnchor="middle"
+              fill="#064e3b"
+              fontSize={studentName.length > 25 ? "32" : studentName.length > 18 ? "38" : "44"}
+              fontFamily="'Playfair Display', Georgia, 'Times New Roman', serif"
+              fontWeight="800"
+              fontStyle="italic"
+              letterSpacing="0.5"
+              filter="url(#soft-text-shadow)"
+            >
+              {studentName}
+            </text>
           </g>
 
-          {/* Academy Brandmark Label */}
-          <text
-            x="600"
-            y="170"
-            textAnchor="middle"
-            fill="url(#gold-grad)"
-            fontSize="11"
-            fontFamily="'JetBrains Mono', monospace"
-            fontWeight="700"
-            letterSpacing="5"
-          >
-            AUTOLEARN SPOT ACADEMY OF TECHNOLOGY
-          </text>
+          {/* 2. Ornate Filigree Underline Accent Beneath Name */}
+          <g transform="translate(512, 332)">
+            <path
+              d="M -180 0 C -120 -8 -60 4 0 0 C 60 4 120 -8 180 0"
+              fill="none"
+              stroke="url(#parchment-gold)"
+              strokeWidth="1.5"
+              opacity="0.85"
+            />
+            {/* Central Ornate Knot */}
+            <circle cx="0" cy="0" r="3" fill="#C59B27" />
+            <circle cx="-12" cy="0" r="1.5" fill="#C59B27" />
+            <circle cx="12" cy="0" r="1.5" fill="#C59B27" />
+          </g>
 
-          {/* Main Title: CERTIFICATE OF COMPLETION */}
+          {/* 3. In Recognition of Completing the (Label) */}
           <text
-            x="600"
-            y="225"
+            x="512"
+            y="370"
             textAnchor="middle"
-            fill="#ffffff"
-            fontSize="36"
-            fontFamily="'Space Grotesk', system-ui, sans-serif"
-            fontWeight="900"
-            letterSpacing="3"
-          >
-            CERTIFICATE OF COMPLETION
-          </text>
-
-          {/* Horizontal Accent Line with Diamond */}
-          <line x1="420" y1="245" x2="570" y2="245" stroke="url(#gold-grad)" strokeWidth="1" opacity="0.7" />
-          <polygon points="600,242 604,245 600,248 596,245" fill="#F59E0B" />
-          <line x1="630" y1="245" x2="780" y2="245" stroke="url(#gold-grad)" strokeWidth="1" opacity="0.7" />
-
-          {/* Presentation Subtitle */}
-          <text
-            x="600"
-            y="290"
-            textAnchor="middle"
-            fill="#94A3B8"
-            fontSize="13"
-            fontFamily="system-ui, sans-serif"
-            fontWeight="600"
-            letterSpacing="3"
-          >
-            THIS IS PROUDLY PRESENTED TO
-          </text>
-
-          {/* Student Recipient Name (Dynamic with gold glow) */}
-          <text
-            x="600"
-            y="375"
-            textAnchor="middle"
-            fill="#ffffff"
-            fontSize="54"
-            fontFamily="Georgia, 'Playfair Display', serif"
+            fill="#334155"
+            fontSize="15"
+            fontFamily="Georgia, 'Times New Roman', serif"
             fontStyle="italic"
-            fontWeight="700"
-            letterSpacing="1"
-            filter="drop-shadow(0 2px 10px rgba(245, 158, 11, 0.3))"
-          >
-            {studentName || "Alex Johnson"}
-          </text>
-
-          {/* Underline beneath Name */}
-          <line x1="300" y1="395" x2="900" y2="395" stroke="url(#gold-grad)" strokeWidth="1.5" opacity="0.6" />
-
-          {/* Qualification Statement */}
-          <text
-            x="600"
-            y="435"
-            textAnchor="middle"
-            fill="#CBD5E1"
-            fontSize="13"
-            fontFamily="system-ui, sans-serif"
             fontWeight="500"
             letterSpacing="0.5"
           >
-            For successfully demonstrating hands-on proficiency and completing the master curriculum in
+            In Recognition of Completing the
           </text>
 
-          {/* Dynamically Wired Course Title Box */}
-          <g transform="translate(600, 485)">
-            {/* Pill Container */}
-            <rect
-              x="-380"
-              y="-28"
-              width="760"
-              height="56"
-              rx="28"
-              fill="#06201b"
-              stroke="url(#emerald-grad)"
-              strokeWidth="1.5"
-            />
-            {/* Course Title Text */}
+          {/* 4. Course Title (Dynamic from Props, e.g. "AI Automation with n8n") */}
+          <g transform="translate(512, 422)">
             <text
               x="0"
-              y="8"
+              y="0"
               textAnchor="middle"
-              fill="#34D399"
-              fontSize={courseTitle.length > 36 ? "24" : "28"}
-              fontFamily="'Space Grotesk', system-ui, sans-serif"
-              fontWeight="800"
-              letterSpacing="0.8"
+              fill="#0f172a"
+              fontSize={courseTitle.length > 35 ? "22" : courseTitle.length > 24 ? "26" : "30"}
+              fontFamily="'Playfair Display', Georgia, 'Times New Roman', serif"
+              fontWeight="900"
+              letterSpacing="0.5"
+              filter="url(#soft-text-shadow)"
             >
               {courseTitle}
             </text>
           </g>
 
-          {/* Issue Details & Signatures Bar */}
-          
-          {/* Left Column: Date & Certification */}
-          <g transform="translate(180, 620)">
-            <text x="0" y="0" textAnchor="middle" fill="#FFFFFF" fontSize="15" fontFamily="'Space Grotesk', sans-serif" fontWeight="700">
+          {/* 5. Date Badge (Bottom Left) */}
+          <g transform="translate(230, 526)">
+            {/* Calendar Icon Graphic */}
+            <g transform="translate(-105, -16) scale(0.9)">
+              <rect x="0" y="3" width="18" height="15" rx="3" fill="none" stroke="#b45309" strokeWidth="1.5" />
+              <line x1="0" y1="8" x2="18" y2="8" stroke="#b45309" strokeWidth="1.2" />
+              <circle cx="5" cy="12" r="1" fill="#b45309" />
+              <circle cx="9" cy="12" r="1" fill="#b45309" />
+              <circle cx="13" cy="12" r="1" fill="#b45309" />
+              <line x1="4" y1="0" x2="4" y2="4" stroke="#b45309" strokeWidth="1.5" strokeLinecap="round" />
+              <line x1="14" y1="0" x2="14" y2="4" stroke="#b45309" strokeWidth="1.5" strokeLinecap="round" />
+            </g>
+            {/* Date Text */}
+            <text
+              x="-80"
+              y="0"
+              fill="#1e293b"
+              fontSize="16"
+              fontFamily="'Playfair Display', Georgia, serif"
+              fontWeight="700"
+            >
               {currentDate}
             </text>
-            <line x1="-80" y1="12" x2="80" y2="12" stroke="#475569" strokeWidth="1" />
-            <text x="0" y="28" textAnchor="middle" fill="#94A3B8" fontSize="11" fontFamily="system-ui, sans-serif" fontWeight="600" letterSpacing="0.5">
-              DATE OF ISSUANCE
-            </text>
-            <text x="0" y="44" textAnchor="middle" fill="#64748B" fontSize="10" fontFamily="'JetBrains Mono', monospace">
-              Verified Credential
+            <text
+              x="-15"
+              y="20"
+              textAnchor="middle"
+              fill="#64748b"
+              fontSize="13"
+              fontFamily="Georgia, serif"
+              fontStyle="italic"
+            >
+              Date
             </text>
           </g>
 
-          {/* Center Column: 3D Embossed Gold Foil Seal with Ribbons */}
-          <g transform="translate(600, 630)">
-            {/* Ribbon Tails */}
-            <path d="M -18 20 L -30 65 L -10 55 L 0 65 L -5 20 Z" fill="#B45309" opacity="0.9" />
-            <path d="M 18 20 L 30 65 L 10 55 L 0 65 L 5 20 Z" fill="#D97706" opacity="0.9" />
-
-            {/* Seal Starburst Outer */}
-            <circle cx="0" cy="0" r="46" fill="url(#gold-grad)" filter="drop-shadow(0 4px 12px rgba(245, 158, 11, 0.4))" />
-            {/* Seal Inner Ring */}
-            <circle cx="0" cy="0" r="38" fill="#047857" stroke="url(#gold-grad)" strokeWidth="1.5" />
-            {/* Seal Center Star */}
-            <polygon
-              points="0,-16 4,-4 16,-4 7,3 10,15 0,8 -10,15 -7,3 -16,-4 -4,-4"
-              fill="#FDE68A"
-            />
-            {/* Ring Inscription (Simplified) */}
-            <circle cx="0" cy="0" r="32" fill="none" stroke="#FDE68A" strokeWidth="0.75" strokeDasharray="3,2" />
-          </g>
-
-          {/* Right Column: Instructor Signature & Approval */}
-          <g transform="translate(1020, 620)">
-            {/* Stylized Script Signature Graphic */}
+          {/* 6. Founder Signature (Bottom Right) */}
+          <g transform="translate(740, 524)">
+            {/* Calligraphic Founder Signature */}
             <path
-              d="M -60 -5 C -40 -18 -20 10 0 -8 C 20 -25 40 5 60 -3"
+              d="M -70 -12 C -45 -30 -25 15 -5 -8 C 15 -25 35 10 55 -5 C 70 -15 85 5 95 -8"
               fill="none"
-              stroke="#FDE68A"
-              strokeWidth="2.5"
+              stroke="#0f172a"
+              strokeWidth="2.2"
               strokeLinecap="round"
-              opacity="0.85"
+              opacity="0.9"
             />
-            <line x1="-80" y1="12" x2="80" y2="12" stroke="#475569" strokeWidth="1" />
-            <text x="0" y="28" textAnchor="middle" fill="#FFFFFF" fontSize="12" fontFamily="'Space Grotesk', sans-serif" fontWeight="700">
-              {authorName}
+            {/* Signature Underline */}
+            <line x1="-80" y1="5" x2="80" y2="5" stroke="#94a3b8" strokeWidth="1" />
+            
+            {/* Signatory Name */}
+            <text
+              x="0"
+              y="22"
+              textAnchor="middle"
+              fill="#0f172a"
+              fontSize="15"
+              fontFamily="'Playfair Display', Georgia, serif"
+              fontWeight="800"
+            >
+              A. Femi Adeleke
             </text>
-            <text x="0" y="44" textAnchor="middle" fill="#94A3B8" fontSize="10" fontFamily="system-ui, sans-serif" fontWeight="600" letterSpacing="0.5">
-              LEAD COURSE INSTRUCTOR
+            {/* Signatory Title */}
+            <text
+              x="0"
+              y="38"
+              textAnchor="middle"
+              fill="#64748b"
+              fontSize="12"
+              fontFamily="Georgia, serif"
+              fontStyle="italic"
+            >
+              Founder & Lead Instructor
             </text>
           </g>
 
-          {/* Bottom Verification Footer & QR Code Placeholder */}
-          <g transform="translate(60, 750)">
-            <text x="0" y="0" fill="#64748B" fontSize="10" fontFamily="'JetBrains Mono', monospace">
-              ID: {certId} • Verify online at autolearnspot.com/certificate/verify
+          {/* 7. Bottom Real Motto & Brandmark */}
+          <g transform="translate(512, 642)">
+            <text
+              x="0"
+              y="0"
+              textAnchor="middle"
+              fill="#475569"
+              fontSize="12"
+              fontFamily="'Space Grotesk', system-ui, sans-serif"
+              fontWeight="700"
+              letterSpacing="1"
+            >
+              AutoLearn Spot • Learn • Automate • Succeed
             </text>
           </g>
 
-          <g transform="translate(1140, 750)">
-            <text x="0" y="0" textAnchor="end" fill="#64748B" fontSize="10" fontFamily="'JetBrains Mono', monospace">
-              100% Guaranteed & Permanent Credential
+          {/* 8. Certificate ID Tag (Subtle Top Right) */}
+          <g transform="translate(940, 48)">
+            <rect
+              x="-60"
+              y="-12"
+              width="120"
+              height="20"
+              rx="4"
+              fill="#ffffff"
+              stroke="#cbd5e1"
+              strokeWidth="0.75"
+              opacity="0.9"
+            />
+            <text
+              x="0"
+              y="2"
+              textAnchor="middle"
+              fill="#475569"
+              fontSize="9"
+              fontFamily="'JetBrains Mono', monospace"
+              fontWeight="700"
+              letterSpacing="0.5"
+            >
+              ID: {certId}
             </text>
           </g>
         </svg>

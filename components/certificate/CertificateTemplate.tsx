@@ -46,8 +46,8 @@ export function CertificateTemplate({
   const displayCourse = course || 'n8n Automation'
   const displayName = name || 'Student'
   const displayCertId = certificateId || 'ALS-2026-CERT'
-  const bg = backgroundSrc || '/certificate-template.png'
-  const displayFooter = footer || `© ${new Date().getFullYear()} AutoLearn Spot - All Rights Reserved`
+  const bg = backgroundSrc || '/certificate-template-luxury.jpg'
+  const displayFooter = footer || `AutoLearn Spot • Learn • Automate • Succeed`
 
   return (
     <div
@@ -76,57 +76,6 @@ export function CertificateTemplate({
           zIndex: 0,
         }}
       />
-
-      {/* Luxury Gold & Emerald Ornate Border SVG Layer */}
-      <svg
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: `${CANVAS_WIDTH}px`,
-          height: `${CANVAS_HEIGHT}px`,
-          pointerEvents: 'none',
-          zIndex: 1,
-        }}
-        viewBox={`0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`}
-      >
-        <defs>
-          <linearGradient id="cert-gold" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#F59E0B" />
-            <stop offset="25%" stopColor="#FDE68A" />
-            <stop offset="50%" stopColor="#D97706" />
-            <stop offset="75%" stopColor="#FCD34D" />
-            <stop offset="100%" stopColor="#B45309" />
-          </linearGradient>
-          <linearGradient id="cert-emerald" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#059669" />
-            <stop offset="50%" stopColor="#10B981" />
-            <stop offset="100%" stopColor="#047857" />
-          </linearGradient>
-        </defs>
-
-        {/* Outer Gold Border */}
-        <rect x="20" y="20" width="1160" height="760" rx="8" fill="none" stroke="url(#cert-gold)" strokeWidth="2.5" opacity="0.9" />
-        
-        {/* Inner Emerald Border */}
-        <rect x="30" y="30" width="1140" height="740" rx="6" fill="none" stroke="url(#cert-emerald)" strokeWidth="1.5" strokeDasharray="6,3" opacity="0.75" />
-
-        {/* Hairline Border */}
-        <rect x="36" y="36" width="1128" height="728" rx="4" fill="none" stroke="#FFFFFF" strokeWidth="0.5" opacity="0.25" />
-
-        {/* Ornate Corner Brackets */}
-        <path d="M 20 54 L 54 54 L 54 20" fill="none" stroke="url(#cert-gold)" strokeWidth="2.5" />
-        <path d="M 1180 54 L 1146 54 L 1146 20" fill="none" stroke="url(#cert-gold)" strokeWidth="2.5" />
-        <path d="M 20 746 L 54 746 L 54 780" fill="none" stroke="url(#cert-gold)" strokeWidth="2.5" />
-        <path d="M 1180 746 L 1146 746 L 1146 780" fill="none" stroke="url(#cert-gold)" strokeWidth="2.5" />
-
-        {/* Official Verification Seal (Bottom Center) */}
-        <g transform="translate(600, 680)">
-          <circle cx="0" cy="0" r="36" fill="url(#cert-gold)" />
-          <circle cx="0" cy="0" r="30" fill="#06201b" stroke="url(#cert-gold)" strokeWidth="1.5" />
-          <polygon points="0,-12 3,-3 12,-3 5,2 7,11 0,6 -7,11 -5,2 -12,-3 -3,-3" fill="#FDE68A" />
-        </g>
-      </svg>
 
       {/* Dynamic Overlay Layer */}
       <div
