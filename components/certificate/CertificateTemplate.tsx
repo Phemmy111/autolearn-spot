@@ -350,9 +350,9 @@ export function CertificateTemplate({
                 )
               }
 
-              // 6. QR Code Verification Card
+              // 6. QR Code Verification Card (Transparent Background without harsh white box)
               if (el.id === 'qrCode' || el.type === 'qrCode') {
-                const qrImgSize = Math.min(el.width, el.height) - 14
+                const qrImgSize = Math.min(el.width, el.height) - 10
                 return (
                   <div
                     key={el.id}
@@ -366,10 +366,7 @@ export function CertificateTemplate({
                       flexDirection: 'column',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      backgroundColor: '#ffffff',
-                      border: '1.2px solid #cbd5e1',
-                      borderRadius: '6px',
-                      padding: '4px',
+                      backgroundColor: style.background || 'transparent',
                       zIndex: el.zIndex || 10,
                     }}
                   >
@@ -396,6 +393,30 @@ export function CertificateTemplate({
                       Verify Certificate
                     </span>
                   </div>
+                )
+              }
+
+              // 7. Shapes / Lines / Dividers / Badges
+              if (['shape', 'divider', 'line', 'badge'].includes(el.type) || el.id?.startsWith('shape_') || el.id?.startsWith('divider_') || el.id?.startsWith('line_')) {
+                return (
+                  <div
+                    key={el.id}
+                    style={{
+                      position: 'absolute',
+                      left: `${el.x}px`,
+                      top: `${el.y}px`,
+                      width: `${el.width}px`,
+                      height: `${el.height}px`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: style.background || style.backgroundColor || '#047857',
+                      border: style.border || (style.borderWidth ? `${style.borderWidth}px ${style.borderStyle || 'solid'} ${style.borderColor || '#047857'}` : 'none'),
+                      borderRadius: style.borderRadius ? `${style.borderRadius}px` : undefined,
+                      opacity: style.opacity ?? 1,
+                      zIndex: el.zIndex || 10,
+                    }}
+                  />
                 )
               }
 
@@ -448,17 +469,17 @@ export function CertificateTemplate({
               } else if (el.id === 'course' || el.type === 'course') {
                 textContent = displayCourse
               } else if (el.id === 'title' || el.type === 'title') {
-                textContent = title || el.text || 'CERTIFICATE OF COMPLETION'
+                textContent = el.text || title || 'CERTIFICATE OF COMPLETION'
               } else if (el.id === 'subtitle' || el.type === 'subtitle') {
-                textContent = subtitle || el.text || 'This certificate is proudly presented to'
+                textContent = el.text || subtitle || 'This certificate is proudly presented to'
               } else if (el.id === 'bodyText' || el.type === 'bodyText') {
-                textContent = bodyText || el.text || 'In Recognition of Completing the'
+                textContent = el.text || bodyText || 'In Recognition of Completing the'
               } else if (el.id === 'founderName' || el.type === 'founderName') {
-                textContent = displayFounder
+                textContent = el.text || displayFounder
               } else if (el.id === 'signatureText' || el.type === 'signatureText') {
-                textContent = displayFounderTitle
+                textContent = el.text || displayFounderTitle
               } else if (el.id === 'footer' || el.type === 'footer') {
-                textContent = displayFooter
+                textContent = el.text || displayFooter
               }
 
               return (

@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useCallback, useEffect } from 'react'
-import { Lock, Unlock, Eye, EyeOff, Layers, AlignLeft, AlignCenter, AlignRight, Move, RotateCw, Trash2, Save, Loader2, Undo, Redo, Copy, Clipboard, ZoomIn, ZoomOut, Maximize2, Type, Image, Square, QrCode, Award, PenTool, Settings, LayoutGrid, ChevronDown, ChevronUp, MousePointer2, Upload, RotateCcw, Sparkles, User, GraduationCap, Calendar, FileText, Check, ShieldCheck } from 'lucide-react'
+import { Lock, Unlock, Eye, EyeOff, Layers, AlignLeft, AlignCenter, AlignRight, Move, RotateCw, Trash2, Save, Loader2, Undo, Redo, Copy, Clipboard, ZoomIn, ZoomOut, Maximize2, Type, Image, Square, QrCode, Award, PenTool, Settings, LayoutGrid, ChevronDown, ChevronUp, MousePointer2, Upload, RotateCcw, Sparkles, User, GraduationCap, Calendar, FileText, Check, ShieldCheck, Minus } from 'lucide-react'
 import { CertificateLayout, CertificateElement, validateLayout, cloneLayout, resetToDefault, getElementText, getElementSrc, DEMO_CERTIFICATE_DATA } from '@/lib/certificate-layout'
 
 interface CertificateDesignerProps {
@@ -309,10 +309,12 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
   }, [readOnly])
 
   const handleElementDoubleClick = useCallback((element: CertificateElement) => {
-    if (readOnly || element.locked || element.binding) return
+    if (readOnly || element.locked) return
     
-    const isTextElement = ['title', 'subtitle', 'studentName', 'bodyText', 'course', 'date', 'signatureText', 'founderName', 'certificateId', 'footer', 'text'].includes(element.type)
-    if (isTextElement && !element.binding) {
+    const isDynamic = ['studentName', 'course', 'date', 'certificateId'].includes(element.id) || ['studentName', 'course', 'date', 'certificateId'].includes(element.type)
+    const isTextElement = ['title', 'subtitle', 'studentName', 'bodyText', 'course', 'date', 'signatureText', 'founderName', 'certificateId', 'footer', 'text'].includes(element.type) || element.id === 'brandTitle'
+    
+    if (isTextElement && !isDynamic) {
       setEditingText(element.id)
       setSelectedElement(element.id)
     }
@@ -1195,21 +1197,69 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
           },
         }
         break
+      case 'line':
+      case 'divider':
       case 'shape':
         newElement = {
-          id: newId,
-          type: 'text',
-          x: CANVAS_WIDTH / 2 - 100,
-          y: CANVAS_HEIGHT / 2 - 2,
-          width: 200,
-          height: 4,
+          id: `shape_line_${Date.now()}`,
+          type: 'line',
+          x: Math.round(CANVAS_WIDTH / 2 - 170),
+          y: Math.round(CANVAS_HEIGHT / 2 - 2),
+          width: 340,
+          height: 3,
           rotation: 0,
           visible: true,
           locked: false,
-          text: '',
           style: {
-            background: '#cbd5e1',
-            border: 'none',
+            background: '#047857',
+            borderRadius: 2,
+            opacity: 1,
+          },
+        }
+        break
+      case 'rect':
+      case 'box':
+        newElement = {
+          id: `shape_rect_${Date.now()}`,
+          type: 'shape',
+          x: Math.round(CANVAS_WIDTH / 2 - 110),
+          y: Math.round(CANVAS_HEIGHT / 2 - 60),
+          width: 220,
+          height: 120,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          style: {
+            background: 'transparent',
+            border: '2px solid #047857',
+            borderWidth: 2,
+            borderStyle: 'solid',
+            borderColor: '#047857',
+            borderRadius: 6,
+            opacity: 1,
+          },
+        }
+        break
+      case 'pill':
+      case 'badge':
+        newElement = {
+          id: `shape_pill_${Date.now()}`,
+          type: 'badge',
+          x: Math.round(CANVAS_WIDTH / 2 - 90),
+          y: Math.round(CANVAS_HEIGHT / 2 - 18),
+          width: 180,
+          height: 36,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          style: {
+            background: '#04785715',
+            border: '1.5px solid #047857',
+            borderWidth: 1.5,
+            borderStyle: 'solid',
+            borderColor: '#047857',
+            borderRadius: 9999,
+            opacity: 1,
           },
         }
         break
@@ -1225,8 +1275,10 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
       updatedLayout.elements.push(newElement)
       setSelectedElement(newElement.id)
     }
+    latestLayoutRef.current = updatedLayout
     onLayoutChange(updatedLayout)
-  }, [layout, onLayoutChange])
+    recordHistory(updatedLayout)
+  }, [layout, onLayoutChange, recordHistory])
 
   const selectedElementData = layout.elements.find(el => el.id === selectedElement)
 
@@ -1557,6 +1609,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                     type="button"
                     onClick={() => handleAddElement('text')}
                     className="flex flex-col items-center justify-center p-2.5 bg-brand-bg rounded-lg border border-brand-border hover:border-emerald-500 text-center transition-all"
+                    title="Add Text Element"
                   >
                     <Type className="h-4 w-4 text-[#10b981] mb-1" />
                     <span className="text-xs text-brand-text font-medium">Text</span>
@@ -1564,23 +1617,45 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
 
                   <button
                     type="button"
-                    onClick={() => handleAddElement('shape')}
+                    onClick={() => handleAddElement('line')}
                     className="flex flex-col items-center justify-center p-2.5 bg-brand-bg rounded-lg border border-brand-border hover:border-emerald-500 text-center transition-all"
+                    title="Add Horizontal Line / Divider"
+                  >
+                    <Minus className="h-4 w-4 text-[#10b981] mb-1" />
+                    <span className="text-xs text-brand-text font-medium">Line</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddElement('rect')}
+                    className="flex flex-col items-center justify-center p-2.5 bg-brand-bg rounded-lg border border-brand-border hover:border-emerald-500 text-center transition-all"
+                    title="Add Box / Rectangle"
                   >
                     <Square className="h-4 w-4 text-[#10b981] mb-1" />
-                    <span className="text-xs text-brand-text font-medium">Divider</span>
+                    <span className="text-xs text-brand-text font-medium">Box</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddElement('pill')}
+                    className="flex flex-col items-center justify-center p-2.5 bg-brand-bg rounded-lg border border-brand-border hover:border-emerald-500 text-center transition-all"
+                    title="Add Rounded Pill / Badge Shape"
+                  >
+                    <ShieldCheck className="h-4 w-4 text-[#10b981] mb-1" />
+                    <span className="text-xs text-brand-text font-medium">Badge</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => handleAddElement('image')}
                     className="flex flex-col items-center justify-center p-2.5 bg-brand-bg rounded-lg border border-brand-border hover:border-emerald-500 text-center transition-all"
+                    title="Add Image Placeholder"
                   >
                     <Image className="h-4 w-4 text-[#10b981] mb-1" />
                     <span className="text-xs text-brand-text font-medium">Image</span>
                   </button>
 
-                  <label className={`flex flex-col items-center justify-center p-2.5 bg-brand-bg rounded-lg border border-brand-border hover:border-emerald-500 text-center transition-all cursor-pointer ${uploadingImage || readOnly ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  <label className={`flex flex-col items-center justify-center p-2.5 bg-brand-bg rounded-lg border border-brand-border hover:border-emerald-500 text-center transition-all cursor-pointer ${uploadingImage || readOnly ? 'opacity-50 cursor-not-allowed' : ''}`} title="Upload Custom Graphic">
                     {uploadingImage ? (
                       <Loader2 className="h-4 w-4 text-[#10b981] animate-spin mb-1" />
                     ) : (
@@ -1680,9 +1755,11 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                    element.type === 'logo' ? '/autolearn-brandmark-bold.png' :
                    element.type === 'signature' ? '/signature-femi-real.png' : undefined)
 
-                const isTextElement = ['title', 'subtitle', 'studentName', 'bodyText', 'course', 'date', 'signatureText', 'founderName', 'certificateId', 'footer', 'text'].includes(element.type)
+                const isShapeElement = ['shape', 'divider', 'line', 'badge'].includes(element.type) || element.id?.startsWith('shape_') || element.id?.startsWith('divider_') || element.id?.startsWith('line_') || element.id?.startsWith('box_') || element.id?.startsWith('badge_')
+                const isTextElement = !isShapeElement && ['title', 'subtitle', 'studentName', 'bodyText', 'course', 'date', 'signatureText', 'founderName', 'certificateId', 'footer', 'text'].includes(element.type)
                 const isImageElement = ['logo', 'signature', 'image'].includes(element.type) || element.id === 'seal'
                 const isQrElement = element.type === 'qrCode'
+                const isDynamic = ['studentName', 'course', 'date', 'certificateId'].includes(element.id) || ['studentName', 'course', 'date', 'certificateId'].includes(element.type)
 
                 return (
                   <div
@@ -1704,6 +1781,17 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                     onClick={() => handleSelectElement(element.id)}
                     onDoubleClick={() => handleElementDoubleClick(element)}
                   >
+                    {isShapeElement && (
+                      <div
+                        className="w-full h-full pointer-events-none select-none"
+                        style={{
+                          backgroundColor: element.style?.background || (element.type === 'line' ? '#047857' : 'transparent'),
+                          border: element.style?.border || (element.style?.borderWidth ? `${element.style.borderWidth}px ${element.style?.borderStyle || 'solid'} ${element.style?.borderColor || '#047857'}` : 'none'),
+                          borderRadius: element.style?.borderRadius || 0,
+                          opacity: element.style?.opacity ?? 1,
+                        }}
+                      />
+                    )}
                     {isTextElement && (
                       editingText === element.id ? (
                         <textarea
@@ -1748,7 +1836,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                             letterSpacing: element.style?.letterSpacing || 0,
                             whiteSpace: 'normal',
                             overflow: 'visible',
-                            cursor: element.binding ? 'default' : 'text',
+                            cursor: isDynamic ? 'default' : 'text',
                             textShadow: element.style?.textShadow || 'none',
                           }}
                         >
@@ -1778,14 +1866,14 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                       />
                     )}
                     {isQrElement && (
-                      <div className="w-full h-full bg-white rounded border border-slate-300 shadow-2xs flex flex-col items-center justify-center p-1.5 pointer-events-none select-none">
+                      <div className="w-full h-full bg-transparent flex flex-col items-center justify-center p-1 pointer-events-none select-none">
                         <img
                           src="/certificate-qr-sample.png"
                           alt="QR Code"
-                          className="w-[82%] h-[82%] object-contain"
+                          className="w-[85%] h-[85%] object-contain"
                         />
-                        <span className="text-[9px] font-bold text-slate-600 tracking-tight leading-none mt-0.5">
-                          Verify
+                        <span className="text-[9.5px] font-bold text-slate-700 tracking-tight leading-none mt-1">
+                          Verify Certificate
                         </span>
                       </div>
                     )}
@@ -2040,7 +2128,9 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                           <div>
-                            <label className="block text-xs text-brand-text/60 mb-1">Width</label>
+                            <label className="block text-xs text-brand-text/60 mb-1">
+                              {selectedElementData.type === 'line' ? 'Length (Width)' : 'Width'}
+                            </label>
                             <input
                               type="number"
                               value={Math.round(selectedElementData.width)}
@@ -2057,7 +2147,9 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                             />
                           </div>
                           <div>
-                            <label className="block text-xs text-brand-text/60 mb-1">Height</label>
+                            <label className="block text-xs text-brand-text/60 mb-1">
+                              {selectedElementData.type === 'line' ? 'Thickness (Height)' : 'Height'}
+                            </label>
                             <input
                               type="number"
                               value={Math.round(selectedElementData.height)}
@@ -2139,22 +2231,53 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                           </div>
                           <div className="flex gap-1.5 mt-2">
                             {[
-                              { color: '#0f172a', label: 'Dark Slate' },
                               { color: '#047857', label: 'Emerald' },
                               { color: '#045a38', label: 'Forest Green' },
                               { color: '#b45309', label: 'Warm Amber' },
+                              { color: '#d97706', label: 'Rich Gold' },
+                              { color: '#0f172a', label: 'Dark Slate' },
                               { color: '#334155', label: 'Slate Gray' },
-                              { color: '#475569', label: 'Muted Gray' },
+                              { color: '#cbd5e1', label: 'Muted Gray' },
+                              { color: '#ffffff', label: 'Pure White' },
                             ].map((c) => (
                               <button
                                 key={c.color}
                                 type="button"
-                                onClick={() => handleStyleChange('color', c.color)}
+                                onClick={() => handleStyleChange('background', c.color)}
                                 style={{ backgroundColor: c.color }}
                                 className="w-5 h-5 rounded-full border border-brand-border shadow-2xs hover:scale-110 transition-transform"
                                 title={c.label}
                               />
                             ))}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-brand-text/60 mb-1">Corner Rounding (Radius)</label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="number"
+                              value={selectedElementData.style?.borderRadius ?? 0}
+                              onChange={(e) => handleStyleChange('borderRadius', Number(e.target.value))}
+                              className="flex-1 px-3 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded text-sm text-brand-text"
+                              disabled={readOnly}
+                              min="0"
+                              max="9999"
+                              step="1"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleStyleChange('borderRadius', 9999)}
+                              className="px-2.5 py-1.5 bg-brand-bg border border-brand-border rounded text-xs text-brand-text hover:bg-neutral-200"
+                            >
+                              Pill
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleStyleChange('borderRadius', 0)}
+                              className="px-2.5 py-1.5 bg-brand-bg border border-brand-border rounded text-xs text-brand-text hover:bg-neutral-200"
+                            >
+                              Sharp
+                            </button>
                           </div>
                         </div>
                         <div>
@@ -2204,17 +2327,24 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                           </div>
                           <div className="flex gap-1.5 mt-2">
                             {[
-                              { color: '#0f172a', label: 'Dark Slate' },
                               { color: '#047857', label: 'Emerald' },
                               { color: '#045a38', label: 'Forest Green' },
                               { color: '#b45309', label: 'Warm Amber' },
+                              { color: '#d97706', label: 'Rich Gold' },
+                              { color: '#0f172a', label: 'Dark Slate' },
                               { color: '#334155', label: 'Slate Gray' },
-                              { color: '#475569', label: 'Muted Gray' },
+                              { color: '#cbd5e1', label: 'Muted Gray' },
+                              { color: '#ffffff', label: 'Pure White' },
                             ].map((c) => (
                               <button
                                 key={c.color}
                                 type="button"
-                                onClick={() => handleStyleChange('color', c.color)}
+                                onClick={() => {
+                                  const width = selectedElementData.style?.borderWidth || 1
+                                  handleStyleChange('borderColor', c.color)
+                                  handleStyleChange('borderWidth', width)
+                                  handleStyleChange('border', `${width}px solid ${c.color}`)
+                                }}
                                 style={{ backgroundColor: c.color }}
                                 className="w-5 h-5 rounded-full border border-brand-border shadow-2xs hover:scale-110 transition-transform"
                                 title={c.label}
@@ -2226,36 +2356,50 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                     )}
 
                     {/* Text Tab */}
-                    {activeTab === 'text' && ['title', 'subtitle', 'studentName', 'bodyText', 'course', 'date', 'signatureText', 'founderName', 'certificateId', 'footer', 'text'].includes(selectedElementData.type) && (
+                    {activeTab === 'text' && (['title', 'subtitle', 'studentName', 'bodyText', 'course', 'date', 'signatureText', 'founderName', 'certificateId', 'footer', 'text'].includes(selectedElementData.type) || selectedElementData.id === 'brandTitle') && (
                       <div className="space-y-3">
-                        {/* Text Content */}
-                        {!selectedElementData.binding && (
-                          <div>
-                            <label className="block text-xs text-brand-text/60 mb-1">Text Content</label>
-                            <textarea
-                              value={selectedElementData.text || ''}
-                              onChange={(e) => {
-                                const updatedLayout = cloneLayout(layout)
-                                const element = updatedLayout.elements.find(el => el.id === selectedElement)
-                                if (element) {
-                                  element.text = e.target.value
-                                  onLayoutChange(updatedLayout)
-                                }
-                              }}
-                              className="w-full px-3 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded text-sm text-brand-text resize-none"
-                              disabled={readOnly}
-                              rows={2}
-                            />
-                          </div>
-                        )}
-                        {selectedElementData.binding && (
-                          <div>
-                            <label className="block text-xs text-brand-text/60 mb-1">Dynamic Binding</label>
-                            <div className="px-3 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded text-sm text-brand-text/60">
-                              {selectedElementData.binding}
+                        {(() => {
+                          const isDynamicCredField = ['studentName', 'course', 'date', 'certificateId'].includes(selectedElementData.id) || ['studentName', 'course', 'date', 'certificateId'].includes(selectedElementData.type)
+
+                          if (!isDynamicCredField) {
+                            return (
+                              <div>
+                                <label className="block text-xs font-semibold text-brand-text mb-1">Text Content</label>
+                                <textarea
+                                  value={selectedElementData.text || ''}
+                                  onChange={(e) => handleTextChange(e.target.value)}
+                                  className="w-full px-3 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded text-sm text-brand-text resize-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                                  disabled={readOnly}
+                                  rows={2}
+                                  placeholder="Enter certificate text..."
+                                />
+                              </div>
+                            )
+                          }
+
+                          return (
+                            <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-xs space-y-2">
+                              <div className="flex items-center gap-1.5 font-bold text-emerald-700 dark:text-emerald-400">
+                                <Sparkles className="h-3.5 w-3.5" />
+                                <span>Dynamic Credential Field ({selectedElementData.id})</span>
+                              </div>
+                              <p className="text-brand-text/70 leading-relaxed text-[11px]">
+                                Automatically generated for each student when they complete this course.
+                              </p>
+                              <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-wider text-brand-text/60 mb-1">Sample Preview Text</label>
+                                <input
+                                  type="text"
+                                  value={selectedElementData.text || ''}
+                                  onChange={(e) => handleTextChange(e.target.value)}
+                                  className="w-full px-2.5 py-1.5 bg-brand-bg border border-brand-border rounded text-xs text-brand-text"
+                                  disabled={readOnly}
+                                  placeholder="Sample preview..."
+                                />
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )
+                        })()}
                         <div>
                           <label className="block text-xs text-brand-text/60 mb-1">Font Family</label>
                           <select

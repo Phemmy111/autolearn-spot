@@ -29,6 +29,10 @@ export type CertificateElementType =
   | 'custom'
   | 'image'
   | 'text'
+  | 'shape'
+  | 'divider'
+  | 'line'
+  | 'badge'
 
 /**
  * Data binding types for dynamic content
@@ -70,7 +74,10 @@ export interface CertificateElementStyle {
   border?: string
   borderColor?: string
   borderWidth?: number
+  borderStyle?: string
+  borderBottom?: string
   borderRadius?: number
+  backgroundColor?: string
   padding?: number | string
   maxWidth?: number
   whiteSpace?: 'normal' | 'nowrap' | 'pre' | 'pre-wrap'
@@ -938,15 +945,15 @@ export function getElementText(
   data: Record<string, string>,
   settings: Record<string, string>,
 ): string {
-  // If element has a binding, always use the binding (ignore static text)
+  // If element has a binding, check if text has been customized or use dynamic binding
   if (element.binding) {
     switch (element.binding) {
       case 'title':
-        return settings.title || element.text || 'CERTIFICATE OF COMPLETION'
+        return element.text || settings.title || 'CERTIFICATE OF COMPLETION'
       case 'subtitle':
-        return settings.subtitle || element.text || 'This certificate is proudly presented to'
+        return element.text || settings.subtitle || 'This certificate is proudly presented to'
       case 'bodyText':
-        return settings.bodyText || element.text || 'In Recognition of Completing the'
+        return element.text || settings.bodyText || 'In Recognition of Completing the'
       case 'studentName':
         return data.student_name || data.name || element.text || 'Femi Adeleke'
       case 'course':
@@ -954,13 +961,13 @@ export function getElementText(
       case 'date':
         return data.issue_date || data.date || element.text || 'November 18, 2026'
       case 'signatureText':
-        return settings.signatureText || element.text || 'Founder & Lead Instructor'
+        return element.text || settings.signatureText || 'Founder & Lead Instructor'
       case 'founderName':
-        return settings.founderName || element.text || 'A. Femi Adeleke'
+        return element.text || settings.founderName || 'A. Femi Adeleke'
       case 'certificateId':
         return data.certificate_id || data.certificateId || element.text || 'CERT-07D13D81'
       case 'footer':
-        return settings.footer || element.text || 'AutoLearn Spot • Learn • Automate • Succeed'
+        return element.text || settings.footer || 'AutoLearn Spot • Learn • Automate • Succeed'
       default:
         return element.text || ''
     }

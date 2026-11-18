@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Award,
   CheckCircle2,
@@ -8,25 +8,70 @@ import {
   Download,
   Share2,
   Sparkles,
-  QrCode,
-  ExternalLink,
-  Lock,
   UserCheck
 } from "lucide-react";
+import { CertificateTemplate } from "@/components/certificate/CertificateTemplate";
+import { CertificateLayout, DEFAULT_CERTIFICATE_LAYOUT } from "@/lib/certificate-layout";
 
 interface CourseCertificatePreviewProps {
   courseTitle: string;
   authorName?: string;
   category?: string;
+  initialLayout?: CertificateLayout;
 }
 
 export function CourseCertificatePreview({
   courseTitle,
   authorName = "Femi Adeleke",
   category = "Professional Certification",
+  initialLayout,
 }: CourseCertificatePreviewProps) {
   const [studentName, setStudentName] = useState("Femi Adeleke");
-  
+  const [layout, setLayout] = useState<CertificateLayout>(initialLayout || DEFAULT_CERTIFICATE_LAYOUT);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  // If initial layout not provided, fetch current saved master certificate layout from DB
+  useEffect(() => {
+    if (initialLayout && initialLayout.elements && initialLayout.elements.length > 0) {
+      setLayout(initialLayout);
+    } else {
+      fetch('/api/settings/public?keys=certificate_layout')
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.settings?.certificate_layout) {
+            try {
+              const parsed =
+                typeof data.settings.certificate_layout === 'string'
+                  ? JSON.parse(data.settings.certificate_layout)
+                  : data.settings.certificate_layout;
+              if (parsed && Array.isArray(parsed.elements) && parsed.elements.length > 0) {
+                setLayout(parsed);
+              }
+            } catch (err) {
+              console.warn('Failed to parse certificate layout', err);
+            }
+          }
+        })
+        .catch((err) => console.warn('Failed to fetch certificate layout', err));
+    }
+  }, [initialLayout]);
+
+  // Responsive scale calculator for 1200x800 template
+  useEffect(() => {
+    const updateScale = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.clientWidth;
+        const newScale = containerWidth / 1200;
+        setScale(newScale);
+      }
+    };
+
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
+  }, []);
+
   // Format current date in executive certificate style (e.g. November 18, 2026)
   const currentDate = new Date().toLocaleDateString("en-US", {
     month: "long",
@@ -71,356 +116,53 @@ export function CourseCertificatePreview({
         </div>
       </div>
 
-      {/* High-Resolution Luxury Parchment Certificate Canvas (1024x683 Vector SVG) */}
-      <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl border-2 border-emerald-700/20 group">
-        
+      {/* High-Resolution Luxury Certificate Canvas (WYSIWYG 1200x800 Responsive Scaled) */}
+      <div
+        ref={containerRef}
+        className="relative w-full aspect-[1200/800] rounded-2xl overflow-hidden shadow-2xl border-2 border-emerald-700/20 group select-none bg-[#fbf6ec]"
+      >
         {/* Floating Guaranteed Ribbon */}
-        <div className="absolute top-2.5 left-2.5 sm:top-4 sm:left-4 z-20 flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-full bg-slate-900/85 backdrop-blur-md border border-white/20 text-white text-[9px] sm:text-xs font-bold shadow-md">
+        <div className="absolute top-2.5 left-2.5 sm:top-4 sm:left-4 z-20 flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-full bg-slate-900/85 backdrop-blur-md border border-white/20 text-white text-[9px] sm:text-xs font-bold shadow-md pointer-events-none">
           <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400" />
           <span>Accredited AutoLearn Credential</span>
         </div>
 
-        <div className="absolute top-2.5 right-2.5 sm:top-4 sm:right-4 z-20 hidden sm:flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-full bg-emerald-700 text-white text-[9px] sm:text-xs font-bold shadow-md">
+        <div className="absolute top-2.5 right-2.5 sm:top-4 sm:right-4 z-20 hidden sm:flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-full bg-emerald-700 text-white text-[9px] sm:text-xs font-bold shadow-md pointer-events-none">
           <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-300" />
           <span>Verifiable Online</span>
         </div>
 
-        {/* Vector SVG Certificate Canvas */}
-        <svg
-          viewBox="0 0 1024 683"
-          className="w-full h-auto block select-none bg-[#fbf6ec]"
-          xmlns="http://www.w3.org/2000/svg"
+        {/* Scaled Certificate Template */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '1200px',
+            height: '800px',
+            transformOrigin: 'top left',
+            transform: `scale(${scale})`,
+          }}
         >
-          <defs>
-            {/* Soft Shadow Filter */}
-            <filter id="soft-text-shadow" x="-10%" y="-10%" width="120%" height="120%">
-              <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" floodColor="#000000" floodOpacity="0.14" />
-            </filter>
-            
-            {/* Metallic Gold Gradient for Medal & Badges */}
-            <linearGradient id="gold-medal-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#F59E0B" />
-              <stop offset="30%" stopColor="#FDE68A" />
-              <stop offset="60%" stopColor="#D97706" />
-              <stop offset="85%" stopColor="#FCD34D" />
-              <stop offset="100%" stopColor="#B45309" />
-            </linearGradient>
-          </defs>
-
-          {/* 1. 100% Clean Textured Parchment Background (Image 3) - Zero Blur Smudges */}
-          <image
-            href="/certificate-template-parchment-clean.png"
-            x="0"
-            y="0"
-            width="1024"
-            height="683"
-            preserveAspectRatio="xMidYMid slice"
+          <CertificateTemplate
+            layout={layout}
+            name={studentName}
+            date={currentDate}
+            course={courseTitle}
+            certificateId={certId}
+            backgroundSrc="/certificate-template-parchment-clean.png"
+            logoSrc="/autolearn-brandmark-bold.png"
+            sealSrc="/certificate-gold-seal.png"
+            signatureUrl="/signature-femi-real.png"
+            qrSrc="/certificate-qr-sample.png"
+            title={layout?.elements?.find((el: any) => el.id === 'title')?.text || "CERTIFICATE OF COMPLETION"}
+            subtitle={layout?.elements?.find((el: any) => el.id === 'subtitle')?.text || "This certificate is proudly presented to"}
+            bodyText={layout?.elements?.find((el: any) => el.id === 'bodyText')?.text || "In Recognition of Completing the"}
+            founderName={layout?.elements?.find((el: any) => el.id === 'founderName')?.text || authorName || "A. Femi Adeleke"}
+            signatureText={layout?.elements?.find((el: any) => el.id === 'signatureText')?.text || "Founder & Lead Instructor"}
+            footer={layout?.elements?.find((el: any) => el.id === 'footer')?.text || "AutoLearn Spot • Learn • Automate • Succeed"}
           />
-
-          {/* ─── DYNAMIC OVERLAYS ALIGNED TO LUXURY PARCHMENT DIVIDERS ─── */}
-
-          {/* 2. Top Header: Official AutoLearn Spot Brandmark & Motto (Bold Executive Scale) */}
-          <g transform="translate(512, 52)">
-            {/* Real Official AutoLearn Brandmark Logo (Bold & Prominent) */}
-            <image
-              href="/autolearn-brandmark-bold.png"
-              x="-195"
-              y="-34"
-              width="68"
-              height="68"
-              preserveAspectRatio="xMidYMid meet"
-            />
-
-            {/* Brand Separator Bar */}
-            <line x1="-115" y1="-26" x2="-115" y2="28" stroke="#94a3b8" strokeWidth="2" />
-
-            {/* Brand Title & Real Motto */}
-            <text
-              x="-98"
-              y="3"
-              fill="#0f172a"
-              fontSize="28"
-              fontFamily="'Space Grotesk', system-ui, sans-serif"
-              fontWeight="900"
-              letterSpacing="1.8"
-            >
-              AUTOLEARN <tspan dx="8" fill="#047857">SPOT</tspan>
-            </text>
-            <text
-              x="-98"
-              y="22"
-              fill="#475569"
-              fontSize="10.5"
-              fontFamily="'Space Grotesk', system-ui, sans-serif"
-              fontWeight="800"
-              letterSpacing="3"
-            >
-              LEARN • AUTOMATE • SUCCEED
-            </text>
-          </g>
-
-          {/* 3. Certificate Title: "CERTIFICATE OF COMPLETION" (Comfortably clear above Divider 1 at 170px) */}
-          <g transform="translate(512, 130)">
-            <text
-              x="0"
-              y="0"
-              textAnchor="middle"
-              fill="#0f172a"
-              fontSize="38"
-              fontFamily="'Playfair Display', Georgia, 'Times New Roman', serif"
-              fontWeight="900"
-              letterSpacing="3.5"
-              filter="url(#soft-text-shadow)"
-            >
-              CERTIFICATE OF COMPLETION
-            </text>
-          </g>
-
-          {/* 4. Presentation Lead: "This certificate is proudly presented to" (Comfortably clear below Divider 1 at 170px) */}
-          <g transform="translate(512, 206)">
-            <text
-              x="0"
-              y="0"
-              textAnchor="middle"
-              fill="#334155"
-              fontSize="18"
-              fontFamily="Georgia, 'Times New Roman', serif"
-              fontStyle="italic"
-              fontWeight="500"
-              letterSpacing="0.4"
-            >
-              This certificate is proudly presented to
-            </text>
-          </g>
-
-          {/* 5. Recipient Student Name (Dynamic from Preview Input - Large, Bold Italic Emerald) */}
-          <g transform="translate(512, 268)">
-            <text
-              x="0"
-              y="0"
-              textAnchor="middle"
-              fill="#045a38"
-              fontSize={studentName.length > 25 ? "42" : studentName.length > 18 ? "50" : "58"}
-              fontFamily="'Playfair Display', Georgia, 'Times New Roman', serif"
-              fontWeight="800"
-              fontStyle="italic"
-              letterSpacing="0.8"
-              filter="url(#soft-text-shadow)"
-            >
-              {studentName}
-            </text>
-          </g>
-
-          {/* 6. In Recognition of Completing the (Comfortably clear below Divider 2 flourish at 310-330px) */}
-          <g transform="translate(512, 362)">
-            <text
-              x="0"
-              y="0"
-              textAnchor="middle"
-              fill="#334155"
-              fontSize="18"
-              fontFamily="Georgia, 'Times New Roman', serif"
-              fontStyle="italic"
-              fontWeight="500"
-              letterSpacing="0.4"
-            >
-              In Recognition of Completing the
-            </text>
-          </g>
-
-          {/* 7. Course Title (Dynamic from Props - Bold, Wide, Commanding) */}
-          <g transform="translate(512, 412)">
-            <text
-              x="0"
-              y="0"
-              textAnchor="middle"
-              fill="#0f172a"
-              fontSize={courseTitle.length > 35 ? "26" : courseTitle.length > 24 ? "30" : "34"}
-              fontFamily="'Playfair Display', Georgia, 'Times New Roman', serif"
-              fontWeight="900"
-              letterSpacing="0.6"
-              filter="url(#soft-text-shadow)"
-            >
-              {courseTitle}
-            </text>
-          </g>
-
-          {/* 8. Credentials Zone: Date (Left), Authentic Gold Medal (Center), Real Signature (Right), Real QR (Far Right) */}
-
-          {/* 8A. Date Column */}
-          <g transform="translate(230, 520)">
-            {/* Calendar Icon Graphic */}
-            <g transform="translate(-115, -18) scale(1.1)">
-              <rect x="0" y="3" width="18" height="15" rx="3" fill="none" stroke="#b45309" strokeWidth="1.5" />
-              <line x1="0" y1="8" x2="18" y2="8" stroke="#b45309" strokeWidth="1.2" />
-              <circle cx="5" cy="12" r="1" fill="#b45309" />
-              <circle cx="9" cy="12" r="1" fill="#b45309" />
-              <circle cx="13" cy="12" r="1" fill="#b45309" />
-              <line x1="4" y1="0" x2="4" y2="4" stroke="#b45309" strokeWidth="1.5" strokeLinecap="round" />
-              <line x1="14" y1="0" x2="14" y2="4" stroke="#b45309" strokeWidth="1.5" strokeLinecap="round" />
-            </g>
-            {/* Date Text */}
-            <text
-              x="-82"
-              y="2"
-              fill="#0f172a"
-              fontSize="18"
-              fontFamily="'Playfair Display', Georgia, serif"
-              fontWeight="700"
-            >
-              {currentDate}
-            </text>
-            {/* Underline */}
-            <line x1="-115" y1="12" x2="75" y2="12" stroke="#cbd5e1" strokeWidth="1.2" />
-            {/* Date Label */}
-            <text
-              x="-20"
-              y="32"
-              textAnchor="middle"
-              fill="#64748b"
-              fontSize="14"
-              fontFamily="Georgia, serif"
-              fontStyle="italic"
-            >
-              Date
-            </text>
-          </g>
-
-          {/* 8B. Center Authentic 3D Gold Ribbon Medal with AutoLearn Logo */}
-          <g transform="translate(512, 508)">
-            <image
-              href="/certificate-gold-seal.png"
-              x="-65"
-              y="-75"
-              width="130"
-              height="150"
-              preserveAspectRatio="xMidYMid meet"
-              filter="drop-shadow(0 6px 14px rgba(180,83,9,0.35))"
-            />
-          </g>
-
-          {/* 8C. Real Authentic Founder Signature (Right) */}
-          <g transform="translate(740, 520)">
-            {/* Authentic Femi Adeleke Handwritten Signature */}
-            <image
-              href="/signature-femi-real.png"
-              x="-85"
-              y="-50"
-              width="170"
-              height="50"
-              preserveAspectRatio="xMidYMid meet"
-            />
-            {/* Signature Underline */}
-            <line x1="-85" y1="12" x2="85" y2="12" stroke="#cbd5e1" strokeWidth="1.2" />
-            
-            {/* Signatory Name */}
-            <text
-              x="0"
-              y="28"
-              textAnchor="middle"
-              fill="#0f172a"
-              fontSize="16"
-              fontFamily="'Playfair Display', Georgia, serif"
-              fontWeight="800"
-            >
-              A. Femi Adeleke
-            </text>
-            {/* Signatory Title */}
-            <text
-              x="0"
-              y="44"
-              textAnchor="middle"
-              fill="#64748b"
-              fontSize="13"
-              fontFamily="Georgia, serif"
-              fontStyle="italic"
-            >
-              Founder & Lead Instructor
-            </text>
-          </g>
-
-          {/* 8D. Real Scannable QR Code & Online Verification (Far Right) */}
-          <g transform="translate(915, 516)">
-            {/* Clean QR White Rounded Card */}
-            <rect
-              x="-36"
-              y="-38"
-              width="72"
-              height="72"
-              rx="6"
-              fill="#ffffff"
-              stroke="#cbd5e1"
-              strokeWidth="1.2"
-              filter="drop-shadow(0 2px 6px rgba(0,0,0,0.08))"
-            />
-            {/* Real Scannable High-Res QR Code Image */}
-            <image
-              href="/certificate-qr-sample.png"
-              x="-32"
-              y="-34"
-              width="64"
-              height="64"
-              preserveAspectRatio="xMidYMid meet"
-            />
-
-            {/* Verification Label */}
-            <text
-              x="0"
-              y="46"
-              textAnchor="middle"
-              fill="#475569"
-              fontSize="9.5"
-              fontFamily="'Space Grotesk', system-ui, sans-serif"
-              fontWeight="700"
-              letterSpacing="0.4"
-            >
-              Verify Certificate
-            </text>
-          </g>
-
-          {/* 9. Bottom Motto (Positioned cleanly below Divider 3 at y=642) */}
-          <g transform="translate(512, 642)">
-            <text
-              x="0"
-              y="0"
-              textAnchor="middle"
-              fill="#475569"
-              fontSize="11"
-              fontFamily="'Space Grotesk', system-ui, sans-serif"
-              fontWeight="700"
-              letterSpacing="1.2"
-            >
-              AutoLearn Spot • Learn • Automate • Succeed
-            </text>
-          </g>
-
-          {/* 10. Certificate ID Tag (Subtle Top Right) */}
-          <g transform="translate(935, 46)">
-            <rect
-              x="-55"
-              y="-11"
-              width="110"
-              height="22"
-              rx="4"
-              fill="#ffffff"
-              stroke="#cbd5e1"
-              strokeWidth="0.8"
-              opacity="0.95"
-            />
-            <text
-              x="0"
-              y="4"
-              textAnchor="middle"
-              fill="#475569"
-              fontSize="9.5"
-              fontFamily="'JetBrains Mono', monospace"
-              fontWeight="700"
-              letterSpacing="0.5"
-            >
-              ID: {certId}
-            </text>
-          </g>
-        </svg>
+        </div>
       </div>
 
       {/* 4 Trust & Guarantee Badges Underneath */}

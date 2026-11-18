@@ -15,6 +15,7 @@ import { CourseCertificatePreview } from '@/components/marketplace/CourseCertifi
 import { CourseFAQSection } from '@/components/marketplace/CourseFAQSection';
 import { MobileFloatingAddToCart } from '@/components/marketplace/MobileFloatingAddToCart';
 import { ReviewService } from '@/lib/review-service';
+import { getPublicSettings } from '@/lib/public-settings';
 
 interface PageParams {
   params: Promise<{ slug: string }>;
@@ -97,6 +98,17 @@ export default async function MarketplaceProductPage({ params }: PageParams) {
 
   // Load extra metadata from site_settings if available
   let authorExtra: any = {};
+  const publicSettings = await getPublicSettings();
+  let certLayout: any = undefined;
+  if (publicSettings.certificateLayout) {
+    try {
+      certLayout = typeof publicSettings.certificateLayout === 'string'
+        ? JSON.parse(publicSettings.certificateLayout)
+        : publicSettings.certificateLayout;
+    } catch {
+      // fallback
+    }
+  }
   if (author) {
     try {
       const { data: setting } = await supabaseAdmin
@@ -311,6 +323,7 @@ export default async function MarketplaceProductPage({ params }: PageParams) {
               courseTitle={product.title}
               authorName={authorName}
               category={product.category || product.product_type}
+              initialLayout={certLayout}
             />
 
             {/* Curriculum (Lessons) Section */}
