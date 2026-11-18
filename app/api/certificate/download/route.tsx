@@ -7,9 +7,24 @@ import { CertificateTemplate } from '@/components/certificate/CertificateTemplat
 import { getPublicSettings } from '@/lib/public-settings'
 import { supabaseAdmin } from '@/lib/supabase'
 import QRCode from 'qrcode'
+import fs from 'fs'
+import path from 'path'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
+
+function getAssetDataUrl(relativePath: string, mimeType = 'image/png'): string | null {
+  try {
+    const fullPath = path.join(process.cwd(), 'public', relativePath.replace(/^\//, ''))
+    if (fs.existsSync(fullPath)) {
+      const buffer = fs.readFileSync(fullPath)
+      return `data:${mimeType};base64,${buffer.toString('base64')}`
+    }
+  } catch (err) {
+    console.warn(`Could not read asset from disk (${relativePath}):`, err)
+  }
+  return null
+}
 
 export async function GET(request: Request) {
   try {
@@ -186,7 +201,29 @@ export async function GET(request: Request) {
     const robotoRes = await fetch('https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-400-normal.ttf')
     const robotoData = await robotoRes.arrayBuffer()
 
-    const absoluteBackgroundSrc = `${baseUrl}/certificate-template.png`
+    const isAbsoluteOrData = (url?: string) =>
+      Boolean(url && (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')))
+
+    const bgDataUrl =
+      getAssetDataUrl('certificate-template-parchment-clean.png') ||
+      `${baseUrl}/certificate-template-parchment-clean.png`
+
+    const logoDataUrl =
+      getAssetDataUrl('autolearn-brandmark.png') ||
+      `${baseUrl}/autolearn-brandmark.png`
+
+    const sealDataUrl =
+      getAssetDataUrl('certificate-gold-seal.png') ||
+      `${baseUrl}/certificate-gold-seal.png`
+
+    const signatureDataUrl =
+      certSettings.certificateSignatureUrl && isAbsoluteOrData(certSettings.certificateSignatureUrl)
+        ? certSettings.certificateSignatureUrl
+        : getAssetDataUrl('signature-femi-real.png') || `${baseUrl}/signature-femi-real.png`
+
+    const qrDataUrl =
+      getAssetDataUrl('certificate-qr-sample.png') ||
+      `${baseUrl}/certificate-qr-sample.png`
 
     const imageResponse = new ImageResponse(
       (
@@ -196,8 +233,11 @@ export async function GET(request: Request) {
           course={courseTitle}
           certificateId={certificateCode}
           qrData={qrData}
-          backgroundSrc={absoluteBackgroundSrc}
-          signatureUrl={certSettings.certificateSignatureUrl || ''}
+          backgroundSrc={bgDataUrl}
+          logoSrc={logoDataUrl}
+          sealSrc={sealDataUrl}
+          signatureUrl={signatureDataUrl}
+          qrSrc={qrDataUrl}
           footer={certSettings.certificateFooter || ''}
           accentColor={accentColor}
         />

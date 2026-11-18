@@ -26,27 +26,40 @@ interface CertificateTemplateProps {
   qrDestination?: string
   footer?: string
   accentColor?: string
+  sealSrc?: string
+  qrSrc?: string
 }
 
 const CANVAS_WIDTH = 1200
 const CANVAS_HEIGHT = 800
+
+const isAbsoluteOrData = (url?: string) =>
+  Boolean(url && (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')))
 
 export function CertificateTemplate({
   name,
   date,
   course,
   certificateId,
+  logoSrc,
   qrData,
   backgroundSrc,
   signatureUrl,
+  sealSrc,
+  qrSrc,
   footer,
   accentColor,
 }: CertificateTemplateProps) {
   const displayCourse = course || 'AI Automation with n8n'
   const displayName = name || 'Student'
   const displayCertId = certificateId || 'CERT-07D13D81'
-  const bg = backgroundSrc || '/certificate-template-parchment-clean.png'
   const displayFooter = footer || 'AutoLearn Spot • Learn • Automate • Succeed'
+
+  const safeBg = isAbsoluteOrData(backgroundSrc) ? backgroundSrc : undefined
+  const safeLogo = isAbsoluteOrData(logoSrc) ? logoSrc : undefined
+  const safeSeal = isAbsoluteOrData(sealSrc) ? sealSrc : undefined
+  const safeSignature = isAbsoluteOrData(signatureUrl) ? signatureUrl : undefined
+  const safeQr = isAbsoluteOrData(qrSrc) ? qrSrc : undefined
 
   return (
     <div
@@ -60,20 +73,34 @@ export function CertificateTemplate({
       }}
     >
       {/* 1. 100% Clean Textured Parchment Background (Image 3) */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={bg}
-        alt="Certificate Background"
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: `${CANVAS_WIDTH}px`,
-          height: `${CANVAS_HEIGHT}px`,
-          objectFit: 'cover',
-          zIndex: 0,
-        }}
-      />
+      {safeBg ? (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={safeBg}
+          alt="Certificate Background"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: `${CANVAS_WIDTH}px`,
+            height: `${CANVAS_HEIGHT}px`,
+            objectFit: 'cover',
+            zIndex: 0,
+          }}
+        />
+      ) : (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: `${CANVAS_WIDTH}px`,
+            height: `${CANVAS_HEIGHT}px`,
+            backgroundColor: '#fbf6ec',
+            zIndex: 0,
+          }}
+        />
+      )}
 
       {/* Dynamic Overlay Layer (Scaled to 1200x800) */}
       <div
@@ -123,13 +150,23 @@ export function CertificateTemplate({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            {/* Real AutoLearn Brandmark Logo */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/autolearn-brandmark.png"
-              alt="AutoLearn Spot Logo"
-              style={{ width: '56px', height: '56px', objectFit: 'contain' }}
-            />
+            {safeLogo ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={safeLogo}
+                alt="AutoLearn Spot Logo"
+                style={{ width: '56px', height: '56px', objectFit: 'contain' }}
+              />
+            ) : (
+              <svg width="56" height="56" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="18" fill="none" stroke="#10b981" strokeWidth="2.5" />
+                <path d="M 12 28 L 20 10 L 28 28 Z" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinejoin="round" />
+                <line x1="15" y1="22" x2="25" y2="22" stroke="#10b981" strokeWidth="2" />
+                <circle cx="20" cy="10" r="3" fill="#047857" />
+                <circle cx="12" cy="28" r="3" fill="#047857" />
+                <circle cx="28" cy="28" r="3" fill="#047857" />
+              </svg>
+            )}
 
             <div style={{ width: '1.5px', height: '42px', backgroundColor: '#cbd5e1' }} />
 
@@ -315,22 +352,59 @@ export function CertificateTemplate({
 
           {/* 8B. Authentic 3D Gold Seal Ribbon Medal with AutoLearn Logo */}
           <div style={{ position: 'relative', width: '150px', height: '170px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/certificate-gold-seal.png"
-              alt="Official AutoLearn Gold Foil Seal"
-              style={{ width: '146px', height: '168px', objectFit: 'contain' }}
-            />
+            {safeSeal ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={safeSeal}
+                alt="Official AutoLearn Gold Foil Seal"
+                style={{ width: '146px', height: '168px', objectFit: 'contain' }}
+              />
+            ) : (
+              <svg width="90" height="90" viewBox="0 0 80 80" fill="none">
+                <defs>
+                  <linearGradient id="pdf-gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#F59E0B" />
+                    <stop offset="30%" stopColor="#FDE68A" />
+                    <stop offset="60%" stopColor="#D97706" />
+                    <stop offset="85%" stopColor="#FCD34D" />
+                    <stop offset="100%" stopColor="#B45309" />
+                  </linearGradient>
+                </defs>
+                <path d="M 28 48 L 18 78 L 32 70 L 40 78 L 36 48 Z" fill="#b45309" />
+                <path d="M 52 48 L 62 78 L 48 70 L 40 78 L 44 48 Z" fill="#d97706" />
+                <circle cx="40" cy="40" r="34" fill="url(#pdf-gold-grad)" />
+                <circle cx="40" cy="40" r="28" fill="#022c22" stroke="url(#pdf-gold-grad)" strokeWidth="1.5" />
+                <g transform="translate(28, 28) scale(0.6)">
+                  <circle cx="20" cy="20" r="18" fill="none" stroke="#10b981" strokeWidth="3" />
+                  <path d="M 12 28 L 20 10 L 28 28 Z" fill="none" stroke="#34d399" strokeWidth="3" strokeLinejoin="round" />
+                  <line x1="15" y1="22" x2="25" y2="22" stroke="#34d399" strokeWidth="2.5" />
+                  <circle cx="20" cy="10" r="3.5" fill="#fde68a" />
+                  <circle cx="12" cy="28" r="3.5" fill="#fde68a" />
+                  <circle cx="28" cy="28" r="3.5" fill="#fde68a" />
+                </g>
+              </svg>
+            )}
           </div>
 
           {/* 8C. Real Founder Signature */}
           <div style={{ display: 'flex', flexDirection: 'column', width: '240px', alignItems: 'center' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={signatureUrl || "/signature-femi-real.png"}
-              alt="A. Femi Adeleke Signature"
-              style={{ maxHeight: '56px', width: 'auto', objectFit: 'contain' }}
-            />
+            {safeSignature ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={safeSignature}
+                alt="A. Femi Adeleke Signature"
+                style={{ maxHeight: '56px', width: 'auto', objectFit: 'contain' }}
+              />
+            ) : (
+              <svg width="180" height="38" viewBox="0 0 180 38" fill="none">
+                <path
+                  d="M 20 22 C 45 4 65 34 85 12 C 105 -2 125 30 145 14 C 158 4 168 20 172 16"
+                  stroke="#0f172a"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                />
+              </svg>
+            )}
             <div style={{ width: '100%', height: '1.2px', backgroundColor: '#cbd5e1', marginTop: '4px' }} />
             <span style={{ fontFamily: '"Playfair Display", Georgia, serif', fontSize: '17px', fontWeight: 800, color: '#0f172a', marginTop: '5px' }}>
               A. Femi Adeleke
@@ -366,13 +440,29 @@ export function CertificateTemplate({
                     return <rect key={i} x={x} y={y} width="1.05" height="1.05" />
                   })}
                 </svg>
-              ) : (
+              ) : safeQr ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
-                  src="/certificate-qr-sample.png"
+                  src={safeQr}
                   alt="QR Verification"
                   style={{ width: '72px', height: '72px', objectFit: 'contain' }}
                 />
+              ) : (
+                <svg width="56" height="56" viewBox="0 0 48 48" fill="#0f172a">
+                  <rect x="4" y="4" width="16" height="16" />
+                  <rect x="7" y="7" width="10" height="10" fill="#ffffff" />
+                  <rect x="10" y="10" width="4" height="4" fill="#0f172a" />
+                  <rect x="28" y="4" width="16" height="16" />
+                  <rect x="31" y="7" width="10" height="10" fill="#ffffff" />
+                  <rect x="34" y="10" width="4" height="4" fill="#0f172a" />
+                  <rect x="4" y="28" width="16" height="16" />
+                  <rect x="7" y="31" width="10" height="10" fill="#ffffff" />
+                  <rect x="10" y="34" width="4" height="4" fill="#0f172a" />
+                  <rect x="24" y="24" width="6" height="6" />
+                  <rect x="34" y="24" width="8" height="4" />
+                  <rect x="24" y="34" width="4" height="10" />
+                  <rect x="32" y="32" width="12" height="12" />
+                </svg>
               )}
             </div>
             <span style={{ fontFamily: 'system-ui, sans-serif', fontSize: '10.5px', fontWeight: 700, color: '#475569', marginTop: '5px', letterSpacing: '0.4px' }}>

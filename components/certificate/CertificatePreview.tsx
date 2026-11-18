@@ -62,8 +62,8 @@ export function CertificatePreview({
     }
   }, [qrEnabled, qrDestination]);
 
-  // Use the new professional certificate background
-  const cleanBackgroundUrl = backgroundUrl || '/certificate-template.png'
+  // Use the clean professional certificate background
+  const cleanBackgroundUrl = backgroundUrl || '/certificate-template-parchment-clean.png'
 
   // Use provided layout or fall back to default
   const activeLayout = layout || DEFAULT_CERTIFICATE_LAYOUT
