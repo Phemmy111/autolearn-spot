@@ -87,7 +87,7 @@ export function CourseCertificatePreview({
 
         {/* Vector SVG Certificate Canvas */}
         <svg
-          viewBox="0 0 1024 682"
+          viewBox="0 0 1024 683"
           className="w-full h-auto block select-none bg-[#fbf6ec]"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -97,34 +97,116 @@ export function CourseCertificatePreview({
               <feDropShadow dx="0" dy="1" stdDeviation="1" floodColor="#000000" floodOpacity="0.12" />
             </filter>
             
-            {/* Metallic Gold Gradient for Filigree */}
-            <linearGradient id="parchment-gold" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#C59B27" />
-              <stop offset="50%" stopColor="#DFBA55" />
-              <stop offset="100%" stopColor="#9E7616" />
+            {/* Metallic Gold Gradient for Medal & Badges */}
+            <linearGradient id="gold-medal-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#F59E0B" />
+              <stop offset="30%" stopColor="#FDE68A" />
+              <stop offset="60%" stopColor="#D97706" />
+              <stop offset="85%" stopColor="#FCD34D" />
+              <stop offset="100%" stopColor="#B45309" />
+            </linearGradient>
+
+            {/* Dark Green Gradient for Node Brandmark */}
+            <linearGradient id="emerald-brand-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#10B981" />
+              <stop offset="100%" stopColor="#047857" />
             </linearGradient>
           </defs>
 
-          {/* High-Resolution Textured Parchment Background with Victorian Corner Filigree & Gold/Emerald Seal */}
+          {/* 1. 100% Clean Textured Parchment Background (Image 3) - Zero Blur Smudges */}
           <image
             href="/certificate-template-parchment-clean.png"
             x="0"
             y="0"
             width="1024"
-            height="682"
+            height="683"
             preserveAspectRatio="xMidYMid slice"
           />
 
-          {/* ─── DYNAMIC OVERLAYS MATCHING IMAGE 2 SPECIFICATION ─── */}
+          {/* ─── DYNAMIC OVERLAYS ALIGNED TO IMAGE 3 DIVIDERS ─── */}
 
-          {/* 1. Recipient Student Name (Dynamic from Preview Input) */}
-          <g transform="translate(512, 298)">
+          {/* 2. Top Header: Official AutoLearn Spot Brandmark & Motto */}
+          <g transform="translate(512, 66)">
+            {/* Brandmark Node Icon */}
+            <g transform="translate(-155, -20) scale(0.95)">
+              <circle cx="20" cy="20" r="18" fill="none" stroke="#10b981" strokeWidth="2.5" />
+              <path d="M 12 28 L 20 10 L 28 28 Z" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinejoin="round" />
+              <line x1="15" y1="22" x2="25" y2="22" stroke="#10b981" strokeWidth="2" />
+              <circle cx="20" cy="10" r="3" fill="#047857" />
+              <circle cx="12" cy="28" r="3" fill="#047857" />
+              <circle cx="28" cy="28" r="3" fill="#047857" />
+            </g>
+
+            {/* Brand Separator Bar */}
+            <line x1="-108" y1="-18" x2="-108" y2="18" stroke="#cbd5e1" strokeWidth="1.2" />
+
+            {/* Brand Title & Real Motto */}
+            <text
+              x="-96"
+              y="-2"
+              fill="#047857"
+              fontSize="19"
+              fontFamily="'Space Grotesk', system-ui, sans-serif"
+              fontWeight="800"
+              letterSpacing="1.2"
+            >
+              AUTOLEARN <tspan fill="#0f172a">SPOT</tspan>
+            </text>
+            <text
+              x="-96"
+              y="14"
+              fill="#475569"
+              fontSize="8.5"
+              fontFamily="'Space Grotesk', system-ui, sans-serif"
+              fontWeight="700"
+              letterSpacing="2.2"
+            >
+              LEARN • AUTOMATE • SUCCEED
+            </text>
+          </g>
+
+          {/* 3. Certificate Title: "CERTIFICATE OF COMPLETION" */}
+          <g transform="translate(512, 132)">
+            <text
+              x="0"
+              y="0"
+              textAnchor="middle"
+              fill="#0f172a"
+              fontSize="34"
+              fontFamily="'Playfair Display', Georgia, 'Times New Roman', serif"
+              fontWeight="900"
+              letterSpacing="3"
+              filter="url(#soft-text-shadow)"
+            >
+              CERTIFICATE OF COMPLETION
+            </text>
+          </g>
+
+          {/* 4. Presentation Lead: "This certificate is proudly presented to" */}
+          <g transform="translate(512, 206)">
+            <text
+              x="0"
+              y="0"
+              textAnchor="middle"
+              fill="#334155"
+              fontSize="16"
+              fontFamily="Georgia, 'Times New Roman', serif"
+              fontStyle="italic"
+              fontWeight="500"
+              letterSpacing="0.4"
+            >
+              This certificate is proudly presented to
+            </text>
+          </g>
+
+          {/* 5. Recipient Student Name (Dynamic from Preview Input) */}
+          <g transform="translate(512, 268)">
             <text
               x="0"
               y="0"
               textAnchor="middle"
               fill="#064e3b"
-              fontSize={studentName.length > 25 ? "32" : studentName.length > 18 ? "38" : "44"}
+              fontSize={studentName.length > 25 ? "36" : studentName.length > 18 ? "42" : "50"}
               fontFamily="'Playfair Display', Georgia, 'Times New Roman', serif"
               fontWeight="800"
               fontStyle="italic"
@@ -135,38 +217,25 @@ export function CourseCertificatePreview({
             </text>
           </g>
 
-          {/* 2. Ornate Filigree Underline Accent Beneath Name */}
-          <g transform="translate(512, 332)">
-            <path
-              d="M -180 0 C -120 -8 -60 4 0 0 C 60 4 120 -8 180 0"
-              fill="none"
-              stroke="url(#parchment-gold)"
-              strokeWidth="1.5"
-              opacity="0.85"
-            />
-            {/* Central Ornate Knot */}
-            <circle cx="0" cy="0" r="3" fill="#C59B27" />
-            <circle cx="-12" cy="0" r="1.5" fill="#C59B27" />
-            <circle cx="12" cy="0" r="1.5" fill="#C59B27" />
+          {/* 6. In Recognition of Completing the */}
+          <g transform="translate(512, 368)">
+            <text
+              x="0"
+              y="0"
+              textAnchor="middle"
+              fill="#334155"
+              fontSize="15"
+              fontFamily="Georgia, 'Times New Roman', serif"
+              fontStyle="italic"
+              fontWeight="500"
+              letterSpacing="0.4"
+            >
+              In Recognition of Completing the
+            </text>
           </g>
 
-          {/* 3. In Recognition of Completing the (Label) */}
-          <text
-            x="512"
-            y="370"
-            textAnchor="middle"
-            fill="#334155"
-            fontSize="15"
-            fontFamily="Georgia, 'Times New Roman', serif"
-            fontStyle="italic"
-            fontWeight="500"
-            letterSpacing="0.5"
-          >
-            In Recognition of Completing the
-          </text>
-
-          {/* 4. Course Title (Dynamic from Props, e.g. "AI Automation with n8n") */}
-          <g transform="translate(512, 422)">
+          {/* 7. Course Title (Dynamic from Props, e.g. "AI Automation with n8n") */}
+          <g transform="translate(512, 412)">
             <text
               x="0"
               y="0"
@@ -182,10 +251,12 @@ export function CourseCertificatePreview({
             </text>
           </g>
 
-          {/* 5. Date Badge (Bottom Left) */}
+          {/* 8. Credentials Zone: Date (Left), Gold Medal (Center), Signature (Right), QR (Far Right) */}
+
+          {/* 8A. Date Column */}
           <g transform="translate(230, 526)">
             {/* Calendar Icon Graphic */}
-            <g transform="translate(-105, -16) scale(0.9)">
+            <g transform="translate(-105, -16) scale(0.95)">
               <rect x="0" y="3" width="18" height="15" rx="3" fill="none" stroke="#b45309" strokeWidth="1.5" />
               <line x1="0" y1="8" x2="18" y2="8" stroke="#b45309" strokeWidth="1.2" />
               <circle cx="5" cy="12" r="1" fill="#b45309" />
@@ -198,16 +269,19 @@ export function CourseCertificatePreview({
             <text
               x="-80"
               y="0"
-              fill="#1e293b"
+              fill="#0f172a"
               fontSize="16"
               fontFamily="'Playfair Display', Georgia, serif"
               fontWeight="700"
             >
               {currentDate}
             </text>
+            {/* Underline */}
+            <line x1="-110" y1="10" x2="70" y2="10" stroke="#cbd5e1" strokeWidth="1" />
+            {/* Date Label */}
             <text
-              x="-15"
-              y="20"
+              x="-20"
+              y="26"
               textAnchor="middle"
               fill="#64748b"
               fontSize="13"
@@ -218,8 +292,35 @@ export function CourseCertificatePreview({
             </text>
           </g>
 
-          {/* 6. Founder Signature (Bottom Right) */}
-          <g transform="translate(740, 524)">
+          {/* 8B. Center 3D Embossed Gold Seal Ribbon Medal with AutoLearn Logo */}
+          <g transform="translate(512, 532)">
+            {/* Ribbon Tails */}
+            <path d="M -16 25 L -26 65 L -10 56 L 0 65 L -5 25 Z" fill="#b45309" opacity="0.95" />
+            <path d="M 16 25 L 26 65 L 10 56 L 0 65 L 5 25 Z" fill="#d97706" opacity="0.95" />
+
+            {/* Embossed Medal Outer Circle */}
+            <circle cx="0" cy="0" r="38" fill="url(#gold-medal-grad)" filter="drop-shadow(0 4px 10px rgba(180,83,9,0.4))" />
+            {/* Ridged Ring */}
+            <circle cx="0" cy="0" r="32" fill="none" stroke="#fef3c7" strokeWidth="1.2" strokeDasharray="3,1.5" />
+            {/* Deep Emerald Inner Core */}
+            <circle cx="0" cy="0" r="26" fill="#022c22" stroke="url(#gold-medal-grad)" strokeWidth="1.5" />
+
+            {/* AutoLearn 'A' Logo inside Seal */}
+            <g transform="translate(-12, -12) scale(0.6)">
+              <circle cx="20" cy="20" r="18" fill="none" stroke="#10b981" strokeWidth="3" />
+              <path d="M 12 28 L 20 10 L 28 28 Z" fill="none" stroke="#34d399" strokeWidth="3" strokeLinejoin="round" />
+              <line x1="15" y1="22" x2="25" y2="22" stroke="#34d399" strokeWidth="2.5" />
+              <circle cx="20" cy="10" r="3.5" fill="#fde68a" />
+              <circle cx="12" cy="28" r="3.5" fill="#fde68a" />
+              <circle cx="28" cy="28" r="3.5" fill="#fde68a" />
+            </g>
+
+            {/* Laurel Wreath Accent Arc */}
+            <circle cx="0" cy="0" r="21" fill="none" stroke="#fcd34d" strokeWidth="0.75" strokeDasharray="2,2" />
+          </g>
+
+          {/* 8C. Instructor Signature (Right) */}
+          <g transform="translate(740, 520)">
             {/* Calligraphic Founder Signature */}
             <path
               d="M -70 -12 C -45 -30 -25 15 -5 -8 C 15 -25 35 10 55 -5 C 70 -15 85 5 95 -8"
@@ -230,12 +331,12 @@ export function CourseCertificatePreview({
               opacity="0.9"
             />
             {/* Signature Underline */}
-            <line x1="-80" y1="5" x2="80" y2="5" stroke="#94a3b8" strokeWidth="1" />
+            <line x1="-80" y1="10" x2="80" y2="10" stroke="#cbd5e1" strokeWidth="1" />
             
             {/* Signatory Name */}
             <text
               x="0"
-              y="22"
+              y="26"
               textAnchor="middle"
               fill="#0f172a"
               fontSize="15"
@@ -247,7 +348,7 @@ export function CourseCertificatePreview({
             {/* Signatory Title */}
             <text
               x="0"
-              y="38"
+              y="40"
               textAnchor="middle"
               fill="#64748b"
               fontSize="12"
@@ -258,14 +359,54 @@ export function CourseCertificatePreview({
             </text>
           </g>
 
-          {/* 7. Bottom Real Motto & Brandmark */}
-          <g transform="translate(512, 642)">
+          {/* 8D. QR Code & Online Verification (Far Right) */}
+          <g transform="translate(900, 514)">
+            {/* QR Card Container */}
+            <rect
+              x="-24"
+              y="-20"
+              width="48"
+              height="48"
+              rx="4"
+              fill="#ffffff"
+              stroke="#cbd5e1"
+              strokeWidth="1"
+            />
+            {/* Simulated Clean QR Matrix */}
+            <rect x="-18" y="-14" width="12" height="12" fill="#0f172a" />
+            <rect x="-15" y="-11" width="6" height="6" fill="#ffffff" />
+            <rect x="6" y="-14" width="12" height="12" fill="#0f172a" />
+            <rect x="9" y="-11" width="6" height="6" fill="#ffffff" />
+            <rect x="-18" y="10" width="12" height="12" fill="#0f172a" />
+            <rect x="-15" y="13" width="6" height="6" fill="#ffffff" />
+            <rect x="0" y="-8" width="4" height="4" fill="#0f172a" />
+            <rect x="8" y="6" width="6" height="4" fill="#0f172a" />
+            <rect x="14" y="14" width="4" height="8" fill="#0f172a" />
+            <rect x="-4" y="6" width="6" height="6" fill="#0f172a" />
+
+            {/* Verification Label */}
+            <text
+              x="0"
+              y="40"
+              textAnchor="middle"
+              fill="#475569"
+              fontSize="8.5"
+              fontFamily="'Space Grotesk', system-ui, sans-serif"
+              fontWeight="700"
+              letterSpacing="0.3"
+            >
+              Verify Certificate
+            </text>
+          </g>
+
+          {/* 9. Bottom Motto */}
+          <g transform="translate(512, 646)">
             <text
               x="0"
               y="0"
               textAnchor="middle"
               fill="#475569"
-              fontSize="12"
+              fontSize="11.5"
               fontFamily="'Space Grotesk', system-ui, sans-serif"
               fontWeight="700"
               letterSpacing="1"
@@ -274,7 +415,7 @@ export function CourseCertificatePreview({
             </text>
           </g>
 
-          {/* 8. Certificate ID Tag (Subtle Top Right) */}
+          {/* 10. Certificate ID Tag (Subtle Top Right) */}
           <g transform="translate(940, 48)">
             <rect
               x="-60"

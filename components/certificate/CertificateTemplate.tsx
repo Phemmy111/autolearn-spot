@@ -42,12 +42,11 @@ export function CertificateTemplate({
   footer,
   accentColor,
 }: CertificateTemplateProps) {
-  const accent = accentColor || '#00f0ff'
-  const displayCourse = course || 'n8n Automation'
+  const displayCourse = course || 'AI Automation with n8n'
   const displayName = name || 'Student'
-  const displayCertId = certificateId || 'ALS-2026-CERT'
-  const bg = backgroundSrc || '/certificate-template-luxury.jpg'
-  const displayFooter = footer || `AutoLearn Spot • Learn • Automate • Succeed`
+  const displayCertId = certificateId || 'CERT-07D13D81'
+  const bg = backgroundSrc || '/certificate-template-parchment-clean.png'
+  const displayFooter = footer || 'AutoLearn Spot • Learn • Automate • Succeed'
 
   return (
     <div
@@ -56,12 +55,11 @@ export function CertificateTemplate({
         width: `${CANVAS_WIDTH}px`,
         height: `${CANVAS_HEIGHT}px`,
         overflow: 'hidden',
-        fontFamily: '"Roboto", Arial, sans-serif',
-        backgroundColor: '#030a16',
+        backgroundColor: '#fbf6ec',
         display: 'flex',
       }}
     >
-      {/* Background Image - Clean 2026 AutoLearn Spot Artwork */}
+      {/* 1. 100% Clean Textured Parchment Background (Image 3) */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={bg}
@@ -77,7 +75,7 @@ export function CertificateTemplate({
         }}
       />
 
-      {/* Dynamic Overlay Layer */}
+      {/* Dynamic Overlay Layer (Scaled to 1200x800) */}
       <div
         style={{
           position: 'absolute',
@@ -94,28 +92,29 @@ export function CertificateTemplate({
         <div
           style={{
             position: 'absolute',
-            top: '32px',
-            right: '48px',
+            top: '45px',
+            right: '65px',
             display: 'flex',
             alignItems: 'center',
-            padding: '4px 12px',
+            padding: '3px 14px',
             borderRadius: '4px',
-            backgroundColor: 'rgba(3, 16, 32, 0.75)',
-            border: `1px solid ${accent}`,
-            color: '#a0aec0',
+            backgroundColor: '#ffffff',
+            border: '1px solid #cbd5e1',
+            color: '#475569',
             fontSize: '11px',
-            fontFamily: '"Roboto", monospace',
+            fontFamily: 'monospace',
+            fontWeight: 700,
             letterSpacing: '1px',
           }}
         >
           <span>ID: {displayCertId}</span>
         </div>
 
-        {/* Student Name Overlay - Perfectly centered in the focal name zone */}
+        {/* 2. Top Header: Official AutoLearn Spot Brandmark & Motto */}
         <div
           style={{
             position: 'absolute',
-            top: '345px',
+            top: '72px',
             left: 0,
             width: `${CANVAS_WIDTH}px`,
             display: 'flex',
@@ -123,171 +122,320 @@ export function CertificateTemplate({
             alignItems: 'center',
           }}
         >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            {/* AutoLearn Green Node Brandmark */}
+            <svg width="42" height="42" viewBox="0 0 40 40" fill="none">
+              <circle cx="20" cy="20" r="18" fill="none" stroke="#10b981" strokeWidth="2.5" />
+              <path d="M 12 28 L 20 10 L 28 28 Z" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinejoin="round" />
+              <line x1="15" y1="22" x2="25" y2="22" stroke="#10b981" strokeWidth="2" />
+              <circle cx="20" cy="10" r="3" fill="#047857" />
+              <circle cx="12" cy="28" r="3" fill="#047857" />
+              <circle cx="28" cy="28" r="3" fill="#047857" />
+            </svg>
+
+            <div style={{ width: '1px', height: '36px', backgroundColor: '#cbd5e1' }} />
+
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span
+                style={{
+                  fontFamily: 'system-ui, sans-serif',
+                  fontSize: '22px',
+                  fontWeight: 800,
+                  color: '#047857',
+                  letterSpacing: '1px',
+                  lineHeight: 1.1,
+                }}
+              >
+                AUTOLEARN <span style={{ color: '#0f172a' }}>SPOT</span>
+              </span>
+              <span
+                style={{
+                  fontFamily: 'system-ui, sans-serif',
+                  fontSize: '9.5px',
+                  fontWeight: 700,
+                  color: '#475569',
+                  letterSpacing: '2px',
+                  marginTop: '2px',
+                }}
+              >
+                LEARN • AUTOMATE • SUCCEED
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. Certificate Title: "CERTIFICATE OF COMPLETION" */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '150px',
+            left: 0,
+            width: `${CANVAS_WIDTH}px`,
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
           <span
             style={{
-              fontFamily: '"Playfair Display", "GreatVibes", Georgia, serif',
-              fontSize: displayName.length > 28 ? '58px' : displayName.length > 20 ? '70px' : '82px',
-              color: '#ffffff',
-              fontWeight: 600,
+              fontFamily: '"Playfair Display", Georgia, serif',
+              fontSize: '40px',
+              fontWeight: 900,
+              color: '#0f172a',
+              letterSpacing: '3px',
+            }}
+          >
+            CERTIFICATE OF COMPLETION
+          </span>
+        </div>
+
+        {/* 4. Presentation Lead: "This certificate is proudly presented to" */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '236px',
+            left: 0,
+            width: `${CANVAS_WIDTH}px`,
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
+          <span
+            style={{
+              fontFamily: 'Georgia, serif',
+              fontStyle: 'italic',
+              fontSize: '18px',
+              color: '#334155',
               letterSpacing: '0.5px',
-              lineHeight: 1,
-              textAlign: 'center',
-              textShadow: '0 0 20px rgba(0, 240, 255, 0.45), 0 2px 8px rgba(0, 0, 0, 0.9)',
+            }}
+          >
+            This certificate is proudly presented to
+          </span>
+        </div>
+
+        {/* 5. Student Name (Dynamic) */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '302px',
+            left: 0,
+            width: `${CANVAS_WIDTH}px`,
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
+          <span
+            style={{
+              fontFamily: '"Playfair Display", Georgia, serif',
+              fontSize: displayName.length > 25 ? '44px' : displayName.length > 18 ? '52px' : '60px',
+              color: '#064e3b',
+              fontWeight: 800,
+              fontStyle: 'italic',
+              letterSpacing: '0.5px',
             }}
           >
             {displayName}
           </span>
         </div>
 
-        {/* Dynamic Course Title Overlay */}
+        {/* 6. In Recognition of Completing the */}
         <div
           style={{
             position: 'absolute',
-            top: '516px',
-            left: '150px',
-            width: '900px',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#040b17',
-              padding: '6px 28px',
-              borderRadius: '8px',
-              border: `1px solid rgba(0, 240, 255, 0.35)`,
-              boxShadow: '0 0 15px rgba(0, 240, 255, 0.2)',
-            }}
-          >
-            <span
-              style={{
-                fontFamily: '"Roboto", Arial, sans-serif',
-                fontSize: displayCourse.length > 35 ? '26px' : '32px',
-                fontWeight: 700,
-                color: accent,
-                letterSpacing: '0.8px',
-                textAlign: 'center',
-                textShadow: '0 0 12px rgba(0, 240, 255, 0.5)',
-              }}
-            >
-              {displayCourse}
-            </span>
-          </div>
-        </div>
-
-        {/* Adjusted Date Overlay - Positioned accurately over the Date blank line */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '654px',
-            left: '235px',
-            width: '230px',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <span
-            style={{
-              fontFamily: '"Roboto", sans-serif',
-              fontSize: '15px',
-              color: '#ffffff',
-              fontWeight: 500,
-              letterSpacing: '0.3px',
-              textShadow: '0 1px 4px rgba(0,0,0,0.8)',
-            }}
-          >
-            {date}
-          </span>
-        </div>
-
-        {/* Optional Custom Signature Overlay (Bottom Right) */}
-        {signatureUrl && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '625px',
-              right: '180px',
-              width: '180px',
-              height: '45px',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={signatureUrl}
-              alt="Signature"
-              style={{
-                maxWidth: '180px',
-                maxHeight: '45px',
-                objectFit: 'contain',
-              }}
-            />
-          </div>
-        )}
-
-        {/* QR Code - Credential Verification Badge */}
-        {qrData && (
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '125px',
-              right: '72px',
-              display: 'flex',
-              width: '76px',
-              height: '76px',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#ffffff',
-              padding: '4px',
-              borderRadius: '6px',
-              border: `2px solid ${accent}`,
-              boxShadow: `0 0 12px rgba(0, 240, 255, 0.4)`,
-            }}
-          >
-            <svg
-              width="68"
-              height="68"
-              viewBox={`0 0 ${qrData.modules.size} ${qrData.modules.size}`}
-              fill="#000000"
-            >
-              {Array.from(qrData.modules.data).map((isDark, i) => {
-                if (!isDark) return null
-                const size = qrData.modules.size
-                const x = i % size
-                const y = Math.floor(i / size)
-                return <rect key={i} x={x} y={y} width="1.05" height="1.05" />
-              })}
-            </svg>
-          </div>
-        )}
-
-        {/* Dynamic Footer Overlay (Centered at Bottom) */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '30px',
+            top: '422px',
             left: 0,
             width: `${CANVAS_WIDTH}px`,
             display: 'flex',
             justifyContent: 'center',
-            alignItems: 'center',
           }}
         >
           <span
             style={{
-              fontFamily: '"Roboto", Arial, sans-serif',
-              fontSize: '12px',
-              color: 'rgba(255, 255, 255, 0.85)',
-              letterSpacing: '0.8px',
-              textAlign: 'center',
-              textShadow: '0 1px 4px rgba(0, 0, 0, 0.8)',
+              fontFamily: 'Georgia, serif',
+              fontStyle: 'italic',
+              fontSize: '17px',
+              color: '#334155',
+              letterSpacing: '0.4px',
+            }}
+          >
+            In Recognition of Completing the
+          </span>
+        </div>
+
+        {/* 7. Course Title (Dynamic) */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '472px',
+            left: 0,
+            width: `${CANVAS_WIDTH}px`,
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
+          <span
+            style={{
+              fontFamily: '"Playfair Display", Georgia, serif',
+              fontSize: displayCourse.length > 35 ? '26px' : displayCourse.length > 24 ? '30px' : '34px',
+              fontWeight: 900,
+              color: '#0f172a',
+              letterSpacing: '0.5px',
+            }}
+          >
+            {displayCourse}
+          </span>
+        </div>
+
+        {/* 8. Credentials Zone: Date (Left), Gold Medal (Center), Signature (Right), QR (Far Right) */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '600px',
+            left: '80px',
+            width: `${CANVAS_WIDTH - 160}px`,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          {/* 8A. Date Column */}
+          <div style={{ display: 'flex', flexDirection: 'column', width: '220px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingBottom: '6px', borderBottom: '1px solid #cbd5e1' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b45309" strokeWidth="1.8">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              <span style={{ fontFamily: '"Playfair Display", Georgia, serif', fontSize: '17px', fontWeight: 700, color: '#0f172a' }}>
+                {date}
+              </span>
+            </div>
+            <span style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: '13px', color: '#64748b', marginTop: '4px' }}>
+              Date
+            </span>
+          </div>
+
+          {/* 8B. 3D Embossed Gold Seal Medal with AutoLearn Logo */}
+          <div style={{ position: 'relative', width: '90px', height: '90px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="90" height="90" viewBox="0 0 80 80" fill="none">
+              <defs>
+                <linearGradient id="pdf-gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#F59E0B" />
+                  <stop offset="30%" stopColor="#FDE68A" />
+                  <stop offset="60%" stopColor="#D97706" />
+                  <stop offset="85%" stopColor="#FCD34D" />
+                  <stop offset="100%" stopColor="#B45309" />
+                </linearGradient>
+              </defs>
+              {/* Ribbon tails */}
+              <path d="M 28 48 L 18 78 L 32 70 L 40 78 L 36 48 Z" fill="#b45309" />
+              <path d="M 52 48 L 62 78 L 48 70 L 40 78 L 44 48 Z" fill="#d97706" />
+              {/* Medal */}
+              <circle cx="40" cy="40" r="34" fill="url(#pdf-gold-grad)" />
+              <circle cx="40" cy="40" r="28" fill="#022c22" stroke="url(#pdf-gold-grad)" strokeWidth="1.5" />
+              {/* AutoLearn Logo */}
+              <g transform="translate(28, 28) scale(0.6)">
+                <circle cx="20" cy="20" r="18" fill="none" stroke="#10b981" strokeWidth="3" />
+                <path d="M 12 28 L 20 10 L 28 28 Z" fill="none" stroke="#34d399" strokeWidth="3" strokeLinejoin="round" />
+                <line x1="15" y1="22" x2="25" y2="22" stroke="#34d399" strokeWidth="2.5" />
+                <circle cx="20" cy="10" r="3.5" fill="#fde68a" />
+                <circle cx="12" cy="28" r="3.5" fill="#fde68a" />
+                <circle cx="28" cy="28" r="3.5" fill="#fde68a" />
+              </g>
+            </svg>
+          </div>
+
+          {/* 8C. Instructor Signature */}
+          <div style={{ display: 'flex', flexDirection: 'column', width: '220px', alignItems: 'center' }}>
+            {signatureUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={signatureUrl} alt="Signature" style={{ maxHeight: '42px', objectFit: 'contain' }} />
+            ) : (
+              <svg width="180" height="38" viewBox="0 0 180 38" fill="none">
+                <path
+                  d="M 20 22 C 45 4 65 34 85 12 C 105 -2 125 30 145 14 C 158 4 168 20 172 16"
+                  stroke="#0f172a"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                />
+              </svg>
+            )}
+            <div style={{ width: '100%', height: '1px', backgroundColor: '#cbd5e1', marginTop: '2px' }} />
+            <span style={{ fontFamily: '"Playfair Display", Georgia, serif', fontSize: '16px', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
+              A. Femi Adeleke
+            </span>
+            <span style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: '13px', color: '#64748b' }}>
+              Founder & Lead Instructor
+            </span>
+          </div>
+
+          {/* 8D. QR Verification */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div
+              style={{
+                width: '64px',
+                height: '64px',
+                backgroundColor: '#ffffff',
+                border: '1px solid #cbd5e1',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '4px',
+              }}
+            >
+              {qrData ? (
+                <svg width="56" height="56" viewBox={`0 0 ${qrData.modules.size} ${qrData.modules.size}`} fill="#000000">
+                  {Array.from(qrData.modules.data).map((isDark, i) => {
+                    if (!isDark) return null
+                    const size = qrData.modules.size
+                    const x = i % size
+                    const y = Math.floor(i / size)
+                    return <rect key={i} x={x} y={y} width="1.05" height="1.05" />
+                  })}
+                </svg>
+              ) : (
+                <svg width="56" height="56" viewBox="0 0 48 48" fill="#0f172a">
+                  <rect x="4" y="4" width="16" height="16" />
+                  <rect x="7" y="7" width="10" height="10" fill="#ffffff" />
+                  <rect x="10" y="10" width="4" height="4" fill="#0f172a" />
+                  <rect x="28" y="4" width="16" height="16" />
+                  <rect x="31" y="7" width="10" height="10" fill="#ffffff" />
+                  <rect x="34" y="10" width="4" height="4" fill="#0f172a" />
+                  <rect x="4" y="28" width="16" height="16" />
+                  <rect x="7" y="31" width="10" height="10" fill="#ffffff" />
+                  <rect x="10" y="34" width="4" height="4" fill="#0f172a" />
+                  <rect x="24" y="24" width="6" height="6" />
+                  <rect x="34" y="24" width="8" height="4" />
+                  <rect x="24" y="34" width="4" height="10" />
+                  <rect x="32" y="32" width="12" height="12" />
+                </svg>
+              )}
+            </div>
+            <span style={{ fontFamily: 'system-ui, sans-serif', fontSize: '9px', fontWeight: 700, color: '#475569', marginTop: '4px' }}>
+              Verify Certificate
+            </span>
+          </div>
+        </div>
+
+        {/* 9. Bottom Motto */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '40px',
+            left: 0,
+            width: `${CANVAS_WIDTH}px`,
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
+          <span
+            style={{
+              fontFamily: 'system-ui, sans-serif',
+              fontSize: '13px',
+              fontWeight: 700,
+              color: '#475569',
+              letterSpacing: '1px',
             }}
           >
             {displayFooter}
