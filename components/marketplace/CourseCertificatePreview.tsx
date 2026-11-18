@@ -119,41 +119,41 @@ export function CourseCertificatePreview({
 
           {/* ─── DYNAMIC OVERLAYS ALIGNED TO LUXURY PARCHMENT DIVIDERS ─── */}
 
-          {/* 2. Top Header: Official AutoLearn Spot Brandmark & Motto */}
+          {/* 2. Top Header: Official AutoLearn Spot Brandmark & Motto (Bold Executive Scale) */}
           <g transform="translate(512, 58)">
-            {/* Real Official AutoLearn Brandmark Logo */}
+            {/* Real Official AutoLearn Brandmark Logo (Bold & Prominent) */}
             <image
-              href="/autolearn-brandmark.png"
-              x="-182"
-              y="-28"
-              width="56"
-              height="56"
+              href="/autolearn-brandmark-bold.png"
+              x="-195"
+              y="-34"
+              width="68"
+              height="68"
               preserveAspectRatio="xMidYMid meet"
             />
 
             {/* Brand Separator Bar */}
-            <line x1="-116" y1="-22" x2="-116" y2="24" stroke="#cbd5e1" strokeWidth="1.5" />
+            <line x1="-115" y1="-26" x2="-115" y2="28" stroke="#94a3b8" strokeWidth="2" />
 
             {/* Brand Title & Real Motto */}
             <text
-              x="-102"
-              y="2"
+              x="-98"
+              y="3"
               fill="#047857"
-              fontSize="24"
+              fontSize="28"
               fontFamily="'Space Grotesk', system-ui, sans-serif"
-              fontWeight="800"
-              letterSpacing="1.5"
+              fontWeight="900"
+              letterSpacing="1.8"
             >
               AUTOLEARN <tspan fill="#0f172a">SPOT</tspan>
             </text>
             <text
-              x="-102"
-              y="20"
-              fill="#475569"
-              fontSize="9.5"
+              x="-98"
+              y="22"
+              fill="#334155"
+              fontSize="10.5"
               fontFamily="'Space Grotesk', system-ui, sans-serif"
-              fontWeight="700"
-              letterSpacing="2.6"
+              fontWeight="800"
+              letterSpacing="3"
             >
               LEARN • AUTOMATE • SUCCEED
             </text>

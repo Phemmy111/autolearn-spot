@@ -206,8 +206,9 @@ export async function GET(request: Request) {
       `${baseUrl}/certificate-template-parchment-clean.png`
 
     const logoAsset =
+      getAssetArrayBuffer('autolearn-brandmark-bold.png') ||
       getAssetArrayBuffer('autolearn-brandmark.png') ||
-      `${baseUrl}/autolearn-brandmark.png`
+      `${baseUrl}/autolearn-brandmark-bold.png`
 
     const sealAsset =
       getAssetArrayBuffer('certificate-gold-seal.png') ||

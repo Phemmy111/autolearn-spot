@@ -145,7 +145,7 @@ export function CertificateTemplate({
         <div
           style={{
             position: 'absolute',
-            top: '68px',
+            top: '64px',
             left: 0,
             width: `${CANVAS_WIDTH}px`,
             display: 'flex',
@@ -153,37 +153,37 @@ export function CertificateTemplate({
             alignItems: 'center',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             {safeLogo ? (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 src={safeLogo}
                 alt="AutoLearn Spot Logo"
-                width={56}
-                height={56}
-                style={{ width: '56px', height: '56px' }}
+                width={78}
+                height={78}
+                style={{ width: '78px', height: '78px' }}
               />
             ) : (
-              <svg width="56" height="56" viewBox="0 0 40 40" fill="none">
-                <circle cx="20" cy="20" r="18" fill="none" stroke="#10b981" strokeWidth="2.5" />
-                <path d="M 12 28 L 20 10 L 28 28 Z" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinejoin="round" />
-                <line x1="15" y1="22" x2="25" y2="22" stroke="#10b981" strokeWidth="2" />
-                <circle cx="20" cy="10" r="3" fill="#047857" />
-                <circle cx="12" cy="28" r="3" fill="#047857" />
-                <circle cx="28" cy="28" r="3" fill="#047857" />
+              <svg width="78" height="78" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="18" fill="none" stroke="#047857" strokeWidth="3" />
+                <path d="M 12 28 L 20 10 L 28 28 Z" fill="none" stroke="#10b981" strokeWidth="3.2" strokeLinejoin="round" />
+                <line x1="15" y1="22" x2="25" y2="22" stroke="#10b981" strokeWidth="2.8" />
+                <circle cx="20" cy="10" r="3.5" fill="#047857" />
+                <circle cx="12" cy="28" r="3.5" fill="#047857" />
+                <circle cx="28" cy="28" r="3.5" fill="#047857" />
               </svg>
             )}
 
-            <div style={{ width: '1.5px', height: '42px', backgroundColor: '#cbd5e1' }} />
+            <div style={{ width: '2px', height: '56px', backgroundColor: '#94a3b8' }} />
 
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <span
                 style={{
                   fontFamily: 'system-ui, sans-serif',
-                  fontSize: '25px',
-                  fontWeight: 800,
+                  fontSize: '32px',
+                  fontWeight: 900,
                   color: '#047857',
-                  letterSpacing: '1.5px',
+                  letterSpacing: '2px',
                   lineHeight: 1.1,
                 }}
               >
@@ -192,11 +192,11 @@ export function CertificateTemplate({
               <span
                 style={{
                   fontFamily: 'system-ui, sans-serif',
-                  fontSize: '10.5px',
-                  fontWeight: 700,
-                  color: '#475569',
-                  letterSpacing: '2.4px',
-                  marginTop: '3px',
+                  fontSize: '12px',
+                  fontWeight: 800,
+                  color: '#334155',
+                  letterSpacing: '3px',
+                  marginTop: '4px',
                 }}
               >
                 LEARN • AUTOMATE • SUCCEED
