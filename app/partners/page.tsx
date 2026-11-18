@@ -4,8 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { MarketplaceNavigation } from "@/components/MarketplaceNavigation";
-import { WhatsAppChatModal } from "@/components/whatsapp-chat-modal";
-import { AutolearnBot } from "@/components/autolearn-bot";
 import { getPublicSettings } from "@/lib/public-settings";
 import {
   ArrowRight,
@@ -1228,8 +1226,6 @@ export default function PartnersPage() {
   return (
     <main className="min-h-screen bg-brand-bg">
       <MarketplaceNavigation />
-      <WhatsAppChatModal variant="floating" />
-      <AutolearnBot />
       <HeroSection />
       <InteractiveEarningsCalculator />
       <FeaturedMarketplaceCoursesSection />

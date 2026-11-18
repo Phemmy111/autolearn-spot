@@ -5,6 +5,7 @@ import { getPublicSettings } from '@/lib/public-settings'
 import { BrandTheming } from '@/components/BrandTheming'
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
 import { MetaPixel } from '@/components/meta/MetaPixel'
+import { AlexCustomerServiceWidget } from '@/components/alex/AlexCustomerServiceWidget'
 import './globals.css'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -105,6 +106,7 @@ export default function RootLayout({
           <BrandTheming />
           <ServiceWorkerRegister />
           {children}
+          <AlexCustomerServiceWidget />
           {process.env.NODE_ENV === 'production' && <Analytics />}
         </body>
       </html>

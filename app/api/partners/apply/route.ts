@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { logReferralEvent } from '@/lib/audit-logging';
-import { PartnerEmailService } from '@/lib/partner-system/PartnerEmailService';
+import { PartnerEmailService } from '@/lib/growth-engine/PartnerEmailService';
 import { AdminEmailService } from '@/lib/growth-engine/AdminEmailService';
 import { PartnerApplicationService } from '@/lib/partner-system/PartnerApplicationService';
 
@@ -212,9 +212,24 @@ export async function POST(request: Request) {
       await AdminEmailService.sendPartnerApplicationEmail({
         applicantName: full_name,
         applicantEmail: email,
-        applicantPhone: phone,
+        applicantPhone: phone || whatsapp,
+        whatsapp,
+        state,
+        occupation,
+        organization: organization || undefined,
         partnerType: 'community',
-        motivation: motivation
+        motivation,
+        promotionMethod: promotion_method,
+        experience: experience || undefined,
+        website: website || undefined,
+        partnerId: newPartnerId,
+        socialLinks: {
+          facebook: facebook || undefined,
+          instagram: instagram || undefined,
+          tiktok: tiktok || undefined,
+          linkedin: linkedin || undefined,
+          youtube: youtube || undefined,
+        }
       });
       console.log('[POST /api/partners/apply] Admin notification sent successfully');
     } catch (adminEmailError) {

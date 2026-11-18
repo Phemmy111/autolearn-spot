@@ -16,7 +16,7 @@ console.log('[PartnerEmailService] SMTP Config:', {
 
 function getPartnerEmailCredentials() {
   const host = process.env.SMTP_HOST || 'smtp.gmail.com';
-  const port = parseInt(process.env.SMTP_PORT || '587');
+  const port = parseInt(process.env.SMTP_PORT || '465');
   const isSecure = process.env.SMTP_SECURE === 'true' || port === 465;
   const user = process.env.SMTP_USER || process.env.EMAIL_USER;
   const pass = process.env.SMTP_PASS || process.env.EMAIL_PASS || process.env.EMAIL_PASSWORD;
@@ -31,10 +31,13 @@ function getTransporter() {
     host: creds.host,
     port: creds.port,
     secure: creds.isSecure,
-    auth: {
+    auth: creds.user && creds.pass ? {
       user: creds.user,
       pass: creds.pass,
-    },
+    } : undefined,
+    connectionTimeout: 10000,
+    greetingTimeout: 5000,
+    socketTimeout: 10000,
   });
 }
 
