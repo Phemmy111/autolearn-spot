@@ -13,12 +13,12 @@ import path from 'path'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-function getAssetDataUrl(relativePath: string, mimeType = 'image/png'): string | null {
+function getAssetArrayBuffer(relativePath: string): ArrayBuffer | null {
   try {
     const fullPath = path.join(process.cwd(), 'public', relativePath.replace(/^\//, ''))
     if (fs.existsSync(fullPath)) {
-      const buffer = fs.readFileSync(fullPath)
-      return `data:${mimeType};base64,${buffer.toString('base64')}`
+      const buf = fs.readFileSync(fullPath)
+      return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength)
     }
   } catch (err) {
     console.warn(`Could not read asset from disk (${relativePath}):`, err)
@@ -201,28 +201,25 @@ export async function GET(request: Request) {
     const robotoRes = await fetch('https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-400-normal.ttf')
     const robotoData = await robotoRes.arrayBuffer()
 
-    const isAbsoluteOrData = (url?: string) =>
-      Boolean(url && (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')))
-
-    const bgDataUrl =
-      getAssetDataUrl('certificate-template-parchment-clean.png') ||
+    const bgAsset =
+      getAssetArrayBuffer('certificate-template-parchment-clean.png') ||
       `${baseUrl}/certificate-template-parchment-clean.png`
 
-    const logoDataUrl =
-      getAssetDataUrl('autolearn-brandmark.png') ||
+    const logoAsset =
+      getAssetArrayBuffer('autolearn-brandmark.png') ||
       `${baseUrl}/autolearn-brandmark.png`
 
-    const sealDataUrl =
-      getAssetDataUrl('certificate-gold-seal.png') ||
+    const sealAsset =
+      getAssetArrayBuffer('certificate-gold-seal.png') ||
       `${baseUrl}/certificate-gold-seal.png`
 
-    const signatureDataUrl =
-      certSettings.certificateSignatureUrl && isAbsoluteOrData(certSettings.certificateSignatureUrl)
+    const signatureAsset =
+      certSettings.certificateSignatureUrl && certSettings.certificateSignatureUrl.startsWith('http')
         ? certSettings.certificateSignatureUrl
-        : getAssetDataUrl('signature-femi-real.png') || `${baseUrl}/signature-femi-real.png`
+        : getAssetArrayBuffer('signature-femi-real.png') || `${baseUrl}/signature-femi-real.png`
 
-    const qrDataUrl =
-      getAssetDataUrl('certificate-qr-sample.png') ||
+    const qrAsset =
+      getAssetArrayBuffer('certificate-qr-sample.png') ||
       `${baseUrl}/certificate-qr-sample.png`
 
     const imageResponse = new ImageResponse(
@@ -233,11 +230,11 @@ export async function GET(request: Request) {
           course={courseTitle}
           certificateId={certificateCode}
           qrData={qrData}
-          backgroundSrc={bgDataUrl}
-          logoSrc={logoDataUrl}
-          sealSrc={sealDataUrl}
-          signatureUrl={signatureDataUrl}
-          qrSrc={qrDataUrl}
+          backgroundSrc={bgAsset}
+          logoSrc={logoAsset}
+          sealSrc={sealAsset}
+          signatureUrl={signatureAsset}
+          qrSrc={qrAsset}
           footer={certSettings.certificateFooter || ''}
           accentColor={accentColor}
         />

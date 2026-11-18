@@ -13,28 +13,31 @@ interface CertificateTemplateProps {
   date: string
   course?: string
   certificateId?: string
-  logoSrc?: string
+  logoSrc?: string | ArrayBuffer
   qrData?: QRCodeData
-  backgroundSrc?: string
+  backgroundSrc?: string | ArrayBuffer
   title?: string
   subtitle?: string
   bodyText?: string
   founderName?: string
-  signatureUrl?: string
+  signatureUrl?: string | ArrayBuffer
   signatureText?: string
   qrEnabled?: boolean
   qrDestination?: string
   footer?: string
   accentColor?: string
-  sealSrc?: string
-  qrSrc?: string
+  sealSrc?: string | ArrayBuffer
+  qrSrc?: string | ArrayBuffer
 }
 
 const CANVAS_WIDTH = 1200
 const CANVAS_HEIGHT = 800
 
-const isAbsoluteOrData = (url?: string) =>
-  Boolean(url && (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')))
+const isValidImage = (src?: any): boolean => {
+  if (!src) return false
+  if (typeof src !== 'string') return true // ArrayBuffer or Buffer is valid in Satori
+  return src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:') || src.startsWith('/')
+}
 
 export function CertificateTemplate({
   name,
@@ -55,11 +58,11 @@ export function CertificateTemplate({
   const displayCertId = certificateId || 'CERT-07D13D81'
   const displayFooter = footer || 'AutoLearn Spot • Learn • Automate • Succeed'
 
-  const safeBg = isAbsoluteOrData(backgroundSrc) ? backgroundSrc : undefined
-  const safeLogo = isAbsoluteOrData(logoSrc) ? logoSrc : undefined
-  const safeSeal = isAbsoluteOrData(sealSrc) ? sealSrc : undefined
-  const safeSignature = isAbsoluteOrData(signatureUrl) ? signatureUrl : undefined
-  const safeQr = isAbsoluteOrData(qrSrc) ? qrSrc : undefined
+  const safeBg = isValidImage(backgroundSrc) ? (backgroundSrc as any) : undefined
+  const safeLogo = isValidImage(logoSrc) ? (logoSrc as any) : undefined
+  const safeSeal = isValidImage(sealSrc) ? (sealSrc as any) : undefined
+  const safeSignature = isValidImage(signatureUrl) ? (signatureUrl as any) : undefined
+  const safeQr = isValidImage(qrSrc) ? (qrSrc as any) : undefined
 
   return (
     <div
@@ -78,13 +81,14 @@ export function CertificateTemplate({
         <img
           src={safeBg}
           alt="Certificate Background"
+          width={1200}
+          height={800}
           style={{
             position: 'absolute',
             top: 0,
             left: 0,
-            width: `${CANVAS_WIDTH}px`,
-            height: `${CANVAS_HEIGHT}px`,
-            objectFit: 'cover',
+            width: '1200px',
+            height: '800px',
             zIndex: 0,
           }}
         />
@@ -155,7 +159,9 @@ export function CertificateTemplate({
               <img
                 src={safeLogo}
                 alt="AutoLearn Spot Logo"
-                style={{ width: '56px', height: '56px', objectFit: 'contain' }}
+                width={56}
+                height={56}
+                style={{ width: '56px', height: '56px' }}
               />
             ) : (
               <svg width="56" height="56" viewBox="0 0 40 40" fill="none">
@@ -357,7 +363,9 @@ export function CertificateTemplate({
               <img
                 src={safeSeal}
                 alt="Official AutoLearn Gold Foil Seal"
-                style={{ width: '146px', height: '168px', objectFit: 'contain' }}
+                width={146}
+                height={168}
+                style={{ width: '146px', height: '168px' }}
               />
             ) : (
               <svg width="90" height="90" viewBox="0 0 80 80" fill="none">
@@ -393,7 +401,9 @@ export function CertificateTemplate({
               <img
                 src={safeSignature}
                 alt="A. Femi Adeleke Signature"
-                style={{ maxHeight: '56px', width: 'auto', objectFit: 'contain' }}
+                width={180}
+                height={56}
+                style={{ width: '180px', height: '56px' }}
               />
             ) : (
               <svg width="180" height="38" viewBox="0 0 180 38" fill="none">
@@ -445,7 +455,9 @@ export function CertificateTemplate({
                 <img
                   src={safeQr}
                   alt="QR Verification"
-                  style={{ width: '72px', height: '72px', objectFit: 'contain' }}
+                  width={72}
+                  height={72}
+                  style={{ width: '72px', height: '72px' }}
                 />
               ) : (
                 <svg width="56" height="56" viewBox="0 0 48 48" fill="#0f172a">
