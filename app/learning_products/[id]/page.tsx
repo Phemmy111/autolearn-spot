@@ -12,6 +12,9 @@ import { Suspense } from 'react';
 import { AffiliateRefCapture } from '@/components/affiliate/AffiliateRefCapture';
 import { TrackViewContent } from '@/components/analytics/TrackViewContent';
 import { CourseStudentReviews } from '@/components/marketplace/CourseStudentReviews';
+import { CourseCertificatePreview } from '@/components/marketplace/CourseCertificatePreview';
+import { CourseFAQSection } from '@/components/marketplace/CourseFAQSection';
+import { MobileFloatingAddToCart } from '@/components/marketplace/MobileFloatingAddToCart';
 import { ReviewService } from '@/lib/review-service';
 
 interface PageParams {
@@ -177,7 +180,7 @@ export default async function LearningProductPage({ params }: PageParams) {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-28 lg:pb-20">
       {/* Meta Pixel ViewContent */}
       <TrackViewContent
         product={{
@@ -292,6 +295,13 @@ export default async function LearningProductPage({ params }: PageParams) {
               </ul>
             </div>
 
+            {/* Guaranteed Certificate of Completion Preview */}
+            <CourseCertificatePreview
+              courseTitle={product.title}
+              authorName={authorName}
+              category={product.category || product.product_type}
+            />
+
             {/* Curriculum (Lessons) Section */}
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500 fill-mode-both">
               <h2 className="text-2xl font-heading font-bold mb-6">Course Curriculum</h2>
@@ -356,6 +366,9 @@ export default async function LearningProductPage({ params }: PageParams) {
               </div>
             </div>
 
+            {/* Frequently Asked Questions */}
+            <CourseFAQSection courseTitle={product.title} />
+
             {/* Student Reviews Section */}
             <CourseStudentReviews courseId={id} courseTitle={product.title} courseSlug={product.slug || id} />
 
@@ -384,7 +397,7 @@ export default async function LearningProductPage({ params }: PageParams) {
                 </div>
                 <div className="flex items-center gap-3 text-sm text-foreground font-medium">
                   <CheckCircle2 className="w-5 h-5 text-brand-primary" />
-                  <span>Certificate of completion</span>
+                  <span>Guaranteed Certificate of completion</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-foreground font-medium">
                   <MessageSquare className="w-5 h-5 text-brand-primary" />
@@ -402,6 +415,15 @@ export default async function LearningProductPage({ params }: PageParams) {
 
         </div>
       </div>
+
+      {/* Floating Add to Cart Bar on Mobile */}
+      <MobileFloatingAddToCart
+        productId={product.id}
+        productTitle={product.title}
+        price={Number(product.price) || 0}
+        formattedPrice={formattedPrice}
+        currency={product.currency || 'NGN'}
+      />
     </div>
   );
 }
