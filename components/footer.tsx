@@ -50,7 +50,10 @@ async function FooterContent() {
                 </a>
               </li>
               <li>
-                <a href="/autolearn-ai" className="text-brand-text/70 hover:text-[#10b981] text-sm transition-colors">
+                <a href="/autolearn-ai" className="text-brand-text/70 hover:text-[#10b981] text-sm transition-colors inline-flex items-center gap-1.5">
+                  <span className="w-3.5 h-3.5 rounded-full overflow-hidden inline-flex shrink-0 border border-emerald-500/30">
+                    <img src="/alex-icon.png" alt="ALEX" className="w-full h-full object-cover" />
+                  </span>
                   ALEX AI
                 </a>
               </li>

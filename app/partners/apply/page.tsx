@@ -4,8 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { MarketplaceNavigation } from "@/components/MarketplaceNavigation";
-import { WhatsAppChatModal } from "@/components/whatsapp-chat-modal";
-import { AutolearnBot } from "@/components/autolearn-bot";
 import { getPublicSettings } from "@/lib/public-settings";
 import { 
   CheckCircle, 
@@ -339,8 +337,6 @@ export default function PartnerApplicationPage() {
   return (
     <div className="min-h-screen bg-brand-bg">
       <MarketplaceNavigation />
-      <WhatsAppChatModal variant="floating" />
-      <AutolearnBot />
 
       {/* Header Banner */}
       <section className="relative pt-12 pb-10 overflow-hidden bg-brand-bg border-b border-brand-border/40">

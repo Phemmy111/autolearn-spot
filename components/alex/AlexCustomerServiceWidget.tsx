@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import {
   MessageCircle,
   X,
@@ -54,10 +56,25 @@ const QUICK_PROMPTS = [
   { label: '💬 Talk to Founder on WhatsApp', prompt: 'I want to speak with founder Femi Adeleke on WhatsApp' }
 ];
 
+function formatAlexMarkdown(text: string): string {
+  if (!text) return '';
+  // Fix spaces inside asterisks: '** word **' -> '**word**'
+  let res = text.replace(/\*\*\s+([^*\n]+?)\s+\*\*/g, '**$1**');
+  res = res.replace(/\*\*\s+([^*\n]+?)\*\*/g, '**$1**');
+  res = res.replace(/\*\*([^*\n]+?)\s+\*\*/g, '**$1**');
+  // Strip any dangling unclosed ** so asterisks never leak to UI
+  const matches = res.match(/\*\*/g);
+  if (matches && matches.length % 2 !== 0) {
+    const lastIdx = res.lastIndexOf('**');
+    res = res.slice(0, lastIdx) + res.slice(lastIdx + 2);
+  }
+  return res;
+}
+
 export function AlexCustomerServiceWidget() {
   const pathname = usePathname();
 
-  // Hide on full-screen AI chat page or admin studio to prevent clutter
+  // Hide on full-screen AI chat page or dashboard studio to prevent clutter
   if (pathname === '/autolearn-ai' || pathname === '/dashboard/alex') {
     return null;
   }
@@ -81,7 +98,7 @@ export function AlexCustomerServiceWidget() {
   const [leadSuccess, setLeadSuccess] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Restore chat messages from localStorage
   useEffect(() => {
@@ -114,7 +131,7 @@ export function AlexCustomerServiceWidget() {
       setUnreadCount(0);
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-        inputRef.current?.focus();
+        textareaRef.current?.focus();
       }, 100);
     }
   }, [isOpen, activeTab]);
@@ -176,6 +193,29 @@ export function AlexCustomerServiceWidget() {
     }
   };
 
+  // Keyboard handler: on mobile, Enter creates newline; on desktop, Enter sends (Shift+Enter creates newline)
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    const isMobile = typeof window !== 'undefined' && (
+      window.innerWidth <= 768 ||
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+      'ontouchstart' in window ||
+      navigator.maxTouchPoints > 0
+    );
+
+    if (e.key === 'Enter') {
+      if (isMobile) {
+        // On mobile: Enter creates new line naturally, never send
+        return;
+      }
+
+      // On desktop: Shift+Enter creates new line, Enter alone sends
+      if (!e.shiftKey) {
+        e.preventDefault();
+        handleSendMessage();
+      }
+    }
+  };
+
   const handleLeadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!leadName || !leadEmail || !leadMessage || leadSubmitting) return;
@@ -225,45 +265,69 @@ export function AlexCustomerServiceWidget() {
 
   return (
     <>
-      {/* ─── FLOATING TRIGGER BUTTON ─── */}
+      {/* ─── FLOATING DOCK (ALEX + WHATSAPP) - PERFECTLY SIZED & NON-OVERLAPPING ─── */}
       {!isOpen && (
-        <div className={`fixed ${isProductPage ? 'bottom-20 sm:bottom-6' : 'bottom-6'} right-4 sm:right-6 z-50 flex items-center gap-3`}>
-          {/* Pulsing Pill Trigger */}
-          <button
-            onClick={() => setIsOpen(true)}
-            className="group relative flex items-center gap-3 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 text-white pl-4 pr-5 py-3.5 rounded-full shadow-[0_10px_30px_rgba(16,185,129,0.45)] hover:shadow-[0_15px_35px_rgba(16,185,129,0.6)] hover:scale-105 active:scale-95 transition-all duration-300 border border-emerald-400/40"
-            aria-label="Open ALEX Customer Support"
-          >
-            {/* Online Indicator Badge */}
-            <span className="relative flex h-3.5 w-3.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-200 opacity-75" />
-              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-white shadow" />
+        <div
+          className={`fixed ${
+            isProductPage ? 'bottom-20 sm:bottom-6' : 'bottom-6'
+          } right-4 sm:right-6 z-40 flex flex-col items-end gap-2.5 sm:gap-3 pointer-events-none`}
+        >
+          {/* 1. ALEX AI Circular Floating Button */}
+          <div className="pointer-events-auto group relative flex items-center">
+            {/* Desktop Tooltip */}
+            <span className="hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-slate-900/95 border border-slate-700/80 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg shadow-xl whitespace-nowrap mr-2 pointer-events-none backdrop-blur-sm">
+              Chat with ALEX 🤖
             </span>
 
-            {/* Avatar & Brand Icon */}
-            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
-              <Sparkles className="h-4 w-4 text-white animate-pulse" />
-            </div>
-
-            <div className="text-left hidden sm:block">
-              <div className="text-xs font-bold tracking-wide uppercase text-emerald-100 flex items-center gap-1">
-                ALEX • 24/7 Support
+            <button
+              onClick={() => setIsOpen(true)}
+              className="relative w-12 h-12 sm:w-13 sm:h-13 rounded-full p-0.5 bg-gradient-to-tr from-emerald-500 via-teal-400 to-cyan-400 shadow-[0_8px_25px_rgba(16,185,129,0.45)] hover:shadow-[0_12px_32px_rgba(16,185,129,0.65)] hover:scale-110 active:scale-95 transition-all duration-300"
+              aria-label="Open ALEX AI Customer Support"
+              type="button"
+            >
+              <div className="w-full h-full rounded-full overflow-hidden bg-slate-950 flex items-center justify-center border border-white/20">
+                <img
+                  src="/alex-avatar.png"
+                  alt="ALEX AI"
+                  className="w-full h-full object-cover rounded-full"
+                />
               </div>
-              <div className="text-sm font-extrabold text-white leading-tight">
-                Chat with Us
-              </div>
-            </div>
 
-            <span className="sm:hidden font-bold text-sm">
-              Chat with ALEX
-            </span>
-
-            {unreadCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full shadow-md">
-                {unreadCount}
+              {/* Online Pulse Indicator */}
+              <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-slate-900" />
               </span>
-            )}
-          </button>
+
+              {unreadCount > 0 && (
+                <span className="absolute -bottom-1 -left-1 bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full shadow-md">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* 2. WhatsApp Floating Button (Restored Alongside ALEX, Never Overlapping) */}
+          <div className="pointer-events-auto group relative flex items-center">
+            {/* Desktop Tooltip */}
+            <span className="hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-slate-900/95 border border-slate-700/80 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg shadow-xl whitespace-nowrap mr-2 pointer-events-none backdrop-blur-sm">
+              Chat on WhatsApp 💬
+            </span>
+
+            <a
+              href="https://wa.me/2348120934828?text=Hello%20AutoLearn%20Spot%2C%20I%20am%20inquiring%20about%20courses"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative w-12 h-12 sm:w-13 sm:h-13 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-[0_8px_25px_rgba(37,211,102,0.45)] hover:shadow-[0_12px_32px_rgba(37,211,102,0.65)] hover:scale-110 active:scale-95 transition-all duration-300 border-2 border-white/30"
+              aria-label="Chat on WhatsApp"
+            >
+              <MessageCircle className="w-6 h-6 sm:w-6.5 sm:h-6.5 fill-current" />
+              <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-200 opacity-75" />
+                <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-green-400 border-2 border-slate-900" />
+              </span>
+            </a>
+          </div>
         </div>
       )}
 
@@ -279,8 +343,12 @@ export function AlexCustomerServiceWidget() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white shadow-md shadow-emerald-900/40">
-                    <Sparkles className="h-5 w-5" />
+                  <div className="w-10 h-10 rounded-2xl overflow-hidden bg-slate-950 p-0.5 border border-emerald-500/40 shadow-md shadow-emerald-900/40">
+                    <img
+                      src="/alex-avatar.png"
+                      alt="ALEX"
+                      className="w-full h-full object-cover rounded-xl"
+                    />
                   </div>
                   <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-slate-900 rounded-full" />
                 </div>
@@ -288,7 +356,7 @@ export function AlexCustomerServiceWidget() {
                   <div className="flex items-center gap-1.5">
                     <h3 className="font-bold text-white text-base">ALEX</h3>
                     <span className="text-[10px] uppercase font-bold bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">
-                      Official Support
+                      Official AI Support
                     </span>
                   </div>
                   <p className="text-xs text-slate-400 flex items-center gap-1">
@@ -322,6 +390,7 @@ export function AlexCustomerServiceWidget() {
                   onClick={() => setIsOpen(false)}
                   className="p-2 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-colors ml-1"
                   aria-label="Close"
+                  type="button"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -337,6 +406,7 @@ export function AlexCustomerServiceWidget() {
                     ? 'bg-emerald-600 text-white shadow-sm'
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
+                type="button"
               >
                 💬 AI Concierge
               </button>
@@ -347,6 +417,7 @@ export function AlexCustomerServiceWidget() {
                     ? 'bg-emerald-600 text-white shadow-sm'
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
+                type="button"
               >
                 👤 Founder Info
               </button>
@@ -357,6 +428,7 @@ export function AlexCustomerServiceWidget() {
                     ? 'bg-emerald-600 text-white shadow-sm'
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
+                type="button"
               >
                 📝 Leave Note
               </button>
@@ -374,13 +446,48 @@ export function AlexCustomerServiceWidget() {
                     className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
                   >
                     <div
-                      className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs sm:text-sm leading-relaxed whitespace-pre-line ${
+                      className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-xs sm:text-sm leading-relaxed ${
                         msg.role === 'user'
-                          ? 'bg-emerald-600 text-white rounded-br-none shadow-md shadow-emerald-950/40'
+                          ? 'bg-emerald-600 text-white rounded-br-none shadow-md shadow-emerald-950/40 whitespace-pre-wrap'
                           : 'bg-slate-800 text-slate-100 rounded-bl-none border border-slate-700/60 shadow-sm'
                       }`}
                     >
-                      {msg.content}
+                      {msg.role === 'assistant' ? (
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            strong: ({ children }) => (
+                              <strong className="font-bold text-emerald-300">{children}</strong>
+                            ),
+                            a: ({ href, children }) => (
+                              <a
+                                href={href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-emerald-400 underline font-semibold hover:text-emerald-300"
+                              >
+                                {children}
+                              </a>
+                            ),
+                            p: ({ children }) => (
+                              <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>
+                            ),
+                            ul: ({ children }) => (
+                              <ul className="list-disc pl-4 space-y-1 my-1.5">{children}</ul>
+                            ),
+                            ol: ({ children }) => (
+                              <ol className="list-decimal pl-4 space-y-1 my-1.5">{children}</ol>
+                            ),
+                            li: ({ children }) => (
+                              <li className="leading-relaxed">{children}</li>
+                            ),
+                          }}
+                        >
+                          {formatAlexMarkdown(msg.content)}
+                        </ReactMarkdown>
+                      ) : (
+                        msg.content
+                      )}
                     </div>
                     <span className="text-[10px] text-slate-500 mt-1 px-1">
                       {msg.timestamp}
@@ -404,33 +511,35 @@ export function AlexCustomerServiceWidget() {
                     key={idx}
                     onClick={() => handleSendMessage(qp.prompt)}
                     className="shrink-0 text-[11px] font-medium bg-slate-800 hover:bg-emerald-600 hover:text-white text-slate-300 border border-slate-700 px-2.5 py-1.5 rounded-full transition-colors whitespace-nowrap"
+                    type="button"
                   >
                     {qp.label}
                   </button>
                 ))}
               </div>
 
-              {/* Input Area */}
+              {/* Input Area (Textarea with mobile newline support) */}
               <div className="p-3 bg-slate-900 border-t border-slate-800">
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
                     handleSendMessage();
                   }}
-                  className="flex items-center gap-2"
+                  className="flex items-end gap-2"
                 >
-                  <input
-                    ref={inputRef}
-                    type="text"
+                  <textarea
+                    ref={textareaRef}
+                    rows={1}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
                     placeholder="Ask ALEX anything about courses..."
-                    className="flex-1 bg-slate-950 border border-slate-700 text-white placeholder-slate-400 text-xs sm:text-sm rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-emerald-500 transition-colors"
+                    className="flex-1 bg-slate-950 border border-slate-700 text-white placeholder-slate-400 text-xs sm:text-sm rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-emerald-500 transition-colors resize-none max-h-24 overflow-y-auto leading-normal"
                   />
                   <button
                     type="submit"
                     disabled={!input.trim() || isLoading}
-                    className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:hover:bg-emerald-600 text-white p-2.5 rounded-xl transition-all shadow-md shadow-emerald-950/50"
+                    className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:hover:bg-emerald-600 text-white p-2.5 rounded-xl transition-all shadow-md shadow-emerald-950/50 shrink-0 h-10 w-10 flex items-center justify-center"
                     aria-label="Send message"
                   >
                     <Send className="h-4 w-4" />
@@ -439,13 +548,17 @@ export function AlexCustomerServiceWidget() {
                     href={FOUNDER_INFO.whatsappUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-[#25D366] hover:bg-[#20ba59] text-white p-2.5 rounded-xl transition-all shadow-md"
+                    className="bg-[#25D366] hover:bg-[#20ba59] text-white p-2.5 rounded-xl transition-all shadow-md shrink-0 h-10 w-10 flex items-center justify-center"
                     title="Escalate to WhatsApp"
                     aria-label="Escalate to WhatsApp"
                   >
                     <MessageCircle className="h-4 w-4" />
                   </a>
                 </form>
+                <div className="text-[10px] text-slate-500 mt-1 px-1 flex justify-between">
+                  <span>Enter to send on desktop • Newline on mobile</span>
+                  <span>WhatsApp direct: 08120934828</span>
+                </div>
               </div>
             </div>
           )}

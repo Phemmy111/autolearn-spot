@@ -57,7 +57,13 @@ export function MarketplaceNavigation() {
               href={item.href}
               className="text-sm font-medium text-brand-text/70 hover:text-brand-text transition-colors flex items-center gap-1.5"
             >
-              {item.icon && <item.icon className="w-4 h-4" />}
+              {item.name === 'ALEX' ? (
+                <span className="w-4 h-4 rounded-full overflow-hidden inline-flex items-center justify-center shrink-0 border border-emerald-500/30">
+                  <Image src="/alex-icon.png" alt="ALEX" width={16} height={16} className="w-full h-full object-cover" />
+                </span>
+              ) : (
+                item.icon && <item.icon className="w-4 h-4" />
+              )}
               {item.name}
             </Link>
           ))}
@@ -160,8 +166,15 @@ export function MarketplaceNavigation() {
                     key={item.href}
                     href={item.href}
                     onClick={() => setIsOpen(false)}
-                    className="block px-4 py-3 text-base font-medium text-brand-text/70 hover:text-brand-text hover:bg-[var(--card)] brightness-95/50 rounded-xl transition-colors"
+                    className="flex items-center gap-3 px-4 py-3 text-base font-medium text-brand-text/70 hover:text-brand-text hover:bg-[var(--card)] brightness-95/50 rounded-xl transition-colors"
                   >
+                    {item.name === 'ALEX' ? (
+                      <span className="w-5 h-5 rounded-full overflow-hidden inline-flex items-center justify-center shrink-0 border border-emerald-500/40">
+                        <Image src="/alex-icon.png" alt="ALEX" width={20} height={20} className="w-full h-full object-cover" />
+                      </span>
+                    ) : (
+                      item.icon && <item.icon className="w-4 h-4 shrink-0" />
+                    )}
                     {item.name}
                   </Link>
                 ))}

@@ -2,7 +2,6 @@ import { getPublicSettings } from '@/lib/public-settings'
 import { getPublishedProducts } from '@/lib/public-product-service'
 import { MarketplaceNavigation } from '@/components/MarketplaceNavigation'
 import { AnnouncementBanner } from '@/components/announcement-banner'
-import { WhatsAppChatModal } from '@/components/whatsapp-chat-modal'
 import FAQSection from '@/components/FAQSection'
 import { Footer } from '@/components/footer'
 import { StudentTestimonialCard } from '@/components/student-testimonial-card'
@@ -154,9 +153,7 @@ export default async function Page() {
       <MarketplaceNavigation />
       <AnnouncementBanner />
       
-      {/* Floating widgets */}
-      <WhatsAppChatModal variant="floating" />
-      
+
       {/* Marketplace Core Sections */}
       {sectionEnabled('section_hero_enabled') && <MarketplaceHero />}
       <FeatureStrip />

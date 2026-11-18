@@ -501,8 +501,8 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="relative mb-6">
               <div className="absolute inset-0 bg-[#10b981]/20 blur-3xl rounded-full"></div>
-              <div className="relative w-16 h-16 bg-gradient-to-br from-[#10b981]/20 to-[#059669]/20 rounded-2xl flex items-center justify-center border border-[#10b981]/30">
-                <Sparkles className="h-8 w-8 text-[#10b981]" />
+              <div className="relative w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center border border-[#10b981]/40 shadow-xl shadow-emerald-950/50 bg-slate-950">
+                <img src="/alex-avatar.png" alt="ALEX" className="w-full h-full object-cover" />
               </div>
             </div>
             <h2 className="text-xl font-bold text-[#10b981] mb-2">Welcome to ALEX</h2>
@@ -816,8 +816,8 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
         {(isLoading || isGenerating) && (
           <div className="flex gap-3 justify-start">
             <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl flex items-center justify-center border border-cyan-500/30">
-                <Bot className="h-4 w-4 text-cyan-400" />
+              <div className="w-8 h-8 rounded-xl overflow-hidden flex items-center justify-center border border-cyan-500/40 bg-slate-950">
+                <img src="/alex-icon.png" alt="ALEX" className="w-full h-full object-cover" />
               </div>
             </div>
             <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl px-4 py-3">

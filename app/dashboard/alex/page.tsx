@@ -19,8 +19,8 @@ export default async function StudentAlexPage() {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-neutral-200">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-md">
-            <Bot className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-xl overflow-hidden bg-slate-950 flex items-center justify-center border border-cyan-500/40 shadow-md">
+            <img src="/alex-avatar.png" alt="ALEX" className="w-full h-full object-cover" />
           </div>
           <div>
             <h1 className="text-2xl font-heading font-bold text-neutral-900 flex items-center gap-2">

@@ -72,7 +72,13 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <Icon className={`w-5 h-5 ${item.badge ? 'text-blue-600' : ''}`} />
+                      {item.href === '/dashboard/alex' ? (
+                        <div className="w-5 h-5 rounded-full overflow-hidden border border-cyan-500/40 shrink-0">
+                          <img src="/alex-icon.png" alt="Alex" className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <Icon className={`w-5 h-5 ${item.badge ? 'text-blue-600' : ''}`} />
+                      )}
                       <span>{item.name}</span>
                     </div>
                     {item.badge && (
@@ -165,7 +171,13 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <Icon className={`w-5 h-5 ${item.badge ? 'text-blue-600' : ''}`} />
+                        {item.href === '/dashboard/alex' ? (
+                          <div className="w-5 h-5 rounded-full overflow-hidden border border-cyan-500/40 shrink-0">
+                            <img src="/alex-icon.png" alt="Alex" className="w-full h-full object-cover" />
+                          </div>
+                        ) : (
+                          <Icon className={`w-5 h-5 ${item.badge ? 'text-blue-600' : ''}`} />
+                        )}
                         <span>{item.name}</span>
                       </div>
                       {item.badge && (

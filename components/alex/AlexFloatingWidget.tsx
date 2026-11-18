@@ -397,14 +397,14 @@ export function AlexFloatingWidget() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="group relative flex items-center gap-3 px-5 py-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 text-white rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20"
+          className="group relative flex items-center gap-2.5 p-1 sm:pr-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 text-white rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20"
           aria-label="Open Alex AI Tutor"
         >
-          <div className="relative">
-            <Bot className="w-6 h-6 animate-pulse" />
-            <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+          <div className="relative w-11 h-11 rounded-full overflow-hidden border border-white/30 bg-slate-950 flex items-center justify-center shrink-0">
+            <img src="/alex-avatar.png" alt="Alex AI Tutor" className="w-full h-full object-cover" />
+            <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-300"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-300"></span>
             </span>
           </div>
           <div className="text-left hidden sm:block">
@@ -427,8 +427,8 @@ export function AlexFloatingWidget() {
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 px-4 py-3 text-white flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0 backdrop-blur-sm">
-                <Bot className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 rounded-lg overflow-hidden bg-slate-950 flex items-center justify-center shrink-0 border border-white/20">
+                <img src="/alex-avatar.png" alt="Alex" className="w-full h-full object-cover" />
               </div>
               <div className="min-w-0">
                 <div className="text-sm font-bold flex items-center gap-1.5 truncate">
@@ -485,8 +485,8 @@ export function AlexFloatingWidget() {
                     className={`flex gap-2.5 ${m.role === "user" ? "justify-end" : "justify-start"}`}
                   >
                     {m.role === "assistant" && (
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-blue-600 to-cyan-500 text-white flex items-center justify-center text-xs shrink-0 shadow-sm mt-0.5">
-                        <Bot className="w-4 h-4" />
+                      <div className="w-7 h-7 rounded-full overflow-hidden bg-slate-950 flex items-center justify-center shrink-0 border border-cyan-500/30 shadow-sm mt-0.5">
+                        <img src="/alex-icon.png" alt="Alex" className="w-full h-full object-cover" />
                       </div>
                     )}
                     <div
