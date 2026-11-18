@@ -114,7 +114,7 @@ export function CertificateTemplate({
         <div
           style={{
             position: 'absolute',
-            top: '72px',
+            top: '68px',
             left: 0,
             width: `${CANVAS_WIDTH}px`,
             display: 'flex',
@@ -122,27 +122,25 @@ export function CertificateTemplate({
             alignItems: 'center',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            {/* AutoLearn Green Node Brandmark */}
-            <svg width="42" height="42" viewBox="0 0 40 40" fill="none">
-              <circle cx="20" cy="20" r="18" fill="none" stroke="#10b981" strokeWidth="2.5" />
-              <path d="M 12 28 L 20 10 L 28 28 Z" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinejoin="round" />
-              <line x1="15" y1="22" x2="25" y2="22" stroke="#10b981" strokeWidth="2" />
-              <circle cx="20" cy="10" r="3" fill="#047857" />
-              <circle cx="12" cy="28" r="3" fill="#047857" />
-              <circle cx="28" cy="28" r="3" fill="#047857" />
-            </svg>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            {/* Real AutoLearn Brandmark Logo */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/autolearn-brandmark.png"
+              alt="AutoLearn Spot Logo"
+              style={{ width: '56px', height: '56px', objectFit: 'contain' }}
+            />
 
-            <div style={{ width: '1px', height: '36px', backgroundColor: '#cbd5e1' }} />
+            <div style={{ width: '1.5px', height: '42px', backgroundColor: '#cbd5e1' }} />
 
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <span
                 style={{
                   fontFamily: 'system-ui, sans-serif',
-                  fontSize: '22px',
+                  fontSize: '25px',
                   fontWeight: 800,
                   color: '#047857',
-                  letterSpacing: '1px',
+                  letterSpacing: '1.5px',
                   lineHeight: 1.1,
                 }}
               >
@@ -151,11 +149,11 @@ export function CertificateTemplate({
               <span
                 style={{
                   fontFamily: 'system-ui, sans-serif',
-                  fontSize: '9.5px',
+                  fontSize: '10.5px',
                   fontWeight: 700,
                   color: '#475569',
-                  letterSpacing: '2px',
-                  marginTop: '2px',
+                  letterSpacing: '2.4px',
+                  marginTop: '3px',
                 }}
               >
                 LEARN • AUTOMATE • SUCCEED
@@ -168,7 +166,7 @@ export function CertificateTemplate({
         <div
           style={{
             position: 'absolute',
-            top: '150px',
+            top: '152px',
             left: 0,
             width: `${CANVAS_WIDTH}px`,
             display: 'flex',
@@ -178,10 +176,10 @@ export function CertificateTemplate({
           <span
             style={{
               fontFamily: '"Playfair Display", Georgia, serif',
-              fontSize: '40px',
+              fontSize: '46px',
               fontWeight: 900,
               color: '#0f172a',
-              letterSpacing: '3px',
+              letterSpacing: '3.5px',
             }}
           >
             CERTIFICATE OF COMPLETION
@@ -192,7 +190,7 @@ export function CertificateTemplate({
         <div
           style={{
             position: 'absolute',
-            top: '236px',
+            top: '238px',
             left: 0,
             width: `${CANVAS_WIDTH}px`,
             display: 'flex',
@@ -203,7 +201,7 @@ export function CertificateTemplate({
             style={{
               fontFamily: 'Georgia, serif',
               fontStyle: 'italic',
-              fontSize: '18px',
+              fontSize: '21px',
               color: '#334155',
               letterSpacing: '0.5px',
             }}
@@ -216,7 +214,7 @@ export function CertificateTemplate({
         <div
           style={{
             position: 'absolute',
-            top: '302px',
+            top: '304px',
             left: 0,
             width: `${CANVAS_WIDTH}px`,
             display: 'flex',
@@ -226,11 +224,11 @@ export function CertificateTemplate({
           <span
             style={{
               fontFamily: '"Playfair Display", Georgia, serif',
-              fontSize: displayName.length > 25 ? '44px' : displayName.length > 18 ? '52px' : '60px',
-              color: '#064e3b',
+              fontSize: displayName.length > 25 ? '50px' : displayName.length > 18 ? '60px' : '70px',
+              color: '#045a38',
               fontWeight: 800,
               fontStyle: 'italic',
-              letterSpacing: '0.5px',
+              letterSpacing: '0.8px',
             }}
           >
             {displayName}
@@ -241,7 +239,7 @@ export function CertificateTemplate({
         <div
           style={{
             position: 'absolute',
-            top: '422px',
+            top: '426px',
             left: 0,
             width: `${CANVAS_WIDTH}px`,
             display: 'flex',
@@ -252,7 +250,7 @@ export function CertificateTemplate({
             style={{
               fontFamily: 'Georgia, serif',
               fontStyle: 'italic',
-              fontSize: '17px',
+              fontSize: '20px',
               color: '#334155',
               letterSpacing: '0.4px',
             }}
@@ -265,7 +263,7 @@ export function CertificateTemplate({
         <div
           style={{
             position: 'absolute',
-            top: '472px',
+            top: '476px',
             left: 0,
             width: `${CANVAS_WIDTH}px`,
             display: 'flex',
@@ -275,10 +273,10 @@ export function CertificateTemplate({
           <span
             style={{
               fontFamily: '"Playfair Display", Georgia, serif',
-              fontSize: displayCourse.length > 35 ? '26px' : displayCourse.length > 24 ? '30px' : '34px',
+              fontSize: displayCourse.length > 35 ? '30px' : displayCourse.length > 24 ? '36px' : '42px',
               fontWeight: 900,
               color: '#0f172a',
-              letterSpacing: '0.5px',
+              letterSpacing: '0.6px',
             }}
           >
             {displayCourse}
@@ -289,7 +287,7 @@ export function CertificateTemplate({
         <div
           style={{
             position: 'absolute',
-            top: '600px',
+            top: '596px',
             left: '80px',
             width: `${CANVAS_WIDTH - 160}px`,
             display: 'flex',
@@ -298,94 +296,68 @@ export function CertificateTemplate({
           }}
         >
           {/* 8A. Date Column */}
-          <div style={{ display: 'flex', flexDirection: 'column', width: '220px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingBottom: '6px', borderBottom: '1px solid #cbd5e1' }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b45309" strokeWidth="1.8">
+          <div style={{ display: 'flex', flexDirection: 'column', width: '240px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingBottom: '6px', borderBottom: '1.2px solid #cbd5e1' }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#b45309" strokeWidth="2">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
                 <line x1="16" y1="2" x2="16" y2="6" />
                 <line x1="8" y1="2" x2="8" y2="6" />
                 <line x1="3" y1="10" x2="21" y2="10" />
               </svg>
-              <span style={{ fontFamily: '"Playfair Display", Georgia, serif', fontSize: '17px', fontWeight: 700, color: '#0f172a' }}>
+              <span style={{ fontFamily: '"Playfair Display", Georgia, serif', fontSize: '19px', fontWeight: 700, color: '#0f172a' }}>
                 {date}
               </span>
             </div>
-            <span style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: '13px', color: '#64748b', marginTop: '4px' }}>
+            <span style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: '15px', color: '#64748b', marginTop: '5px' }}>
               Date
             </span>
           </div>
 
-          {/* 8B. 3D Embossed Gold Seal Medal with AutoLearn Logo */}
-          <div style={{ position: 'relative', width: '90px', height: '90px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="90" height="90" viewBox="0 0 80 80" fill="none">
-              <defs>
-                <linearGradient id="pdf-gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#F59E0B" />
-                  <stop offset="30%" stopColor="#FDE68A" />
-                  <stop offset="60%" stopColor="#D97706" />
-                  <stop offset="85%" stopColor="#FCD34D" />
-                  <stop offset="100%" stopColor="#B45309" />
-                </linearGradient>
-              </defs>
-              {/* Ribbon tails */}
-              <path d="M 28 48 L 18 78 L 32 70 L 40 78 L 36 48 Z" fill="#b45309" />
-              <path d="M 52 48 L 62 78 L 48 70 L 40 78 L 44 48 Z" fill="#d97706" />
-              {/* Medal */}
-              <circle cx="40" cy="40" r="34" fill="url(#pdf-gold-grad)" />
-              <circle cx="40" cy="40" r="28" fill="#022c22" stroke="url(#pdf-gold-grad)" strokeWidth="1.5" />
-              {/* AutoLearn Logo */}
-              <g transform="translate(28, 28) scale(0.6)">
-                <circle cx="20" cy="20" r="18" fill="none" stroke="#10b981" strokeWidth="3" />
-                <path d="M 12 28 L 20 10 L 28 28 Z" fill="none" stroke="#34d399" strokeWidth="3" strokeLinejoin="round" />
-                <line x1="15" y1="22" x2="25" y2="22" stroke="#34d399" strokeWidth="2.5" />
-                <circle cx="20" cy="10" r="3.5" fill="#fde68a" />
-                <circle cx="12" cy="28" r="3.5" fill="#fde68a" />
-                <circle cx="28" cy="28" r="3.5" fill="#fde68a" />
-              </g>
-            </svg>
+          {/* 8B. Authentic 3D Gold Seal Ribbon Medal with AutoLearn Logo */}
+          <div style={{ position: 'relative', width: '150px', height: '170px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/certificate-gold-seal.png"
+              alt="Official AutoLearn Gold Foil Seal"
+              style={{ width: '146px', height: '168px', objectFit: 'contain' }}
+            />
           </div>
 
-          {/* 8C. Instructor Signature */}
-          <div style={{ display: 'flex', flexDirection: 'column', width: '220px', alignItems: 'center' }}>
-            {signatureUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={signatureUrl} alt="Signature" style={{ maxHeight: '42px', objectFit: 'contain' }} />
-            ) : (
-              <svg width="180" height="38" viewBox="0 0 180 38" fill="none">
-                <path
-                  d="M 20 22 C 45 4 65 34 85 12 C 105 -2 125 30 145 14 C 158 4 168 20 172 16"
-                  stroke="#0f172a"
-                  strokeWidth="2.4"
-                  strokeLinecap="round"
-                />
-              </svg>
-            )}
-            <div style={{ width: '100%', height: '1px', backgroundColor: '#cbd5e1', marginTop: '2px' }} />
-            <span style={{ fontFamily: '"Playfair Display", Georgia, serif', fontSize: '16px', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
+          {/* 8C. Real Founder Signature */}
+          <div style={{ display: 'flex', flexDirection: 'column', width: '240px', alignItems: 'center' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={signatureUrl || "/signature-femi-real.png"}
+              alt="A. Femi Adeleke Signature"
+              style={{ maxHeight: '56px', width: 'auto', objectFit: 'contain' }}
+            />
+            <div style={{ width: '100%', height: '1.2px', backgroundColor: '#cbd5e1', marginTop: '4px' }} />
+            <span style={{ fontFamily: '"Playfair Display", Georgia, serif', fontSize: '17px', fontWeight: 800, color: '#0f172a', marginTop: '5px' }}>
               A. Femi Adeleke
             </span>
-            <span style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: '13px', color: '#64748b' }}>
+            <span style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: '14px', color: '#64748b' }}>
               Founder & Lead Instructor
             </span>
           </div>
 
-          {/* 8D. QR Verification */}
+          {/* 8D. Real QR Verification */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div
               style={{
-                width: '64px',
-                height: '64px',
+                width: '80px',
+                height: '80px',
                 backgroundColor: '#ffffff',
-                border: '1px solid #cbd5e1',
-                borderRadius: '4px',
+                border: '1.2px solid #cbd5e1',
+                borderRadius: '6px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: '4px',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
               }}
             >
               {qrData ? (
-                <svg width="56" height="56" viewBox={`0 0 ${qrData.modules.size} ${qrData.modules.size}`} fill="#000000">
+                <svg width="72" height="72" viewBox={`0 0 ${qrData.modules.size} ${qrData.modules.size}`} fill="#000000">
                   {Array.from(qrData.modules.data).map((isDark, i) => {
                     if (!isDark) return null
                     const size = qrData.modules.size
@@ -395,24 +367,15 @@ export function CertificateTemplate({
                   })}
                 </svg>
               ) : (
-                <svg width="56" height="56" viewBox="0 0 48 48" fill="#0f172a">
-                  <rect x="4" y="4" width="16" height="16" />
-                  <rect x="7" y="7" width="10" height="10" fill="#ffffff" />
-                  <rect x="10" y="10" width="4" height="4" fill="#0f172a" />
-                  <rect x="28" y="4" width="16" height="16" />
-                  <rect x="31" y="7" width="10" height="10" fill="#ffffff" />
-                  <rect x="34" y="10" width="4" height="4" fill="#0f172a" />
-                  <rect x="4" y="28" width="16" height="16" />
-                  <rect x="7" y="31" width="10" height="10" fill="#ffffff" />
-                  <rect x="10" y="34" width="4" height="4" fill="#0f172a" />
-                  <rect x="24" y="24" width="6" height="6" />
-                  <rect x="34" y="24" width="8" height="4" />
-                  <rect x="24" y="34" width="4" height="10" />
-                  <rect x="32" y="32" width="12" height="12" />
-                </svg>
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src="/certificate-qr-sample.png"
+                  alt="QR Verification"
+                  style={{ width: '72px', height: '72px', objectFit: 'contain' }}
+                />
               )}
             </div>
-            <span style={{ fontFamily: 'system-ui, sans-serif', fontSize: '9px', fontWeight: 700, color: '#475569', marginTop: '4px' }}>
+            <span style={{ fontFamily: 'system-ui, sans-serif', fontSize: '10.5px', fontWeight: 700, color: '#475569', marginTop: '5px', letterSpacing: '0.4px' }}>
               Verify Certificate
             </span>
           </div>
