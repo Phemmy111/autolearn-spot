@@ -36,7 +36,12 @@ const CANVAS_HEIGHT = 800
 const isValidImage = (src?: any): boolean => {
   if (!src) return false
   if (typeof src !== 'string') return true // ArrayBuffer or Buffer is valid in Satori
-  return src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')
+  return (
+    src.startsWith('http://') ||
+    src.startsWith('https://') ||
+    src.startsWith('data:') ||
+    src.startsWith('/')
+  )
 }
 
 const resolveImageSrc = (src?: any): any => {
@@ -46,7 +51,10 @@ const resolveImageSrc = (src?: any): any => {
     return src
   }
   if (src.startsWith('/')) {
-    return `https://www.autolearnspot.com${src}`
+    if (typeof window === 'undefined') {
+      return `https://www.autolearnspot.com${src}`
+    }
+    return src
   }
   return src
 }
@@ -81,11 +89,11 @@ export function CertificateTemplate({
   const displayFounder = founderName || 'A. Femi Adeleke'
   const displayFounderTitle = signatureText || 'Founder & Lead Instructor'
 
-  const safeBg = isValidImage(backgroundSrc) ? (backgroundSrc as any) : undefined
-  const safeLogo = isValidImage(logoSrc) ? (logoSrc as any) : undefined
-  const safeSeal = isValidImage(sealSrc) ? (sealSrc as any) : undefined
-  const safeSignature = isValidImage(signatureUrl) ? (signatureUrl as any) : undefined
-  const safeQr = isValidImage(qrSrc) ? (qrSrc as any) : undefined
+  const safeBg = isValidImage(backgroundSrc) ? resolveImageSrc(backgroundSrc) : undefined
+  const safeLogo = isValidImage(logoSrc) ? resolveImageSrc(logoSrc) : undefined
+  const safeSeal = isValidImage(sealSrc) ? resolveImageSrc(sealSrc) : undefined
+  const safeSignature = isValidImage(signatureUrl) ? resolveImageSrc(signatureUrl) : undefined
+  const safeQr = isValidImage(qrSrc) ? resolveImageSrc(qrSrc) : undefined
 
   // Check if a custom layout with elements is provided
   const hasCustomElements = layout && Array.isArray(layout.elements) && layout.elements.length > 0
@@ -378,7 +386,8 @@ export function CertificateTemplate({
                       flexDirection: 'column',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      backgroundColor: style.background || 'transparent',
+                      backgroundColor: (style.background === '#ffffff' || !style.background) ? 'transparent' : style.background,
+                      border: style.background === '#ffffff' ? 'none' : (style.border || 'none'),
                       zIndex: el.zIndex || 10,
                     }}
                   >

@@ -74,13 +74,14 @@ function formatAlexMarkdown(text: string): string {
 export function AlexCustomerServiceWidget() {
   const pathname = usePathname();
 
-  // Hide on student dashboard, authenticated studio, learning pages, author, admin, or full-screen AI to eliminate duplicate Alex icons
+  // Hide on student dashboard, authenticated studio, author, admin, or full-screen AI to eliminate duplicate Alex icons
+  // (Note: Do NOT match /learning_products)
   if (
     !pathname ||
     pathname === '/autolearn-ai' ||
     pathname.startsWith('/dashboard') ||
     pathname.startsWith('/student') ||
-    pathname.startsWith('/learn') ||
+    (pathname.startsWith('/learn/') && !pathname.startsWith('/learning_products')) ||
     pathname.startsWith('/author') ||
     pathname.startsWith('/admin')
   ) {
@@ -88,7 +89,10 @@ export function AlexCustomerServiceWidget() {
   }
 
   // Check if current page is product details with mobile floating bar
-  const isProductPage = pathname?.includes('/learning_products/') || (pathname?.includes('/marketplace/') && pathname.split('/').filter(Boolean).length >= 2);
+  const isProductPage =
+    pathname?.includes('/learning_products') ||
+    pathname?.includes('/courses') ||
+    (pathname?.includes('/marketplace/') && pathname.split('/').filter(Boolean).length >= 2);
 
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'chat' | 'contact' | 'lead'>('chat');
@@ -277,8 +281,8 @@ export function AlexCustomerServiceWidget() {
       {!isOpen && (
         <div
           className={`fixed ${
-            isProductPage ? 'bottom-20 sm:bottom-6' : 'bottom-6'
-          } right-4 sm:right-6 z-40 flex flex-col items-end gap-2.5 sm:gap-3 pointer-events-none`}
+            isProductPage ? 'bottom-24 sm:bottom-6' : 'bottom-6'
+          } right-4 sm:right-6 z-50 flex flex-col items-end gap-2.5 sm:gap-3 pointer-events-none`}
         >
           {/* 1. ALEX AI Circular Floating Button */}
           <div className="pointer-events-auto group relative flex items-center">

@@ -315,10 +315,20 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
     const isTextElement = ['title', 'subtitle', 'studentName', 'bodyText', 'course', 'date', 'signatureText', 'founderName', 'certificateId', 'footer', 'text'].includes(element.type) || element.id === 'brandTitle'
     
     if (isTextElement && !isDynamic) {
+      if (element.text === undefined) {
+        const textToInit = getElementText(element, DEMO_CERTIFICATE_DATA, settings)
+        const updatedLayout = cloneLayout(latestLayoutRef.current)
+        const el = updatedLayout.elements.find(e => e.id === element.id)
+        if (el) {
+          el.text = textToInit
+          latestLayoutRef.current = updatedLayout
+          onLayoutChange(updatedLayout)
+        }
+      }
       setEditingText(element.id)
       setSelectedElement(element.id)
     }
-  }, [readOnly])
+  }, [readOnly, settings, onLayoutChange])
 
   const handlePanelResizeStart = useCallback((panel: 'left' | 'right', e: React.MouseEvent) => {
     e.preventDefault()
@@ -608,7 +618,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
 
     const updatedLayout = cloneLayout(latestLayoutRef.current)
     const element = updatedLayout.elements.find(el => el.id === selectedElement)
-    if (element && !element.binding) {
+    if (element) {
       element.text = text
       latestLayoutRef.current = updatedLayout
       onLayoutChange(updatedLayout)
@@ -1796,7 +1806,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                       editingText === element.id ? (
                         <textarea
                           autoFocus
-                          value={element.text || ''}
+                          value={element.text !== undefined ? element.text : displayText}
                           onChange={(e) => handleTextChange(e.target.value)}
                           onBlur={() => setEditingText(null)}
                           onKeyDown={(e) => {
@@ -2366,7 +2376,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                               <div>
                                 <label className="block text-xs font-semibold text-brand-text mb-1">Text Content</label>
                                 <textarea
-                                  value={selectedElementData.text || ''}
+                                  value={selectedElementData.text !== undefined ? selectedElementData.text : (getElementText(selectedElementData, DEMO_CERTIFICATE_DATA, settings) || '')}
                                   onChange={(e) => handleTextChange(e.target.value)}
                                   className="w-full px-3 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded text-sm text-brand-text resize-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                                   disabled={readOnly}
@@ -2390,7 +2400,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                                 <label className="block text-[10px] font-bold uppercase tracking-wider text-brand-text/60 mb-1">Sample Preview Text</label>
                                 <input
                                   type="text"
-                                  value={selectedElementData.text || ''}
+                                  value={selectedElementData.text !== undefined ? selectedElementData.text : (getElementText(selectedElementData, DEMO_CERTIFICATE_DATA, settings) || '')}
                                   onChange={(e) => handleTextChange(e.target.value)}
                                   className="w-full px-2.5 py-1.5 bg-brand-bg border border-brand-border rounded text-xs text-brand-text"
                                   disabled={readOnly}

@@ -26,10 +26,17 @@ export function CourseCertificatePreview({
   category = "Professional Certification",
   initialLayout,
 }: CourseCertificatePreviewProps) {
-  const [studentName, setStudentName] = useState("Femi Adeleke");
+  const [studentName, setStudentName] = useState(authorName || "Femi Adeleke");
   const [layout, setLayout] = useState<CertificateLayout>(initialLayout || DEFAULT_CERTIFICATE_LAYOUT);
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
+
+  // Sync authorName into sample student preview
+  useEffect(() => {
+    if (authorName) {
+      setStudentName(authorName);
+    }
+  }, [authorName]);
 
   const [certTitle, setCertTitle] = useState("Certificate of Completion");
   const [certSubtitle, setCertSubtitle] = useState("This certifies that");
@@ -137,17 +144,6 @@ export function CourseCertificatePreview({
         ref={containerRef}
         className="relative w-full aspect-[1200/800] rounded-2xl overflow-hidden shadow-2xl border-2 border-emerald-700/20 group select-none bg-[#fbf6ec]"
       >
-        {/* Floating Guaranteed Ribbon */}
-        <div className="absolute top-2.5 left-2.5 sm:top-4 sm:left-4 z-20 flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-full bg-slate-900/85 backdrop-blur-md border border-white/20 text-white text-[9px] sm:text-xs font-bold shadow-md pointer-events-none">
-          <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400" />
-          <span>Accredited AutoLearn Credential</span>
-        </div>
-
-        <div className="absolute top-2.5 right-2.5 sm:top-4 sm:right-4 z-20 hidden sm:flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1 rounded-full bg-emerald-700 text-white text-[9px] sm:text-xs font-bold shadow-md pointer-events-none">
-          <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-300" />
-          <span>Verifiable Online</span>
-        </div>
-
         {/* Scaled Certificate Template */}
         <div
           style={{
@@ -166,7 +162,7 @@ export function CourseCertificatePreview({
             date={currentDate}
             course={courseTitle}
             certificateId={certId}
-            backgroundSrc="/certificate-template-parchment-clean.png"
+            backgroundSrc={layout?.canvas?.backgroundSrc || "/certificate-template-parchment-clean.png"}
             logoSrc="/autolearn-brandmark-bold.png"
             sealSrc="/certificate-gold-seal.png"
             signatureUrl="/signature-femi-real.png"

@@ -150,40 +150,53 @@ export default function AdminCertificatesSettingsPage() {
         ...layout,
         elements: layout.elements.map(el => {
           if (el.id === 'title' || el.type === 'title') {
-            return { ...el, text: settings.title };
+            return { ...el, text: el.text !== undefined ? el.text : settings.title };
           }
           if (el.id === 'subtitle' || el.type === 'subtitle') {
-            return { ...el, text: settings.subtitle };
+            return { ...el, text: el.text !== undefined ? el.text : settings.subtitle };
           }
           if (el.id === 'bodyText' || el.type === 'bodyText') {
-            return { ...el, text: settings.bodyText };
+            return { ...el, text: el.text !== undefined ? el.text : settings.bodyText };
           }
           if (el.id === 'founderName' || el.type === 'founderName') {
-            return { ...el, text: settings.founderName };
+            return { ...el, text: el.text !== undefined ? el.text : settings.founderName };
           }
           if (el.id === 'signatureText' || el.type === 'signatureText') {
-            return { ...el, text: settings.signatureText };
+            return { ...el, text: el.text !== undefined ? el.text : settings.signatureText };
           }
           if (el.id === 'footer' || el.type === 'footer') {
-            return { ...el, text: settings.footer };
+            return { ...el, text: el.text !== undefined ? el.text : settings.footer };
           }
           return el;
         })
       } : layout;
 
+      const titleVal = synchronizedLayout?.elements?.find((e: any) => e.id === 'title')?.text || settings.title;
+      const subtitleVal = synchronizedLayout?.elements?.find((e: any) => e.id === 'subtitle')?.text || settings.subtitle;
+      const bodyTextVal = synchronizedLayout?.elements?.find((e: any) => e.id === 'bodyText')?.text || settings.bodyText;
+      const founderNameVal = synchronizedLayout?.elements?.find((e: any) => e.id === 'founderName')?.text || settings.founderName;
+      const signatureTextVal = synchronizedLayout?.elements?.find((e: any) => e.id === 'signatureText')?.text || settings.signatureText;
+      const footerVal = synchronizedLayout?.elements?.find((e: any) => e.id === 'footer')?.text || settings.footer;
+
       // Update settings with uploaded URLs and current layout
       const updatedSettings = {
         ...settings,
+        title: titleVal,
+        subtitle: subtitleVal,
+        bodyText: bodyTextVal,
+        founderName: founderNameVal,
+        signatureText: signatureTextVal,
+        footer: footerVal,
         backgroundUrl: uploadedBackgroundUrl || settings.backgroundUrl,
         logoUrl: uploadedLogoUrl || settings.logoUrl,
         signatureUrl: uploadedSignatureUrl || settings.signatureUrl,
         layout: synchronizedLayout,
-        certificateTitle: settings.title,
-        certificateSubtitle: settings.subtitle,
-        certificateBodyText: settings.bodyText,
-        certificateFounderName: settings.founderName,
-        certificateSignatureText: settings.signatureText,
-        certificateFooter: settings.footer,
+        certificateTitle: titleVal,
+        certificateSubtitle: subtitleVal,
+        certificateBodyText: bodyTextVal,
+        certificateFounderName: founderNameVal,
+        certificateSignatureText: signatureTextVal,
+        certificateFooter: footerVal,
       };
 
       // Only save layout if it's not null/undefined
