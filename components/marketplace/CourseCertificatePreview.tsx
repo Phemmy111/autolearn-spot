@@ -120,7 +120,7 @@ export function CourseCertificatePreview({
           {/* ─── DYNAMIC OVERLAYS ALIGNED TO LUXURY PARCHMENT DIVIDERS ─── */}
 
           {/* 2. Top Header: Official AutoLearn Spot Brandmark & Motto (Bold Executive Scale) */}
-          <g transform="translate(512, 58)">
+          <g transform="translate(512, 52)">
             {/* Real Official AutoLearn Brandmark Logo (Bold & Prominent) */}
             <image
               href="/autolearn-brandmark-bold.png"
@@ -138,18 +138,18 @@ export function CourseCertificatePreview({
             <text
               x="-98"
               y="3"
-              fill="#047857"
+              fill="#0f172a"
               fontSize="28"
               fontFamily="'Space Grotesk', system-ui, sans-serif"
               fontWeight="900"
               letterSpacing="1.8"
             >
-              AUTOLEARN <tspan fill="#0f172a">SPOT</tspan>
+              AUTOLEARN <tspan dx="8" fill="#047857">SPOT</tspan>
             </text>
             <text
               x="-98"
               y="22"
-              fill="#334155"
+              fill="#475569"
               fontSize="10.5"
               fontFamily="'Space Grotesk', system-ui, sans-serif"
               fontWeight="800"
@@ -159,14 +159,14 @@ export function CourseCertificatePreview({
             </text>
           </g>
 
-          {/* 3. Certificate Title: "CERTIFICATE OF COMPLETION" (Grand, Prominent, 42px) */}
-          <g transform="translate(512, 132)">
+          {/* 3. Certificate Title: "CERTIFICATE OF COMPLETION" (Comfortably clear above Divider 1 at 170px) */}
+          <g transform="translate(512, 130)">
             <text
               x="0"
               y="0"
               textAnchor="middle"
               fill="#0f172a"
-              fontSize="42"
+              fontSize="38"
               fontFamily="'Playfair Display', Georgia, 'Times New Roman', serif"
               fontWeight="900"
               letterSpacing="3.5"
@@ -176,14 +176,14 @@ export function CourseCertificatePreview({
             </text>
           </g>
 
-          {/* 4. Presentation Lead: "This certificate is proudly presented to" */}
-          <g transform="translate(512, 208)">
+          {/* 4. Presentation Lead: "This certificate is proudly presented to" (Comfortably clear below Divider 1 at 170px) */}
+          <g transform="translate(512, 206)">
             <text
               x="0"
               y="0"
               textAnchor="middle"
               fill="#334155"
-              fontSize="19"
+              fontSize="18"
               fontFamily="Georgia, 'Times New Roman', serif"
               fontStyle="italic"
               fontWeight="500"
@@ -194,13 +194,13 @@ export function CourseCertificatePreview({
           </g>
 
           {/* 5. Recipient Student Name (Dynamic from Preview Input - Large, Bold Italic Emerald) */}
-          <g transform="translate(512, 272)">
+          <g transform="translate(512, 268)">
             <text
               x="0"
               y="0"
               textAnchor="middle"
               fill="#045a38"
-              fontSize={studentName.length > 25 ? "44" : studentName.length > 18 ? "54" : "64"}
+              fontSize={studentName.length > 25 ? "42" : studentName.length > 18 ? "50" : "58"}
               fontFamily="'Playfair Display', Georgia, 'Times New Roman', serif"
               fontWeight="800"
               fontStyle="italic"
@@ -211,14 +211,14 @@ export function CourseCertificatePreview({
             </text>
           </g>
 
-          {/* 6. In Recognition of Completing the */}
-          <g transform="translate(512, 368)">
+          {/* 6. In Recognition of Completing the (Comfortably clear below Divider 2 flourish at 310-330px) */}
+          <g transform="translate(512, 362)">
             <text
               x="0"
               y="0"
               textAnchor="middle"
               fill="#334155"
-              fontSize="19"
+              fontSize="18"
               fontFamily="Georgia, 'Times New Roman', serif"
               fontStyle="italic"
               fontWeight="500"
@@ -229,13 +229,13 @@ export function CourseCertificatePreview({
           </g>
 
           {/* 7. Course Title (Dynamic from Props - Bold, Wide, Commanding) */}
-          <g transform="translate(512, 420)">
+          <g transform="translate(512, 412)">
             <text
               x="0"
               y="0"
               textAnchor="middle"
               fill="#0f172a"
-              fontSize={courseTitle.length > 35 ? "28" : courseTitle.length > 24 ? "34" : "38"}
+              fontSize={courseTitle.length > 35 ? "26" : courseTitle.length > 24 ? "30" : "34"}
               fontFamily="'Playfair Display', Georgia, 'Times New Roman', serif"
               fontWeight="900"
               letterSpacing="0.6"
@@ -248,7 +248,7 @@ export function CourseCertificatePreview({
           {/* 8. Credentials Zone: Date (Left), Authentic Gold Medal (Center), Real Signature (Right), Real QR (Far Right) */}
 
           {/* 8A. Date Column */}
-          <g transform="translate(230, 545)">
+          <g transform="translate(230, 520)">
             {/* Calendar Icon Graphic */}
             <g transform="translate(-115, -18) scale(1.1)">
               <rect x="0" y="3" width="18" height="15" rx="3" fill="none" stroke="#b45309" strokeWidth="1.5" />
@@ -287,36 +287,36 @@ export function CourseCertificatePreview({
           </g>
 
           {/* 8B. Center Authentic 3D Gold Ribbon Medal with AutoLearn Logo */}
-          <g transform="translate(512, 534)">
+          <g transform="translate(512, 508)">
             <image
               href="/certificate-gold-seal.png"
-              x="-82"
-              y="-95"
-              width="164"
-              height="190"
+              x="-65"
+              y="-75"
+              width="130"
+              height="150"
               preserveAspectRatio="xMidYMid meet"
               filter="drop-shadow(0 6px 14px rgba(180,83,9,0.35))"
             />
           </g>
 
           {/* 8C. Real Authentic Founder Signature (Right) */}
-          <g transform="translate(740, 545)">
+          <g transform="translate(740, 520)">
             {/* Authentic Femi Adeleke Handwritten Signature */}
             <image
               href="/signature-femi-real.png"
-              x="-95"
-              y="-55"
-              width="190"
-              height="58"
+              x="-85"
+              y="-50"
+              width="170"
+              height="50"
               preserveAspectRatio="xMidYMid meet"
             />
             {/* Signature Underline */}
-            <line x1="-95" y1="12" x2="95" y2="12" stroke="#cbd5e1" strokeWidth="1.2" />
+            <line x1="-85" y1="12" x2="85" y2="12" stroke="#cbd5e1" strokeWidth="1.2" />
             
             {/* Signatory Name */}
             <text
               x="0"
-              y="32"
+              y="28"
               textAnchor="middle"
               fill="#0f172a"
               fontSize="16"
@@ -328,7 +328,7 @@ export function CourseCertificatePreview({
             {/* Signatory Title */}
             <text
               x="0"
-              y="48"
+              y="44"
               textAnchor="middle"
               fill="#64748b"
               fontSize="13"
@@ -340,13 +340,13 @@ export function CourseCertificatePreview({
           </g>
 
           {/* 8D. Real Scannable QR Code & Online Verification (Far Right) */}
-          <g transform="translate(915, 540)">
+          <g transform="translate(915, 516)">
             {/* Clean QR White Rounded Card */}
             <rect
-              x="-42"
-              y="-46"
-              width="84"
-              height="84"
+              x="-36"
+              y="-38"
+              width="72"
+              height="72"
               rx="6"
               fill="#ffffff"
               stroke="#cbd5e1"
@@ -356,17 +356,17 @@ export function CourseCertificatePreview({
             {/* Real Scannable High-Res QR Code Image */}
             <image
               href="/certificate-qr-sample.png"
-              x="-38"
-              y="-42"
-              width="76"
-              height="76"
+              x="-32"
+              y="-34"
+              width="64"
+              height="64"
               preserveAspectRatio="xMidYMid meet"
             />
 
             {/* Verification Label */}
             <text
               x="0"
-              y="52"
+              y="46"
               textAnchor="middle"
               fill="#475569"
               fontSize="9.5"
@@ -378,14 +378,14 @@ export function CourseCertificatePreview({
             </text>
           </g>
 
-          {/* 9. Bottom Motto (Positioned cleanly below Divider 3 at y=654) */}
-          <g transform="translate(512, 654)">
+          {/* 9. Bottom Motto (Positioned cleanly below Divider 3 at y=642) */}
+          <g transform="translate(512, 642)">
             <text
               x="0"
               y="0"
               textAnchor="middle"
               fill="#475569"
-              fontSize="12"
+              fontSize="11"
               fontFamily="'Space Grotesk', system-ui, sans-serif"
               fontWeight="700"
               letterSpacing="1.2"

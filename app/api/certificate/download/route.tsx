@@ -180,8 +180,20 @@ export async function GET(request: Request) {
       'certificateAccentColor',
       'certificateQrEnabled',
       'certificateQrDestination',
-      'certificateFooter'
+      'certificateFooter',
+      'certificateLayout',
     ])
+
+    let customLayout: any = null
+    if (certSettings.certificateLayout) {
+      try {
+        customLayout = typeof certSettings.certificateLayout === 'string'
+          ? JSON.parse(certSettings.certificateLayout)
+          : certSettings.certificateLayout
+      } catch (err) {
+        console.warn('Could not parse certificateLayout:', err)
+      }
+    }
 
     const accentColor = certSettings.certificateAccentColor || '#00f0ff'
     const qrEnabled = certSettings.certificateQrEnabled !== 'false'
@@ -226,6 +238,7 @@ export async function GET(request: Request) {
     const imageResponse = new ImageResponse(
       (
         <CertificateTemplate
+          layout={customLayout}
           name={userName}
           date={dateStr}
           course={courseTitle}

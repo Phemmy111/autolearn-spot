@@ -202,187 +202,329 @@ export const CURRENT_LAYOUT_VERSION = '1.0.0'
  */
 export const DEFAULT_CERTIFICATE_LAYOUT: CertificateLayout = {
   version: CURRENT_LAYOUT_VERSION,
-  name: 'Default AutoLearn Spot Certificate',
+  name: 'Luxury Parchment AutoLearn Certificate',
   canvas: {
     width: DEFAULT_CANVAS_WIDTH,
     height: DEFAULT_CANVAS_HEIGHT,
-    backgroundColor: '#06101f',
-    accentColor: '#00e5ff',
+    backgroundColor: '#fbf6ec',
+    accentColor: '#047857',
+    backgroundSrc: '/certificate-template-parchment-clean.png',
   },
   elements: [
-    // Logo - hidden by default (already in certificate template)
+    // 1. Official AutoLearn Brandmark Logo
     {
       id: 'logo',
       type: 'logo',
-      x: 569,
-      y: 38,
-      width: 62,
-      height: 62,
+      x: 410,
+      y: 48,
+      width: 78,
+      height: 78,
       rotation: 0,
-      visible: false,
+      visible: true,
       locked: false,
       binding: 'logo',
+      src: '/autolearn-brandmark-bold.png',
       style: { objectFit: 'contain' },
       zIndex: 10,
     },
 
-    // Title - hidden by default (clean template already has typography)
+    // 2. Brand Name Title: "AUTOLEARN SPOT"
+    {
+      id: 'brandTitle',
+      type: 'text',
+      x: 504,
+      y: 50,
+      width: 320,
+      height: 40,
+      rotation: 0,
+      visible: true,
+      locked: false,
+      text: 'AUTOLEARN SPOT',
+      style: {
+        color: '#0f172a',
+        fontSize: 30,
+        fontWeight: 900,
+        fontFamily: 'system-ui',
+        letterSpacing: '2px',
+        textAlign: 'left',
+      },
+      zIndex: 10,
+    },
+
+    // 3. Brand Subtitle: "LEARN • AUTOMATE • SUCCEED"
+    {
+      id: 'brandSubtitle',
+      type: 'text',
+      x: 504,
+      y: 92,
+      width: 320,
+      height: 24,
+      rotation: 0,
+      visible: true,
+      locked: false,
+      text: 'LEARN • AUTOMATE • SUCCEED',
+      style: {
+        color: '#475569',
+        fontSize: 11.5,
+        fontWeight: 800,
+        fontFamily: 'system-ui',
+        letterSpacing: '3px',
+        textAlign: 'left',
+      },
+      zIndex: 10,
+    },
+
+    // 4. Certificate ID Badge (Top Right)
+    {
+      id: 'certificateId',
+      type: 'certificateId',
+      x: 1000,
+      y: 45,
+      width: 140,
+      height: 26,
+      rotation: 0,
+      visible: true,
+      locked: false,
+      binding: 'certificateId',
+      style: {
+        color: '#475569',
+        fontSize: 11,
+        fontFamily: 'monospace',
+        fontWeight: 700,
+        textAlign: 'center',
+        background: '#ffffff',
+        border: '1px solid #cbd5e1',
+        borderRadius: 4,
+      },
+      zIndex: 10,
+    },
+
+    // 5. Certificate Title: "CERTIFICATE OF COMPLETION"
     {
       id: 'title',
       type: 'title',
-      x: 155,
-      y: 148,
-      width: 890,
-      height: 28,
+      x: 150,
+      y: 126,
+      width: 900,
+      height: 50,
       rotation: 0,
-      visible: false,
+      visible: true,
       locked: false,
       binding: 'title',
+      text: 'CERTIFICATE OF COMPLETION',
       style: {
-        color: '#f5f5f5',
-        fontSize: 24,
-        fontWeight: 700,
-        fontFamily: 'Roboto',
+        color: '#0f172a',
+        fontSize: 42,
+        fontWeight: 900,
+        fontFamily: 'Playfair Display',
         textAlign: 'center',
+        letterSpacing: '3.5px',
       },
       zIndex: 10,
     },
 
-    // Subtitle - hidden by default
+    // 6. Presentation Lead: "This certificate is proudly presented to"
     {
       id: 'subtitle',
       type: 'subtitle',
-      x: 155,
-      y: 181,
-      width: 890,
-      height: 13,
+      x: 150,
+      y: 216,
+      width: 900,
+      height: 30,
       rotation: 0,
-      visible: false,
+      visible: true,
       locked: false,
       binding: 'subtitle',
+      text: 'This certificate is proudly presented to',
       style: {
-        color: 'rgba(255,255,255,0.92)',
-        fontSize: 11,
-        fontFamily: 'Roboto',
+        color: '#334155',
+        fontSize: 19,
+        fontFamily: 'Georgia',
+        fontStyle: 'italic',
         textAlign: 'center',
       },
       zIndex: 10,
     },
 
-    // Student Name - Centered in designated focal slot
+    // 7. Student Name: "Femi Adeleke"
     {
       id: 'studentName',
       type: 'studentName',
-      x: 0,
-      y: 345,
-      width: 1200,
-      height: 90,
+      x: 150,
+      y: 256,
+      width: 900,
+      height: 65,
       rotation: 0,
       visible: true,
       locked: false,
       binding: 'studentName',
+      text: 'Femi Adeleke',
       style: {
-        color: '#ffffff',
-        fontSize: 76,
-        fontWeight: 600,
+        color: '#045a38',
+        fontSize: 58,
         fontFamily: 'Playfair Display',
+        fontWeight: 800,
+        fontStyle: 'italic',
         textAlign: 'center',
-        textShadow: '0 0 20px rgba(0, 240, 255, 0.45), 0 2px 8px rgba(0, 0, 0, 0.9)',
       },
       zIndex: 10,
     },
 
-    // Body text - hidden by default
+    // 8. Recognition Lead: "In Recognition of Completing the"
     {
       id: 'bodyText',
       type: 'bodyText',
-      x: 180,
-      y: 480,
-      width: 840,
-      height: 18,
+      x: 150,
+      y: 416,
+      width: 900,
+      height: 30,
       rotation: 0,
-      visible: false,
+      visible: true,
       locked: false,
       binding: 'bodyText',
+      text: 'In Recognition of Completing the',
       style: {
-        color: '#f5f5f5',
-        fontSize: 16,
-        fontFamily: 'Roboto',
+        color: '#334155',
+        fontSize: 19,
+        fontFamily: 'Georgia',
+        fontStyle: 'italic',
         textAlign: 'center',
       },
       zIndex: 10,
     },
 
-    // Course Title - Centered in course slot
+    // 9. Course Title: "AI Automation with n8n"
     {
       id: 'course',
       type: 'course',
       x: 150,
-      y: 516,
+      y: 462,
       width: 900,
       height: 52,
       rotation: 0,
       visible: true,
       locked: false,
       binding: 'course',
+      text: 'AI Automation with n8n',
       style: {
-        color: '#00f0ff',
-        fontSize: 32,
-        fontWeight: 700,
-        fontFamily: 'Roboto',
+        color: '#0f172a',
+        fontSize: 36,
+        fontWeight: 900,
+        fontFamily: 'Playfair Display',
         textAlign: 'center',
-        background: '#040b17',
-        borderRadius: 8,
-        border: '1px solid rgba(0, 240, 255, 0.35)',
-        textShadow: '0 0 12px rgba(0, 240, 255, 0.5)',
       },
       zIndex: 10,
     },
 
-    // Date - Accurately positioned over date line
+    // 10. Date Block (Left)
     {
       id: 'date',
       type: 'date',
-      x: 235,
-      y: 654,
-      width: 230,
-      height: 24,
+      x: 80,
+      y: 556,
+      width: 240,
+      height: 55,
       rotation: 0,
       visible: true,
       locked: false,
       binding: 'date',
+      text: 'November 18, 2026',
       style: {
-        color: '#ffffff',
-        fontSize: 15,
-        fontWeight: 500,
-        fontFamily: 'Roboto',
+        color: '#0f172a',
+        fontSize: 18,
+        fontWeight: 700,
+        fontFamily: 'Playfair Display',
+        textAlign: 'center',
+        borderBottom: '1.2px solid #cbd5e1',
+      },
+      zIndex: 10,
+    },
+
+    // 11. Authentic 3D Gold Seal Ribbon Medal (Center)
+    {
+      id: 'seal',
+      type: 'image',
+      x: 535,
+      y: 535,
+      width: 130,
+      height: 150,
+      rotation: 0,
+      visible: true,
+      locked: false,
+      src: '/certificate-gold-seal.png',
+      style: { objectFit: 'contain' },
+      zIndex: 10,
+    },
+
+    // 12. Authentic Founder Signature (Right)
+    {
+      id: 'signature',
+      type: 'signature',
+      x: 740,
+      y: 540,
+      width: 180,
+      height: 52,
+      rotation: 0,
+      visible: true,
+      locked: false,
+      binding: 'signatureUrl',
+      src: '/signature-femi-real.png',
+      style: { objectFit: 'contain' },
+      zIndex: 10,
+    },
+
+    // 13. Founder Name: "A. Femi Adeleke"
+    {
+      id: 'founderName',
+      type: 'founderName',
+      x: 740,
+      y: 600,
+      width: 180,
+      height: 24,
+      rotation: 0,
+      visible: true,
+      locked: false,
+      binding: 'founderName',
+      text: 'A. Femi Adeleke',
+      style: {
+        color: '#0f172a',
+        fontSize: 16,
+        fontFamily: 'Playfair Display',
+        fontWeight: 800,
         textAlign: 'center',
       },
       zIndex: 10,
     },
 
-    // Signature - optional override (default signature already in template)
+    // 14. Founder Title: "Founder & Lead Instructor"
     {
-      id: 'signature',
-      type: 'signature',
-      x: 750,
-      y: 625,
+      id: 'signatureText',
+      type: 'signatureText',
+      x: 740,
+      y: 624,
       width: 180,
-      height: 45,
+      height: 20,
       rotation: 0,
-      visible: false,
+      visible: true,
       locked: false,
-      binding: 'signatureUrl',
-      style: { objectFit: 'contain' },
+      binding: 'signatureText',
+      text: 'Founder & Lead Instructor',
+      style: {
+        color: '#64748b',
+        fontSize: 13,
+        fontFamily: 'Georgia',
+        fontStyle: 'italic',
+        textAlign: 'center',
+      },
       zIndex: 10,
     },
 
-    // QR Code - Bottom right verification badge
+    // 15. Real Scannable QR Code (Far Right)
     {
       id: 'qrCode',
       type: 'qrCode',
-      x: 1052,
-      y: 599,
+      x: 1040,
+      y: 540,
       width: 76,
       height: 76,
       rotation: 0,
@@ -392,56 +534,14 @@ export const DEFAULT_CERTIFICATE_LAYOUT: CertificateLayout = {
       style: {
         background: '#ffffff',
         borderRadius: 6,
-        border: '2px solid #00f0ff',
+        border: '1.2px solid #cbd5e1',
       },
       zIndex: 10,
     },
-
-    // Certificate ID - Top right badge
-    {
-      id: 'certificateId',
-      type: 'certificateId',
-      x: 1020,
-      y: 32,
-      width: 140,
-      height: 24,
-      rotation: 0,
-      visible: true,
-      locked: false,
-      binding: 'certificateId',
-      style: {
-        color: '#a0aec0',
-        fontSize: 11,
-        fontFamily: 'Roboto',
-        textAlign: 'center',
-      },
-      zIndex: 10,
-    },
-
-    // Dynamic Footer - Centered at bottom
-    {
-      id: 'footer',
-      type: 'footer',
-      x: 0,
-      y: 755,
-      width: 1200,
-      height: 22,
-      rotation: 0,
-      visible: true,
-      locked: false,
-      binding: 'footer',
-      style: {
-        color: 'rgba(255, 255, 255, 0.85)',
-        fontSize: 12,
-        fontFamily: 'Roboto',
-        textAlign: 'center',
-      },
-      zIndex: 10,
-    }
   ],
   metadata: {
     createdAt: new Date().toISOString(),
-    description: 'Default layout matching the approved certificate artwork',
+    description: 'Calibrated Luxury Parchment AutoLearn Certificate Layout',
   },
 }
 
@@ -808,16 +908,19 @@ export function migrateLayout(layout: CertificateLayout): CertificateLayout {
  * Demo certificate data for preview purposes
  */
 export const DEMO_CERTIFICATE_DATA = {
-  name: 'John Doe',
-  date: 'January 15, 2024',
-  course: 'n8n Automation Masterclass',
-  certificateId: 'ALS-2024-2-001',
-  title: 'Certificate of Completion',
-  subtitle: 'This certifies that',
-  bodyText: 'has successfully completed the',
-  founderName: 'AutoLearn Spot',
-  signatureText: 'Founder & Instructor',
-  footer: 'AutoLearn Spot - Excellence in Automation Education',
+  name: 'Femi Adeleke',
+  student_name: 'Femi Adeleke',
+  date: 'November 18, 2026',
+  issue_date: 'November 18, 2026',
+  course: 'AI Automation with n8n',
+  certificateId: 'CERT-07D13D81',
+  certificate_id: 'CERT-07D13D81',
+  title: 'CERTIFICATE OF COMPLETION',
+  subtitle: 'This certificate is proudly presented to',
+  bodyText: 'In Recognition of Completing the',
+  founderName: 'A. Femi Adeleke',
+  signatureText: 'Founder & Lead Instructor',
+  footer: 'AutoLearn Spot • Learn • Automate • Succeed',
 }
 
 /**
@@ -839,25 +942,25 @@ export function getElementText(
   if (element.binding) {
     switch (element.binding) {
       case 'title':
-        return settings.title || 'Certificate of Completion'
+        return settings.title || element.text || 'CERTIFICATE OF COMPLETION'
       case 'subtitle':
-        return settings.subtitle || 'This certifies that'
+        return settings.subtitle || element.text || 'This certificate is proudly presented to'
       case 'bodyText':
-        return settings.bodyText || 'has successfully completed the'
+        return settings.bodyText || element.text || 'In Recognition of Completing the'
       case 'studentName':
-        return data.student_name || 'Student Name'
+        return data.student_name || data.name || element.text || 'Femi Adeleke'
       case 'course':
-        return data.course || 'Course Name'
+        return data.course || element.text || 'AI Automation with n8n'
       case 'date':
-        return data.issue_date || 'January 1, 2024'
+        return data.issue_date || data.date || element.text || 'November 18, 2026'
       case 'signatureText':
-        return settings.signatureText || 'Founder'
+        return settings.signatureText || element.text || 'Founder & Lead Instructor'
       case 'founderName':
-        return settings.founderName || 'Founder Name'
+        return settings.founderName || element.text || 'A. Femi Adeleke'
       case 'certificateId':
-        return data.certificate_id || 'CERT-12345'
+        return data.certificate_id || data.certificateId || element.text || 'CERT-07D13D81'
       case 'footer':
-        return settings.footer || 'Footer Text'
+        return settings.footer || element.text || 'AutoLearn Spot • Learn • Automate • Succeed'
       default:
         return element.text || ''
     }
@@ -874,13 +977,16 @@ export function getElementSrc(
   element: CertificateElement,
   settings: Record<string, string>,
 ): string | undefined {
+  if (element.id === 'seal' || (element as any).type === 'seal') {
+    return (settings as any).sealUrl || element.src || '/certificate-gold-seal.png'
+  }
   switch (element.binding) {
     case 'logo':
-      return settings.logoUrl || element.src
+      return settings.logoUrl || element.src || '/autolearn-brandmark-bold.png'
     case 'signatureUrl':
-      return settings.signatureUrl || element.src
+      return settings.signatureUrl || element.src || '/signature-femi-real.png'
     case 'background':
-      return settings.backgroundUrl || element.src
+      return settings.backgroundUrl || element.src || '/certificate-template-parchment-clean.png'
     default:
       return element.src
   }

@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useCallback, useEffect } from 'react'
-import { Lock, Unlock, Eye, EyeOff, Layers, AlignLeft, AlignCenter, AlignRight, Move, RotateCw, Trash2, Save, Loader2, Undo, Redo, Copy, Clipboard, ZoomIn, ZoomOut, Maximize2, Type, Image, Square, QrCode, Award, PenTool, Settings, LayoutGrid, ChevronDown, ChevronUp, MousePointer2, Upload } from 'lucide-react'
+import { Lock, Unlock, Eye, EyeOff, Layers, AlignLeft, AlignCenter, AlignRight, Move, RotateCw, Trash2, Save, Loader2, Undo, Redo, Copy, Clipboard, ZoomIn, ZoomOut, Maximize2, Type, Image, Square, QrCode, Award, PenTool, Settings, LayoutGrid, ChevronDown, ChevronUp, MousePointer2, Upload, RotateCcw, Sparkles, User, GraduationCap, Calendar, FileText, Check, ShieldCheck } from 'lucide-react'
 import { CertificateLayout, CertificateElement, validateLayout, cloneLayout, resetToDefault, getElementText, getElementSrc, DEMO_CERTIFICATE_DATA } from '@/lib/certificate-layout'
 
 interface CertificateDesignerProps {
@@ -562,10 +562,22 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
     }
   }, [selectedElement, layout, onLayoutChange])
 
+  const handleCenterElement = useCallback((elementId?: string) => {
+    const idToCenter = elementId || selectedElement
+    if (!idToCenter) return
+    const updatedLayout = cloneLayout(layout)
+    const element = updatedLayout.elements.find(el => el.id === idToCenter)
+    if (element) {
+      element.x = Math.round((CANVAS_WIDTH - element.width) / 2)
+      onLayoutChange(updatedLayout)
+    }
+  }, [selectedElement, layout, onLayoutChange])
+
   const handleReset = useCallback(() => {
-    if (confirm('Are you sure you want to reset the layout to default? This will reset all element positions and styles.')) {
+    if (confirm('Reset canvas to the official AutoLearn Luxury Parchment Template?\n\nThis will restore all 15 elements (bold brandmark, gold seal medal, real signature, scannable QR verification card, student name, and course title) to their perfected coordinates and typography.')) {
       onLayoutChange(resetToDefault())
       setSelectedElement(null)
+      setUnsavedChanges(true)
     }
   }, [onLayoutChange])
 
@@ -814,22 +826,322 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
     let newElement: CertificateElement
     
     switch (type) {
-      case 'text':
+      case 'seal':
         newElement = {
-          id: newId,
-          type: 'text',
-          x: CANVAS_WIDTH / 2 - 100,
-          y: CANVAS_HEIGHT / 2,
-          width: 200,
+          id: 'seal',
+          type: 'image',
+          x: Math.round(CANVAS_WIDTH / 2 - 65),
+          y: 535,
+          width: 130,
+          height: 150,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          src: '/certificate-gold-seal.png',
+          style: { objectFit: 'contain' },
+          zIndex: 10,
+        }
+        break
+      case 'logo':
+        newElement = {
+          id: 'logo',
+          type: 'logo',
+          x: 410,
+          y: 48,
+          width: 78,
+          height: 78,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          binding: 'logo',
+          src: '/autolearn-brandmark-bold.png',
+          style: { objectFit: 'contain' },
+          zIndex: 10,
+        }
+        break
+      case 'signature':
+        newElement = {
+          id: 'signature',
+          type: 'signature',
+          x: 740,
+          y: 540,
+          width: 180,
+          height: 52,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          binding: 'signatureUrl',
+          src: '/signature-femi-real.png',
+          style: { objectFit: 'contain' },
+          zIndex: 10,
+        }
+        break
+      case 'qrCode':
+        newElement = {
+          id: 'qrCode',
+          type: 'qrCode',
+          x: 1010,
+          y: 545,
+          width: 85,
+          height: 95,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          binding: 'qrData',
+          zIndex: 10,
+        }
+        break
+      case 'studentName':
+        newElement = {
+          id: 'studentName',
+          type: 'studentName',
+          x: 150,
+          y: 260,
+          width: 900,
+          height: 65,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          binding: 'studentName',
+          text: 'Femi Adeleke',
+          style: {
+            color: '#045a38',
+            fontSize: 58,
+            fontFamily: 'Playfair Display',
+            fontWeight: 800,
+            fontStyle: 'italic',
+            textAlign: 'center',
+          },
+          zIndex: 10,
+        }
+        break
+      case 'course':
+        newElement = {
+          id: 'course',
+          type: 'course',
+          x: 150,
+          y: 462,
+          width: 900,
+          height: 52,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          binding: 'course',
+          text: 'AI Automation with n8n',
+          style: {
+            color: '#0f172a',
+            fontSize: 36,
+            fontWeight: 900,
+            fontFamily: 'Playfair Display',
+            textAlign: 'center',
+          },
+          zIndex: 10,
+        }
+        break
+      case 'date':
+        newElement = {
+          id: 'date',
+          type: 'date',
+          x: 90,
+          y: 560,
+          width: 220,
+          height: 65,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          binding: 'date',
+          text: 'November 18, 2026',
+          style: {
+            color: '#0f172a',
+            fontSize: 18,
+            fontWeight: 700,
+            fontFamily: 'Playfair Display',
+            textAlign: 'center',
+          },
+          zIndex: 10,
+        }
+        break
+      case 'title':
+        newElement = {
+          id: 'title',
+          type: 'title',
+          x: 150,
+          y: 136,
+          width: 900,
+          height: 50,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          binding: 'title',
+          text: 'CERTIFICATE OF COMPLETION',
+          style: {
+            color: '#0f172a',
+            fontSize: 42,
+            fontWeight: 900,
+            fontFamily: 'Playfair Display',
+            textAlign: 'center',
+            letterSpacing: '3.5px',
+          },
+          zIndex: 10,
+        }
+        break
+      case 'subtitle':
+        newElement = {
+          id: 'subtitle',
+          type: 'subtitle',
+          x: 150,
+          y: 218,
+          width: 900,
           height: 30,
           rotation: 0,
           visible: true,
           locked: false,
-          text: 'New Text',
+          binding: 'subtitle',
+          text: 'This certificate is proudly presented to',
           style: {
-            fontSize: 16,
-            color: '#f5f5f5',
+            color: '#334155',
+            fontSize: 19,
+            fontFamily: 'Georgia',
+            fontStyle: 'italic',
             textAlign: 'center',
+          },
+          zIndex: 10,
+        }
+        break
+      case 'bodyText':
+        newElement = {
+          id: 'bodyText',
+          type: 'bodyText',
+          x: 150,
+          y: 416,
+          width: 900,
+          height: 30,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          binding: 'bodyText',
+          text: 'In Recognition of Completing the',
+          style: {
+            color: '#334155',
+            fontSize: 19,
+            fontFamily: 'Georgia',
+            fontStyle: 'italic',
+            textAlign: 'center',
+          },
+          zIndex: 10,
+        }
+        break
+      case 'founderName':
+        newElement = {
+          id: 'founderName',
+          type: 'founderName',
+          x: 740,
+          y: 600,
+          width: 180,
+          height: 24,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          binding: 'founderName',
+          text: 'A. Femi Adeleke',
+          style: {
+            color: '#0f172a',
+            fontSize: 16,
+            fontFamily: 'Playfair Display',
+            fontWeight: 800,
+            textAlign: 'center',
+          },
+          zIndex: 10,
+        }
+        break
+      case 'signatureText':
+        newElement = {
+          id: 'signatureText',
+          type: 'signatureText',
+          x: 740,
+          y: 624,
+          width: 180,
+          height: 20,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          binding: 'signatureText',
+          text: 'Founder & Lead Instructor',
+          style: {
+            color: '#64748b',
+            fontSize: 13,
+            fontFamily: 'Georgia',
+            fontStyle: 'italic',
+            textAlign: 'center',
+          },
+          zIndex: 10,
+        }
+        break
+      case 'certificateId':
+        newElement = {
+          id: 'certificateId',
+          type: 'certificateId',
+          x: 990,
+          y: 45,
+          width: 150,
+          height: 26,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          binding: 'certificateId',
+          style: {
+            color: '#475569',
+            fontSize: 11,
+            fontFamily: 'monospace',
+            fontWeight: 700,
+            textAlign: 'center',
+            background: '#ffffff',
+            border: '1px solid #cbd5e1',
+            borderRadius: 4,
+          },
+          zIndex: 10,
+        }
+        break
+      case 'footer':
+        newElement = {
+          id: 'footer',
+          type: 'footer',
+          x: 150,
+          y: 752,
+          width: 900,
+          height: 24,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          binding: 'footer',
+          text: 'AutoLearn Spot • Learn • Automate • Succeed',
+          style: {
+            color: '#475569',
+            fontSize: 12,
+            fontWeight: 800,
+            letterSpacing: '1.5px',
+            textAlign: 'center',
+          },
+          zIndex: 10,
+        }
+        break
+      case 'text':
+        newElement = {
+          id: newId,
+          type: 'text',
+          x: CANVAS_WIDTH / 2 - 150,
+          y: CANVAS_HEIGHT / 2,
+          width: 300,
+          height: 40,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          text: 'Custom Text',
+          style: {
+            fontSize: 20,
+            color: '#0f172a',
+            textAlign: 'center',
+            fontFamily: 'Playfair Display',
           },
         }
         break
@@ -853,66 +1165,17 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
         newElement = {
           id: newId,
           type: 'text',
-          x: CANVAS_WIDTH / 2 - 50,
-          y: CANVAS_HEIGHT / 2 - 50,
-          width: 100,
-          height: 100,
+          x: CANVAS_WIDTH / 2 - 100,
+          y: CANVAS_HEIGHT / 2 - 2,
+          width: 200,
+          height: 4,
           rotation: 0,
           visible: true,
           locked: false,
-          text: '■',
+          text: '',
           style: {
-            fontSize: 80,
-            color: '#00f0ff',
-            textAlign: 'center',
-          },
-        }
-        break
-      case 'qrCode':
-        newElement = {
-          id: newId,
-          type: 'qrCode',
-          x: CANVAS_WIDTH / 2 - 50,
-          y: CANVAS_HEIGHT / 2 - 50,
-          width: 100,
-          height: 100,
-          rotation: 0,
-          visible: true,
-          locked: false,
-          binding: 'qr',
-        }
-        break
-      case 'logo':
-        newElement = {
-          id: newId,
-          type: 'logo',
-          x: CANVAS_WIDTH / 2 - 50,
-          y: CANVAS_HEIGHT / 2 - 50,
-          width: 100,
-          height: 100,
-          rotation: 0,
-          visible: true,
-          locked: false,
-          binding: 'logo',
-          style: {
-            objectFit: 'contain',
-          },
-        }
-        break
-      case 'signature':
-        newElement = {
-          id: newId,
-          type: 'signature',
-          x: CANVAS_WIDTH / 2 - 50,
-          y: CANVAS_HEIGHT / 2 - 50,
-          width: 100,
-          height: 100,
-          rotation: 0,
-          visible: true,
-          locked: false,
-          binding: 'signature',
-          style: {
-            objectFit: 'contain',
+            background: '#cbd5e1',
+            border: 'none',
           },
         }
         break
@@ -920,9 +1183,15 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
         return
     }
     
-    updatedLayout.elements.push(newElement)
+    const existingIndex = updatedLayout.elements.findIndex(el => el.id === newElement.id)
+    if (existingIndex >= 0) {
+      updatedLayout.elements[existingIndex] = { ...newElement, visible: true }
+      setSelectedElement(newElement.id)
+    } else {
+      updatedLayout.elements.push(newElement)
+      setSelectedElement(newElement.id)
+    }
     onLayoutChange(updatedLayout)
-    setSelectedElement(newId)
   }, [layout, onLayoutChange])
 
   const selectedElementData = layout.elements.find(el => el.id === selectedElement)
@@ -1016,12 +1285,25 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
             <Layers className="h-4 w-4" />
           </button>
           <div className="w-px h-6 bg-brand-bg" />
+          {selectedElement && (
+            <button
+              type="button"
+              onClick={() => handleCenterElement()}
+              className="flex items-center gap-1.5 px-3 py-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-sm rounded font-medium hover:bg-emerald-500/20 transition-colors"
+              title="Center selected element horizontally on canvas"
+            >
+              <AlignCenter className="h-4 w-4" />
+              <span>Center</span>
+            </button>
+          )}
           <button
             type="button"
             onClick={handleReset}
-            className="px-3 py-2 bg-brand-bg text-brand-text/60 text-sm rounded hover:bg-neutral-200 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 bg-brand-bg text-brand-text/70 text-sm rounded hover:bg-neutral-200 hover:text-brand-text transition-colors border border-brand-border"
+            title="Restore official Luxury Parchment template"
           >
-            Reset
+            <RotateCcw className="h-4 w-4 text-emerald-600" />
+            <span>Reset to Template</span>
           </button>
           <button
             type="button"
@@ -1049,7 +1331,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
               type="button"
               onClick={onSave}
               disabled={isSaving}
-              className="flex items-center gap-2 px-3 py-2 bg-brand-bg text-[#00363a] text-sm rounded font-medium hover:bg-brand-bg/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-3.5 py-2 bg-emerald-600 text-white text-sm rounded font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
             >
               {isSaving ? (
                 <>
@@ -1091,33 +1373,186 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
           </div>
           
           {!leftSidebarCollapsed && (
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-3 space-y-4">
+              {/* Official Certificate Elements */}
               <div>
-                <h3 className="text-xs font-semibold text-brand-text/60 mb-3 uppercase tracking-wider">Elements</h3>
-                <div className="space-y-2">
+                <h3 className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <Award className="h-3.5 w-3.5" />
+                  <span>Certificate Elements</span>
+                </h3>
+                <div className="grid grid-cols-1 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => handleAddElement('seal')}
+                    className="w-full flex items-center gap-2.5 p-2 bg-brand-bg/80 border border-brand-border rounded-lg hover:border-emerald-500 hover:bg-emerald-500/5 transition-all text-left group"
+                  >
+                    <Award className="h-4 w-4 text-amber-500 shrink-0 group-hover:scale-110 transition-transform" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-brand-text truncate">3D Gold Seal Medal</div>
+                      <div className="text-[10px] text-brand-text/50 truncate">Official gold ribbon badge</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddElement('logo')}
+                    className="w-full flex items-center gap-2.5 p-2 bg-brand-bg/80 border border-brand-border rounded-lg hover:border-emerald-500 hover:bg-emerald-500/5 transition-all text-left group"
+                  >
+                    <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0 group-hover:scale-110 transition-transform" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-brand-text truncate">AutoLearn Brandmark</div>
+                      <div className="text-[10px] text-brand-text/50 truncate">Official logo header</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddElement('signature')}
+                    className="w-full flex items-center gap-2.5 p-2 bg-brand-bg/80 border border-brand-border rounded-lg hover:border-emerald-500 hover:bg-emerald-500/5 transition-all text-left group"
+                  >
+                    <PenTool className="h-4 w-4 text-emerald-600 shrink-0 group-hover:scale-110 transition-transform" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-brand-text truncate">Founder Signature</div>
+                      <div className="text-[10px] text-brand-text/50 truncate">Authentic ink signature</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddElement('qrCode')}
+                    className="w-full flex items-center gap-2.5 p-2 bg-brand-bg/80 border border-brand-border rounded-lg hover:border-emerald-500 hover:bg-emerald-500/5 transition-all text-left group"
+                  >
+                    <QrCode className="h-4 w-4 text-emerald-600 shrink-0 group-hover:scale-110 transition-transform" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-brand-text truncate">QR Verification Card</div>
+                      <div className="text-[10px] text-brand-text/50 truncate">Live scannable card</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddElement('studentName')}
+                    className="w-full flex items-center gap-2.5 p-2 bg-brand-bg/80 border border-brand-border rounded-lg hover:border-emerald-500 hover:bg-emerald-500/5 transition-all text-left group"
+                  >
+                    <User className="h-4 w-4 text-emerald-600 shrink-0 group-hover:scale-110 transition-transform" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-brand-text truncate">Student Name Field</div>
+                      <div className="text-[10px] text-brand-text/50 truncate">Dynamic recipient title</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddElement('course')}
+                    className="w-full flex items-center gap-2.5 p-2 bg-brand-bg/80 border border-brand-border rounded-lg hover:border-emerald-500 hover:bg-emerald-500/5 transition-all text-left group"
+                  >
+                    <GraduationCap className="h-4 w-4 text-emerald-600 shrink-0 group-hover:scale-110 transition-transform" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-brand-text truncate">Course Title Field</div>
+                      <div className="text-[10px] text-brand-text/50 truncate">Dynamic certified course</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddElement('date')}
+                    className="w-full flex items-center gap-2.5 p-2 bg-brand-bg/80 border border-brand-border rounded-lg hover:border-emerald-500 hover:bg-emerald-500/5 transition-all text-left group"
+                  >
+                    <Calendar className="h-4 w-4 text-emerald-600 shrink-0 group-hover:scale-110 transition-transform" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-brand-text truncate">Issue Date Field</div>
+                      <div className="text-[10px] text-brand-text/50 truncate">Underlined calendar block</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddElement('title')}
+                    className="w-full flex items-center gap-2.5 p-2 bg-brand-bg/80 border border-brand-border rounded-lg hover:border-emerald-500 hover:bg-emerald-500/5 transition-all text-left group"
+                  >
+                    <FileText className="h-4 w-4 text-emerald-600 shrink-0 group-hover:scale-110 transition-transform" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-brand-text truncate">Certificate Title</div>
+                      <div className="text-[10px] text-brand-text/50 truncate">"Certificate of Completion"</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddElement('certificateId')}
+                    className="w-full flex items-center gap-2.5 p-2 bg-brand-bg/80 border border-brand-border rounded-lg hover:border-emerald-500 hover:bg-emerald-500/5 transition-all text-left group"
+                  >
+                    <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0 group-hover:scale-110 transition-transform" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-brand-text truncate">Certificate ID Pill</div>
+                      <div className="text-[10px] text-brand-text/50 truncate">Top-right serial badge</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddElement('founderName')}
+                    className="w-full flex items-center gap-2.5 p-2 bg-brand-bg/80 border border-brand-border rounded-lg hover:border-emerald-500 hover:bg-emerald-500/5 transition-all text-left group"
+                  >
+                    <User className="h-4 w-4 text-emerald-600 shrink-0 group-hover:scale-110 transition-transform" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-brand-text truncate">Founder Name</div>
+                      <div className="text-[10px] text-brand-text/50 truncate">A. Femi Adeleke</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddElement('footer')}
+                    className="w-full flex items-center gap-2.5 p-2 bg-brand-bg/80 border border-brand-border rounded-lg hover:border-emerald-500 hover:bg-emerald-500/5 transition-all text-left group"
+                  >
+                    <Sparkles className="h-4 w-4 text-emerald-600 shrink-0 group-hover:scale-110 transition-transform" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-brand-text truncate">Bottom Motto</div>
+                      <div className="text-[10px] text-brand-text/50 truncate">AutoLearn Spot • Motto</div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Custom Elements */}
+              <div className="border-t border-brand-border pt-3">
+                <h3 className="text-[11px] font-bold text-brand-text/60 uppercase tracking-wider mb-2">Custom Additions</h3>
+                <div className="grid grid-cols-2 gap-1.5">
                   <button
                     type="button"
                     onClick={() => handleAddElement('text')}
-                    className="w-full flex items-center gap-3 p-3 bg-brand-bg rounded-lg hover:bg-neutral-200 transition-colors text-left"
+                    className="flex flex-col items-center justify-center p-2.5 bg-brand-bg rounded-lg border border-brand-border hover:border-emerald-500 text-center transition-all"
                   >
-                    <Type className="h-4 w-4 text-[#10b981]" />
-                    <span className="text-sm text-brand-text">Text</span>
+                    <Type className="h-4 w-4 text-[#10b981] mb-1" />
+                    <span className="text-xs text-brand-text font-medium">Text</span>
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddElement('shape')}
+                    className="flex flex-col items-center justify-center p-2.5 bg-brand-bg rounded-lg border border-brand-border hover:border-emerald-500 text-center transition-all"
+                  >
+                    <Square className="h-4 w-4 text-[#10b981] mb-1" />
+                    <span className="text-xs text-brand-text font-medium">Divider</span>
+                  </button>
+
                   <button
                     type="button"
                     onClick={() => handleAddElement('image')}
-                    className="w-full flex items-center gap-3 p-3 bg-brand-bg rounded-lg hover:bg-neutral-200 transition-colors text-left"
+                    className="flex flex-col items-center justify-center p-2.5 bg-brand-bg rounded-lg border border-brand-border hover:border-emerald-500 text-center transition-all"
                   >
-                    <Image className="h-4 w-4 text-[#10b981]" />
-                    <span className="text-sm text-brand-text">Image</span>
+                    <Image className="h-4 w-4 text-[#10b981] mb-1" />
+                    <span className="text-xs text-brand-text font-medium">Image</span>
                   </button>
-                  <label className={`w-full flex items-center gap-3 p-3 bg-brand-bg rounded-lg hover:bg-neutral-200 transition-colors text-left cursor-pointer ${uploadingImage || readOnly ? 'opacity-50 cursor-not-allowed' : ''}`}>
+
+                  <label className={`flex flex-col items-center justify-center p-2.5 bg-brand-bg rounded-lg border border-brand-border hover:border-emerald-500 text-center transition-all cursor-pointer ${uploadingImage || readOnly ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     {uploadingImage ? (
-                      <Loader2 className="h-4 w-4 text-[#10b981] animate-spin" />
+                      <Loader2 className="h-4 w-4 text-[#10b981] animate-spin mb-1" />
                     ) : (
-                      <Upload className="h-4 w-4 text-[#10b981]" />
+                      <Upload className="h-4 w-4 text-[#10b981] mb-1" />
                     )}
-                    <span className="text-sm text-brand-text">{uploadingImage ? 'Uploading...' : 'Upload Image'}</span>
+                    <span className="text-xs text-brand-text font-medium">{uploadingImage ? 'Uploading' : 'Upload'}</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -1129,75 +1564,19 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                       disabled={uploadingImage || readOnly}
                     />
                   </label>
-                  <button
-                    type="button"
-                    onClick={() => handleAddElement('shape')}
-                    className="w-full flex items-center gap-3 p-3 bg-brand-bg rounded-lg hover:bg-neutral-200 transition-colors text-left"
-                  >
-                    <Square className="h-4 w-4 text-[#10b981]" />
-                    <span className="text-sm text-brand-text">Shape</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleAddElement('qrCode')}
-                    className="w-full flex items-center gap-3 p-3 bg-brand-bg rounded-lg hover:bg-neutral-200 transition-colors text-left"
-                  >
-                    <QrCode className="h-4 w-4 text-[#10b981]" />
-                    <span className="text-sm text-brand-text">QR Code</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleAddElement('logo')}
-                    className="w-full flex items-center gap-3 p-3 bg-brand-bg rounded-lg hover:bg-neutral-200 transition-colors text-left"
-                  >
-                    <Award className="h-4 w-4 text-[#10b981]" />
-                    <span className="text-sm text-brand-text">Logo</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleAddElement('signature')}
-                    className="w-full flex items-center gap-3 p-3 bg-brand-bg rounded-lg hover:bg-neutral-200 transition-colors text-left"
-                  >
-                    <PenTool className="h-4 w-4 text-[#10b981]" />
-                    <span className="text-sm text-brand-text">Signature</span>
-                  </button>
                 </div>
               </div>
-              
-              {/* Templates */}
-              <div className="border-t border-brand-border pt-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-xs font-semibold text-brand-text/60 uppercase tracking-wider">Templates</h3>
-                  <button
-                    type="button"
-                    onClick={() => setShowTemplates(!showTemplates)}
-                    className="text-brand-text/60 hover:text-brand-text"
-                  >
-                    {showTemplates ? <ChevronDown className="h-4 w-4 rotate-180" /> : <ChevronDown className="h-4 w-4" />}
-                  </button>
-                </div>
-                {showTemplates && (
-                  <div className="space-y-2">
-                    {templates.map((template, index) => (
-                      <button
-                        key={index}
-                        type="button"
-                        onClick={() => handleLoadTemplate(template.layout)}
-                        className="w-full p-3 bg-brand-bg rounded-lg hover:bg-neutral-200 transition-colors text-left"
-                      >
-                        <div className="text-sm text-brand-text">{template.name}</div>
-                        <div className="text-xs text-brand-text/60">{template.description}</div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              
-              <div>
-                <h3 className="text-xs font-semibold text-brand-text/60 mb-3 uppercase tracking-wider">Templates</h3>
-                <div className="p-3 bg-brand-bg rounded-lg text-center">
-                  <p className="text-xs text-brand-text/60">Coming soon</p>
-                </div>
+
+              {/* Template Reset Shortcut */}
+              <div className="border-t border-brand-border pt-3">
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="w-full flex items-center justify-center gap-2 p-2.5 bg-emerald-600/10 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 rounded-lg hover:bg-emerald-600/20 text-xs font-bold transition-all shadow-2xs"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  <span>Restore Official Template</span>
+                </button>
               </div>
             </div>
           )}
@@ -1238,7 +1617,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
             >
               {/* Background */}
               <img
-                src={settings.backgroundUrl || '/certificate-template.png'}
+                src={settings.backgroundUrl || layout.canvas?.backgroundSrc || '/certificate-template-parchment-clean.png'}
                 alt="Certificate background"
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ pointerEvents: 'none' }}
@@ -1248,15 +1627,15 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
               {alignmentGuides.horizontal.map((y, index) => (
                 <div
                   key={`h-${index}`}
-                  className="absolute left-0 right-0 bg-brand-bg pointer-events-none"
-                  style={{ top: y, height: '1px', opacity: 0.5 }}
+                  className="absolute left-0 right-0 bg-emerald-500 pointer-events-none"
+                  style={{ top: y, height: '1px', opacity: 0.6 }}
                 />
               ))}
               {alignmentGuides.vertical.map((x, index) => (
                 <div
                   key={`v-${index}`}
-                  className="absolute top-0 bottom-0 bg-brand-bg pointer-events-none"
-                  style={{ left: x, width: '1px', opacity: 0.5 }}
+                  className="absolute top-0 bottom-0 bg-emerald-500 pointer-events-none"
+                  style={{ left: x, width: '1px', opacity: 0.6 }}
                 />
               ))}
 
@@ -1264,16 +1643,19 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
               {layout.elements.map((element) => {
                 const isSelected = selectedElement === element.id
                 const displayText = getElementText(element, DEMO_CERTIFICATE_DATA, settings)
-                const displaySrc = getElementSrc(element, settings)
+                const displaySrc = getElementSrc(element, settings) || 
+                  (element.id === 'seal' || (element as any).type === 'seal' ? '/certificate-gold-seal.png' :
+                   element.type === 'logo' ? '/autolearn-brandmark-bold.png' :
+                   element.type === 'signature' ? '/signature-femi-real.png' : undefined)
 
                 const isTextElement = ['title', 'subtitle', 'studentName', 'bodyText', 'course', 'date', 'signatureText', 'founderName', 'certificateId', 'footer', 'text'].includes(element.type)
-                const isImageElement = ['logo', 'signature', 'image'].includes(element.type)
+                const isImageElement = ['logo', 'signature', 'image'].includes(element.type) || element.id === 'seal'
                 const isQrElement = element.type === 'qrCode'
 
                 return (
                   <div
                     key={element.id}
-                    className={`absolute ${isSelected || selectedElements.includes(element.id) ? 'ring-2 ring-[#00f0ff]' : ''} ${element.locked ? 'opacity-75' : ''}`}
+                    className={`absolute ${isSelected || selectedElements.includes(element.id) ? 'ring-2 ring-emerald-600 bg-emerald-50/15' : ''} ${element.locked ? 'opacity-75' : ''}`}
                     style={{
                       left: element.x,
                       top: element.y,
@@ -1305,48 +1687,54 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                           onMouseDown={(e) => {
                             e.stopPropagation()
                           }}
-                          className="w-full h-full bg-transparent text-brand-text resize-none outline-none"
+                          className="w-full h-full bg-transparent text-slate-900 resize-none outline-none"
                           style={{
-                            fontFamily: element.style?.fontFamily || 'Roboto',
-                            fontSize: element.style?.fontSize || 12,
-                            fontWeight: element.style?.fontWeight || 400,
+                            fontFamily: element.style?.fontFamily || 'Playfair Display, Georgia, serif',
+                            fontSize: element.style?.fontSize || 16,
+                            fontWeight: element.style?.fontWeight || 700,
                             fontStyle: element.style?.fontStyle || 'normal',
-                            color: element.style?.color || '#f5f5f5',
+                            color: element.style?.color || '#0f172a',
                             textAlign: element.style?.textAlign || 'left',
-                            lineHeight: element.style?.lineHeight || 1,
+                            lineHeight: element.style?.lineHeight || 1.15,
                             letterSpacing: element.style?.letterSpacing || 0,
                             whiteSpace: 'pre-wrap',
                             overflow: 'visible',
-                            textShadow: element.style?.textShadow || '0 2px 8px rgba(0,0,0,0.78)',
-                            ...(element.style?.outlineWidth && element.style.outlineWidth > 0 ? {
-                              WebkitTextStroke: `${element.style.outlineWidth}px ${element.style.outlineColor || '#f5f5f5'}`,
-                              paintOrder: 'stroke',
-                            } : {}),
+                            textShadow: element.style?.textShadow || 'none',
                           }}
                         />
                       ) : (
                         <div
                           onDoubleClick={() => handleElementDoubleClick(element)}
                           style={{
-                            fontFamily: element.style?.fontFamily || 'Roboto',
-                            fontSize: element.style?.fontSize || 12,
-                            fontWeight: element.style?.fontWeight || 400,
+                            fontFamily: element.style?.fontFamily || 'Playfair Display, Georgia, serif',
+                            fontSize: element.style?.fontSize || 16,
+                            fontWeight: element.style?.fontWeight || 700,
                             fontStyle: element.style?.fontStyle || 'normal',
-                            color: element.style?.color || '#f5f5f5',
+                            color: element.style?.color || '#0f172a',
                             textAlign: element.style?.textAlign || 'left',
-                            lineHeight: element.style?.lineHeight || 1,
+                            lineHeight: element.style?.lineHeight || 1.15,
                             letterSpacing: element.style?.letterSpacing || 0,
                             whiteSpace: 'normal',
                             overflow: 'visible',
                             cursor: element.binding ? 'default' : 'text',
-                            textShadow: element.style?.textShadow || '0 2px 8px rgba(0,0,0,0.78)',
-                            ...(element.style?.outlineWidth && element.style.outlineWidth > 0 ? {
-                              WebkitTextStroke: `${element.style.outlineWidth}px ${element.style.outlineColor || '#f5f5f5'}`,
-                              paintOrder: 'stroke',
-                            } : {}),
+                            textShadow: element.style?.textShadow || 'none',
                           }}
                         >
-                          {displayText}
+                          {element.id === 'date' || element.type === 'date' ? (
+                            <div className="flex flex-col w-full h-full justify-between">
+                              <div className="flex items-center gap-2 pb-1 border-b border-slate-300">
+                                <span>{displayText}</span>
+                              </div>
+                              <span className="text-[12px] italic text-slate-500 font-serif">Date</span>
+                            </div>
+                          ) : element.id === 'brandTitle' && displayText === 'AUTOLEARN SPOT' ? (
+                            <div className="flex items-baseline font-black tracking-wider">
+                              <span className="text-slate-900">AUTOLEARN</span>
+                              <span className="text-emerald-700 ml-2">SPOT</span>
+                            </div>
+                          ) : (
+                            displayText
+                          )}
                         </div>
                       )
                     )}
@@ -1354,55 +1742,68 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                       <img
                         src={displaySrc}
                         alt={element.id}
-                        className="w-full h-full object-contain"
+                        className="w-full h-full object-contain pointer-events-none select-none"
                       />
                     )}
                     {isQrElement && (
-                      <div className="w-full h-full bg-[var(--card)] brightness-95 flex items-center justify-center">
-                        <div className="w-4/5 h-4/5 bg-gray-800 rounded" />
+                      <div className="w-full h-full bg-white rounded border border-slate-300 shadow-2xs flex flex-col items-center justify-center p-1.5 pointer-events-none select-none">
+                        <img
+                          src="/certificate-qr-sample.png"
+                          alt="QR Code"
+                          className="w-[82%] h-[82%] object-contain"
+                        />
+                        <span className="text-[9px] font-bold text-slate-600 tracking-tight leading-none mt-0.5">
+                          Verify
+                        </span>
                       </div>
                     )}
                     {isSelected && !readOnly && (
                       <>
-                        {/* Resize handles */}
+                        {/* Selected Element ID & Position Pill */}
+                        <div className="absolute -top-6 left-0 px-1.5 py-0.5 bg-emerald-700 text-white text-[10px] font-bold rounded shadow-xs whitespace-nowrap pointer-events-none z-50 flex items-center gap-1">
+                          <span>{element.id}</span>
+                          <span className="opacity-75">({Math.round(element.x)}, {Math.round(element.y)})</span>
+                        </div>
+
+                        {/* High-visibility Resize handles */}
                         <div
-                          className="absolute w-2 h-2 bg-brand-bg cursor-nwse-resize"
-                          style={{ top: -4, left: -4 }}
+                          className="absolute w-2.5 h-2.5 bg-emerald-600 border border-white rounded-xs shadow-xs cursor-nwse-resize z-50"
+                          style={{ top: -5, left: -5 }}
                           onMouseDown={(e) => handleElementMouseDown(e, element, 'nw')}
                         />
                         <div
-                          className="absolute w-2 h-2 bg-brand-bg cursor-ns-resize"
-                          style={{ top: -4, left: '50%', transform: 'translateX(-50%)' }}
+                          className="absolute w-2.5 h-2.5 bg-emerald-600 border border-white rounded-xs shadow-xs cursor-ns-resize z-50"
+                          style={{ top: -5, left: '50%', transform: 'translateX(-50%)' }}
                           onMouseDown={(e) => handleElementMouseDown(e, element, 'n')}
                         />
                         <div
-                          className="absolute w-2 h-2 bg-brand-bg cursor-nesw-resize"
-                          style={{ top: -4, right: -4 }}
+                          className="absolute w-2.5 h-2.5 bg-emerald-600 border border-white rounded-xs shadow-xs cursor-nesw-resize z-50"
+                          style={{ top: -5, right: -5 }}
                           onMouseDown={(e) => handleElementMouseDown(e, element, 'ne')}
                         />
                         <div
-                          className="absolute w-2 h-2 bg-brand-bg cursor-ew-resize"
-                          style={{ top: '50%', right: -4, transform: 'translateY(-50%)' }}
+                          className="absolute w-2.5 h-2.5 bg-emerald-600 border border-white rounded-xs shadow-xs cursor-ew-resize z-50"
+                          style={{ top: '50%', right: -5, transform: 'translateY(-50%)' }}
                           onMouseDown={(e) => handleElementMouseDown(e, element, 'e')}
                         />
                         <div
-                          className="absolute w-2 h-2 bg-brand-bg cursor-nwse-resize"
-                          style={{ bottom: -4, right: -4 }}
+                          className="absolute w-2.5 h-2.5 bg-emerald-600 border border-white rounded-xs shadow-xs cursor-nwse-resize z-50"
+                          style={{ bottom: -5, right: -5 }}
                           onMouseDown={(e) => handleElementMouseDown(e, element, 'se')}
                         />
                         <div
-                          className="absolute w-2 h-2 bg-brand-bg cursor-ns-resize"
-                          style={{ bottom: -4, left: '50%', transform: 'translateX(-50%)' }}
+                          className="absolute w-2.5 h-2.5 bg-emerald-600 border border-white rounded-xs shadow-xs cursor-ns-resize z-50"
+                          style={{ bottom: -5, left: '50%', transform: 'translateX(-50%)' }}
                           onMouseDown={(e) => handleElementMouseDown(e, element, 's')}
                         />
                         <div
-                          className="absolute w-2 h-2 bg-brand-bg cursor-nesw-resize"
-                          style={{ bottom: -4, left: -4 }}
+                          className="absolute w-2.5 h-2.5 bg-emerald-600 border border-white rounded-xs shadow-xs cursor-nesw-resize z-50"
+                          style={{ bottom: -5, left: -5 }}
                           onMouseDown={(e) => handleElementMouseDown(e, element, 'sw')}
                         />
                         <div
-                          className="absolute w-2 h-2 bg-brand-bg cursor-ew-resize"
-                          style={{ top: '50%', left: -4, transform: 'translateY(-50%)' }}
+                          className="absolute w-2.5 h-2.5 bg-emerald-600 border border-white rounded-xs shadow-xs cursor-ew-resize z-50"
+                          style={{ top: '50%', left: -5, transform: 'translateY(-50%)' }}
                           onMouseDown={(e) => handleElementMouseDown(e, element, 'w')}
                         />
                       </>
@@ -1561,6 +1962,14 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                     {/* Position Tab */}
                     {activeTab === 'position' && (
                       <div className="space-y-3">
+                        <button
+                          type="button"
+                          onClick={() => handleCenterElement(selectedElementData.id)}
+                          className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-semibold transition-colors"
+                        >
+                          <AlignCenter className="h-3.5 w-3.5" />
+                          <span>Center Horizontally on Canvas</span>
+                        </button>
                         <div className="grid grid-cols-2 gap-2">
                           <div>
                             <label className="block text-xs text-brand-text/60 mb-1">X</label>
@@ -1670,7 +2079,16 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-brand-text/60 mb-1">Background Color</label>
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="block text-xs text-brand-text/60">Background Color</label>
+                            <button
+                              type="button"
+                              onClick={() => handleStyleChange('background', 'transparent')}
+                              className="text-[10px] text-emerald-600 dark:text-emerald-400 hover:underline"
+                            >
+                              Clear (Transparent)
+                            </button>
+                          </div>
                           <div className="flex gap-2">
                             <input
                               type="color"
@@ -1686,6 +2104,25 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                               className="flex-1 px-3 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded text-sm text-brand-text"
                               disabled={readOnly}
                             />
+                          </div>
+                          <div className="flex gap-1.5 mt-2">
+                            {[
+                              { color: '#0f172a', label: 'Dark Slate' },
+                              { color: '#047857', label: 'Emerald' },
+                              { color: '#045a38', label: 'Forest Green' },
+                              { color: '#b45309', label: 'Warm Amber' },
+                              { color: '#334155', label: 'Slate Gray' },
+                              { color: '#475569', label: 'Muted Gray' },
+                            ].map((c) => (
+                              <button
+                                key={c.color}
+                                type="button"
+                                onClick={() => handleStyleChange('color', c.color)}
+                                style={{ backgroundColor: c.color }}
+                                className="w-5 h-5 rounded-full border border-brand-border shadow-2xs hover:scale-110 transition-transform"
+                                title={c.label}
+                              />
+                            ))}
                           </div>
                         </div>
                         <div>
@@ -1733,6 +2170,25 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                               disabled={readOnly}
                             />
                           </div>
+                          <div className="flex gap-1.5 mt-2">
+                            {[
+                              { color: '#0f172a', label: 'Dark Slate' },
+                              { color: '#047857', label: 'Emerald' },
+                              { color: '#045a38', label: 'Forest Green' },
+                              { color: '#b45309', label: 'Warm Amber' },
+                              { color: '#334155', label: 'Slate Gray' },
+                              { color: '#475569', label: 'Muted Gray' },
+                            ].map((c) => (
+                              <button
+                                key={c.color}
+                                type="button"
+                                onClick={() => handleStyleChange('color', c.color)}
+                                style={{ backgroundColor: c.color }}
+                                className="w-5 h-5 rounded-full border border-brand-border shadow-2xs hover:scale-110 transition-transform"
+                                title={c.label}
+                              />
+                            ))}
+                          </div>
                         </div>
                       </div>
                     )}
@@ -1776,14 +2232,15 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                             className="w-full px-3 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded text-sm text-brand-text"
                             disabled={readOnly}
                           >
-                            <option value="Roboto">Roboto</option>
-                            <option value="Open Sans">Open Sans</option>
-                            <option value="Lato">Lato</option>
-                            <option value="Montserrat">Montserrat</option>
-                            <option value="Playfair Display">Playfair Display</option>
-                            <option value="Oswald">Oswald</option>
-                            <option value="Raleway">Raleway</option>
-                            <option value="Poppins">Poppins</option>
+                            <option value="Playfair Display">Playfair Display (Serif Luxury)</option>
+                            <option value="Georgia">Georgia (Classic Serif)</option>
+                            <option value="Times New Roman">Times New Roman (Formal)</option>
+                            <option value="Roboto">Roboto (Clean Sans)</option>
+                            <option value="Inter">Inter (Modern Sans)</option>
+                            <option value="Montserrat">Montserrat (Bold Sans)</option>
+                            <option value="Poppins">Poppins (Geometric Sans)</option>
+                            <option value="monospace">Monospace (Code / ID)</option>
+                            <option value="system-ui">system-ui (Native)</option>
                           </select>
                         </div>
                         <div>
@@ -1839,11 +2296,11 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                           </select>
                         </div>
                         <div>
-                          <label className="block text-xs text-brand-text/60 mb-1">Color</label>
+                          <label className="block text-xs text-brand-text/60 mb-1">Text Color</label>
                           <div className="flex gap-2">
                             <input
                               type="color"
-                              value={selectedElementData.style?.color || '#f5f5f5'}
+                              value={selectedElementData.style?.color || '#0f172a'}
                               onChange={(e) => handleStyleChange('color', e.target.value)}
                               className="h-8 w-10 rounded border border-brand-border cursor-pointer"
                               disabled={readOnly}
@@ -1855,6 +2312,25 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                               className="flex-1 px-3 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded text-sm text-brand-text"
                               disabled={readOnly}
                             />
+                          </div>
+                          <div className="flex gap-1.5 mt-2">
+                            {[
+                              { color: '#0f172a', label: 'Dark Slate' },
+                              { color: '#047857', label: 'Emerald' },
+                              { color: '#045a38', label: 'Forest Green' },
+                              { color: '#b45309', label: 'Warm Amber' },
+                              { color: '#334155', label: 'Slate Gray' },
+                              { color: '#475569', label: 'Muted Gray' },
+                            ].map((c) => (
+                              <button
+                                key={c.color}
+                                type="button"
+                                onClick={() => handleStyleChange('color', c.color)}
+                                style={{ backgroundColor: c.color }}
+                                className="w-5 h-5 rounded-full border border-brand-border shadow-2xs hover:scale-110 transition-transform"
+                                title={c.label}
+                              />
+                            ))}
                           </div>
                         </div>
                         <div>
@@ -1897,6 +2373,25 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                               className="flex-1 px-3 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded text-sm text-brand-text"
                               disabled={readOnly}
                             />
+                          </div>
+                          <div className="flex gap-1.5 mt-2">
+                            {[
+                              { color: '#0f172a', label: 'Dark Slate' },
+                              { color: '#047857', label: 'Emerald' },
+                              { color: '#045a38', label: 'Forest Green' },
+                              { color: '#b45309', label: 'Warm Amber' },
+                              { color: '#334155', label: 'Slate Gray' },
+                              { color: '#475569', label: 'Muted Gray' },
+                            ].map((c) => (
+                              <button
+                                key={c.color}
+                                type="button"
+                                onClick={() => handleStyleChange('color', c.color)}
+                                style={{ backgroundColor: c.color }}
+                                className="w-5 h-5 rounded-full border border-brand-border shadow-2xs hover:scale-110 transition-transform"
+                                title={c.label}
+                              />
+                            ))}
                           </div>
                         </div>
                         <div>
@@ -1983,6 +2478,25 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                               className="flex-1 px-3 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded text-sm text-brand-text"
                               disabled={readOnly}
                             />
+                          </div>
+                          <div className="flex gap-1.5 mt-2">
+                            {[
+                              { color: '#0f172a', label: 'Dark Slate' },
+                              { color: '#047857', label: 'Emerald' },
+                              { color: '#045a38', label: 'Forest Green' },
+                              { color: '#b45309', label: 'Warm Amber' },
+                              { color: '#334155', label: 'Slate Gray' },
+                              { color: '#475569', label: 'Muted Gray' },
+                            ].map((c) => (
+                              <button
+                                key={c.color}
+                                type="button"
+                                onClick={() => handleStyleChange('color', c.color)}
+                                style={{ backgroundColor: c.color }}
+                                className="w-5 h-5 rounded-full border border-brand-border shadow-2xs hover:scale-110 transition-transform"
+                                title={c.label}
+                              />
+                            ))}
                           </div>
                         </div>
                       </div>

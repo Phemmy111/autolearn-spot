@@ -53,17 +53,24 @@ export default function AdminCertificatesSettingsPage() {
           
           // Load layout if it exists
           if (data.settings.layout) {
-            console.log('Layout found in settings:', data.settings.layout);
             try {
-              const parsedLayout = JSON.parse(data.settings.layout);
-              console.log('Parsed layout:', parsedLayout);
+              const parsedLayout = typeof data.settings.layout === 'string'
+                ? JSON.parse(data.settings.layout)
+                : data.settings.layout;
               const validation = validateLayout(parsedLayout);
-              console.log('Layout validation:', validation);
-              if (validation.valid) {
+              // Check if it's the old dark theme layout (e.g. background color was #06101f or course had dark box or missing elements)
+              const hasOldDarkTheme = 
+                !parsedLayout?.elements ||
+                parsedLayout.elements.length < 12 ||
+                !parsedLayout.elements.some((el: any) => el.id === 'seal') ||
+                parsedLayout?.canvas?.backgroundColor === '#06101f' || 
+                parsedLayout?.elements?.find((el: any) => el.id === 'course')?.style?.background === '#040b17' ||
+                parsedLayout?.elements?.find((el: any) => el.id === 'logo')?.visible === false;
+              
+              if (validation.valid && !hasOldDarkTheme) {
                 setLayout(parsedLayout);
-                console.log('Layout loaded successfully');
               } else {
-                console.error('Invalid layout loaded:', validation.errors);
+                console.log('Upgrading old layout to luxury parchment layout');
                 setLayout(DEFAULT_CERTIFICATE_LAYOUT);
               }
             } catch (e) {
@@ -71,7 +78,7 @@ export default function AdminCertificatesSettingsPage() {
               setLayout(DEFAULT_CERTIFICATE_LAYOUT);
             }
           } else {
-            console.log('No layout found in settings, using default');
+            setLayout(DEFAULT_CERTIFICATE_LAYOUT);
           }
         }
       } else {
@@ -84,66 +91,62 @@ export default function AdminCertificatesSettingsPage() {
     }
   };
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async (e?: React.FormEvent | React.MouseEvent | any) => {
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
     setIsSaving(true);
     setIsUploading(true);
     setError(null);
     setSuccess(false);
 
     try {
-      // Upload files first
-      const formData = new FormData();
-      
-      if (backgroundFile) {
-        formData.append('backgroundFile', backgroundFile);
+      let uploadedBackgroundUrl = settings.backgroundUrl;
+      let uploadedLogoUrl = settings.logoUrl;
+      let uploadedSignatureUrl = settings.signatureUrl;
+
+      // Upload files if any selected
+      if (backgroundFile || logoFile || signatureFile) {
+        const formData = new FormData();
+        if (backgroundFile) formData.append('backgroundFile', backgroundFile);
+        if (logoFile) formData.append('logoFile', logoFile);
+        if (signatureFile) formData.append('signatureFile', signatureFile);
+        formData.append('backgroundUrl', settings.backgroundUrl);
+        formData.append('logoUrl', settings.logoUrl);
+        formData.append('signatureUrl', settings.signatureUrl);
+
+        const uploadRes = await fetch('/api/admin/certificate-assets', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          const data = await uploadRes.json();
+          console.error('Upload failed:', data);
+          throw new Error(data.error || 'Failed to upload assets');
+        }
+
+        const uploadData = await uploadRes.json();
+        uploadedBackgroundUrl = uploadData.backgroundUrl || uploadedBackgroundUrl;
+        uploadedLogoUrl = uploadData.logoUrl || uploadedLogoUrl;
+        uploadedSignatureUrl = uploadData.signatureUrl || uploadedSignatureUrl;
       }
-      if (logoFile) {
-        formData.append('logoFile', logoFile);
-      }
-      if (signatureFile) {
-        formData.append('signatureFile', signatureFile);
-      }
-      
-      // Add existing URLs as fallbacks
-      formData.append('backgroundUrl', settings.backgroundUrl);
-      formData.append('logoUrl', settings.logoUrl);
-      formData.append('signatureUrl', settings.signatureUrl);
-      
-      // Upload to certificate API
-      const uploadRes = await fetch('/api/admin/certificate-assets', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      if (!uploadRes.ok) {
-        const data = await uploadRes.json();
-        console.error('Upload failed:', data);
-        throw new Error(data.error || 'Failed to upload assets');
-      }
-      
-      const uploadData = await uploadRes.json();
-      console.log('Upload successful:', uploadData);
-      
-      // Update settings with uploaded URLs
+
+      // Update settings with uploaded URLs and current layout
       const updatedSettings = {
         ...settings,
-        backgroundUrl: uploadData.backgroundUrl || settings.backgroundUrl,
-        logoUrl: uploadData.logoUrl || settings.logoUrl,
-        signatureUrl: uploadData.signatureUrl || settings.signatureUrl,
+        backgroundUrl: uploadedBackgroundUrl || settings.backgroundUrl,
+        logoUrl: uploadedLogoUrl || settings.logoUrl,
+        signatureUrl: uploadedSignatureUrl || settings.signatureUrl,
         layout: layout,
       };
-      
-      console.log('Saving certificate settings with layout:', updatedSettings.layout ? 'present' : 'missing');
-      console.log('Layout being saved:', JSON.stringify(layout, null, 2));
-      
+
       // Only save layout if it's not null/undefined
       if (!layout || Object.keys(layout).length === 0) {
-        console.log('Layout is empty, not saving it');
         delete updatedSettings.layout;
       }
-      
-      // Save all settings
+
+      // Save all settings to master-settings
       const res = await fetch('/api/admin/master-settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -151,14 +154,10 @@ export default function AdminCertificatesSettingsPage() {
       });
 
       if (res.ok) {
-        console.log('Settings saved successfully');
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
-        // Refresh settings from database to get the new uploaded URLs
-        console.log('Refreshing settings after save...');
+        // Refresh settings from database
         await fetchSettings();
-        console.log('Settings refreshed');
-        // Clear file uploads after successful save
         setBackgroundFile(null);
         setLogoFile(null);
         setSignatureFile(null);
