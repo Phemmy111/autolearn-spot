@@ -26,20 +26,23 @@ export class PartnerWithdrawalService {
         return { success: false, error: `Minimum withdrawal amount is ₦${MIN_WITHDRAWAL.toLocaleString()}` };
       }
 
-      // Check partner's available earnings
-      const { data: partner, error: partnerError } = await supabase
+      // Check partner's available earnings (flexible ID lookup)
+      const { data: matchedPartners, error: partnerError } = await supabase
         .from('partners')
-        .select('available_earnings')
-        .eq('id', partnerId)
-        .single();
+        .select('id, available_earnings')
+        .or(`id.eq.${partnerId},partner_id.eq.${partnerId},user_id.eq.${partnerId}`)
+        .limit(1);
+
+      const partner = matchedPartners?.[0];
 
       if (partnerError || !partner) {
-        console.error('Partner not found:', partnerError);
+        console.error('Partner not found for withdrawal:', { partnerId, partnerError });
         return { success: false, error: 'Partner not found' };
       }
 
-      if (partner.available_earnings < amount) {
-        console.error(`Insufficient earnings: ${partner.available_earnings} < ${amount}`);
+      const availableNum = Number(partner.available_earnings) || 0;
+      if (availableNum < amount) {
+        console.error(`Insufficient earnings: ${availableNum} < ${amount}`);
         return { success: false, error: 'Insufficient balance' };
       }
 
@@ -48,7 +51,7 @@ export class PartnerWithdrawalService {
       const { data: withdrawalData, error: withdrawalError } = await supabase
         .from('author_withdrawals')
         .insert({
-          author_id: partnerId,
+          author_id: partner.id,
           amount: amount,
           status: 'PENDING',
           reference: reference
@@ -66,7 +69,7 @@ export class PartnerWithdrawalService {
         await supabase
           .from('partner_bank_profiles')
           .upsert({
-            partner_id: partnerId,
+            partner_id: partner.id,
             bank_name: bankName,
             account_number: accountNumber,
             account_name: accountName
@@ -79,9 +82,9 @@ export class PartnerWithdrawalService {
       await supabase
         .from('partners')
         .update({
-          available_earnings: Math.max(0, (partner.available_earnings || 0) - amount)
+          available_earnings: Math.max(0, availableNum - amount)
         })
-        .eq('id', partnerId);
+        .eq('id', partner.id);
 
       return { success: true, withdrawal: withdrawalData };
     } catch (error) {
@@ -100,7 +103,7 @@ export class PartnerWithdrawalService {
   ): Promise<boolean> {
     try {
       const { data: withdrawal, error: withdrawalError } = await supabase
-        .from('partner_withdrawals')
+        .from('author_withdrawals')
         .select('*')
         .eq('id', withdrawalId)
         .single();
@@ -110,19 +113,18 @@ export class PartnerWithdrawalService {
         return false;
       }
 
-      if (withdrawal.status !== 'pending') {
+      if ((withdrawal.status || '').toUpperCase() !== 'PENDING') {
         console.error('Withdrawal is not in pending status');
         return false;
       }
 
-      // Update withdrawal status
+      // Update withdrawal status in author_withdrawals
       const { error: updateError } = await supabase
-        .from('partner_withdrawals')
+        .from('author_withdrawals')
         .update({
-          status: 'approved',
-          approved_by: approvedBy,
-          approved_at: new Date().toISOString(),
-          payment_reference: paymentReference
+          status: 'PAID',
+          reference: paymentReference || withdrawal.reference || `PAID-${Date.now().toString(36).toUpperCase()}`,
+          updated_at: new Date().toISOString()
         })
         .eq('id', withdrawalId);
 
@@ -130,28 +132,6 @@ export class PartnerWithdrawalService {
         console.error('Error approving withdrawal:', updateError);
         return false;
       }
-
-      // The database trigger will handle updating partner totals
-
-      // Log activity
-      await supabase.from('partner_activity_logs').insert({
-        partner_id: withdrawal.partner_id,
-        activity_type: 'withdrawal_approved',
-        activity_data: {
-          withdrawal_id: withdrawalId,
-          amount: withdrawal.amount,
-          approved_by: approvedBy
-        }
-      });
-
-      // Create notification
-      await supabase.from('partner_notifications').insert({
-        partner_id: withdrawal.partner_id,
-        title: 'Withdrawal Approved',
-        message: `Your withdrawal request of ₦${withdrawal.amount} has been approved. Payment will be processed shortly.`,
-        notification_type: 'withdrawal',
-        action_url: '/partners/dashboard?tab=withdrawals'
-      });
 
       return true;
     } catch (error) {
@@ -169,7 +149,7 @@ export class PartnerWithdrawalService {
   ): Promise<boolean> {
     try {
       const { data: withdrawal, error: withdrawalError } = await supabase
-        .from('partner_withdrawals')
+        .from('author_withdrawals')
         .select('*')
         .eq('id', withdrawalId)
         .single();
@@ -179,18 +159,13 @@ export class PartnerWithdrawalService {
         return false;
       }
 
-      if (withdrawal.status !== 'approved') {
-        console.error('Withdrawal is not in approved status');
-        return false;
-      }
-
       // Update withdrawal status
       const { error: updateError } = await supabase
-        .from('partner_withdrawals')
+        .from('author_withdrawals')
         .update({
-          status: 'paid',
-          paid_at: new Date().toISOString(),
-          payment_reference: paymentReference
+          status: 'PAID',
+          reference: paymentReference,
+          updated_at: new Date().toISOString()
         })
         .eq('id', withdrawalId);
 
@@ -198,26 +173,6 @@ export class PartnerWithdrawalService {
         console.error('Error marking withdrawal as paid:', updateError);
         return false;
       }
-
-      // Log activity
-      await supabase.from('partner_activity_logs').insert({
-        partner_id: withdrawal.partner_id,
-        activity_type: 'withdrawal_paid',
-        activity_data: {
-          withdrawal_id: withdrawalId,
-          amount: withdrawal.amount,
-          payment_reference: paymentReference
-        }
-      });
-
-      // Create notification
-      await supabase.from('partner_notifications').insert({
-        partner_id: withdrawal.partner_id,
-        title: 'Withdrawal Paid',
-        message: `Your withdrawal of ₦${withdrawal.amount} has been paid. Reference: ${paymentReference}`,
-        notification_type: 'withdrawal',
-        action_url: '/partners/dashboard?tab=withdrawals'
-      });
 
       return true;
     } catch (error) {
@@ -236,7 +191,7 @@ export class PartnerWithdrawalService {
   ): Promise<boolean> {
     try {
       const { data: withdrawal, error: withdrawalError } = await supabase
-        .from('partner_withdrawals')
+        .from('author_withdrawals')
         .select('*')
         .eq('id', withdrawalId)
         .single();
@@ -246,18 +201,17 @@ export class PartnerWithdrawalService {
         return false;
       }
 
-      if (withdrawal.status !== 'pending') {
+      if ((withdrawal.status || '').toUpperCase() !== 'PENDING') {
         console.error('Withdrawal is not in pending status');
         return false;
       }
 
       // Update withdrawal status
       const { error: updateError } = await supabase
-        .from('partner_withdrawals')
+        .from('author_withdrawals')
         .update({
-          status: 'rejected',
-          approved_by: approvedBy,
-          rejection_reason: reason
+          status: 'REJECTED',
+          updated_at: new Date().toISOString()
         })
         .eq('id', withdrawalId);
 
@@ -267,32 +221,20 @@ export class PartnerWithdrawalService {
       }
 
       // Refund the amount to partner's available earnings
-      await supabase
+      const { data: partner } = await supabase
         .from('partners')
-        .update({
-          available_earnings: (await supabase.from('partners').select('available_earnings').eq('id', withdrawal.partner_id).single()).data?.available_earnings || 0 + withdrawal.amount
-        })
-        .eq('id', withdrawal.partner_id);
+        .select('id, available_earnings')
+        .or(`id.eq.${withdrawal.author_id},partner_id.eq.${withdrawal.author_id},user_id.eq.${withdrawal.author_id}`)
+        .maybeSingle();
 
-      // Log activity
-      await supabase.from('partner_activity_logs').insert({
-        partner_id: withdrawal.partner_id,
-        activity_type: 'withdrawal_rejected',
-        activity_data: {
-          withdrawal_id: withdrawalId,
-          amount: withdrawal.amount,
-          reason: reason
-        }
-      });
-
-      // Create notification
-      await supabase.from('partner_notifications').insert({
-        partner_id: withdrawal.partner_id,
-        title: 'Withdrawal Rejected',
-        message: `Your withdrawal request of ₦${withdrawal.amount} has been rejected. Reason: ${reason}`,
-        notification_type: 'withdrawal',
-        action_url: '/partners/dashboard?tab=withdrawals'
-      });
+      if (partner) {
+        await supabase
+          .from('partners')
+          .update({
+            available_earnings: (Number(partner.available_earnings) || 0) + Number(withdrawal.amount || 0)
+          })
+          .eq('id', partner.id);
+      }
 
       return true;
     } catch (error) {
@@ -307,9 +249,9 @@ export class PartnerWithdrawalService {
   static async getWithdrawalHistory(partnerId: string): Promise<any[] | null> {
     try {
       const { data, error } = await supabase
-        .from('partner_withdrawals')
+        .from('author_withdrawals')
         .select('*')
-        .eq('partner_id', partnerId)
+        .or(`author_id.eq.${partnerId}`)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -330,17 +272,9 @@ export class PartnerWithdrawalService {
   static async getPendingWithdrawals(): Promise<any[] | null> {
     try {
       const { data, error } = await supabase
-        .from('partner_withdrawals')
-        .select(`
-          *,
-          partners (
-            id,
-            partner_id,
-            full_name,
-            email
-          )
-        `)
-        .eq('status', 'pending')
+        .from('author_withdrawals')
+        .select('*')
+        .eq('status', 'PENDING')
         .order('created_at', { ascending: false });
 
       if (error) {

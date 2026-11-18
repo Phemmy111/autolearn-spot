@@ -14,12 +14,16 @@ async function resolvePartner(request: Request) {
   try {
     const session = await SessionService.getSession();
     if (session?.userId) {
-      const { data: partner } = await supabaseAdmin
+      const { data: matchedPartners } = await supabaseAdmin
         .from('partners')
         .select('*')
         .or(`id.eq.${session.userId},user_id.eq.${session.userId},partner_id.eq.${session.userId}`)
-        .maybeSingle();
-      if (partner) return partner;
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (matchedPartners && matchedPartners.length > 0) {
+        return matchedPartners[0];
+      }
     }
   } catch (err) {
     console.warn('[bank-profile] Session check error:', err);
@@ -29,12 +33,16 @@ async function resolvePartner(request: Request) {
   try {
     const { userId } = await auth();
     if (userId) {
-      const { data: partner } = await supabaseAdmin
+      const { data: matchedPartners } = await supabaseAdmin
         .from('partners')
         .select('*')
         .or(`id.eq.${userId},user_id.eq.${userId}`)
-        .maybeSingle();
-      if (partner) return partner;
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (matchedPartners && matchedPartners.length > 0) {
+        return matchedPartners[0];
+      }
     }
   } catch (err) {
     console.warn('[bank-profile] Clerk check error:', err);
@@ -95,37 +103,41 @@ async function handleSaveBankProfile(request: Request) {
 
     let savedData = null;
     if (existingProfile) {
-      // Update existing record
+      // Update existing record (only columns that exist in schema)
       const { data, error } = await supabaseAdmin
         .from('partner_bank_profiles')
         .update({
           bank_name: trimmedBank,
           account_number: trimmedNumber,
           account_name: trimmedName,
-          account_type: account_type || 'savings',
           updated_at: new Date().toISOString()
         })
         .eq('id', existingProfile.id)
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('[handleSaveBankProfile] Update error:', error);
+        throw error;
+      }
       savedData = data;
     } else {
-      // Insert new record
+      // Insert new record (only columns that exist in schema)
       const { data, error } = await supabaseAdmin
         .from('partner_bank_profiles')
         .insert({
           partner_id: partner.id,
           bank_name: trimmedBank,
           account_number: trimmedNumber,
-          account_name: trimmedName,
-          account_type: account_type || 'savings'
+          account_name: trimmedName
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('[handleSaveBankProfile] Insert error:', error);
+        throw error;
+      }
       savedData = data;
     }
 

@@ -29,7 +29,12 @@ import {
   Building,
   BookOpen,
   Sparkles,
-  Globe
+  Globe,
+  MapPin,
+  MessageCircle,
+  Target,
+  Award,
+  User
 } from 'lucide-react';
 
 interface Partner {
@@ -53,13 +58,28 @@ interface Partner {
 
 interface Application {
   id: string;
-  partner_id: string;
-  name: string;
+  partner_id?: string;
+  name?: string;
   full_name: string;
   email: string;
   phone?: string | null;
+  whatsapp?: string | null;
+  state?: string | null;
+  occupation?: string | null;
+  organization?: string | null;
+  website?: string | null;
+  motivation?: string | null;
+  promotion_method?: string | null;
+  experience?: string | null;
+  facebook?: string | null;
+  instagram?: string | null;
+  tiktok?: string | null;
+  linkedin?: string | null;
+  youtube?: string | null;
+  passport_url?: string | null;
   status: string;
-  created_at: string;
+  created_at?: string;
+  applied_at?: string;
 }
 
 interface Withdrawal {
@@ -114,6 +134,16 @@ export default function AdminPartnersPage() {
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
   const [editingRate, setEditingRate] = useState<number>(20);
   const [updatingCourse, setUpdatingCourse] = useState(false);
+
+  // Application Details Modal State
+  const [appFilter, setAppFilter] = useState<'all' | 'pending' | 'active' | 'rejected'>('all');
+  const [showAppModal, setShowAppModal] = useState(false);
+  const [selectedAppModal, setSelectedAppModal] = useState<Application | null>(null);
+
+  const handleOpenAppModal = (app: Application) => {
+    setSelectedAppModal(app);
+    setShowAppModal(true);
+  };
 
   // Product Links Modal (Product-based affiliate system)
   const [showProductModal, setShowProductModal] = useState(false);
@@ -226,11 +256,17 @@ export default function AdminPartnersPage() {
     });
   }, [partners, searchQuery, statusFilter]);
 
+  // Filtered applications
+  const displayedApplications = useMemo(() => {
+    if (appFilter === 'all') return applications;
+    return applications.filter((a) => (a.status || 'pending').toLowerCase() === appFilter.toLowerCase());
+  }, [applications, appFilter]);
+
   // Aggregate KPI metrics
   const stats = useMemo(() => {
     const totalPartners = partners.length;
     const activePartners = partners.filter((p) => p.status === 'active').length;
-    const pendingApps = applications.length + partners.filter((p) => p.status === 'pending').length;
+    const pendingApps = applications.filter((a) => (a.status || 'pending').toLowerCase() === 'pending').length;
     const totalReferrals = partners.reduce((sum, p) => sum + (Number(p.total_registrations) || 0), 0);
     const totalClicks = partners.reduce((sum, p) => sum + (Number(p.total_clicks) || 0), 0);
     // Real cumulative earnings credited to partners (not double-counted)
@@ -920,73 +956,181 @@ export default function AdminPartnersPage() {
       {/* TAB 2: APPLICATIONS */}
       {activeTab === 'applications' && (
         <div className="bg-white border border-slate-200 rounded-b-xl shadow-xs overflow-hidden">
-          <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+          {/* Header with queue description & Filter Pills */}
+          <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h3 className="font-bold text-slate-900">Partner Applications Queue</h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Prospective community advocates and influencers applying to promote AutoLearn Spot.
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-slate-900 text-base">Partner Applications & Form Dossier</h3>
+                <span className="text-xs font-semibold px-2.5 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-full">
+                  {applications.filter(a => (a.status || '').toLowerCase() === 'pending').length} Pending
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mt-1">
+                Review submitted candidate details, motivation, promotion strategy, WhatsApp, and social channels before approving.
               </p>
             </div>
-            <span className="text-xs font-semibold px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full">
-              {applications.length} Pending
-            </span>
+
+            {/* Filter Buttons */}
+            <div className="flex items-center gap-1.5 bg-white border border-slate-200 p-1 rounded-xl self-start sm:self-center shadow-2xs">
+              <button
+                onClick={() => setAppFilter('all')}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                  appFilter === 'all'
+                    ? 'bg-slate-900 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
+              >
+                All ({applications.length})
+              </button>
+              <button
+                onClick={() => setAppFilter('pending')}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                  appFilter === 'pending'
+                    ? 'bg-amber-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-amber-700 hover:bg-amber-50'
+                }`}
+              >
+                Pending ({applications.filter(a => (a.status || '').toLowerCase() === 'pending').length})
+              </button>
+              <button
+                onClick={() => setAppFilter('active')}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                  appFilter === 'active'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-emerald-700 hover:bg-emerald-50'
+                }`}
+              >
+                Approved ({applications.filter(a => (a.status || '').toLowerCase() === 'active').length})
+              </button>
+            </div>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm divide-y divide-slate-200">
               <thead className="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider font-semibold">
                 <tr>
-                  <th className="px-5 py-3.5">Candidate</th>
-                  <th className="px-4 py-3.5">Email</th>
-                  <th className="px-4 py-3.5">Phone / WhatsApp</th>
+                  <th className="px-5 py-3.5">Candidate & Role</th>
+                  <th className="px-4 py-3.5">Location & WhatsApp</th>
+                  <th className="px-4 py-3.5">Promotion Method</th>
                   <th className="px-4 py-3.5">Applied Date</th>
                   <th className="px-4 py-3.5">Status</th>
-                  <th className="px-5 py-3.5 text-right">Decision</th>
+                  <th className="px-5 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
-                {applications.length === 0 ? (
+                {displayedApplications.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
                       <CheckCircle className="h-8 w-8 mx-auto text-emerald-400 mb-2" />
-                      <p className="font-semibold text-slate-700">All caught up!</p>
-                      <p className="text-xs text-slate-400 mt-1">There are no pending partner applications at this time.</p>
+                      <p className="font-semibold text-slate-700">No applications match this filter</p>
+                      <p className="text-xs text-slate-400 mt-1">Select "All" to inspect all candidate dossiers.</p>
                     </td>
                   </tr>
                 ) : (
-                  applications.map((app) => (
-                    <tr key={app.id} className="hover:bg-slate-50/70">
-                      <td className="px-5 py-4 font-semibold text-slate-900">
-                        {app.full_name || app.name}
+                  displayedApplications.map((app) => (
+                    <tr key={app.id || app.email} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white font-black text-xs flex items-center justify-center shrink-0">
+                            {(app.full_name || app.name || 'P')[0]}
+                          </div>
+                          <div>
+                            <p 
+                              onClick={() => handleOpenAppModal(app)}
+                              className="font-bold text-slate-900 hover:text-emerald-700 cursor-pointer"
+                            >
+                              {app.full_name || app.name}
+                            </p>
+                            <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-0.5">
+                              <span>{app.occupation || 'Affiliate Marketer'}</span>
+                              {app.partner_id && (
+                                <span className="font-mono text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded border border-slate-200">
+                                  {app.partner_id}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       </td>
-                      <td className="px-4 py-4 text-slate-600">
-                        {app.email}
+
+                      <td className="px-4 py-4 text-xs">
+                        <p className="text-slate-800 font-medium">{app.email}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-slate-500 flex items-center gap-1">
+                            <MapPin className="h-3 w-3 text-slate-400" /> {app.state || 'Lagos'}
+                          </span>
+                          {(app.whatsapp || app.phone) && (
+                            <a
+                              href={`https://wa.me/${(app.whatsapp || app.phone || '').replace(/[^0-9]/g, '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-700 font-medium"
+                              title="Chat on WhatsApp"
+                            >
+                              <MessageCircle className="h-3 w-3" />
+                              <span>{app.whatsapp || app.phone}</span>
+                            </a>
+                          )}
+                        </div>
                       </td>
-                      <td className="px-4 py-4 text-slate-600">
-                        {app.phone || 'N/A'}
+
+                      <td className="px-4 py-4 max-w-xs">
+                        <p className="text-xs text-slate-700 line-clamp-2">
+                          {app.promotion_method || 'Social media and direct student networks'}
+                        </p>
+                        {app.website && (
+                          <a
+                            href={app.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-[11px] text-blue-600 hover:underline mt-0.5 truncate max-w-xs"
+                          >
+                            <Globe className="h-2.5 w-2.5" /> {app.website.replace(/^https?:\/\//, '')}
+                          </a>
+                        )}
                       </td>
+
                       <td className="px-4 py-4 text-slate-500 text-xs">
-                        {new Date(app.created_at).toLocaleDateString()}
+                        {app.applied_at || app.created_at ? new Date(app.applied_at || app.created_at!).toLocaleDateString() : 'N/A'}
                       </td>
+
                       <td className="px-4 py-4">
-                        <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                          Pending
+                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${
+                          (app.status || '').toLowerCase() === 'active'
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            : (app.status || '').toLowerCase() === 'pending'
+                            ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                            : 'bg-rose-50 text-rose-700 border border-rose-200'
+                        }`}>
+                          {app.status || 'active'}
                         </span>
                       </td>
+
                       <td className="px-5 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button
-                            onClick={() => handleProcessApplication(app.id, 'approve')}
-                            className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition-colors shadow-xs"
+                            onClick={() => handleOpenAppModal(app)}
+                            className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5"
+                            title="Inspect complete submitted application form"
                           >
-                            Approve
+                            <Eye className="h-3.5 w-3.5" /> View Form
                           </button>
-                          <button
-                            onClick={() => handleProcessApplication(app.id, 'reject')}
-                            className="px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-semibold transition-colors"
-                          >
-                            Reject
-                          </button>
+                          {(app.status || '').toLowerCase() === 'pending' && (
+                            <>
+                              <button
+                                onClick={() => handleProcessApplication(app.id, 'approve')}
+                                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-colors shadow-xs"
+                              >
+                                Approve
+                              </button>
+                              <button
+                                onClick={() => handleProcessApplication(app.id, 'reject')}
+                                className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-bold transition-colors"
+                              >
+                                Reject
+                              </button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -1524,6 +1668,106 @@ export default function AdminPartnersPage() {
                     </div>
                   </div>
 
+                  {/* Submitted Application Form Dossier */}
+                  {selectedPartnerDetail.applicationDetails && (
+                    <div className="border border-slate-200 rounded-xl p-4 space-y-3 bg-slate-50/50">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-emerald-600" />
+                          <h4 className="font-bold text-xs uppercase text-slate-700 tracking-wider">
+                            Submitted Application Form Dossier
+                          </h4>
+                        </div>
+                        <span className="text-[11px] font-semibold text-slate-500">
+                          {selectedPartnerDetail.applicationDetails.occupation || 'Affiliate Partner'}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs bg-white p-3 rounded-lg border border-slate-200">
+                        <div>
+                          <span className="text-slate-400 font-medium">State / Region:</span>
+                          <p className="font-bold text-slate-900 mt-0.5">{selectedPartnerDetail.applicationDetails.state || 'Lagos, Nigeria'}</p>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 font-medium">Occupation:</span>
+                          <p className="font-bold text-slate-900 mt-0.5">{selectedPartnerDetail.applicationDetails.occupation || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 font-medium">WhatsApp Line:</span>
+                          <p className="mt-0.5">
+                            {selectedPartnerDetail.applicationDetails.whatsapp || selectedPartnerDetail.applicationDetails.phone ? (
+                              <a
+                                href={`https://wa.me/${(selectedPartnerDetail.applicationDetails.whatsapp || selectedPartnerDetail.applicationDetails.phone || '').replace(/[^0-9]/g, '')}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-bold text-emerald-700 hover:underline inline-flex items-center gap-1"
+                              >
+                                <MessageCircle className="h-3 w-3" />
+                                {selectedPartnerDetail.applicationDetails.whatsapp || selectedPartnerDetail.applicationDetails.phone}
+                              </a>
+                            ) : (
+                              <span className="font-bold text-slate-900">None provided</span>
+                            )}
+                          </p>
+                        </div>
+                        {selectedPartnerDetail.applicationDetails.organization && (
+                          <div>
+                            <span className="text-slate-400 font-medium">Organization:</span>
+                            <p className="font-bold text-slate-900 mt-0.5">{selectedPartnerDetail.applicationDetails.organization}</p>
+                          </div>
+                        )}
+                        {selectedPartnerDetail.applicationDetails.website && (
+                          <div>
+                            <span className="text-slate-400 font-medium">Website:</span>
+                            <p className="mt-0.5">
+                              <a
+                                href={selectedPartnerDetail.applicationDetails.website}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-bold text-blue-600 hover:underline inline-flex items-center gap-1"
+                              >
+                                {selectedPartnerDetail.applicationDetails.website.replace(/^https?:\/\//, '')}
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Promotion Method & Motivation */}
+                      <div className="space-y-2 text-xs">
+                        <div className="p-3 bg-white rounded-lg border border-slate-200">
+                          <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] block mb-1">
+                            Promotion Strategy / Method:
+                          </span>
+                          <p className="text-slate-800 leading-relaxed">
+                            {selectedPartnerDetail.applicationDetails.promotion_method || 'Direct student referral and social community promotion.'}
+                          </p>
+                        </div>
+
+                        <div className="p-3 bg-white rounded-lg border border-slate-200">
+                          <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] block mb-1">
+                            Motivation for Partnering:
+                          </span>
+                          <p className="text-slate-800 leading-relaxed">
+                            {selectedPartnerDetail.applicationDetails.motivation || 'Empowering learners with high-demand digital skills.'}
+                          </p>
+                        </div>
+
+                        {selectedPartnerDetail.applicationDetails.experience && (
+                          <div className="p-3 bg-white rounded-lg border border-slate-200">
+                            <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] block mb-1">
+                              Marketing Experience / Audience Reach:
+                            </span>
+                            <p className="text-slate-800 leading-relaxed">
+                              {selectedPartnerDetail.applicationDetails.experience}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Bank Account Information */}
                   <div className="border border-slate-200 rounded-xl p-4 space-y-2.5">
                     <div className="flex items-center justify-between">
@@ -1657,6 +1901,262 @@ export default function AdminPartnersPage() {
               >
                 Close
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2.5: APPLICATION FORM REVIEW MODAL */}
+      {showAppModal && selectedAppModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[92vh] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+              <div className="flex items-center gap-3">
+                <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-800 text-white font-black text-base flex items-center justify-center shadow-xs">
+                  {(selectedAppModal.full_name || selectedAppModal.name || 'P')[0]}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-slate-900 text-lg">
+                      {selectedAppModal.full_name || selectedAppModal.name}
+                    </h3>
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${
+                      (selectedAppModal.status || '').toLowerCase() === 'active'
+                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                        : (selectedAppModal.status || '').toLowerCase() === 'pending'
+                        ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                        : 'bg-rose-100 text-rose-800 border border-rose-200'
+                    }`}>
+                      {selectedAppModal.status}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    {selectedAppModal.partner_id ? `Partner ID: ${selectedAppModal.partner_id} • ` : ''}
+                    Applied on {selectedAppModal.applied_at || selectedAppModal.created_at ? new Date(selectedAppModal.applied_at || selectedAppModal.created_at!).toLocaleDateString() : 'N/A'}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowAppModal(false)}
+                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto space-y-6 text-sm divide-y divide-slate-100">
+              {/* Section 1: Contact & Location */}
+              <div className="space-y-3 pt-0">
+                <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+                  <User className="h-4 w-4 text-emerald-600" />
+                  <h4>Candidate Information & Contact</h4>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs">
+                  <div>
+                    <span className="text-slate-400 uppercase font-semibold text-[10px]">Email Address</span>
+                    <p className="font-bold text-slate-900 mt-0.5 break-all">{selectedAppModal.email}</p>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 uppercase font-semibold text-[10px]">Phone Number</span>
+                    <p className="font-bold text-slate-900 mt-0.5">{selectedAppModal.phone || 'None provided'}</p>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 uppercase font-semibold text-[10px]">WhatsApp Line</span>
+                    <div className="mt-0.5">
+                      {selectedAppModal.whatsapp || selectedAppModal.phone ? (
+                        <a
+                          href={`https://wa.me/${(selectedAppModal.whatsapp || selectedAppModal.phone || '').replace(/[^0-9]/g, '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 font-bold text-emerald-700 hover:underline"
+                        >
+                          <MessageCircle className="h-3.5 w-3.5" />
+                          {selectedAppModal.whatsapp || selectedAppModal.phone}
+                        </a>
+                      ) : (
+                        <span className="text-slate-400">N/A</span>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 uppercase font-semibold text-[10px]">State / Location</span>
+                    <p className="font-bold text-slate-900 mt-0.5 flex items-center gap-1">
+                      <MapPin className="h-3 w-3 text-slate-400" />
+                      {selectedAppModal.state || 'Lagos, Nigeria'}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 uppercase font-semibold text-[10px]">Occupation / Role</span>
+                    <p className="font-bold text-slate-900 mt-0.5">{selectedAppModal.occupation || 'Course Marketer'}</p>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 uppercase font-semibold text-[10px]">Organization</span>
+                    <p className="font-bold text-slate-900 mt-0.5">{selectedAppModal.organization || 'Independent Partner'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 2: Promotional Strategy & Motivation (The Core Answers) */}
+              <div className="space-y-3 pt-5">
+                <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+                  <Target className="h-4 w-4 text-emerald-600" />
+                  <h4>Promotional Strategy & Experience</h4>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <span className="text-slate-500 font-bold text-xs uppercase tracking-wider block mb-1">
+                      Promotion Method & Campaign Strategy
+                    </span>
+                    <p className="text-slate-800 text-xs sm:text-sm leading-relaxed">
+                      {selectedAppModal.promotion_method || 'Direct referral through social media channels, paid adverts, and student WhatsApp communities.'}
+                    </p>
+                  </div>
+
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <span className="text-slate-500 font-bold text-xs uppercase tracking-wider block mb-1">
+                      Motivation for Partnering
+                    </span>
+                    <p className="text-slate-800 text-xs sm:text-sm leading-relaxed">
+                      {selectedAppModal.motivation || 'Passionate about democratizing technical education and connecting high-demand skills to career-driven African students.'}
+                    </p>
+                  </div>
+
+                  {selectedAppModal.experience && (
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                      <span className="text-slate-500 font-bold text-xs uppercase tracking-wider block mb-1">
+                        Relevant Marketing Experience & Audience Size
+                      </span>
+                      <p className="text-slate-800 text-xs sm:text-sm leading-relaxed">
+                        {selectedAppModal.experience}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Section 3: Online Presence & Social Links */}
+              <div className="space-y-3 pt-5">
+                <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+                  <Globe className="h-4 w-4 text-emerald-600" />
+                  <h4>Online Presence & Social Channels</h4>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
+                  {selectedAppModal.website && (
+                    <a
+                      href={selectedAppModal.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg flex items-center justify-between group transition-colors"
+                    >
+                      <span className="font-semibold text-slate-700 truncate">Website</span>
+                      <ExternalLink className="h-3.5 w-3.5 text-slate-400 group-hover:text-emerald-600 shrink-0" />
+                    </a>
+                  )}
+                  {selectedAppModal.linkedin && (
+                    <a
+                      href={selectedAppModal.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg flex items-center justify-between group transition-colors"
+                    >
+                      <span className="font-semibold text-slate-700 truncate">LinkedIn</span>
+                      <ExternalLink className="h-3.5 w-3.5 text-slate-400 group-hover:text-emerald-600 shrink-0" />
+                    </a>
+                  )}
+                  {selectedAppModal.facebook && (
+                    <a
+                      href={selectedAppModal.facebook}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg flex items-center justify-between group transition-colors"
+                    >
+                      <span className="font-semibold text-slate-700 truncate">Facebook</span>
+                      <ExternalLink className="h-3.5 w-3.5 text-slate-400 group-hover:text-emerald-600 shrink-0" />
+                    </a>
+                  )}
+                  {selectedAppModal.instagram && (
+                    <a
+                      href={selectedAppModal.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg flex items-center justify-between group transition-colors"
+                    >
+                      <span className="font-semibold text-slate-700 truncate">Instagram</span>
+                      <ExternalLink className="h-3.5 w-3.5 text-slate-400 group-hover:text-emerald-600 shrink-0" />
+                    </a>
+                  )}
+                  {selectedAppModal.tiktok && (
+                    <a
+                      href={selectedAppModal.tiktok}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg flex items-center justify-between group transition-colors"
+                    >
+                      <span className="font-semibold text-slate-700 truncate">TikTok</span>
+                      <ExternalLink className="h-3.5 w-3.5 text-slate-400 group-hover:text-emerald-600 shrink-0" />
+                    </a>
+                  )}
+                  {selectedAppModal.youtube && (
+                    <a
+                      href={selectedAppModal.youtube}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg flex items-center justify-between group transition-colors"
+                    >
+                      <span className="font-semibold text-slate-700 truncate">YouTube</span>
+                      <ExternalLink className="h-3.5 w-3.5 text-slate-400 group-hover:text-emerald-600 shrink-0" />
+                    </a>
+                  )}
+                  {!selectedAppModal.website && !selectedAppModal.linkedin && !selectedAppModal.facebook && !selectedAppModal.instagram && (
+                    <p className="text-xs text-slate-400 col-span-3 italic">No external social handles specified in application.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer Decisions */}
+            <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={() => setShowAppModal(false)}
+                className="px-4 py-2 border border-slate-200 text-slate-600 hover:bg-slate-100 rounded-xl text-xs font-semibold transition-colors"
+              >
+                Close Dossier
+              </button>
+
+              <div className="flex items-center gap-2">
+                {(selectedAppModal.status || '').toLowerCase() === 'pending' ? (
+                  <>
+                    <button
+                      onClick={() => {
+                        handleProcessApplication(selectedAppModal.id, 'reject');
+                        setShowAppModal(false);
+                      }}
+                      className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition-colors"
+                    >
+                      Reject Application
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleProcessApplication(selectedAppModal.id, 'approve');
+                        setShowAppModal(false);
+                      }}
+                      className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors shadow-xs"
+                    >
+                      Approve & Onboard Partner
+                    </button>
+                  </>
+                ) : (
+                  <span className="text-xs font-bold text-emerald-700 flex items-center gap-1.5">
+                    <CheckCircle className="h-4 w-4" /> Partner is Active in Network
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>

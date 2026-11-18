@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin';
 import { createClient } from '@supabase/supabase-js';
 import { AdminEmailService } from '@/lib/growth-engine/AdminEmailService';
+import { PartnerApplicationService } from '@/lib/partner-system/PartnerApplicationService';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -15,27 +16,19 @@ export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/admin/partners/applications
- * Returns all partner applications (partners with status = 'pending')
+ * Returns partner applications with complete submitted form details.
+ * Supports ?status=pending | active | all
  */
 export async function GET(request: Request) {
   try {
     await requireAdmin();
 
-    const { data, error } = await supabaseAdmin
-      .from('partners')
-      .select('*')
-      .eq('status', 'pending')
-      .order('created_at', { ascending: false });
+    const { searchParams } = new URL(request.url);
+    const statusFilter = searchParams.get('status') || 'all';
 
-    if (error) throw error;
+    const applications = await PartnerApplicationService.getAllApplications(statusFilter);
 
-    const mapped = (data || []).map((app) => ({
-      ...app,
-      full_name: app.name,
-      partner_type: 'affiliate',
-    }));
-
-    return NextResponse.json({ success: true, applications: mapped });
+    return NextResponse.json({ success: true, applications });
   } catch (error: any) {
     console.error('[GET /api/admin/partners/applications] Error:', error);
     return NextResponse.json(
@@ -75,6 +68,10 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    // Update application dossier status
+    await PartnerApplicationService.updateStatus(partner.id, newStatus);
+    await PartnerApplicationService.updateStatus(partner.email, newStatus);
 
     // If approved, ensure referral code exists
     let refCode = partner.partner_id;

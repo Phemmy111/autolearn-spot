@@ -104,6 +104,29 @@ export async function POST(request: Request) {
       if (updateError) throw updateError;
       return NextResponse.json({ success: true });
     } else if (action === 'reject') {
+      const { data: wRow } = await supabaseAdmin
+        .from('author_withdrawals')
+        .select('*')
+        .eq('id', withdrawalId)
+        .single();
+
+      if (wRow && (wRow.status || '').toUpperCase() !== 'REJECTED') {
+        const { data: partner } = await supabaseAdmin
+          .from('partners')
+          .select('id, available_earnings')
+          .or(`id.eq.${wRow.author_id},partner_id.eq.${wRow.author_id},user_id.eq.${wRow.author_id}`)
+          .maybeSingle();
+
+        if (partner) {
+          await supabaseAdmin
+            .from('partners')
+            .update({
+              available_earnings: (Number(partner.available_earnings) || 0) + Number(wRow.amount || 0),
+            })
+            .eq('id', partner.id);
+        }
+      }
+
       const { error: updateError } = await supabaseAdmin
         .from('author_withdrawals')
         .update({

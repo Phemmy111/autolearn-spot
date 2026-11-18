@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { logReferralEvent } from '@/lib/audit-logging';
 import { PartnerEmailService } from '@/lib/partner-system/PartnerEmailService';
 import { AdminEmailService } from '@/lib/growth-engine/AdminEmailService';
+import { PartnerApplicationService } from '@/lib/partner-system/PartnerApplicationService';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -158,7 +159,33 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to submit application', details: error.message }, { status: 500 });
     }
 
-    console.log('[POST /api/partners/apply] Application created successfully:', application.id);
+    console.log('[POST /api/partners/apply] Application created successfully in partners table:', application.id);
+
+    // Persist complete application dossier with all submitted form fields
+    await PartnerApplicationService.saveApplication({
+      id: application.id,
+      partner_id: newPartnerId,
+      full_name,
+      name: full_name,
+      email: cleanEmail,
+      phone: phone || '',
+      whatsapp: whatsapp || '',
+      state: state || '',
+      occupation: occupation || '',
+      organization: organization || '',
+      website: website || '',
+      motivation: motivation || '',
+      promotion_method: promotion_method || '',
+      experience: experience || '',
+      facebook: facebook || '',
+      instagram: instagram || '',
+      tiktok: tiktok || '',
+      linkedin: linkedin || '',
+      youtube: youtube || '',
+      passport_url: passport_url || '',
+      status: 'pending',
+      applied_at: new Date().toISOString()
+    });
 
     await logReferralEvent({
       action: 'partner_application_submitted',

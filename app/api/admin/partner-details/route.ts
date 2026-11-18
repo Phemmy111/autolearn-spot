@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin';
 import { createClient } from '@supabase/supabase-js';
+import { PartnerApplicationService } from '@/lib/partner-system/PartnerApplicationService';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -92,6 +93,10 @@ export async function GET(request: Request) {
       .eq('referrer_id', actualId)
       .order('created_at', { ascending: false });
 
+    // 5. Fetch full application dossier (what partner filled when applying)
+    const applicationDetails = await PartnerApplicationService.getApplicationByPartner(actualId) ||
+      await PartnerApplicationService.getApplicationByPartner(partner.email) || null;
+
     return NextResponse.json({
       success: true,
       partner: {
@@ -100,6 +105,7 @@ export async function GET(request: Request) {
         partner_id: partner.partner_id || 'N/A',
         partner_type: 'affiliate',
       },
+      applicationDetails,
       bankDetails: bankDetails || null,
       referralCodes: referralCodes || [],
       affiliateLinks: formattedLinks,

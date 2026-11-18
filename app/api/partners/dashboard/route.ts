@@ -149,32 +149,83 @@ export async function GET(request: Request) {
       created_at: item.created_at
     })) || [];
 
+    // Fetch active product-specific affiliate links for this partner
+    const { data: partnerRefCodes } = await supabaseAdmin
+      .from('referral_codes')
+      .select('id, code')
+      .or(`owner_id.eq.${partner.id},partner_id.eq.${partner.id}`);
+
+    const refCodeIds = (partnerRefCodes || []).map(r => r.id);
+    let activeCourseLinks: any[] = [];
+    if (refCodeIds.length > 0) {
+      const { data: links } = await supabaseAdmin
+        .from('affiliate_links')
+        .select(`
+          id,
+          unique_code,
+          learning_product_id,
+          created_at,
+          learning_products (
+            id,
+            title,
+            slug,
+            price,
+            affiliate_commission_rate,
+            thumbnail_url
+          )
+        `)
+        .in('referral_code_id', refCodeIds)
+        .order('created_at', { ascending: false });
+
+      activeCourseLinks = (links || []).map((l: any) => {
+        const prod = l.learning_products;
+        const rate = prod?.affiliate_commission_rate || 20;
+        const price = Number(prod?.price) || 0;
+        const commissionAmount = Math.round(price * (rate / 100));
+        return {
+          id: l.id,
+          productId: l.learning_product_id,
+          title: prod?.title || 'Online Course',
+          slug: prod?.slug,
+          price,
+          commissionRate: rate,
+          commissionAmount,
+          thumbnailUrl: prod?.thumbnail_url,
+          code: l.unique_code,
+          url: `${appUrl}/marketplace/${prod?.slug || l.learning_product_id}?ref=${l.unique_code}`,
+          createdAt: l.created_at,
+        };
+      });
+    }
+
     return NextResponse.json({
       success: true,
       partner: {
         id: partner.id,
+        partner_id: partner.partner_id || 'ALS0000',
         type: partner.partner_type,
-        name: partner.full_name,
+        name: partner.name || partner.full_name || 'Partner',
         email: partner.email,
-        commissionRate: partner.commission_rate,
-        status: partner.status
+        commissionRate: partner.commission_rate || 20,
+        status: partner.status || 'active'
       },
       stats: {
-        totalClicks: partner.total_clicks,
-        totalRegistrations: partner.total_registrations,
-        totalPaymentsInitiated: partner.total_payments_initiated,
-        totalSuccessfulPurchases: partner.total_successful_purchases,
-        pendingEarnings: partner.pending_earnings,
-        availableEarnings: partner.available_earnings,
-        lifetimeEarnings: partner.lifetime_earnings,
-        totalWithdrawn: partner.total_withdrawn
+        totalClicks: partner.total_clicks || referralStats?.totalClicks || 0,
+        totalRegistrations: partner.total_registrations || referralStats?.totalRegistrations || 0,
+        totalPaymentsInitiated: partner.total_payments_initiated || 0,
+        totalSuccessfulPurchases: partner.total_successful_purchases || 0,
+        pendingEarnings: partner.pending_earnings || 0,
+        availableEarnings: partner.available_earnings || 0,
+        lifetimeEarnings: partner.total_earnings || partner.lifetime_earnings || partner.available_earnings || 0,
+        totalWithdrawn: partner.total_withdrawn || 0
       },
       referral: {
         code: referralStats?.code,
         link: referralLink,
-        totalClicks: referralStats?.totalClicks || 0,
-        totalRegistrations: referralStats?.totalRegistrations || 0
+        totalClicks: partner.total_clicks || referralStats?.totalClicks || 0,
+        totalRegistrations: partner.total_registrations || referralStats?.totalRegistrations || 0
       },
+      activeCourseLinks,
       bankProfile,
       recentCommissions,
       withdrawals: formattedWithdrawals,

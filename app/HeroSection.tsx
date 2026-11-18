@@ -139,6 +139,7 @@ export function HeroSection() {
                         autoPlay
                         muted
                         playsInline
+                        preload="metadata"
                         loop
                         className="w-full h-auto rounded-xl border border-brand-border shadow-[0_0_40px_rgba(0,240,255,0.1)]"
                       />
