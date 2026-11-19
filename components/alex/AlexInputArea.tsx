@@ -140,6 +140,22 @@ export function AlexInputArea({
 
     if (isMobileDevice) {
       // Mobile: Enter always creates newline, never sends
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        e.stopPropagation()
+        const textarea = e.currentTarget
+        const start = textarea.selectionStart
+        const end = textarea.selectionEnd
+        const val = textarea.value
+        const newVal = val.substring(0, start) + '\n' + val.substring(end)
+        setContent(newVal)
+        setTimeout(() => {
+          textarea.selectionStart = textarea.selectionEnd = start + 1
+          textarea.style.height = 'auto'
+          const maxH = 140
+          textarea.style.height = `${Math.min(textarea.scrollHeight, maxH)}px`
+        }, 0)
+      }
       return
     }
 

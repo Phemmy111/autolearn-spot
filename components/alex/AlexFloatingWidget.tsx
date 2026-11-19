@@ -653,6 +653,19 @@ export function AlexFloatingWidget() {
                       if (e.key === 'Enter') {
                         if (isMobile) {
                           // Mobile: Enter always creates newline, never sends
+                          e.preventDefault();
+                          e.stopPropagation();
+                          const textarea = e.currentTarget;
+                          const start = textarea.selectionStart;
+                          const end = textarea.selectionEnd;
+                          const val = textarea.value;
+                          const newVal = val.substring(0, start) + '\n' + val.substring(end);
+                          setInput(newVal);
+                          setTimeout(() => {
+                            textarea.selectionStart = textarea.selectionEnd = start + 1;
+                            textarea.style.height = 'auto';
+                            textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
+                          }, 0);
                           return;
                         }
                         // Desktop: Enter sends, Shift+Enter creates newline

@@ -74,32 +74,13 @@ function formatAlexMarkdown(text: string): string {
 export function AlexCustomerServiceWidget() {
   const pathname = usePathname();
 
-  // Hide on student dashboard, authenticated studio, author, admin, or full-screen AI to eliminate duplicate Alex icons
-  // (Note: Do NOT match /learning_products)
-  if (
-    !pathname ||
-    pathname === '/autolearn-ai' ||
-    pathname.startsWith('/dashboard') ||
-    pathname.startsWith('/student') ||
-    (pathname.startsWith('/learn/') && !pathname.startsWith('/learning_products')) ||
-    pathname.startsWith('/author') ||
-    pathname.startsWith('/admin')
-  ) {
-    return null;
-  }
-
-  // Check if current page is product details with mobile floating bar
-  const isProductPage =
-    pathname?.includes('/learning_products') ||
-    pathname?.includes('/courses') ||
-    (pathname?.includes('/marketplace/') && pathname.split('/').filter(Boolean).length >= 2);
-
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'chat' | 'contact' | 'lead'>('chat');
   const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [conversationId, setConversationId] = useState<string | null>(null);
 
   // Lead Form State
   const [leadName, setLeadName] = useState('');
@@ -112,9 +93,12 @@ export function AlexCustomerServiceWidget() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Restore chat messages from localStorage
+  // Restore chat messages and conversation ID from localStorage
   useEffect(() => {
     try {
+      const savedConvId = localStorage.getItem('alex_customer_conv_id');
+      if (savedConvId) setConversationId(savedConvId);
+
       const saved = localStorage.getItem('alex_customer_chat_history');
       if (saved) {
         const parsed = JSON.parse(saved);
@@ -127,7 +111,7 @@ export function AlexCustomerServiceWidget() {
     }
   }, []);
 
-  // Save chat history to localStorage
+  // Save chat history & conversation ID to localStorage
   useEffect(() => {
     if (messages.length > 1) {
       try {
@@ -137,6 +121,14 @@ export function AlexCustomerServiceWidget() {
       }
     }
   }, [messages]);
+
+  useEffect(() => {
+    if (conversationId) {
+      try {
+        localStorage.setItem('alex_customer_conv_id', conversationId);
+      } catch {}
+    }
+  }, [conversationId]);
 
   useEffect(() => {
     if (isOpen) {
@@ -151,6 +143,28 @@ export function AlexCustomerServiceWidget() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
+
+  // Hide completely on student dashboard, authenticated learning studio, author portal, admin portal, or full-screen AI to eliminate duplicate Alex icons
+  // (Note: Do NOT match /learning_products)
+  const isExcludedRoute =
+    !pathname ||
+    pathname === '/autolearn-ai' ||
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/student') ||
+    pathname === '/learn' ||
+    (pathname.startsWith('/learn') && !pathname.startsWith('/learning_products')) ||
+    pathname.startsWith('/author') ||
+    pathname.startsWith('/admin');
+
+  if (isExcludedRoute) {
+    return null;
+  }
+
+  // Check if current page is product details with mobile floating bar
+  const isProductPage =
+    pathname?.includes('/learning_products') ||
+    pathname?.includes('/courses') ||
+    (pathname?.includes('/marketplace/') && pathname.split('/').filter(Boolean).length >= 2);
 
   const handleSendMessage = async (textToSend?: string) => {
     const text = (textToSend || input).trim();
@@ -174,13 +188,17 @@ export function AlexCustomerServiceWidget() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: text,
-          conversationHistory: newMessages.slice(-6)
+          conversationHistory: newMessages.slice(-8),
+          conversationId: conversationId || undefined
         })
       });
 
       if (!res.ok) throw new Error('Failed to get answer');
 
       const data = await res.json();
+      if (data.conversationId) {
+        setConversationId(data.conversationId);
+      }
       const replyContent = data.reply || "I'm here to help! Feel free to chat with us on WhatsApp at 08120934828.";
 
       const botMsg: ChatMessage = {
@@ -216,7 +234,20 @@ export function AlexCustomerServiceWidget() {
 
     if (e.key === 'Enter') {
       if (isMobile) {
-        // On mobile: Enter creates new line naturally, never send
+        // On mobile: Enter creates new line, never send
+        e.preventDefault();
+        e.stopPropagation();
+        const textarea = e.currentTarget;
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const val = textarea.value;
+        const newVal = val.substring(0, start) + '\n' + val.substring(end);
+        setInput(newVal);
+        setTimeout(() => {
+          textarea.selectionStart = textarea.selectionEnd = start + 1;
+          textarea.style.height = 'auto';
+          textarea.style.height = `${Math.min(textarea.scrollHeight, 100)}px`;
+        }, 0);
         return;
       }
 
@@ -535,7 +566,15 @@ export function AlexCustomerServiceWidget() {
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
-                    handleSendMessage();
+                    const isMobile =
+                      typeof window !== 'undefined' &&
+                      (window.innerWidth <= 768 ||
+                        'ontouchstart' in window ||
+                        navigator.maxTouchPoints > 0 ||
+                        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+                    if (!isMobile) {
+                      handleSendMessage();
+                    }
                   }}
                   className="flex items-end gap-2"
                 >
@@ -549,9 +588,10 @@ export function AlexCustomerServiceWidget() {
                     className="flex-1 bg-slate-950 border border-slate-700 text-white placeholder-slate-400 text-xs sm:text-sm rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-emerald-500 transition-colors resize-none max-h-24 overflow-y-auto leading-normal"
                   />
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={() => handleSendMessage()}
                     disabled={!input.trim() || isLoading}
-                    className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:hover:bg-emerald-600 text-white p-2.5 rounded-xl transition-all shadow-md shadow-emerald-950/50 shrink-0 h-10 w-10 flex items-center justify-center"
+                    className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:hover:bg-emerald-600 text-white p-2.5 rounded-xl transition-all shadow-md shadow-emerald-950/50 shrink-0 h-10 w-10 flex items-center justify-center cursor-pointer"
                     aria-label="Send message"
                   >
                     <Send className="h-4 w-4" />
