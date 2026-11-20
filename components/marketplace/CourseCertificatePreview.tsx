@@ -142,6 +142,7 @@ export function CourseCertificatePreview({
       {/* High-Resolution Luxury Certificate Canvas (WYSIWYG 1200x800 Responsive Scaled) */}
       <div
         ref={containerRef}
+        onContextMenu={(e) => e.preventDefault()}
         className="relative w-full aspect-[1200/800] rounded-2xl overflow-hidden shadow-2xl border-2 border-emerald-700/20 group select-none bg-[#fbf6ec]"
       >
         {/* Scaled Certificate Template */}
@@ -174,6 +175,37 @@ export function CourseCertificatePreview({
             signatureText={certFounderTitle || layout?.elements?.find((el: any) => el.id === 'signatureText')?.text || "Founder"}
             footer={certFooter || layout?.elements?.find((el: any) => el.id === 'footer')?.text || "AutoLearn Spot • Learn • Automate • Succeed"}
           />
+
+          {/* Security Faded Watermark Overlay (Prevents unauthorized screenshot download & forgery) */}
+          <div
+            className="absolute inset-0 pointer-events-none z-30 flex items-center justify-center select-none overflow-hidden"
+            aria-hidden="true"
+          >
+            {/* Main Center Diagonal Faded Stamp */}
+            <div className="transform -rotate-25 border-8 border-dashed border-red-600/30 px-16 py-5 rounded-3xl bg-white/10 backdrop-blur-[0.5px] shadow-sm">
+              <span className="text-6xl font-black uppercase tracking-[0.28em] text-red-600/35 drop-shadow-sm select-none whitespace-nowrap">
+                SAMPLE • NOT VERIFIED
+              </span>
+            </div>
+
+            {/* Subtle Repeating Anti-Forgery Grid */}
+            <div className="absolute inset-0 flex flex-col justify-between p-12 opacity-15 rotate-[-15deg] scale-110">
+              <div className="flex justify-around text-base font-black uppercase tracking-[0.35em] text-slate-800">
+                <span>OFFICIAL SAMPLE</span>
+                <span>NON-TRANSFERABLE</span>
+                <span>OFFICIAL SAMPLE</span>
+              </div>
+              <div className="flex justify-around text-base font-black uppercase tracking-[0.35em] text-slate-800">
+                <span>ENROLL TO EARN VERIFIED CREDENTIAL</span>
+                <span>AUTODETECT DRAFT</span>
+              </div>
+              <div className="flex justify-around text-base font-black uppercase tracking-[0.35em] text-slate-800">
+                <span>SAMPLE PREVIEW ONLY</span>
+                <span>UNVERIFIED DOCUMENT</span>
+                <span>SAMPLE PREVIEW ONLY</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
