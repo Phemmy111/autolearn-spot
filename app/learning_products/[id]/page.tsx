@@ -286,22 +286,22 @@ export default async function LearningProductPage({ params }: PageParams) {
 
             {/* Description Section */}
             <div className="prose prose-lg dark:prose-invert max-w-none animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-both">
-              <h2 className="text-2xl font-heading font-bold mb-4">About this course</h2>
-              <p className="text-muted-foreground leading-relaxed text-lg">
+              <h2 className="text-2xl font-heading font-bold mb-4 text-foreground">About this course</h2>
+              <p className="text-slate-900 dark:text-slate-100 leading-relaxed text-base sm:text-lg font-medium">
                 {shortDesc || 'No summary available.'}
               </p>
               {fullDesc && (
-                <div className="mt-6 text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                <div className="mt-6 text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-wrap text-base font-normal">
                   {fullDesc}
                 </div>
               )}
               
-              <h3 className="text-xl font-heading font-bold mt-10 mb-6">What you'll learn</h3>
+              <h3 className="text-xl font-heading font-bold mt-10 mb-6 text-foreground">What you'll learn</h3>
               <ul className="grid sm:grid-cols-2 gap-4 mb-8 list-none pl-0">
                 {learningOutcomes.map((outcome, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-brand-primary shrink-0 mt-1" />
-                    <span className="text-muted-foreground leading-snug">{outcome}</span>
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                    <span className="text-slate-900 dark:text-slate-100 font-semibold leading-snug">{outcome}</span>
                   </li>
                 ))}
               </ul>

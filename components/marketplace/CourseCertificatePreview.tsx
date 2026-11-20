@@ -116,7 +116,7 @@ export function CourseCertificatePreview({
           <h2 className="text-2xl sm:text-3xl font-heading font-black text-brand-text tracking-tight">
             Certificate of Completion Included
           </h2>
-          <p className="text-sm sm:text-base text-brand-text/70 mt-1 max-w-xl">
+          <p className="text-sm sm:text-base text-slate-800 dark:text-slate-200 font-medium mt-1.5 max-w-xl leading-relaxed">
             Upon finishing all video lessons, you automatically receive an official, verifiable digital credential to showcase on LinkedIn, your portfolio, and your CV.
           </p>
         </div>
@@ -216,8 +216,8 @@ export function CourseCertificatePreview({
             <CheckCircle2 className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="text-xs sm:text-sm font-bold text-brand-text">Online Verification</h4>
-            <p className="text-[11px] text-brand-text/60 mt-0.5">Unique URL & QR code for employers</p>
+            <h4 className="text-xs sm:text-sm font-bold text-foreground">Online Verification</h4>
+            <p className="text-[11px] text-slate-700 dark:text-slate-300 font-medium mt-0.5">Unique URL & QR code for employers</p>
           </div>
         </div>
 
@@ -226,8 +226,8 @@ export function CourseCertificatePreview({
             <Share2 className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="text-xs sm:text-sm font-bold text-brand-text">LinkedIn Integration</h4>
-            <p className="text-[11px] text-brand-text/60 mt-0.5">1-click export to your public profile</p>
+            <h4 className="text-xs sm:text-sm font-bold text-foreground">LinkedIn Integration</h4>
+            <p className="text-[11px] text-slate-700 dark:text-slate-300 font-medium mt-0.5">1-click export to your public profile</p>
           </div>
         </div>
 
@@ -236,8 +236,8 @@ export function CourseCertificatePreview({
             <Download className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="text-xs sm:text-sm font-bold text-brand-text">High-Res Vector PDF</h4>
-            <p className="text-[11px] text-brand-text/60 mt-0.5">Instant print-ready download upon completion</p>
+            <h4 className="text-xs sm:text-sm font-bold text-foreground">High-Res Vector PDF</h4>
+            <p className="text-[11px] text-slate-700 dark:text-slate-300 font-medium mt-0.5">Instant print-ready download upon completion</p>
           </div>
         </div>
 
@@ -246,8 +246,8 @@ export function CourseCertificatePreview({
             <ShieldCheck className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="text-xs sm:text-sm font-bold text-brand-text">Lifetime Authenticity</h4>
-            <p className="text-[11px] text-brand-text/60 mt-0.5">Permanent access in student portal</p>
+            <h4 className="text-xs sm:text-sm font-bold text-foreground">Lifetime Authenticity</h4>
+            <p className="text-[11px] text-slate-700 dark:text-slate-300 font-medium mt-0.5">Permanent access in student portal</p>
           </div>
         </div>
       </div>
