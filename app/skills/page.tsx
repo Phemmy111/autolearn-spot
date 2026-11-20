@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300; // Cache for 5 minutes at edge (0 CPU burn)
 
 export default async function SkillsPage() {
   // Get all skills from taxonomy (flattened from categories)

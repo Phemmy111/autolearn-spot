@@ -52,6 +52,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
 const QUICK_PROMPTS = [
   { label: '💰 Course Fees & ₦3,000 Promo', prompt: 'Tell me about the courses available and the ₦3,000 promo' },
   { label: '🏆 Verified Certificates', prompt: 'How does the certificate of completion work and is it verified?' },
+  { label: '👥 Join WhatsApp Group', prompt: 'How do I join the official AutoLearn Spot WhatsApp community group?' },
   { label: '💸 Affiliate Partner (70%)', prompt: 'How do I become an affiliate partner and earn commissions?' },
   { label: '💬 Talk to Founder on WhatsApp', prompt: 'I want to speak with founder Femi Adeleke on WhatsApp' }
 ];
@@ -635,6 +636,28 @@ export function AlexCustomerServiceWidget() {
 
               {/* Direct Channels */}
               <div className="space-y-2.5">
+                {/* Official WhatsApp Community */}
+                <a
+                  href="https://chat.whatsapp.com/DJrJYaW3nIy74xtFnZlJM3?s=cl&p=a&iam=2"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between p-3.5 bg-gradient-to-r from-emerald-950/60 to-teal-950/60 hover:from-emerald-900/80 hover:to-teal-900/80 border border-emerald-500/40 rounded-xl transition-all group shadow-sm"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-[#25D366] text-white flex items-center justify-center shadow-md">
+                      <MessageCircle className="h-5 w-5 fill-current" />
+                    </div>
+                    <div className="text-left">
+                      <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                        Official Student Community
+                        <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.2 rounded-full font-bold">Active</span>
+                      </div>
+                      <div className="text-[11px] text-emerald-300">Join Student WhatsApp Group</div>
+                    </div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-emerald-400 group-hover:translate-x-1 transition-transform" />
+                </a>
+
                 {/* WhatsApp Direct */}
                 <a
                   href={FOUNDER_INFO.whatsappUrl}

@@ -3,7 +3,7 @@ import { User, Star, BookOpen, Briefcase, Home, ChevronRight } from 'lucide-reac
 import { supabaseAdmin } from '@/lib/supabase';
 import Image from 'next/image';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300; // Cache for 5 minutes at edge (0 CPU burn)
 
 export default async function AuthorsDirectoryPage() {
   // Step 1: Fetch all ACTIVE authors

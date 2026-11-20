@@ -1,4 +1,4 @@
-import { Mail } from "lucide-react"
+import { Mail, MessageCircle } from "lucide-react"
 import { getPublicSettings } from "@/lib/public-settings"
 
 async function FooterContent() {
@@ -55,6 +55,17 @@ async function FooterContent() {
                     <img src="/alex-icon.png" alt="ALEX" className="w-full h-full object-cover" />
                   </span>
                   ALEX AI
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://chat.whatsapp.com/DJrJYaW3nIy74xtFnZlJM3?s=cl&p=a&iam=2"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-emerald-400 hover:text-emerald-300 font-semibold text-sm transition-colors inline-flex items-center gap-1.5"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  Join WhatsApp Group
                 </a>
               </li>
             </ul>
@@ -141,6 +152,15 @@ async function FooterContent() {
                   <span className="w-5 h-5 flex items-center justify-center font-bold">YT</span>
                 </a>
               )}
+              <a
+                href="https://chat.whatsapp.com/DJrJYaW3nIy74xtFnZlJM3?s=cl&p=a&iam=2"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Join Student WhatsApp Group"
+                className="w-10 h-10 rounded-full border border-emerald-500/40 bg-emerald-500/10 flex items-center justify-center text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500 hover:shadow-sm transition-all"
+              >
+                <MessageCircle className="w-5 h-5 fill-current" />
+              </a>
               <a
                 href={`mailto:${settings.supportEmail}`}
                 className="w-10 h-10 rounded-full border border-brand-border/50 bg-[var(--card)] brightness-95 flex items-center justify-center text-brand-text/70 hover:text-[#10b981] hover:border-[#10b981] hover:shadow-sm transition-all"

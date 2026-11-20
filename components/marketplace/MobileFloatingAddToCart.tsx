@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShoppingCart, Loader2, Zap } from "lucide-react";
+import { ShoppingCart, Loader2, Zap, MessageCircle } from "lucide-react";
 import { fbqAddToCart } from "@/lib/meta-pixel";
 
 interface MobileFloatingAddToCartProps {
@@ -70,6 +70,18 @@ export function MobileFloatingAddToCart({
             Lifetime Access & Certificate
           </span>
         </div>
+
+        {/* WhatsApp Community Quick Join Button */}
+        <a
+          href="https://chat.whatsapp.com/DJrJYaW3nIy74xtFnZlJM3?s=cl&p=a&iam=2"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center w-11 h-11 shrink-0 rounded-xl bg-[#25D366] text-white hover:bg-[#20ba59] active:scale-95 transition-all shadow-md"
+          title="Join Student WhatsApp Community"
+          aria-label="Join Student WhatsApp Community"
+        >
+          <MessageCircle className="w-5 h-5 fill-current" />
+        </a>
 
         {/* Add to Cart Primary Button */}
         <div className="flex-1 max-w-[210px]">

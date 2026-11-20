@@ -20,6 +20,8 @@ import { AffiliateShowcaseSection } from '@/components/marketplace/AffiliateShow
 
 import './page.css'
 
+export const revalidate = 180; // Cache homepage at CDN edge for 3 minutes (0 CPU burn)
+
 async function TestimonialsSection() {
   let settings;
   try {

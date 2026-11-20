@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 180; // Cache for 3 minutes at edge (0 CPU burn)
 
 export default async function CoursesPage() {
   const products = await getPublishedProducts();

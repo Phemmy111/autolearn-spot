@@ -419,6 +419,16 @@ export default async function LearningProductPage({ params }: PageParams) {
               </div>
 
               <AddToCartButton productId={product.id} />
+
+              <a
+                href={publicSettings.whatsappCommunityLink || "https://chat.whatsapp.com/DJrJYaW3nIy74xtFnZlJM3?s=cl&p=a&iam=2"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-semibold text-xs transition-colors"
+              >
+                <MessageSquare className="w-4 h-4 text-emerald-400" />
+                Join Student WhatsApp Community
+              </a>
               
               <p className="text-xs text-center text-muted-foreground mt-4 font-medium">
                 30-Day Money-Back Guarantee

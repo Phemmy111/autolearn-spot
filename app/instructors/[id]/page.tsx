@@ -5,8 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ProductCard } from '@/components/marketplace/ProductCard';
 
-// Force dynamic rendering to prevent 404 errors
-export const dynamic = 'force-dynamic';
+export const revalidate = 180; // Cache instructor profiles for 3 minutes at edge (0 CPU burn)
 
 interface Author {
   id: string;

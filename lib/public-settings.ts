@@ -1,5 +1,4 @@
 import { supabaseAdmin } from '@/lib/supabase';
-import { unstable_noStore as noStore } from 'next/cache';
 
 interface PublicSettings {
   // Brand
@@ -134,7 +133,7 @@ const DEFAULT_SETTINGS: PublicSettings = {
   supportPhone: '+234',
   supportWhatsApp: '+234',
   whatsappDirectLink: 'https://wa.me/',
-  whatsappCommunityLink: 'https://chat.whatsapp.com/JGZhpVPwZnr9WViOzkMFHy?s=cl&p=a&iam=2',
+  whatsappCommunityLink: 'https://chat.whatsapp.com/DJrJYaW3nIy74xtFnZlJM3?s=cl&p=a&iam=2',
   instagramUrl: 'https://instagram.com/',
   tiktokUrl: 'https://tiktok.com/',
   youtubeUrl: 'https://youtube.com/',
@@ -287,14 +286,39 @@ const REVERSE_KEY_MAPPING: Record<string, string> = Object.fromEntries(
   Object.entries(KEY_MAPPING).map(([k, v]) => [v, k])
 );
 
+// High-performance in-memory cache to eliminate repetitive DB queries & CPU burn
+let cachedFullSettings: PublicSettings | null = null;
+let lastSettingsFetchTime = 0;
+const SETTINGS_CACHE_TTL_MS = 60 * 1000; // 60 seconds cache
+
+export function invalidatePublicSettingsCache() {
+  cachedFullSettings = null;
+  lastSettingsFetchTime = 0;
+}
+
 export async function getPublicSettings(keys?: string[]): Promise<PublicSettings> {
-  noStore();
+  const now = Date.now();
+  
+  // If we have fresh cached full settings, serve directly from RAM in 0ms (0 CPU, 0 DB roundtrips)
+  if (cachedFullSettings && (now - lastSettingsFetchTime < SETTINGS_CACHE_TTL_MS)) {
+    if (!keys || keys.length === 0) {
+      return { ...cachedFullSettings };
+    }
+    const filtered: PublicSettings = {};
+    for (const k of keys) {
+      const key = k as keyof PublicSettings;
+      if (cachedFullSettings[key] !== undefined) {
+        filtered[key] = cachedFullSettings[key] as any;
+      }
+    }
+    return filtered;
+  }
   
   try {
     let query = supabaseAdmin.from('site_settings').select('key, value');
 
-    if (keys && keys.length > 0) {
-      // Convert frontend camelCase keys to database snake_case keys
+    // Only filter by keys if no full cache exists yet and specific keys were requested
+    if (keys && keys.length > 0 && !cachedFullSettings) {
       const dbKeys = keys.map(key => REVERSE_KEY_MAPPING[key] || key);
       query = query.in('key', dbKeys);
     }
@@ -335,6 +359,12 @@ export async function getPublicSettings(keys?: string[]): Promise<PublicSettings
           result[frontendKey] = value as any;
         }
       }
+    }
+
+    // Cache full result in memory
+    if (!keys || keys.length === 0) {
+      cachedFullSettings = result;
+      lastSettingsFetchTime = Date.now();
     }
 
     return result;

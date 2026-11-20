@@ -43,6 +43,7 @@ export default function Navigation() {
     { name: 'Why AutoLearn', href: '#why' },
     { name: 'Scholarship', href: '/scholarship' },
     { name: 'Partner Program', href: '/partners' },
+    { name: 'WhatsApp Group', href: 'https://chat.whatsapp.com/DJrJYaW3nIy74xtFnZlJM3?s=cl&p=a&iam=2', external: true },
     { name: 'ALEX', href: '/autolearn-ai' },
     { name: 'Contact', href: settings.supportWhatsApp ? `https://wa.me/${settings.supportWhatsApp.replace(/[^0-9]/g, '')}` : '#', external: true },
   ]
@@ -53,6 +54,7 @@ export default function Navigation() {
     { name: 'Why AutoLearn', href: '#why' },
     { name: 'Scholarship', href: '/scholarship' },
     { name: 'Partner Program', href: '/partners' },
+    { name: 'WhatsApp Group', href: 'https://chat.whatsapp.com/DJrJYaW3nIy74xtFnZlJM3?s=cl&p=a&iam=2', external: true },
     { name: 'ALEX', href: '/autolearn-ai' },
     { name: 'Contact', href: settings.supportWhatsApp ? `https://wa.me/${settings.supportWhatsApp.replace(/[^0-9]/g, '')}` : '#', external: true },
   ]
