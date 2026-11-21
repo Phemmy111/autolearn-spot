@@ -127,7 +127,8 @@ export async function createResumableUploadSession(
       Authorization: `Bearer ${connection.accessToken}`,
       'Content-Type': 'application/json',
       'X-Upload-Content-Length': fileSize.toString(),
-      'X-Upload-Content-Type': mimeType, Origin: origin
+      'X-Upload-Content-Type': mimeType,
+      'Origin': origin ? origin.replace(/\/+$/, '') : 'https://www.autolearnspot.com'
     },
     body: JSON.stringify(metadata)
   });

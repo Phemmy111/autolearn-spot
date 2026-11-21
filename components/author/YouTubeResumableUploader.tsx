@@ -60,59 +60,82 @@ export function YouTubeResumableUploader({ onSuccess, onError }: YouTubeResumabl
       const xhr = new XMLHttpRequest();
       xhrRef.current = xhr;
 
+      const verifyWithBackend = async (retries = 3): Promise<boolean> => {
+        for (let attempt = 1; attempt <= retries; attempt++) {
+          setStatusText(`Finalizing upload with YouTube (step ${attempt}/${retries})...`);
+          try {
+            await new Promise((r) => setTimeout(r, 1500));
+            const checkRes = await fetch('/api/author/integrations/youtube/upload-status', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ uploadUrl, fileSize: file.size, title: file.name })
+            });
+            const checkData = await checkRes.json();
+            if (checkData.success && checkData.videoId) {
+              const videoUrl = checkData.videoUrl || `https://www.youtube.com/watch?v=${checkData.videoId}`;
+              onSuccess(checkData.videoId, videoUrl);
+              setStatusText('Successfully uploaded to YouTube!');
+              setProgress(100);
+              setUploading(false);
+              return true;
+            }
+          } catch (e) {
+            console.warn(`Verification attempt ${attempt} failed:`, e);
+          }
+        }
+        return false;
+      };
+
       xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable) {
-          const percentComplete = Math.round((event.loaded / event.total) * 100);
-          setProgress(percentComplete);
+        const total = (event.lengthComputable && event.total > 0) ? event.total : file.size;
+        if (total > 0) {
+          const loaded = event.loaded || 0;
+          const percent = Math.min(99, Math.round((loaded / total) * 100));
+          setProgress(percent);
+          const loadedMB = (loaded / (1024 * 1024)).toFixed(1);
+          const totalMB = (total / (1024 * 1024)).toFixed(1);
+          setStatusText(`Uploading: ${loadedMB}MB / ${totalMB}MB (${percent}%)`);
         }
       };
 
-      xhr.onload = () => {
+      xhr.onload = async () => {
         if (xhr.status >= 200 && xhr.status < 300) {
           setStatusText('Upload complete! Finalizing...');
           try {
             const responseData = JSON.parse(xhr.responseText);
-            const videoId = responseData.id;
-            const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-            onSuccess(videoId, videoUrl);
-            setStatusText('Successfully uploaded to YouTube.');
+            if (responseData.id) {
+              const videoId = responseData.id;
+              const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+              onSuccess(videoId, videoUrl);
+              setStatusText('Successfully uploaded to YouTube.');
+              setProgress(100);
+              setUploading(false);
+              return;
+            }
           } catch (err) {
-            onError('Failed to parse YouTube response');
-            setStatusText('Error finalizing upload.');
+            console.log('Direct response parse skipped, verifying with backend proxy...');
           }
-        } else {
-          onError(`YouTube returned error: ${xhr.status} ${xhr.responseText}`);
-          setStatusText('Upload failed.');
         }
-        setUploading(false);
+
+        // If direct response couldn't be parsed or status is outside 200-299, verify via backend
+        const verified = await verifyWithBackend();
+        if (!verified) {
+          onError(`YouTube returned status ${xhr.status}. Verification in progress.`);
+          setStatusText('Finalizing...');
+          setUploading(false);
+        }
       };
 
       xhr.onerror = async () => {
-        // If we hit a CORS error, the browser blocked the response but the upload might have succeeded.
-        // We can verify this by checking the status via our own backend proxy.
-        setStatusText('Verifying upload with Google...');
-        try {
-          const checkRes = await fetch('/api/author/integrations/youtube/upload-status', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ uploadUrl, fileSize: file.size })
-          });
-          const checkData = await checkRes.json();
-          if (checkData.success && checkData.videoId) {
-            const videoUrl = `https://www.youtube.com/watch?v=${checkData.videoId}`;
-            onSuccess(checkData.videoId, videoUrl);
-            setStatusText('Successfully uploaded to YouTube.');
-            setProgress(100);
-            setUploading(false);
-            return;
-          }
-        } catch(e) {
-          console.error('Failed to verify upload status', e);
+        // When Google doesn't send CORS headers on the upload response, browser fires onerror.
+        // The backend status proxy confirms the upload with YouTube directly!
+        setStatusText('Verifying upload with YouTube...');
+        const verified = await verifyWithBackend();
+        if (!verified) {
+          onError('Network error during upload. Please check your connection or try again.');
+          setStatusText('Upload failed.');
+          setUploading(false);
         }
-
-        onError('Network error during upload (CORS blocked the response).');
-        setStatusText('Network error.');
-        setUploading(false);
       };
       
       xhr.onabort = () => {
