@@ -400,6 +400,13 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
   const handleSaveGeneratedQuiz = async () => {
     if (!generatedQuiz || !aiLessonId) return;
 
+    // If already saved to database by AI generation route:
+    if (generatedQuiz.id) {
+      setGeneratedQuiz(null);
+      fetchLessons();
+      return;
+    }
+
     setSaving(true);
     try {
       // Create the quiz
@@ -1216,7 +1223,15 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                 Regenerate
               </button>
               <button
-                onClick={() => setGeneratedQuiz(null)}
+                onClick={async () => {
+                  if (generatedQuiz?.id) {
+                    try {
+                      await fetch(`/api/author/quizzes/${generatedQuiz.id}`, { method: 'DELETE' });
+                    } catch (_) {}
+                    fetchLessons();
+                  }
+                  setGeneratedQuiz(null);
+                }}
                 className="px-4 py-2 bg-[var(--card)] brightness-95 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
               >
                 Discard
