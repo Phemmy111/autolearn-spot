@@ -56,11 +56,12 @@ export function YouTubeResumableUploader({ onSuccess, onError }: YouTubeResumabl
       const { uploadUrl } = sessionData;
       setStatusText('Uploading direct to YouTube...');
 
-      // 2. Upload directly to Google using XMLHttpRequest (to track progress)
-      const xhr = new XMLHttpRequest();
-      xhrRef.current = xhr;
+      // 2. Upload in Google-standard 2.6MB chunks (multiple of 256KB)
+      // Chunked streaming guarantees the progress bar actively advances across all browsers and networks.
+      const CHUNK_SIZE = 10 * 1024 * 256; // 2,621,440 bytes (~2.62MB)
+      const fileSize = file.size;
 
-      const verifyWithBackend = async (retries = 3): Promise<boolean> => {
+      const verifyWithBackend = async (retries = 4): Promise<boolean> => {
         for (let attempt = 1; attempt <= retries; attempt++) {
           setStatusText(`Finalizing upload with YouTube (step ${attempt}/${retries})...`);
           try {
@@ -86,66 +87,96 @@ export function YouTubeResumableUploader({ onSuccess, onError }: YouTubeResumabl
         return false;
       };
 
-      xhr.upload.onprogress = (event) => {
-        const total = (event.lengthComputable && event.total > 0) ? event.total : file.size;
-        if (total > 0) {
-          const loaded = event.loaded || 0;
-          const percent = Math.min(99, Math.round((loaded / total) * 100));
-          setProgress(percent);
-          const loadedMB = (loaded / (1024 * 1024)).toFixed(1);
-          const totalMB = (total / (1024 * 1024)).toFixed(1);
-          setStatusText(`Uploading: ${loadedMB}MB / ${totalMB}MB (${percent}%)`);
-        }
+      const uploadChunk = (startByte: number): Promise<{ isComplete: boolean; responseData?: any }> => {
+        return new Promise((resolve, reject) => {
+          const endByte = Math.min(startByte + CHUNK_SIZE, fileSize) - 1;
+          const chunk = file.slice(startByte, endByte + 1);
+
+          const xhr = new XMLHttpRequest();
+          xhrRef.current = xhr;
+
+          xhr.upload.onprogress = (event) => {
+            const currentChunkLoaded = event.loaded || 0;
+            const totalLoaded = Math.min(fileSize, startByte + currentChunkLoaded);
+            const percent = Math.min(99, Math.round((totalLoaded / fileSize) * 100));
+            setProgress(percent);
+            const loadedMB = (totalLoaded / (1024 * 1024)).toFixed(1);
+            const totalMB = (fileSize / (1024 * 1024)).toFixed(1);
+            setStatusText(`Uploading: ${loadedMB}MB / ${totalMB}MB (${percent}%)`);
+          };
+
+          xhr.onload = () => {
+            if (xhr.status === 308) {
+              // 308 Resume Incomplete: Google successfully saved this chunk, proceed to next
+              resolve({ isComplete: false });
+            } else if (xhr.status >= 200 && xhr.status < 300) {
+              // 200/201: Upload finished
+              try {
+                const data = JSON.parse(xhr.responseText);
+                resolve({ isComplete: true, responseData: data });
+              } catch (e) {
+                resolve({ isComplete: true });
+              }
+            } else {
+              reject(new Error(`YouTube upload returned status ${xhr.status}`));
+            }
+          };
+
+          xhr.onerror = () => {
+            // On final chunk, browser CORS restriction might trigger onerror even though bytes succeeded
+            if (endByte >= fileSize - 1) {
+              resolve({ isComplete: true });
+            } else {
+              reject(new Error('Network error during video chunk upload'));
+            }
+          };
+
+          xhr.onabort = () => {
+            reject(new Error('Upload cancelled'));
+          };
+
+          xhr.open('PUT', uploadUrl, true);
+          xhr.setRequestHeader('Content-Range', `bytes ${startByte}-${endByte}/${fileSize}`);
+          xhr.setRequestHeader('Content-Type', file.type || 'video/mp4');
+          xhr.send(chunk);
+        });
       };
 
-      xhr.onload = async () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          setStatusText('Upload complete! Finalizing...');
-          try {
-            const responseData = JSON.parse(xhr.responseText);
-            if (responseData.id) {
-              const videoId = responseData.id;
-              const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-              onSuccess(videoId, videoUrl);
-              setStatusText('Successfully uploaded to YouTube.');
-              setProgress(100);
-              setUploading(false);
-              return;
-            }
-          } catch (err) {
-            console.log('Direct response parse skipped, verifying with backend proxy...');
-          }
-        }
+      let start = 0;
+      let isFinished = false;
+      let finalData: any = null;
 
-        // If direct response couldn't be parsed or status is outside 200-299, verify via backend
+      while (start < fileSize && !isFinished) {
+        const result = await uploadChunk(start);
+        start = Math.min(start + CHUNK_SIZE, fileSize);
+
+        const chunkPercent = Math.min(99, Math.round((start / fileSize) * 100));
+        setProgress(chunkPercent);
+        const loadedMB = (start / (1024 * 1024)).toFixed(1);
+        const totalMB = (fileSize / (1024 * 1024)).toFixed(1);
+        setStatusText(`Uploading: ${loadedMB}MB / ${totalMB}MB (${chunkPercent}%)`);
+
+        if (result.isComplete) {
+          isFinished = true;
+          finalData = result.responseData;
+        }
+      }
+
+      if (finalData && finalData.id) {
+        const videoId = finalData.id;
+        const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+        onSuccess(videoId, videoUrl);
+        setStatusText('Successfully uploaded to YouTube!');
+        setProgress(100);
+        setUploading(false);
+      } else {
         const verified = await verifyWithBackend();
         if (!verified) {
-          onError(`YouTube returned status ${xhr.status}. Verification in progress.`);
+          onError('Upload finished but could not confirm video ID from YouTube. Please check in a moment.');
           setStatusText('Finalizing...');
           setUploading(false);
         }
-      };
-
-      xhr.onerror = async () => {
-        // When Google doesn't send CORS headers on the upload response, browser fires onerror.
-        // The backend status proxy confirms the upload with YouTube directly!
-        setStatusText('Verifying upload with YouTube...');
-        const verified = await verifyWithBackend();
-        if (!verified) {
-          onError('Network error during upload. Please check your connection or try again.');
-          setStatusText('Upload failed.');
-          setUploading(false);
-        }
-      };
-      
-      xhr.onabort = () => {
-        setUploading(false);
-        setStatusText('Upload aborted.');
-      };
-
-      xhr.open('PUT', uploadUrl, true);
-      xhr.setRequestHeader('Content-Type', file.type);
-      xhr.send(file);
+      }
 
     } catch (err: any) {
       console.error(err);
