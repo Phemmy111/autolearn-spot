@@ -2,19 +2,26 @@ import { supabaseAdmin } from '../supabase';
 import { encryptToken, decryptToken } from './encryption';
 import { YouTubeConnection } from './types';
 
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
-const GOOGLE_REDIRECT_URI = process.env.GOOGLE_YOUTUBE_REDIRECT_URI!;
+function getGoogleConfig() {
+  const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
+  const redirectUri = process.env.GOOGLE_YOUTUBE_REDIRECT_URI?.trim() || 'https://www.autolearnspot.com/api/admin/integrations/youtube/callback';
+
+  if (!clientId || !clientSecret) {
+    throw new Error('Missing Google OAuth environment variables: GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be set in Vercel');
+  }
+
+  return { clientId, clientSecret, redirectUri };
+}
+
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 
 export function getAuthorizationUrl(state: string): string {
-  if (!GOOGLE_CLIENT_ID || !GOOGLE_REDIRECT_URI) {
-    throw new Error('Missing Google OAuth environment variables');
-  }
+  const { clientId, redirectUri } = getGoogleConfig();
 
   const url = new URL('https://accounts.google.com/o/oauth2/v2/auth');
-  url.searchParams.append('client_id', GOOGLE_CLIENT_ID);
-  url.searchParams.append('redirect_uri', GOOGLE_REDIRECT_URI);
+  url.searchParams.append('client_id', clientId);
+  url.searchParams.append('redirect_uri', redirectUri);
   url.searchParams.append('response_type', 'code');
   url.searchParams.append('scope', 'https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly');
   url.searchParams.append('access_type', 'offline');
@@ -25,15 +32,17 @@ export function getAuthorizationUrl(state: string): string {
 }
 
 export async function exchangeCodeForTokens(code: string) {
+  const { clientId, clientSecret, redirectUri } = getGoogleConfig();
+
   const response = await fetch(TOKEN_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
-      client_id: GOOGLE_CLIENT_ID,
-      client_secret: GOOGLE_CLIENT_SECRET,
+      client_id: clientId,
+      client_secret: clientSecret,
       code,
       grant_type: 'authorization_code',
-      redirect_uri: GOOGLE_REDIRECT_URI,
+      redirect_uri: redirectUri,
     }),
   });
 
@@ -46,12 +55,14 @@ export async function exchangeCodeForTokens(code: string) {
 }
 
 export async function refreshAccessToken(refreshToken: string) {
+  const { clientId, clientSecret } = getGoogleConfig();
+
   const response = await fetch(TOKEN_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
-      client_id: GOOGLE_CLIENT_ID,
-      client_secret: GOOGLE_CLIENT_SECRET,
+      client_id: clientId,
+      client_secret: clientSecret,
       refresh_token: refreshToken,
       grant_type: 'refresh_token',
     }),
