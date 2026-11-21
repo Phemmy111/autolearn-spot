@@ -25,7 +25,7 @@ export function getAuthorizationUrl(state: string): string {
   url.searchParams.append('response_type', 'code');
   url.searchParams.append('scope', 'https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly');
   url.searchParams.append('access_type', 'offline');
-  url.searchParams.append('prompt', 'consent'); // Force consent to ensure we get a refresh token
+  url.searchParams.append('prompt', 'select_account consent'); // Force account picker and consent
   url.searchParams.append('state', state);
 
   return url.toString();
