@@ -546,7 +546,18 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                 </label>
                 
                 <YouTubeResumableUploader 
-                  onSuccess={(videoId, url) => setNewLessonYoutubeUrl(url)}
+                  initialTitle={newLessonTitle}
+                  onTitleAutoDetected={(title) => {
+                    if (!newLessonTitle.trim()) {
+                      setNewLessonTitle(title);
+                    }
+                  }}
+                  onSuccess={(videoId, url, title) => {
+                    setNewLessonYoutubeUrl(url);
+                    if (!newLessonTitle.trim() && title) {
+                      setNewLessonTitle(title);
+                    }
+                  }}
                   onError={(err) => setError(err)}
                 />
                 
@@ -782,7 +793,18 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                   </label>
                   
                   <YouTubeResumableUploader 
-                    onSuccess={(videoId, url) => setEditYoutubeUrl(url)}
+                    initialTitle={editTitle}
+                    onTitleAutoDetected={(title) => {
+                      if (!editTitle.trim()) {
+                        setEditTitle(title);
+                      }
+                    }}
+                    onSuccess={(videoId, url, title) => {
+                      setEditYoutubeUrl(url);
+                      if (!editTitle.trim() && title) {
+                        setEditTitle(title);
+                      }
+                    }}
                     onError={(err) => setError(err)}
                   />
                   

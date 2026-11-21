@@ -23,7 +23,7 @@ export function getAuthorizationUrl(state: string): string {
   url.searchParams.append('client_id', clientId);
   url.searchParams.append('redirect_uri', redirectUri);
   url.searchParams.append('response_type', 'code');
-  url.searchParams.append('scope', 'https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly');
+  url.searchParams.append('scope', 'https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/youtube');
   url.searchParams.append('access_type', 'offline');
   url.searchParams.append('prompt', 'select_account consent'); // Force account picker and consent
   url.searchParams.append('state', state);
