@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronUp, ChevronDown, Plus, Trash2, Edit, Eye, Video, Clock, GripVertical, FileText, HelpCircle, Sparkles } from 'lucide-react';
+import { ChevronUp, ChevronDown, Plus, Trash2, Edit, Eye, Video, Clock, GripVertical, FileText, HelpCircle, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
 import { YouTubeResumableUploader } from '@/components/author/YouTubeResumableUploader';
 
 interface Lesson {
@@ -80,6 +80,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
   const [aiScript, setAiScript] = useState('');
   const [aiQuestionCount, setAiQuestionCount] = useState(10);
   const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
   const [generatedQuiz, setGeneratedQuiz] = useState<any>(null);
   // Assignment state
   const [showAddAssignment, setShowAddAssignment] = useState(false);
@@ -361,14 +362,12 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
   
   const handleAIGenerate = async () => {
     if (!aiScript.trim()) {
-      setError('Please provide lesson script');
+      setAiError('Please provide a lesson script or summary');
       return;
     }
 
-    
-
     setAiGenerating(true);
-    setError(null);
+    setAiError(null);
 
     try {
       const res = await fetch('/api/author/generate-quiz', {
@@ -378,23 +377,21 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
           script: aiScript,
           lessonId: aiLessonId,
           questionCount: aiQuestionCount,
-          
-          
-          
         }),
       });
 
+      const data = await res.json();
       if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || 'Failed to generate quiz');
+        throw new Error(data.error || 'Failed to generate quiz');
       }
 
-      const data = await res.json();
       setGeneratedQuiz(data.quiz);
       setShowAIGenerate(false);
       setAiScript('');
+      setAiError(null);
+      fetchLessons();
     } catch (err: any) {
-      setError(err.message || 'Failed to generate quiz');
+      setAiError(err.message || 'Failed to generate quiz');
     } finally {
       setAiGenerating(false);
     }
@@ -1069,7 +1066,15 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
               AI Quiz Generator
             </h3>
 
-            
+            {aiError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg flex items-start gap-2">
+                <AlertCircle className="w-5 h-5 mt-0.5 shrink-0 text-red-600" />
+                <div>
+                  <p className="font-semibold">Generation Notice</p>
+                  <p className="text-xs text-red-600 mt-0.5">{aiError}</p>
+                </div>
+              </div>
+            )}
 
             <div className="space-y-4">
               <div>
@@ -1100,25 +1105,29 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                     onChange={(e) => setAiQuestionCount(parseInt(e.target.value) || 10)}
                   />
                 </div>
-
-                
               </div>
-
-              
 
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={handleAIGenerate}
                   disabled={aiGenerating || !aiScript.trim()}
-                  className="flex-1 px-4 py-2 bg-purple-600 text-white text-sm font-semibold rounded-lg hover:bg-purple-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2 bg-purple-600 text-white text-sm font-semibold rounded-lg hover:bg-purple-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  {aiGenerating ? 'Generating...' : 'Generate Quiz'}
+                  {aiGenerating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Generating Quiz with AI...</span>
+                    </>
+                  ) : (
+                    'Generate Quiz'
+                  )}
                 </button>
                 <button
                   onClick={() => {
                     setShowAIGenerate(false);
                     setAiLessonId(null);
                     setAiScript('');
+                    setAiError(null);
                     setGeneratedQuiz(null);
                   }}
                   className="px-4 py-2 bg-[var(--card)] brightness-95 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"

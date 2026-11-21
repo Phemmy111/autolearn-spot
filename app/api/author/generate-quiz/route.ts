@@ -57,49 +57,152 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
-    // Get the global quiz generation prompt
-    const { data: activePrompt } = await supabaseAdmin
-      .from('ai_prompts')
-      .select('*')
-      .is('author_id', null)
-      .eq('prompt_type', 'quiz_generation')
-      .eq('is_active', true)
-      .maybeSingle()
-    
-    if (!activePrompt) {
-      return NextResponse.json({ error: 'No quiz generation prompt found. Please configure a prompt in your AI settings.' }, { status: 500 })
+    // 1. Get the global quiz generation prompt with robust default fallback
+    const defaultPrompt = `You are an expert curriculum and educational assessment designer.
+Generate a comprehensive, high-quality multiple choice quiz based strictly on the provided lesson script.
+Return ONLY valid JSON matching this exact format:
+{
+  "title": "Lesson Quiz",
+  "description": "Assessment of key concepts from this lesson",
+  "questions": [
+    {
+      "question": "Clear, specific question text based directly on the lesson content?",
+      "question_type": "multiple_choice",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correct_answer": "Option A",
+      "explanation": "Brief explanation of why this answer is correct",
+      "points": 10
+    }
+  ]
+}`;
+
+    let promptContent = defaultPrompt;
+    try {
+      const { data: activePrompt } = await supabaseAdmin
+        .from('ai_prompts')
+        .select('content')
+        .is('author_id', null)
+        .eq('prompt_type', 'quiz_generation')
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (activePrompt?.content) {
+        promptContent = activePrompt.content;
+      }
+    } catch (e) {
+      console.warn('Could not load ai_prompts from DB, using robust default prompt');
     }
 
-    // Use AI Provider Manager to generate quiz
-    const countText = questionCount ? `Generate exactly ${questionCount} questions.` : 'Generate 10 questions.'
-    const prompt = `${activePrompt.content}\n\nGenerate a quiz for lesson "${lesson.title}" based on this lesson script:\n\n${script}\n\n${countText}`
+    const countText = questionCount ? `Generate exactly ${questionCount} questions.` : 'Generate 10 questions.';
+    const prompt = `${promptContent}\n\nGenerate a quiz for lesson "${lesson.title}" based on this lesson script:\n\n${script}\n\n${countText}`;
     
-    const providerManager = AIEngine.getProviderManager()
-    let fullContent = ''
-    
-    for await (const chunk of providerManager.executeStreamingWithFallback({
-      messages: [{ role: 'user', content: prompt }],
-      // Let provider manager auto-select the appropriate model for each provider
-      temperature: 0.7,
-      maxTokens: 4000,
-      stream: true,
-      disableTools: true
-    })) {
-      if (chunk.type === 'delta') {
-        fullContent += chunk.data?.content || chunk.data?.text || ''
-      } else if (chunk.type === 'error') {
-        throw new Error(chunk.data?.error || 'Streaming error')
+    let fullContent = '';
+
+    // 2. Direct AI Provider Fast Execution (Gemini, Groq, OpenAI)
+    if (!fullContent && process.env.GEMINI_API_KEY) {
+      try {
+        const geminiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ role: 'user', parts: [{ text: prompt }] }],
+              generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 4000,
+                responseMimeType: 'application/json',
+              },
+            }),
+          }
+        );
+        if (geminiRes.ok) {
+          const geminiData = await geminiRes.json();
+          fullContent = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        }
+      } catch (geminiErr) {
+        console.warn('Gemini quiz generation error:', geminiErr);
       }
     }
 
-    const result = {
-      success: true,
-      content: fullContent,
-      error: null
+    if (!fullContent && process.env.GROQ_API_KEY) {
+      try {
+        const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            messages: [{ role: 'user', content: prompt }],
+            temperature: 0.7,
+            max_tokens: 4000,
+            response_format: { type: 'json_object' },
+          }),
+        });
+        if (groqRes.ok) {
+          const groqData = await groqRes.json();
+          fullContent = groqData.choices?.[0]?.message?.content || '';
+        }
+      } catch (groqErr) {
+        console.warn('Groq quiz generation error:', groqErr);
+      }
     }
 
-    if (!result.success || !result.content) {
-      return NextResponse.json({ error: result.error || 'Failed to generate quiz' }, { status: 500 })
+    if (!fullContent && process.env.OPENAI_API_KEY) {
+      try {
+        const openaiRes = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages: [{ role: 'user', content: prompt }],
+            temperature: 0.7,
+            max_tokens: 4000,
+            response_format: { type: 'json_object' },
+          }),
+        });
+        if (openaiRes.ok) {
+          const openaiData = await openaiRes.json();
+          fullContent = openaiData.choices?.[0]?.message?.content || '';
+        }
+      } catch (openaiErr) {
+        console.warn('OpenAI quiz generation error:', openaiErr);
+      }
+    }
+
+    // 3. Fallback to ProviderManager
+    if (!fullContent) {
+      try {
+        const providerManager = AIEngine.getProviderManager();
+        for await (const chunk of providerManager.executeStreamingWithFallback({
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.7,
+          maxTokens: 4000,
+          stream: true,
+          disableTools: true,
+        })) {
+          if (chunk.type === 'delta') {
+            fullContent += chunk.data?.content || chunk.data?.text || '';
+          }
+        }
+      } catch (pmErr) {
+        console.warn('ProviderManager quiz generation error:', pmErr);
+      }
+    }
+
+    if (!fullContent) {
+      return NextResponse.json(
+        {
+          error:
+            'No active AI provider found. Please add GEMINI_API_KEY or GROQ_API_KEY in your Vercel Environment Variables to generate quizzes automatically.',
+        },
+        { status: 400 }
+      );
     }
 
     // Parse the JSON response
