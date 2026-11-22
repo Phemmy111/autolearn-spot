@@ -134,8 +134,20 @@ export async function createResumableUploadSession(
   });
 
   if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Failed to create resumable upload session: ${err}`);
+    const errText = await response.text();
+    let message = errText;
+    try {
+      const parsed = JSON.parse(errText);
+      const firstError = parsed.error?.errors?.[0];
+      if (firstError?.reason === 'uploadLimitExceeded') {
+        message = 'YouTube Daily Upload Limit Reached: This YouTube channel has reached YouTube’s maximum daily video upload limit. YouTube resets this limit every 24 hours. To increase your limit, enable "Advanced features" in YouTube Studio (Settings > Channel > Feature eligibility). In the meantime, you can upload directly on YouTube and paste the unlisted link below.';
+      } else if (firstError?.reason === 'quotaExceeded') {
+        message = 'YouTube Daily API Quota Reached: The daily API quota has been reached for today. In the meantime, you can paste an unlisted YouTube video URL directly into the field below.';
+      } else if (parsed.error?.message) {
+        message = parsed.error.message;
+      }
+    } catch (_) {}
+    throw new Error(message);
   }
 
   // Google returns the resumable upload URL in the Location header
