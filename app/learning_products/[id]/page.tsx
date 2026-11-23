@@ -18,6 +18,7 @@ import { MobileFloatingAddToCart } from '@/components/marketplace/MobileFloating
 import { ReviewService } from '@/lib/review-service';
 import { getPublicSettings } from '@/lib/public-settings';
 import CurriculumWithPreview from '@/components/public/CurriculumWithPreview';
+import { LiveEnrollmentNotification } from '@/components/marketplace/LiveEnrollmentNotification';
 
 interface PageParams {
   params: Promise<{ id: string }>;
@@ -450,6 +451,9 @@ export default async function LearningProductPage({ params }: PageParams) {
         formattedPrice={formattedPrice}
         currency={product.currency || 'NGN'}
       />
+
+      {/* Real-time Social Proof Toast */}
+      <LiveEnrollmentNotification courseTitle={product.title} />
     </div>
   );
 }

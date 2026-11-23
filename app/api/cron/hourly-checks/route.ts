@@ -93,6 +93,7 @@ export async function GET() {
         success: true, 
         message: 'Hourly checks completed (no upcoming lessons)',
         reconciledOrders: reconciledCount,
+        followupSentCount: followupSentCount,
       })
     }
     

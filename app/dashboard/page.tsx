@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { Lock, Play, BookOpen, Clock, Calendar, CheckCircle, MessageSquare, Video, KeyRound, Check, AlertCircle } from 'lucide-react';
+import { Lock, Play, BookOpen, Clock, Calendar, CheckCircle, MessageSquare, Video, KeyRound, Check, AlertCircle, Share2, Sparkles, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -130,6 +130,33 @@ export default function DashboardPage() {
           <KeyRound className="w-4 h-4" />
           Paid with another email? Link course
         </button>
+      </div>
+
+      {/* Refer & Earn High-Impact Banner */}
+      <div className="relative overflow-hidden rounded-3xl border-2 border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 via-brand-primary/5 to-transparent p-5 sm:p-6 shadow-sm">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider mb-1">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Student Partner Program</span>
+            </div>
+            <h2 className="text-lg sm:text-xl font-heading font-extrabold text-brand-text">
+              Earn ₦1,500 Cash for Every Friend You Refer! 💰
+            </h2>
+            <p className="text-xs sm:text-sm text-brand-text/70 max-w-xl">
+              Share your personal referral link with colleagues, coursemates, and friends. As soon as they enroll, your commission is credited directly to your bank account.
+            </p>
+          </div>
+
+          <Link
+            href="/dashboard/refer-and-earn"
+            className="shrink-0 inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-emerald-600/20 transition-all hover:-translate-y-0.5"
+          >
+            <Share2 className="w-4 h-4" />
+            <span>Get My Referral Link</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
       </div>
 
       {/* Claim Modal */}
