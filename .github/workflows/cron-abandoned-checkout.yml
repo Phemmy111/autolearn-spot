@@ -1,0 +1,18 @@
+name: Abandoned Checkout Follow-up & Order Reconciliation Cron
+
+on:
+  schedule:
+    # Runs every 2 hours (at minute 15 of every even hour)
+    - cron: '15 */2 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  run-recovery-cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Abandoned Checkout Follow-up API
+        run: |
+          echo "Triggering AutoLearn Spot abandoned checkout recovery..."
+          curl -s -X GET "https://www.autolearnspot.com/api/cron/abandoned-checkout" \
+            -H "User-Agent: GitHub-Actions-Cron" \
+            -H "x-vercel-cron: 1"
