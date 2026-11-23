@@ -333,7 +333,7 @@ export async function sendWelcomeEmail({ to, fullName, referenceNumber }: EmailD
         <h3 style="color: #00f0ff; margin: 25px 0 15px 0; font-size: 18px;">Important Information</h3>
 
         <p style="font-size: 16px; line-height: 1.6;"><strong>Dashboard Access:</strong> You can access your learning materials and progress through the student dashboard.</p>
-        <p style="font-size: 16px; line-height: 1.6;"><strong>Support:</strong> For any questions, contact us at support@autolearnspot.com</p>
+        <p style="font-size: 16px; line-height: 1.6;"><strong>Support:</strong> For any questions, contact us at autolearnspot@gmail.com</p>
 
         <div style="text-align: center; margin: 25px 0;">
           <a href="${settings.paidWhatsApp}" style="display: inline-block; background: #25D366; color: white; padding: 15px 30px; text-decoration: none; font-size: 16px; font-weight: bold; border-radius: 5px; text-transform: uppercase;">Join Paid Students WhatsApp Group</a>

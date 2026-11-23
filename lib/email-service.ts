@@ -687,7 +687,7 @@ ${baseUrl}
 
                       <!-- Support Section -->
                       <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.6;">
-                        Need help or have questions? Simply reply directly to this email or reach us at <a href="mailto:support@autolearnspot.com" style="color: #4f46e5; text-decoration: underline;">support@autolearnspot.com</a>.
+                        Need help or have questions? Simply reply directly to this email or reach us at <a href="mailto:autolearnspot@gmail.com" style="color: #4f46e5; text-decoration: underline;">autolearnspot@gmail.com</a>.
                       </p>
 
                     </td>
@@ -738,7 +738,7 @@ Connect with fellow learners, get live class updates, and ask questions.
 3. EARN YOUR CERTIFICATE:
 Complete your coursework and quizzes to earn your verified certificate.
 
-If you have any questions, reach out to support@autolearnspot.com.
+If you have any questions, reach out to autolearnspot@gmail.com.
 
 Best regards,
 The AutoLearn Spot Team
@@ -771,8 +771,7 @@ ${baseUrl}
     const finishCheckoutUrl = checkoutUrl || `${baseUrl}/cart`;
     const supportWhatsapp =
       whatsappUrl ||
-      process.env.WHATSAPP_GROUP_LINK ||
-      'https://chat.whatsapp.com/JGZhpVPwZnr9WViOzkMFHy?s=cl&p=a&iam=2';
+      'https://wa.me/2348120934828?text=Hello%20Femi!%20I%20need%20help%20with%20my%20enrollment.';
     const formattedAmount = typeof amount === 'number' ? `₦${amount.toLocaleString()}` : `₦${amount}`;
 
     const template: EmailTemplate = {
@@ -888,7 +887,7 @@ ${baseUrl}
 
                       <!-- Support Note -->
                       <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.6; text-align: center;">
-                        Have questions? Reply directly to this email or contact us at <a href="mailto:support@autolearnspot.com" style="color: #4f46e5;">support@autolearnspot.com</a>.
+                        Have questions? Reply directly to this email or contact us at <a href="mailto:autolearnspot@gmail.com" style="color: #4f46e5;">autolearnspot@gmail.com</a>.
                       </p>
 
                     </td>

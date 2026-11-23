@@ -125,13 +125,14 @@ export async function sendFollowupForOrder(
       checkoutUrl = `${baseUrl}/learning_products/${productId}`;
     }
 
-    // 7. Dispatch follow-up email
+    // 7. Dispatch follow-up email with direct link to Femi's WhatsApp DM (08120934828)
     const emailSent = await EmailService.sendAbandonedCheckoutFollowup({
       studentEmail: email,
       studentName: customerName,
       courseTitle,
       amount: order.total,
       checkoutUrl,
+      whatsappUrl: `https://wa.me/2348120934828?text=${encodeURIComponent(`Hello Femi! I attempted enrolling in "${courseTitle}" on AutoLearn Spot and need assistance completing my payment.`)}`,
     });
 
     if (!emailSent) {

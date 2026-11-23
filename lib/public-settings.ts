@@ -129,7 +129,7 @@ const DEFAULT_SETTINGS: PublicSettings = {
   primaryColor: '#00f0ff',
   secondaryColor: '#8b5cf6',
   accentColor: '#00f0ff',
-  supportEmail: 'support@autolearnspot.com',
+  supportEmail: 'autolearnspot@gmail.com',
   supportPhone: '+234',
   supportWhatsApp: '+234',
   whatsappDirectLink: 'https://wa.me/',
