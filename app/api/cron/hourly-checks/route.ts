@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { sendContentUnlockNotification } from '@/lib/notification-scheduler'
 import { getCurrentCohortId } from '@/lib/progress-service'
 import { fulfillCartOrder } from '@/lib/order-fulfillment'
+import { processAbandonedOrders } from '@/lib/abandoned-checkout'
 
 export const dynamic = 'force-dynamic';
 
@@ -58,6 +59,19 @@ export async function GET() {
       }
     } catch (reconcileErr) {
       console.error('[Cron] Order reconciliation error:', reconcileErr);
+    }
+
+    // 2. Auto-send follow-up emails to abandoned checkouts (1 hr - 72 hrs old)
+    let followupSentCount = 0;
+    try {
+      const followupRes = await processAbandonedOrders({
+        minAgeHours: 1,
+        maxAgeHours: 72,
+        limit: 15,
+      });
+      followupSentCount = followupRes.sent || 0;
+    } catch (followupErr) {
+      console.error('[Cron] Abandoned checkout follow-up error:', followupErr);
     }
 
     const cohortId = await getCurrentCohortId()
@@ -128,6 +142,7 @@ export async function GET() {
       message: 'Hourly checks completed',
       stats: { success: successCount, failed: errorCount, lessons: upcomingLessons.length },
       reconciledOrders: reconciledCount,
+      followupEmailsSent: followupSentCount,
     })
     
   } catch (error) {

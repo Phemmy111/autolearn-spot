@@ -750,6 +750,203 @@ ${baseUrl}
   }
 
   /**
+   * Send abandoned checkout follow-up email to student who attempted to pay
+   */
+  static async sendAbandonedCheckoutFollowup({
+    studentEmail,
+    studentName,
+    courseTitle,
+    amount,
+    checkoutUrl,
+    whatsappUrl,
+  }: {
+    studentEmail: string;
+    studentName: string;
+    courseTitle: string;
+    amount: number;
+    checkoutUrl?: string;
+    whatsappUrl?: string;
+  }): Promise<boolean> {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
+    const finishCheckoutUrl = checkoutUrl || `${baseUrl}/cart`;
+    const supportWhatsapp =
+      whatsappUrl ||
+      process.env.WHATSAPP_GROUP_LINK ||
+      'https://chat.whatsapp.com/JGZhpVPwZnr9WViOzkMFHy?s=cl&p=a&iam=2';
+    const formattedAmount = typeof amount === 'number' ? `₦${amount.toLocaleString()}` : `₦${amount}`;
+
+    const template: EmailTemplate = {
+      to: studentEmail,
+      subject: `⚡ Complete Your Enrollment: ${courseTitle} | AutoLearn Spot`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Complete Your Enrollment</title>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1f2937;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f3f4f6; padding: 30px 15px;">
+            <tr>
+              <td align="center">
+                <table role="presentation" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);">
+                  
+                  <!-- Header with Logo -->
+                  <tr>
+                    <td style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 32px 30px; text-align: center;">
+                      <h1 style="margin: 0; font-size: 26px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">
+                        Auto<span style="color: #10B981;">Learn</span> Spot
+                      </h1>
+                      <p style="margin: 8px 0 0; color: #94a3b8; font-size: 14px;">Master In-Demand Skills. Build Systems. Grow Your Career.</p>
+                    </td>
+                  </tr>
+
+                  <!-- Main Content Area -->
+                  <tr>
+                    <td style="padding: 35px 30px;">
+                      
+                      <!-- Friendly Reminder Badge -->
+                      <div style="text-align: center; margin-bottom: 24px;">
+                        <span style="display: inline-block; background-color: #fef3c7; color: #b45309; font-size: 13px; font-weight: 700; padding: 6px 16px; border-radius: 50px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid #fde68a;">
+                          Enrollment Incomplete
+                        </span>
+                        <h2 style="margin: 16px 0 8px; font-size: 22px; color: #111827; font-weight: 700;">
+                          Did something interrupt your checkout, ${studentName}?
+                        </h2>
+                        <p style="margin: 0; font-size: 15px; color: #4b5563; line-height: 1.6;">
+                          We noticed you started enrolling in <strong>${courseTitle}</strong>, but didn't get a chance to complete your payment.
+                        </p>
+                      </div>
+
+                      <!-- Course Box -->
+                      <table role="presentation" width="100%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 28px; padding: 20px;">
+                        <tr>
+                          <td>
+                            <h3 style="margin: 0 0 12px; font-size: 15px; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px; font-weight: 700;">
+                              Selected Course
+                            </h3>
+                            <table role="presentation" width="100%" style="font-size: 14px; line-height: 1.8;">
+                              <tr>
+                                <td style="color: #64748b; padding-bottom: 6px;">Course:</td>
+                                <td style="color: #0f172a; font-weight: 700; text-align: right; padding-bottom: 6px;">${courseTitle}</td>
+                              </tr>
+                              <tr>
+                                <td style="color: #64748b; padding-bottom: 6px;">Tuition:</td>
+                                <td style="color: #059669; font-weight: 700; text-align: right; padding-bottom: 6px;">${formattedAmount}</td>
+                              </tr>
+                              <tr>
+                                <td style="color: #64748b;">Access:</td>
+                                <td style="color: #0f172a; font-weight: 600; text-align: right;">Lifetime Course & Project Access</td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- Reassurance & Value Points -->
+                      <div style="background-color: #f0fdf4; border-left: 4px solid #10b981; padding: 16px 18px; border-radius: 6px; margin-bottom: 28px;">
+                        <p style="margin: 0 0 8px; font-size: 14px; color: #065f46; font-weight: 700;">
+                          What you'll unlock once enrolled:
+                        </p>
+                        <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #047857; line-height: 1.7;">
+                          <li>Full step-by-step video curriculum and practical assignments</li>
+                          <li>Downloadable workflow templates and real-world project files</li>
+                          <li>Direct instructor Q&A in our private WhatsApp community</li>
+                          <li>Verified Certificate of Completion upon finishing</li>
+                        </ul>
+                      </div>
+
+                      <!-- Primary CTA: Complete Enrollment -->
+                      <div style="text-align: center; margin-bottom: 30px;">
+                        <a href="${finishCheckoutUrl}" target="_blank" style="display: inline-block; background-color: #4f46e5; color: #ffffff; font-size: 16px; font-weight: 700; text-decoration: none; padding: 15px 36px; border-radius: 10px; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);">
+                          Complete Your Enrollment Now →
+                        </a>
+                        <p style="margin: 10px 0 0; font-size: 12px; color: #64748b;">
+                          Link: <a href="${finishCheckoutUrl}" style="color: #4f46e5; text-decoration: underline;">${finishCheckoutUrl}</a>
+                        </p>
+                      </div>
+
+                      <!-- Bank or Network Issues Section -->
+                      <table role="presentation" width="100%" style="background-color: #faf5ff; border: 1.5px solid #d8b4fe; border-radius: 12px; margin-bottom: 26px; padding: 18px 20px;">
+                        <tr>
+                          <td>
+                            <h4 style="margin: 0 0 6px; font-size: 15px; color: #6b21a8; font-weight: 700;">
+                              Did you experience a bank or network issue? 💬
+                            </h4>
+                            <p style="margin: 0 0 12px; font-size: 13px; color: #7e22ce; line-height: 1.6;">
+                              If your banking app timed out or Paystack transfer had an issue, we can help you complete your enrollment with an alternative payment method or direct verification.
+                            </p>
+                            <div style="text-align: center;">
+                              <a href="${supportWhatsapp}" target="_blank" style="display: inline-block; background-color: #25D366; color: #ffffff; font-size: 13px; font-weight: 700; text-decoration: none; padding: 10px 22px; border-radius: 8px;">
+                                Chat With Us on WhatsApp
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- Support Note -->
+                      <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.6; text-align: center;">
+                        Have questions? Reply directly to this email or contact us at <a href="mailto:support@autolearnspot.com" style="color: #4f46e5;">support@autolearnspot.com</a>.
+                      </p>
+
+                    </td>
+                  </tr>
+
+                  <!-- Footer -->
+                  <tr>
+                    <td style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 22px 30px; text-align: center; font-size: 12px; color: #94a3b8; line-height: 1.6;">
+                      <p style="margin: 0 0 4px;">© ${new Date().getFullYear()} AutoLearn Spot. All rights reserved.</p>
+                      <p style="margin: 0;">
+                        <a href="${baseUrl}" style="color: #64748b; text-decoration: none; margin: 0 8px;">Website</a> • 
+                        <a href="${baseUrl}/terms" style="color: #64748b; text-decoration: none; margin: 0 8px;">Terms</a> • 
+                        <a href="${baseUrl}/contact" style="color: #64748b; text-decoration: none; margin: 0 8px;">Contact Support</a>
+                      </p>
+                    </td>
+                  </tr>
+
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
+      `,
+      text: `
+Hi ${studentName},
+
+Did something interrupt your checkout on AutoLearn Spot?
+
+We noticed you started enrolling in ${courseTitle}, but didn't get to complete your payment of ${formattedAmount}.
+
+Don't worry, your course spot is still available!
+
+COMPLETE YOUR ENROLLMENT:
+Finish checkout here: ${finishCheckoutUrl}
+
+WHAT YOU'LL GET:
+- Lifetime access to all video lessons and resources
+- Real-world project templates and practical workflows
+- Private student community and mentor support
+- Verified Certificate of Completion
+
+DID YOU RUN INTO A BANK OR PAYMENT ISSUE?
+If your bank app timed out or Paystack transfer failed, reach out to us directly on WhatsApp:
+${supportWhatsapp}
+
+Or simply reply to this email!
+
+Best regards,
+The AutoLearn Spot Team
+${baseUrl}
+      `.trim(),
+    };
+
+    return this.sendEmail(template);
+  }
+
+  /**
    * Send course purchase notification to configured recipients
    */
   static async sendCoursePurchaseNotificationToRecipients(
