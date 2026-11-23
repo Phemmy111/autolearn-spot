@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { requireSuperAdmin } from '@/lib/admin';
+import { fulfillCartOrder } from '@/lib/order-fulfillment';
 
 export async function POST(req: Request) {
   try {
@@ -21,7 +22,7 @@ export async function POST(req: Request) {
     }
 
     // 1. Fetch from Paystack directly to ensure absolute ground truth
-    const verifyRes = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
+    const verifyRes = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`, {
       headers: {
         Authorization: `Bearer ${secret}`
       }
@@ -35,25 +36,46 @@ export async function POST(req: Request) {
 
     const data = verifyData.data;
 
-    // 2. Save/Update to payments table
-    const paymentData = {
-      transaction_id: data.id,
-      reference: reference,
-      gateway_response: data.gateway_response,
-      currency: data.currency,
-      amount: data.amount,
-      paid_at: data.paid_at,
-      channel: data.channel,
-      fees: data.fees,
-      status: data.status,
-      customer_email: data.customer.email,
-      customer_name: `${data.customer.first_name || ''} ${data.customer.last_name || ''}`.trim(),
-      metadata: data.metadata || {},
-    };
+    // 2. Check if this corresponds to a modern cart order or has cart_checkout metadata
+    const orderId = data.metadata?.order_id;
+    let orderToFulfill = null;
+    if (orderId) {
+      const { data: o } = await supabaseAdmin.from('orders').select('*').eq('id', orderId).maybeSingle();
+      orderToFulfill = o;
+    }
+    if (!orderToFulfill) {
+      const { data: o } = await supabaseAdmin
+        .from('orders')
+        .select('*')
+        .or(`provider_ref.eq.${reference},order_ref.eq.${reference}`)
+        .maybeSingle();
+      orderToFulfill = o;
+    }
 
-    await supabaseAdmin.from('payments').upsert(paymentData, { onConflict: 'reference' });
+    if (orderToFulfill || data.metadata?.payment_type === 'cart_checkout') {
+      const paystackCustomerName = [data.customer?.first_name, data.customer?.last_name].filter(Boolean).join(' ');
+      const confirmedFullName = data.metadata?.full_name || paystackCustomerName || orderToFulfill?.customer_name || 'Student';
+      const affiliateRef = data.metadata?.affiliate_ref;
 
-    // 3. Resolve Cohort (Metadata -> Fallback Active Cohort)
+      const fulfillResult = await fulfillCartOrder({
+        orderId: orderToFulfill?.id || orderId,
+        reference,
+        customerEmail: data.customer?.email || orderToFulfill?.customer_email,
+        customerName: confirmedFullName,
+        amountInNaira: Math.round(data.amount / 100),
+        ipAddress: data.ip_address,
+        affiliateRef,
+        resendEmails: true,
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'Cart order successfully fulfilled and confirmation emails dispatched.',
+        fulfillResult,
+      });
+    }
+
+    // 3. Fallback: Resolve Cohort (Metadata -> Fallback Active Cohort)
     let resolvedCohortId = data.metadata?.cohort_id;
     if (!resolvedCohortId && data.metadata?.course_slug) {
       const { data: slugCohort } = await supabaseAdmin.from('cohorts').select('id').eq('slug', data.metadata.course_slug).single();
@@ -65,7 +87,7 @@ export async function POST(req: Request) {
     }
 
     if (!resolvedCohortId) {
-      return NextResponse.json({ error: 'Could not resolve any cohort for enrollment' }, { status: 400 });
+      return NextResponse.json({ error: 'Could not resolve any cohort or course for enrollment' }, { status: 400 });
     }
 
     // 4. Upsert Enrollment mapping
@@ -75,7 +97,7 @@ export async function POST(req: Request) {
         cohort_id: resolvedCohortId,
         email: data.customer.email,
         payment_ref: reference,
-        amount_paid: data.amount,
+        amount_paid: data.amount ? data.amount / 100 : 0,
         status: 'active',
         activated_at: new Date().toISOString()
       }, {
@@ -87,14 +109,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Failed to resync enrollment' }, { status: 500 });
     }
 
-    // Log the event
-    await supabaseAdmin.from('payment_events').insert({
-      payment_reference: reference,
-      event_type: 'resync_executed',
-      description: `Super admin manually resynced payment and enrollment.`
-    });
-
-    return NextResponse.json({ success: true, message: 'Payment successfully resynced' }, { status: 200 });
+    return NextResponse.json({ success: true, message: 'Payment successfully resynced and enrolled.' }, { status: 200 });
 
   } catch (err: any) {
     console.error('Resync Payment Error:', err.message);
