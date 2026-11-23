@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { cookies } from 'next/headers';
 import { getCartDetails, addProductToCart } from '@/lib/cart-service';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,7 +32,22 @@ export async function GET() {
     return NextResponse.json({ error: 'Failed to retrieve cart' }, { status: 500 });
   }
 
-  const response = NextResponse.json({ cart });
+  // Fetch available products for order bump (products not currently in cart)
+  let recommendations: any[] = [];
+  try {
+    const inCartIds = (cart.items || []).map((i: any) => i.learning_product_id);
+    const { data: prods } = await supabaseAdmin
+      .from('learning_products')
+      .select('id, title, description, price, currency, thumbnail_url, slug')
+      .eq('status', 'PUBLISHED')
+      .order('created_at', { ascending: false });
+
+    recommendations = (prods || []).filter((p: any) => !inCartIds.includes(p.id));
+  } catch (err) {
+    console.warn('[Cart API] Failed to fetch recommendations:', err);
+  }
+
+  const response = NextResponse.json({ cart, recommendations });
   if (identifier.startsWith('guest_')) {
     response.cookies.set('guest_cart_id', identifier, { maxAge: 60 * 60 * 24 * 30, httpOnly: true, secure: true });
   }

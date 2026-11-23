@@ -619,8 +619,104 @@ export async function sendFulfillmentEmails(
       } catch (adminEmailErr) {
         console.warn(`[Fulfillment] Failed to send admin sale notification (non-fatal):`, adminEmailErr);
       }
+
+      // 4. Dispatch instant alert (In-app, Telegram bot, or n8n/WhatsApp webhook)
+      try {
+        await dispatchInstantAdminSaleAlert({
+          studentName: confirmedFullName,
+          studentEmail: email,
+          courseTitle: product.title,
+          amount: item.price_snapshot,
+          reference: order.provider_ref || order.id,
+          orderId: order.id,
+        });
+      } catch (alertErr) {
+        console.warn(`[Fulfillment] Instant sale alert warning (non-fatal):`, alertErr);
+      }
     } catch (err) {
       console.warn(`[Fulfillment] Email processing error for item ${item.id}:`, err);
+    }
+  }
+}
+
+/**
+ * Dispatch instant real-time admin alert (In-app notification, Telegram bot, or n8n/WhatsApp webhook)
+ */
+async function dispatchInstantAdminSaleAlert({
+  studentName,
+  studentEmail,
+  courseTitle,
+  amount,
+  reference,
+  orderId,
+}: {
+  studentName: string;
+  studentEmail: string;
+  courseTitle: string;
+  amount: number;
+  reference?: string;
+  orderId: string;
+}) {
+  const alertText = `🎉 *New Course Sale on AutoLearn Spot!*\n\n• *Course:* ${courseTitle}\n• *Student:* ${studentName}\n• *Email:* ${studentEmail}\n• *Amount Paid:* ₦${amount.toLocaleString()}\n• *Reference:* ${reference || orderId}`;
+
+  // 1. In-app notification for admin dashboard
+  try {
+    await supabaseAdmin.from('notifications').insert({
+      title: '💰 New Course Sale',
+      message: `${studentName} purchased ${courseTitle} for ₦${amount.toLocaleString()}`,
+      category: 'payment',
+      priority: 'high',
+      target_type: 'order',
+      target_id: orderId,
+      action_url: '/admin/orders',
+      action_label: 'View Order',
+      is_read: false,
+    });
+  } catch (err) {
+    console.warn('[Fulfillment] In-app notification error (non-fatal):', err);
+  }
+
+  // 2. Telegram Bot ping (if configured in environment)
+  const tgToken = process.env.TELEGRAM_BOT_TOKEN;
+  const tgChatId = process.env.TELEGRAM_CHAT_ID;
+  if (tgToken && tgChatId) {
+    try {
+      await fetch(`https://api.telegram.org/bot${tgToken}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: tgChatId,
+          text: alertText,
+          parse_mode: 'Markdown',
+        }),
+      });
+      console.log('[Fulfillment] Telegram sale alert dispatched');
+    } catch (tgErr) {
+      console.warn('[Fulfillment] Telegram alert error (non-fatal):', tgErr);
+    }
+  }
+
+  // 3. Webhook ping (n8n, Zapier, Make, or custom admin alert webhook)
+  const webhookUrl = process.env.ADMIN_SALE_ALERT_WEBHOOK_URL || process.env.N8N_SALE_WEBHOOK_URL;
+  if (webhookUrl) {
+    try {
+      await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event: 'course.purchased',
+          studentName,
+          studentEmail,
+          courseTitle,
+          amount,
+          reference: reference || orderId,
+          orderId,
+          timestamp: new Date().toISOString(),
+        }),
+      });
+      console.log('[Fulfillment] Outbound sale alert webhook dispatched');
+    } catch (whErr) {
+      console.warn('[Fulfillment] Sale alert webhook error (non-fatal):', whErr);
     }
   }
 }

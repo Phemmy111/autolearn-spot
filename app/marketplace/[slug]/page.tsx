@@ -16,6 +16,7 @@ import { CourseFAQSection } from '@/components/marketplace/CourseFAQSection';
 import { MobileFloatingAddToCart } from '@/components/marketplace/MobileFloatingAddToCart';
 import { ReviewService } from '@/lib/review-service';
 import { getPublicSettings } from '@/lib/public-settings';
+import CurriculumWithPreview from '@/components/public/CurriculumWithPreview';
 
 interface PageParams {
   params: Promise<{ slug: string }>;
@@ -329,29 +330,16 @@ export default async function MarketplaceProductPage({ params }: PageParams) {
             {/* Curriculum (Lessons) Section */}
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500 fill-mode-both">
               <h2 className="text-2xl font-heading font-bold mb-6">Course Curriculum</h2>
-              {lessons && lessons.length > 0 ? (
-                <div className="bg-card border border-border rounded-2xl overflow-hidden divide-y divide-border">
-                  {lessons.map((lesson, idx) => (
-                    <div key={idx} className="p-4 sm:p-6 hover:bg-muted/30 transition-colors flex gap-4">
-                      <div className="shrink-0 mt-1">
-                        <PlayCircle className="w-6 h-6 text-brand-primary/60" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-foreground text-lg mb-1">{lesson.title}</h4>
-                        {lesson.description && <p className="text-sm text-muted-foreground mb-2 line-clamp-2">{lesson.description}</p>}
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
-                          <Clock className="w-3.5 h-3.5" />
-                          {lesson.duration_label || 'Self-paced'}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="bg-card border border-border rounded-2xl p-8 text-center">
-                  <p className="text-muted-foreground">Curriculum details are being updated by the author.</p>
-                </div>
-              )}
+              <CurriculumWithPreview
+                lessons={lessons || []}
+                product={{
+                  id: product.id,
+                  title: product.title,
+                  price: product.price,
+                  currency: product.currency,
+                }}
+                isEnrolled={Boolean(isEnrolled)}
+              />
             </div>
             
             {/* Author Profile Block */}
