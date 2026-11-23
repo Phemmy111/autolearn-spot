@@ -80,6 +80,17 @@ export default function CurriculumWithPreview({
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
+  // Lock body scroll when preview modal is active to eliminate background movement and bleed
+  useEffect(() => {
+    if (activePreviewLesson) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [activePreviewLesson]);
+
   // Reset state when opening a new preview lesson
   const handleOpenPreview = (lesson: Lesson) => {
     setActivePreviewLesson(lesson);
@@ -289,42 +300,48 @@ export default function CurriculumWithPreview({
       {/* Free Preview Video Modal with 4m 30s Cutoff */}
       {activePreviewLesson && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300"
+          className="fixed inset-0 z-[9999] flex flex-col justify-between sm:justify-center sm:items-center p-0 sm:p-4 bg-black/95 sm:bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
           onClick={handleCloseModal}
         >
           <div 
-            className="relative w-full max-w-3xl bg-card border border-border rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300"
+            className="relative w-full h-full sm:h-auto sm:max-w-3xl bg-slate-950 sm:bg-card border-0 sm:border border-border rounded-none sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col justify-between sm:justify-start animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Top Bar */}
-            <div className="flex items-center justify-between p-3 sm:p-4 border-b border-border bg-muted/40">
+            <div className="shrink-0 flex items-center justify-between p-3 sm:p-4 border-b border-slate-800 sm:border-border bg-slate-900/90 sm:bg-muted/40 backdrop-blur-md">
               <div className="flex items-center gap-2 overflow-hidden mr-2">
                 <span className="shrink-0 text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 px-2.5 py-0.5 rounded-full">
                   Free Preview
                 </span>
-                <h3 className="font-bold text-xs sm:text-sm text-foreground truncate">
+                <h3 className="font-bold text-xs sm:text-sm text-white sm:text-foreground truncate">
                   {activePreviewLesson.title}
                 </h3>
               </div>
-              <button 
-                onClick={handleCloseModal}
-                className="shrink-0 p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                title="Close preview"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-3">
+                <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+                  <span className={`inline-block w-2 h-2 rounded-full ${isPaywallTriggered ? 'bg-amber-400' : 'bg-emerald-400 animate-pulse'}`} />
+                  {isPaywallTriggered ? '4:30 Reached' : `${formatMinutesSeconds(elapsedSeconds)} / 4:30`}
+                </span>
+                <button 
+                  onClick={handleCloseModal}
+                  className="shrink-0 p-1.5 rounded-full text-slate-400 hover:text-white sm:text-muted-foreground sm:hover:text-foreground hover:bg-slate-800 sm:hover:bg-muted transition-colors"
+                  title="Close preview"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
-            {/* Live Preview Countdown Header & Progress Bar */}
-            <div className="bg-slate-950 px-4 py-2 border-b border-slate-800 flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
+            {/* Mobile Timer Bar (compact) */}
+            <div className="shrink-0 bg-slate-950 px-3 py-1.5 border-b border-slate-800 flex items-center justify-between text-xs sm:hidden">
+              <div className="flex items-center gap-1.5">
                 <span className={`inline-block w-2 h-2 rounded-full ${isPaywallTriggered ? 'bg-amber-400' : 'bg-emerald-400 animate-pulse'}`} />
-                <span className="font-medium text-slate-300 text-[11px] sm:text-xs">
+                <span className="font-medium text-slate-300 text-[11px]">
                   {isPaywallTriggered ? (
                     <strong className="text-amber-400">Preview limit reached (4:30)</strong>
                   ) : (
                     <>
-                      Preview Timer: <strong className="text-white font-mono">{formatMinutesSeconds(elapsedSeconds)}</strong> / <span className="text-slate-400 font-mono">4:30</span>
+                      Timer: <strong className="text-white font-mono">{formatMinutesSeconds(elapsedSeconds)}</strong> / <span className="text-slate-400 font-mono">4:30</span>
                     </>
                   )}
                 </span>
@@ -332,14 +349,15 @@ export default function CurriculumWithPreview({
               <button
                 onClick={handleEnrollNow}
                 disabled={isEnrolling}
-                className="text-[11px] font-bold text-brand-primary hover:text-brand-primary-hover flex items-center gap-1 transition-colors"
+                className="text-[11px] font-bold text-brand-primary hover:text-brand-primary-hover flex items-center gap-1"
               >
-                Enroll Full Course ({formatPrice(product.price, product.currency)})
+                Enroll ({formatPrice(product.price, product.currency)})
                 <ArrowRight className="w-3 h-3" />
               </button>
             </div>
             
-            <div className="w-full bg-slate-900 h-1">
+            {/* Progress Bar */}
+            <div className="shrink-0 w-full bg-slate-900 h-1">
               <div 
                 className={`h-1 transition-all duration-300 ${isPaywallTriggered ? 'bg-amber-400' : 'bg-brand-primary'}`}
                 style={{ width: `${Math.min(100, (elapsedSeconds / PREVIEW_LIMIT_SECONDS) * 100)}%` }}
@@ -347,7 +365,7 @@ export default function CurriculumWithPreview({
             </div>
 
             {/* Video Player Frame with 4:30 Cutoff & Paywall Overlay */}
-            <div className="relative w-full aspect-video bg-black overflow-hidden">
+            <div className="relative w-full aspect-video bg-black overflow-hidden my-auto sm:my-0">
               {/* If Paywall is Triggered, show the High-Converting Paywall Overlay */}
               {isPaywallTriggered ? (
                 <div className="absolute inset-0 z-30 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-6 text-center animate-in fade-in duration-300">
@@ -462,31 +480,43 @@ export default function CurriculumWithPreview({
             </div>
 
             {/* Modal Footer / Upsell Banner */}
-            <div className="p-4 sm:p-5 bg-gradient-to-r from-brand-primary/10 via-muted/50 to-transparent flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-              <div>
-                <h4 className="font-bold text-foreground text-xs sm:text-sm flex items-center gap-1.5">
+            <div className="shrink-0 p-3 sm:p-4 bg-slate-900/90 sm:bg-muted/40 border-t border-slate-800 sm:border-border flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="w-full sm:w-auto text-center sm:text-left">
+                <h4 className="font-bold text-white sm:text-foreground text-xs sm:text-sm flex items-center justify-center sm:justify-start gap-1.5">
                   <Sparkles className="w-4 h-4 text-brand-primary" />
                   Ready to master this complete skill?
                 </h4>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Get full lifetime access to all lessons, templates, community & verified certificate.
+                <p className="text-[11px] sm:text-xs text-slate-400 sm:text-muted-foreground mt-0.5 line-clamp-1">
+                  Get full lifetime access to all lessons, templates, community & certificate.
                 </p>
               </div>
 
-              <button
-                onClick={handleEnrollNow}
-                disabled={isEnrolling}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-brand-primary text-primary-foreground font-bold text-xs sm:text-sm hover:bg-brand-primary-hover shadow-lg shadow-brand-primary/20 transition-all text-center whitespace-nowrap flex items-center justify-center gap-1.5"
-              >
-                {isEnrolling ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <>
-                    <span>Enroll Now • {formatPrice(product.price, product.currency)}</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
+              <div className="w-full sm:w-auto flex items-center gap-2">
+                <a
+                  href="https://chat.whatsapp.com/JGZhpVPwZnr9WViOzkMFHy?s=cl&p=a&iam=2"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="sm:hidden px-3.5 py-2.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 text-emerald-400 font-semibold text-xs flex items-center justify-center gap-1 shrink-0"
+                  title="Chat on WhatsApp"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                </a>
+
+                <button
+                  onClick={handleEnrollNow}
+                  disabled={isEnrolling}
+                  className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-brand-primary text-primary-foreground font-bold text-xs sm:text-sm hover:bg-brand-primary-hover shadow-lg shadow-brand-primary/20 transition-all text-center whitespace-nowrap flex items-center justify-center gap-1.5"
+                >
+                  {isEnrolling ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      <span>Enroll Now • {formatPrice(product.price, product.currency)}</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
 
           </div>
