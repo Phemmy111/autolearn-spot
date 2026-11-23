@@ -787,6 +787,175 @@ ${baseUrl}
   }
 
   /**
+   * Send confirmation email to admin and founders when a manual enrollment is completed
+   */
+  static async sendManualEnrollmentAdminConfirmation({
+    adminEmail,
+    studentName,
+    studentEmail,
+    courseTitle,
+    orderRef,
+    enrolledAt,
+    reason,
+  }: {
+    adminEmail?: string;
+    studentName: string;
+    studentEmail: string;
+    courseTitle: string;
+    orderRef: string;
+    enrolledAt?: string;
+    reason?: string;
+  }): Promise<boolean> {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
+    const studentsAdminUrl = `${baseUrl}/admin/students`;
+
+    const recipients = Array.from(new Set([
+      adminEmail,
+      process.env.ADMIN_EMAIL,
+      process.env.FOUNDER_EMAIL,
+      process.env.OWNER_EMAIL,
+      'autolearnspot@gmail.com',
+      'femiadeleke2020@gmail.com'
+    ].filter(Boolean))) as string[];
+
+    const formattedDate = enrolledAt 
+      ? new Date(enrolledAt).toLocaleString('en-US', { timeZone: 'Africa/Lagos', dateStyle: 'full', timeStyle: 'short' })
+      : new Date().toLocaleString('en-US', { timeZone: 'Africa/Lagos', dateStyle: 'full', timeStyle: 'short' });
+
+    const template: EmailTemplateMultiple = {
+      to: recipients,
+      subject: `✅ Manual Enrollment Confirmed: ${studentName} enrolled in ${courseTitle}`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Manual Enrollment Confirmed</title>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1f2937;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f3f4f6; padding: 30px 15px;">
+            <tr>
+              <td align="center">
+                <table role="presentation" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);">
+                  
+                  <!-- Header with Logo -->
+                  <tr>
+                    <td style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 32px 30px; text-align: center;">
+                      <h1 style="margin: 0; font-size: 26px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">
+                        Auto<span style="color: #10B981;">Learn</span> Spot
+                      </h1>
+                      <p style="margin: 8px 0 0; color: #94a3b8; font-size: 14px;">Administrator Notification • Manual Enrollment</p>
+                    </td>
+                  </tr>
+
+                  <!-- Main Content Area -->
+                  <tr>
+                    <td style="padding: 35px 30px;">
+                      
+                      <!-- Success Badge -->
+                      <div style="text-align: center; margin-bottom: 24px;">
+                        <span style="display: inline-block; background-color: #ecfdf5; color: #059669; font-size: 13px; font-weight: 700; padding: 6px 16px; border-radius: 50px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid #a7f3d0;">
+                          Manual Enrollment Successful
+                        </span>
+                        <h2 style="margin: 16px 0 8px; font-size: 22px; color: #111827; font-weight: 700;">
+                          Student Enrolled Successfully
+                        </h2>
+                        <p style="margin: 0; font-size: 15px; color: #4b5563; line-height: 1.6;">
+                          You have successfully granted manual course access to <strong>${studentName}</strong>. A welcome email with course access instructions has been dispatched to their inbox.
+                        </p>
+                      </div>
+
+                      <!-- Details Card -->
+                      <table role="presentation" width="100%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 28px; padding: 20px;">
+                        <tr>
+                          <td>
+                            <h3 style="margin: 0 0 14px; font-size: 14px; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px; font-weight: 700;">
+                              Enrollment Details
+                            </h3>
+                            <table role="presentation" width="100%" style="font-size: 14px; line-height: 1.8;">
+                              <tr>
+                                <td style="color: #64748b; padding-bottom: 6px;">Student:</td>
+                                <td style="color: #0f172a; font-weight: 700; text-align: right; padding-bottom: 6px;">${studentName}</td>
+                              </tr>
+                              <tr>
+                                <td style="color: #64748b; padding-bottom: 6px;">Email:</td>
+                                <td style="color: #0f172a; font-weight: 600; text-align: right; padding-bottom: 6px;">${studentEmail}</td>
+                              </tr>
+                              <tr>
+                                <td style="color: #64748b; padding-bottom: 6px;">Course:</td>
+                                <td style="color: #0f172a; font-weight: 700; text-align: right; padding-bottom: 6px;">${courseTitle}</td>
+                              </tr>
+                              <tr>
+                                <td style="color: #64748b; padding-bottom: 6px;">Reference:</td>
+                                <td style="color: #0f172a; font-family: monospace; font-size: 12px; text-align: right; padding-bottom: 6px;">${orderRef}</td>
+                              </tr>
+                              <tr>
+                                <td style="color: #64748b; padding-bottom: 6px;">Enrolled By:</td>
+                                <td style="color: #0f172a; text-align: right; padding-bottom: 6px;">${adminEmail || 'Administrator'}</td>
+                              </tr>
+                              <tr>
+                                <td style="color: #64748b; padding-bottom: 6px;">Date & Time:</td>
+                                <td style="color: #0f172a; text-align: right; padding-bottom: 6px;">${formattedDate}</td>
+                              </tr>
+                              ${reason ? `
+                              <tr>
+                                <td style="color: #64748b; padding-bottom: 6px;">Reason / Notes:</td>
+                                <td style="color: #0f172a; text-align: right; padding-bottom: 6px;">${reason}</td>
+                              </tr>` : ''}
+                              <tr>
+                                <td style="color: #64748b;">Access Status:</td>
+                                <td style="color: #059669; font-weight: 700; text-align: right;">Active (Full Lifetime Access)</td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- Action CTA -->
+                      <div style="text-align: center; margin-bottom: 24px;">
+                        <a href="${studentsAdminUrl}" target="_blank" style="display: inline-block; background-color: #10B981; color: #ffffff; font-size: 15px; font-weight: 700; text-decoration: none; padding: 12px 28px; border-radius: 8px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                          View Students List →
+                        </a>
+                      </div>
+
+                    </td>
+                  </tr>
+
+                  <!-- Footer -->
+                  <tr>
+                    <td style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 20px 30px; text-align: center; font-size: 12px; color: #94a3b8; line-height: 1.6;">
+                      <p style="margin: 0;">© ${new Date().getFullYear()} AutoLearn Spot. Internal Administrative System.</p>
+                    </td>
+                  </tr>
+
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
+      `,
+      text: `
+Manual Enrollment Confirmed!
+
+Student: ${studentName} (${studentEmail})
+Course: ${courseTitle}
+Reference: ${orderRef}
+Enrolled By: ${adminEmail || 'Administrator'}
+Date: ${formattedDate}
+${reason ? `Reason / Notes: ${reason}\n` : ''}Status: Active (Full Lifetime Access)
+
+Manage students at: ${studentsAdminUrl}
+
+AutoLearn Spot Administration
+      `.trim(),
+    };
+
+    return this.sendEmailMultiple(template);
+  }
+
+  /**
    * Send course sale notification to author
    */
     /**
