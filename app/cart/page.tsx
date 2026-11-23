@@ -483,15 +483,15 @@ export default function CartPage() {
                 )}
               </button>
 
-              {/* WhatsApp Payment Support Button */}
+              {/* WhatsApp Payment Support Button - Direct to Femi's WhatsApp DM */}
               <a
-                href="https://chat.whatsapp.com/JGZhpVPwZnr9WViOzkMFHy?s=cl&p=a&iam=2"
+                href="https://wa.me/2348120934828?text=Hello%20Femi!%20I%20want%20to%20pay%20via%20direct%20bank%20transfer%20on%20AutoLearn%20Spot."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 rounded-2xl text-xs font-semibold transition-colors mt-3 text-center"
               >
                 <MessageCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                Prefer paying via Direct Bank Transfer? Chat on WhatsApp
+                Prefer paying via Direct Bank Transfer? Chat with Admin
               </a>
 
               <div className="mt-5 pt-5 border-t border-border/50 flex flex-col gap-2">
