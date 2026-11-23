@@ -140,14 +140,15 @@ export default function CurriculumWithPreview({
         if (!event.data) return;
         const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
 
-        // When YouTube reaches the end parameter (end=270, code 0)
-        if (data?.event === 'onStateChange' && data.info === 0) {
+        // When YouTube reaches the end parameter (end=270, code 0) after having actually played
+        if (data?.event === 'onStateChange' && data.info === 0 && maxWatchedTimeRef.current >= 260) {
           setIsPaywallTriggered(true);
         }
 
         // Real-time tracking
         if (data?.event === 'infoDelivery' && data?.info?.currentTime !== undefined) {
           const current = data.info.currentTime;
+          maxWatchedTimeRef.current = Math.max(maxWatchedTimeRef.current, current);
           if (current >= PREVIEW_LIMIT_SECONDS) {
             setIsPaywallTriggered(true);
           }
@@ -278,8 +279,33 @@ export default function CurriculumWithPreview({
               </span>
             </div>
 
+            {/* Embedded YouTube Player: MUST be absolute inset-0 to fill aspect-video */}
+            {cleanYtId ? (
+              <iframe
+                key={iframeKey}
+                src={`https://www.youtube.com/embed/${cleanYtId}?autoplay=1&playsinline=1&start=0&end=${PREVIEW_LIMIT_SECONDS}&rel=0&enablejsapi=1`}
+                title={activePreviewLesson.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                className="absolute inset-0 w-full h-full border-0"
+              />
+            ) : activePreviewLesson.vimeo_video_id ? (
+              <iframe
+                key={iframeKey}
+                src={`https://player.vimeo.com/video/${activePreviewLesson.vimeo_video_id}?autoplay=1`}
+                title={activePreviewLesson.title}
+                allow="autoplay; fullscreen; picture-in-picture"
+                allowFullScreen
+                className="absolute inset-0 w-full h-full border-0"
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm">
+                Preview video is loading...
+              </div>
+            )}
+
             {/* Paywall Overlay when 4:30 limit is reached */}
-            {isPaywallTriggered ? (
+            {isPaywallTriggered && (
               <div className="absolute inset-0 z-40 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-6 text-center animate-in fade-in duration-200 overflow-y-auto">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-[10px] sm:text-xs font-bold uppercase mb-2">
                   <Lock className="w-3.5 h-3.5" />
@@ -332,29 +358,6 @@ export default function CurriculumWithPreview({
                     Replay 4:30 Preview
                   </button>
                 </div>
-              </div>
-            ) : cleanYtId ? (
-              /* Embedded YouTube Player: ends strictly at 270s (4:30) */
-              <iframe
-                key={iframeKey}
-                src={`https://www.youtube.com/embed/${cleanYtId}?autoplay=1&enablejsapi=1&start=0&end=${PREVIEW_LIMIT_SECONDS}&rel=0`}
-                title={activePreviewLesson.title}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                className="w-full h-full border-0"
-              />
-            ) : activePreviewLesson.vimeo_video_id ? (
-              <iframe
-                key={iframeKey}
-                src={`https://player.vimeo.com/video/${activePreviewLesson.vimeo_video_id}?autoplay=1`}
-                title={activePreviewLesson.title}
-                allow="autoplay; fullscreen; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full border-0"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
-                Preview video is loading...
               </div>
             )}
           </div>
