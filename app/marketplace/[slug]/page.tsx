@@ -89,6 +89,21 @@ export default async function MarketplaceProductPage({ params }: PageParams) {
   const { userId } = await auth();
   const isOwner = userId === product.author_id;
 
+  let isEnrolled = false;
+  if (userId) {
+    try {
+      const { data: enr } = await supabaseAdmin
+        .from('enrollments')
+        .select('id')
+        .eq('clerk_user_id', userId)
+        .eq('learning_product_id', product.id)
+        .maybeSingle();
+      if (enr) isEnrolled = true;
+    } catch {
+      // ignore
+    }
+  }
+
   // 2. Fetch Author (support UUID id, user_id, or clerk_user_id)
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(product.author_id);
   const authorQuery = isUuid
@@ -146,7 +161,7 @@ export default async function MarketplaceProductPage({ params }: PageParams) {
   // 3. Fetch Lessons
   const { data: lessons } = await supabaseAdmin
     .from('lessons')
-    .select('title, description, duration_label, order_index')
+    .select('id, title, description, duration_label, order_index, youtube_video_id, vimeo_video_id')
     .eq('product_id', product.id)
     .eq('status', 'PUBLISHED')
     .order('order_index', { ascending: true });
