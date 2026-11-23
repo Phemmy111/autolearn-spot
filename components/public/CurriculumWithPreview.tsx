@@ -12,7 +12,6 @@ import {
   ArrowRight, 
   Loader2, 
   RotateCcw,
-  ChevronDown,
   ChevronUp,
   ShieldCheck
 } from 'lucide-react';
@@ -64,6 +63,7 @@ export default function CurriculumWithPreview({
   const [isPaywallTriggered, setIsPaywallTriggered] = useState(false);
   const [isEnrolling, setIsEnrolling] = useState(false);
   const [iframeKey, setIframeKey] = useState(1);
+  const [currentTime, setCurrentTime] = useState(0);
   const maxWatchedTimeRef = useRef(0);
   const previewContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -75,14 +75,22 @@ export default function CurriculumWithPreview({
     }).format(amount);
   };
 
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${String(secs).padStart(2, '0')}`;
+  };
+
   // Toggle inline preview for a lesson
   const handleTogglePreview = (lesson: Lesson) => {
     if (expandedPreviewId === lesson.id) {
       setExpandedPreviewId(null);
       setIsPaywallTriggered(false);
+      setCurrentTime(0);
     } else {
       setExpandedPreviewId(lesson.id);
       setIsPaywallTriggered(false);
+      setCurrentTime(0);
       maxWatchedTimeRef.current = 0;
       setIframeKey((prev) => prev + 1);
 
@@ -96,6 +104,7 @@ export default function CurriculumWithPreview({
   const handleClosePreview = () => {
     setExpandedPreviewId(null);
     setIsPaywallTriggered(false);
+    setCurrentTime(0);
     maxWatchedTimeRef.current = 0;
   };
 
@@ -130,6 +139,7 @@ export default function CurriculumWithPreview({
   // Replay Preview
   const handleReplayPreview = () => {
     setIsPaywallTriggered(false);
+    setCurrentTime(0);
     maxWatchedTimeRef.current = 0;
     setIframeKey((prev) => prev + 1);
   };
@@ -144,14 +154,23 @@ export default function CurriculumWithPreview({
         const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
 
         // When YouTube reaches the end parameter (end=270, code 0) after having played
-        if (data?.event === 'onStateChange' && data.info === 0 && maxWatchedTimeRef.current >= 250) {
+        if (data?.event === 'onStateChange' && data.info === 0 && maxWatchedTimeRef.current >= 240) {
           setIsPaywallTriggered(true);
         }
 
         // Real-time tracking of current playback time
         if (data?.event === 'infoDelivery' && data?.info?.currentTime !== undefined) {
-          const current = data.info.currentTime;
+          const current = Number(data.info.currentTime);
+          setCurrentTime(current);
+
+          // Anti-forwarding protection: if user jumped forward > 4s beyond what they actually watched
+          if (current > maxWatchedTimeRef.current + 4) {
+            setIsPaywallTriggered(true);
+          }
+
           maxWatchedTimeRef.current = Math.max(maxWatchedTimeRef.current, current);
+
+          // 4:30 Cutoff enforcement
           if (current >= PREVIEW_LIMIT_SECONDS) {
             setIsPaywallTriggered(true);
           }
@@ -269,15 +288,26 @@ export default function CurriculumWithPreview({
               </div>
             </div>
 
-            {/* INLINE PREVIEW PLAYER: The Video Frame Alone, No Extra Space, No Broken Modal */}
+            {/* INLINE PREVIEW PLAYER: Protected, Zero Space, Anti-Theft Watermark Overlays */}
             {isExpanded && isFreePreview && (
               <div className="px-4 pb-6 sm:px-6 animate-in fade-in duration-300">
-                {/* 16:9 Video Box with zero dead space */}
-                <div className="relative w-full aspect-video rounded-xl sm:rounded-2xl overflow-hidden bg-black border border-border shadow-2xl">
+                {/* 16:9 Video Box with zero dead space and right-click protection */}
+                <div 
+                  className="relative w-full aspect-video rounded-xl sm:rounded-2xl overflow-hidden bg-black border border-border shadow-2xl select-none"
+                  onContextMenu={(e) => e.preventDefault()}
+                >
+                  {/* Top Live Progress Bar (Custom branded green bar) */}
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-white/20 z-30 pointer-events-none">
+                    <div 
+                      className="h-full bg-emerald-500 transition-all duration-300"
+                      style={{ width: `${Math.min(100, (currentTime / PREVIEW_LIMIT_SECONDS) * 100)}%` }}
+                    />
+                  </div>
+
                   {/* Floating Top Controls inside video */}
-                  <div className="absolute top-3 left-3 right-3 z-30 flex items-center justify-between pointer-events-none">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/90 text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-md">
-                      <Sparkles className="w-3 h-3" /> Free Preview • 4:30 Limit
+                  <div className="absolute top-2.5 left-2.5 right-2.5 z-30 flex items-center justify-between pointer-events-none">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/95 text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-md">
+                      <Sparkles className="w-3 h-3" /> Preview: {formatTime(currentTime)} / 4:30
                     </span>
                     <button
                       onClick={(e) => {
@@ -295,7 +325,7 @@ export default function CurriculumWithPreview({
                   {cleanYtId ? (
                     <iframe
                       key={iframeKey}
-                      src={`https://www.youtube.com/embed/${cleanYtId}?enablejsapi=1&playsinline=1&end=${PREVIEW_LIMIT_SECONDS}&rel=0&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`}
+                      src={`https://www.youtube.com/embed/${cleanYtId}?enablejsapi=1&playsinline=1&end=${PREVIEW_LIMIT_SECONDS}&rel=0&modestbranding=1&controls=1&disablekb=1&iv_load_policy=3&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`}
                       title={lesson.title}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                       allowFullScreen
@@ -315,6 +345,48 @@ export default function CurriculumWithPreview({
                       Video preview is loading...
                     </div>
                   )}
+
+                  {/*
+                    ── SECURITY & ANTI-STEALING WATERMARK OVERLAYS ─────────────────────────
+                    Matches the lesson video player protection:
+                    1. Top header blocker absorbs clicks on YouTube title, channel avatar & share
+                    2. Bottom seek bar blocker prevents dragging/scrubbing forward
+                    3. Bottom-right blocker absorbs clicks on "Watch on YouTube" & YouTube logo
+                    4. Brand watermark overlays YouTube watermark
+                  */}
+
+                  {/* 1. TOP HEADER BLOCKER: Blocks clicks to YouTube channel / title / share */}
+                  <div 
+                    className="absolute top-0 left-0 right-0 h-16 sm:h-20 z-20 bg-transparent cursor-default select-none"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    onTouchStart={(e) => { e.stopPropagation(); }}
+                    onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  />
+
+                  {/* 2. BOTTOM SEEK BAR BLOCKER: Completely blocks dragging forward or scrubbing */}
+                  <div 
+                    className="absolute bottom-0 left-0 right-0 h-11 sm:h-12 z-20 bg-transparent cursor-default select-none"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    onTouchStart={(e) => { e.stopPropagation(); }}
+                    onTouchMove={(e) => { e.stopPropagation(); }}
+                    onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  />
+
+                  {/* 3. BOTTOM-RIGHT BLOCKER: Blocks clicks on "Watch on YouTube" and YouTube logo */}
+                  <div 
+                    className="absolute bottom-0 right-0 w-36 sm:w-52 h-14 z-20 bg-transparent cursor-default select-none"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    onTouchStart={(e) => { e.stopPropagation(); }}
+                    onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  />
+
+                  {/* 4. BRAND WATERMARK: Overlays channel watermark so it looks 100% proprietary */}
+                  <div className="absolute bottom-12 right-3 z-20 pointer-events-none select-none flex items-center gap-1.5 px-2 py-0.5 rounded bg-black/70 border border-white/10 backdrop-blur-sm opacity-70">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    <span className="text-[10px] font-mono font-bold tracking-wider text-white">
+                      AutoLearn Spot
+                    </span>
+                  </div>
 
                   {/* 4:30 Enforced Paywall Trigger */}
                   {isPaywallTriggered && (
