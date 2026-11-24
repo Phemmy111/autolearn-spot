@@ -85,6 +85,32 @@ export default function PartnerDashboard() {
   const [mktCategoryFilter, setMktCategoryFilter] = useState('ALL');
   const [copiedMktId, setCopiedMktId] = useState<string | null>(null);
   const [copiedOverviewCode, setCopiedOverviewCode] = useState<string | null>(null);
+  const [studentReferralCourses, setStudentReferralCourses] = useState<any[]>([]);
+  const [loadingStudentCourses, setLoadingStudentCourses] = useState(false);
+  const [copiedCourseLink, setCopiedCourseLink] = useState<string | null>(null);
+
+  const handleCopyCourseLink = (productId: string, url: string) => {
+    navigator.clipboard.writeText(url);
+    setCopiedCourseLink(productId);
+    setTimeout(() => setCopiedCourseLink(null), 2500);
+  };
+
+  const fetchStudentReferralCourses = async () => {
+    setLoadingStudentCourses(true);
+    try {
+      const res = await fetch('/api/student/referral-courses');
+      if (res.ok) {
+        const result = await res.json();
+        if (result.success && Array.isArray(result.courses)) {
+          setStudentReferralCourses(result.courses);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to fetch student referral courses:', e);
+    } finally {
+      setLoadingStudentCourses(false);
+    }
+  };
 
   const handleCopyOverviewLink = (code: string, url: string) => {
     navigator.clipboard.writeText(url);
@@ -95,6 +121,7 @@ export default function PartnerDashboard() {
   useEffect(() => {
     if (clerkLoaded) {
       fetchDashboardData();
+      fetchStudentReferralCourses();
     }
   }, [clerkLoaded]);
 
@@ -238,6 +265,9 @@ export default function PartnerDashboard() {
   useEffect(() => {
     if (activeTab === 'promote') {
       fetchAffiliateData();
+    }
+    if (activeTab === 'overview') {
+      fetchStudentReferralCourses();
     }
   }, [activeTab]);
 
@@ -821,53 +851,107 @@ export default function PartnerDashboard() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full min-w-0">
-                    {/* CARD 1: Student Refer & Earn */}
-                    <div className="rounded-xl border-2 border-emerald-500/30 bg-emerald-500/5 p-3.5 sm:p-5 flex flex-col justify-between space-y-3 sm:space-y-4 min-w-0 w-full overflow-hidden">
-                      <div className="space-y-2 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <span className="text-xl">🎓</span>
-                            <span className="font-bold text-sm sm:text-base text-brand-text truncate">Student Refer & Earn</span>
-                          </div>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-emerald-600 text-white shrink-0">
-                            Fixed Cash Reward
-                          </span>
+                    {/* CARD 1: Student Refer & Earn — per-course or generic fallback */}
+                    <div className="rounded-xl border-2 border-emerald-500/30 bg-emerald-500/5 p-3.5 sm:p-5 flex flex-col space-y-3 sm:space-y-4 min-w-0 w-full overflow-hidden">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-xl">🎓</span>
+                          <span className="font-bold text-sm sm:text-base text-brand-text truncate">Student Refer & Earn</span>
                         </div>
-                        <p className="text-xs text-brand-text/70 leading-relaxed">
-                          Best for sharing with peers, friends, and study groups. When anyone registers via your student referral link, you receive a direct <strong>cash reward (₦1,500 – ₦3,000)</strong> credited straight to your available balance.
-                        </p>
-                        <div className="pt-2 min-w-0">
-                          <label className="text-[11px] font-bold uppercase tracking-wider text-brand-text/60 block mb-1">
-                            Your Direct Referral Link (Code: <span className="text-emerald-600 font-mono font-bold">{referral?.code || partner?.partner_id || 'ACTIVE'}</span>)
-                          </label>
-                          <div className="flex items-center gap-2 bg-brand-bg border border-brand-border rounded-lg p-2 min-w-0 w-full overflow-hidden">
-                            <input
-                              type="text"
-                              readOnly
-                              value={referral?.link || (typeof window !== 'undefined' ? `${window.location.origin}/enroll?ref=${referral?.code || partner?.partner_id || 'ALS0002'}` : '')}
-                              className="bg-transparent text-xs font-mono text-brand-text w-full min-w-0 truncate focus:outline-none"
-                            />
-                          </div>
-                        </div>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-emerald-600 text-white shrink-0">
+                          Fixed Cash Reward
+                        </span>
                       </div>
 
-                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-1 w-full min-w-0">
-                        <button
-                          onClick={handleCopyLink}
-                          className="w-full sm:flex-1 py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-xs"
-                        >
-                          {copied ? <><Check className="w-3.5 h-3.5" /> Copied!</> : <><Copy className="w-3.5 h-3.5" /> Copy Student Link</>}
-                        </button>
-                        <a
-                          href={`https://wa.me/?text=${encodeURIComponent(`Hey! I'm learning on AutoLearn Spot. Enroll with my link to join the next cohort: ${referral?.link || (typeof window !== 'undefined' ? `${window.location.origin}/enroll?ref=${referral?.code || partner?.partner_id}` : '')}`)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full sm:w-auto py-2.5 px-3 border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shrink-0"
-                          title="Share on WhatsApp"
-                        >
-                          <Share2 className="w-3.5 h-3.5" /> Share on WhatsApp
-                        </a>
-                      </div>
+                      {loadingStudentCourses ? (
+                        <div className="flex items-center justify-center py-6">
+                          <Loader2 className="w-5 h-5 animate-spin text-emerald-600" />
+                        </div>
+                      ) : studentReferralCourses.length > 0 ? (
+                        /* Per-course referral cards */
+                        <div className="space-y-2.5">
+                          <p className="text-xs text-brand-text/70 leading-relaxed">
+                            Share your unique link for each course you purchased. When someone buys via your link, the fixed cash reward is credited to your balance automatically.
+                          </p>
+                          {studentReferralCourses.map((course: any) => (
+                            <div key={course.productId} className="bg-brand-bg border border-brand-border rounded-xl p-3 space-y-2 min-w-0 overflow-hidden">
+                              <div className="flex items-start justify-between gap-2 min-w-0">
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-xs font-bold text-brand-text truncate">{course.title}</p>
+                                  <p className="text-[11px] text-brand-text/50 mt-0.5">Course price: ₦{Number(course.price || 0).toLocaleString()}</p>
+                                </div>
+                                <span className="shrink-0 text-[10px] font-black text-emerald-700 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full whitespace-nowrap">
+                                  +₦{Number(course.studentCommission || 0).toLocaleString()} / referral
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1.5 min-w-0 w-full overflow-hidden">
+                                <div className="flex-1 bg-brand-bg/60 border border-brand-border rounded-lg px-2 py-1.5 min-w-0 overflow-hidden">
+                                  <span className="text-[10px] font-mono text-brand-text/60 truncate block">{course.referralUrl}</span>
+                                </div>
+                                <button
+                                  onClick={() => handleCopyCourseLink(course.productId, course.referralUrl)}
+                                  className={`shrink-0 p-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors ${
+                                    copiedCourseLink === course.productId
+                                      ? 'bg-emerald-600 text-white'
+                                      : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 border border-emerald-500/30'
+                                  }`}
+                                  title="Copy referral link"
+                                >
+                                  {copiedCourseLink === course.productId ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                                </button>
+                                <a
+                                  href={`https://wa.me/?text=${encodeURIComponent(`I just finished ${course.title} on AutoLearn Spot and it's 🔥! Buy it here: ${course.referralUrl} — I earn ₦${Number(course.studentCommission || 0).toLocaleString()} for every person that buys via my link.`)}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="shrink-0 p-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 border border-emerald-500/30 flex items-center transition-colors"
+                                  title="Share on WhatsApp"
+                                >
+                                  <Share2 className="w-3.5 h-3.5" />
+                                </a>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        /* Generic fallback when student hasn't purchased any course */
+                        <div className="space-y-2 min-w-0">
+                          <p className="text-xs text-brand-text/70 leading-relaxed">
+                            Best for sharing with peers, friends, and study groups. When anyone registers via your student referral link, you receive a direct <strong>cash reward</strong> credited straight to your available balance.
+                          </p>
+                          <div className="pt-1 min-w-0">
+                            <label className="text-[11px] font-bold uppercase tracking-wider text-brand-text/60 block mb-1">
+                              Your Direct Referral Link (Code: <span className="text-emerald-600 font-mono font-bold">{referral?.code || partner?.partner_id || 'ACTIVE'}</span>)
+                            </label>
+                            <div className="flex items-center gap-2 bg-brand-bg border border-brand-border rounded-lg p-2 min-w-0 w-full overflow-hidden">
+                              <input
+                                type="text"
+                                readOnly
+                                value={referral?.link || (typeof window !== 'undefined' ? `${window.location.origin}/enroll?ref=${referral?.code || partner?.partner_id || 'ALS0002'}` : '')}
+                                className="bg-transparent text-xs font-mono text-brand-text w-full min-w-0 truncate focus:outline-none"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-1 w-full min-w-0">
+                            <button
+                              onClick={handleCopyLink}
+                              className="w-full sm:flex-1 py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                            >
+                              {copied ? <><Check className="w-3.5 h-3.5" /> Copied!</> : <><Copy className="w-3.5 h-3.5" /> Copy Student Link</>}
+                            </button>
+                            <a
+                              href={`https://wa.me/?text=${encodeURIComponent(`Hey! I'm learning on AutoLearn Spot. Enroll with my link: ${referral?.link || (typeof window !== 'undefined' ? `${window.location.origin}/enroll?ref=${referral?.code || partner?.partner_id}` : '')}`)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-full sm:w-auto py-2.5 px-3 border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shrink-0"
+                            >
+                              <Share2 className="w-3.5 h-3.5" /> Share on WhatsApp
+                            </a>
+                          </div>
+                          <p className="text-[10px] text-brand-text/40 italic text-center pt-1">
+                            💡 Purchase a course to unlock per-course commission referral links.
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     {/* CARD 2: Course Affiliate Marketing */}
