@@ -1076,14 +1076,6 @@ export default function PartnerDashboard() {
                           Live Tracking
                         </span>
                       </div>
-                        <h3 className="font-bold text-brand-text text-base flex items-center gap-2">
-                          <MousePointerClick className="h-5 w-5 text-blue-600" />
-                          Referral Conversion Funnel
-                        </h3>
-                        <span className="text-xs font-semibold text-blue-600 bg-blue-500/10 px-2.5 py-0.5 rounded-full border border-blue-500/20">
-                          Live Tracking
-                        </span>
-                      </div>
 
                       <div className="space-y-4">
                         <div>
