@@ -483,16 +483,38 @@ export default function CartPage() {
                 )}
               </button>
 
-              {/* WhatsApp Payment Support Button - Direct to Femi's WhatsApp DM */}
-              <a
-                href="https://wa.me/2348120934828?text=Hello%20Femi!%20I%20want%20to%20pay%20via%20direct%20bank%20transfer%20on%20AutoLearn%20Spot."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 rounded-2xl text-xs font-semibold transition-colors mt-3 text-center"
-              >
-                <MessageCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                Prefer paying via Direct Bank Transfer? Chat with Admin
-              </a>
+              {/* WhatsApp Direct Bank Transfer Button */}
+              {(() => {
+                const firstCourseTitle = cart?.items?.[0]?.learning_products?.title || 'Online Course';
+                const courseCount = cart?.items?.length || 1;
+                const itemsSummary = courseCount > 1 
+                  ? `${firstCourseTitle} (+${courseCount - 1} more)` 
+                  : firstCourseTitle;
+                const transferMsg = encodeURIComponent(
+                  `Hello Femi! I am on the AutoLearn Spot checkout page.\n\n• Course: ${itemsSummary}\n• Total Amount: ₦${(cart?.subtotal || 0).toLocaleString()}\n• Name: ${guestName || 'Student'}\n• Email: ${guestEmail || user?.primaryEmailAddress?.emailAddress || ''}\n\nPlease send your bank account details for direct transfer so I can get enrolled right away.`
+                );
+
+                return (
+                  <div className="mt-4 p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-2">
+                    <p className="text-xs font-bold text-emerald-800 dark:text-emerald-300 flex items-center justify-center gap-1.5">
+                      <MessageCircle className="w-4 h-4 text-emerald-600" />
+                      <span>Prefer Direct Bank Transfer?</span>
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Skip card payment. Chat with Femi on WhatsApp to pay directly to our Nigerian bank account.
+                    </p>
+                    <a
+                      href={`https://wa.me/2348120934828?text=${transferMsg}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs"
+                    >
+                      <MessageCircle className="w-4 h-4 fill-current" />
+                      Pay via Bank Transfer on WhatsApp →
+                    </a>
+                  </div>
+                );
+              })()}
 
               <div className="mt-5 pt-5 border-t border-border/50 flex flex-col gap-2">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground justify-center">

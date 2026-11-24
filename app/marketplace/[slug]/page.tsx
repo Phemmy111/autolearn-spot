@@ -421,47 +421,74 @@ export default async function MarketplaceProductPage({ params }: PageParams) {
           <div className="lg:col-span-4 relative">
             <div className="sticky top-32 bg-card border border-border rounded-3xl p-6 shadow-xl shadow-black/5 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300 fill-mode-both">
               <div className="mb-6">
-                <div className="text-4xl font-extrabold text-foreground tracking-tight mb-2">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-sm line-through text-muted-foreground font-semibold">
+                    ₦{(Math.max(Number(product.price || 3000) * 3, 10000)).toLocaleString()}
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                    Promo Cohort Price
+                  </span>
+                </div>
+                <div className="text-4xl font-black text-foreground tracking-tight mb-1">
                   {formattedPrice}
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  One-time payment • Lifetime access
+                <div className="text-xs text-muted-foreground flex items-center gap-1.5 font-medium">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  One-time payment • Lifetime access • Certificate included
                 </div>
               </div>
 
               <div className="space-y-4 mb-8">
                 <div className="flex items-center gap-3 text-sm text-foreground font-medium">
                   <PlayCircle className="w-5 h-5 text-brand-primary" />
-                  <span>{lessons?.length || 0} Video Lessons</span>
+                  <span>{lessons?.length || 0} Practical Video Lessons</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-foreground font-medium">
                   <Clock className="w-5 h-5 text-brand-primary" />
-                  <span>Self-paced learning</span>
+                  <span>Self-paced learning (24/7 Access)</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-foreground font-medium">
                   <CheckCircle2 className="w-5 h-5 text-brand-primary" />
-                  <span>Guaranteed Certificate of completion</span>
+                  <span>Verified QR-Coded Certificate</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-foreground font-medium">
                   <MessageSquare className="w-5 h-5 text-brand-primary" />
-                  <span>Instructor Q&A Support</span>
+                  <span>Direct Instructor Q&A Support</span>
                 </div>
               </div>
 
-              <AddToCartButton productId={product.id} />
+              <AddToCartButton 
+                productId={product.id}
+                productTitle={product.title}
+                price={Number(product.price) || 0}
+                formattedPrice={formattedPrice}
+                currency={product.currency}
+              />
 
-              <a
-                href={publicSettings.whatsappCommunityLink || "https://chat.whatsapp.com/DJrJYaW3nIy74xtFnZlJM3?s=cl&p=a&iam=2"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-semibold text-xs transition-colors"
-              >
-                <MessageSquare className="w-4 h-4 text-emerald-400" />
-                Join Student WhatsApp Community
-              </a>
+              {/* Direct WhatsApp Bank Transfer Card */}
+              <div className="mt-4 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-2">
+                <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300">
+                  <MessageSquare className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Prefer Direct Bank Transfer?</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Avoid card issues. Transfer directly to our account and get enrolled within 5 minutes.
+                </p>
+                <a
+                  href={`https://wa.me/2348120934828?text=${encodeURIComponent(
+                    `Hello Femi! I want to enroll in "${product.title}" (${formattedPrice}) via Direct Bank Transfer. Please send your bank details.`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-1.5 w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-colors shadow-xs"
+                >
+                  <MessageSquare className="w-3.5 h-3.5 fill-current" />
+                  <span>Chat with Femi on WhatsApp</span> →
+                </a>
+              </div>
               
-              <p className="text-xs text-center text-muted-foreground mt-4 font-medium">
-                30-Day Money-Back Guarantee
+              <p className="text-[11px] text-center text-muted-foreground mt-4 font-medium">
+                🛡️ 30-Day 100% Money-Back Guarantee
               </p>
             </div>
           </div>

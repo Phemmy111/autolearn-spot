@@ -71,31 +71,34 @@ export function MobileFloatingAddToCart({
           </span>
         </div>
 
-        {/* WhatsApp Community Quick Join Button */}
+        {/* WhatsApp Direct Bank Transfer Button */}
         <a
-          href="https://chat.whatsapp.com/DJrJYaW3nIy74xtFnZlJM3?s=cl&p=a&iam=2"
+          href={`https://wa.me/2348120934828?text=${encodeURIComponent(
+            `Hello Femi! I'm on AutoLearn Spot and want to enroll in "${productTitle}" (${formattedPrice}) via Direct Bank Transfer. Please send your account details.`
+          )}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center w-11 h-11 shrink-0 rounded-xl bg-[#25D366] text-white hover:bg-[#20ba59] active:scale-95 transition-all shadow-md"
-          title="Join Student WhatsApp Community"
-          aria-label="Join Student WhatsApp Community"
+          className="flex flex-col items-center justify-center h-12 px-2.5 shrink-0 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white active:scale-95 transition-all shadow-md"
+          title="Pay via Bank Transfer on WhatsApp"
+          aria-label="Pay via Bank Transfer on WhatsApp"
         >
-          <MessageCircle className="w-5 h-5 fill-current" />
+          <MessageCircle className="w-4 h-4 fill-current" />
+          <span className="text-[8px] font-black tracking-tight uppercase leading-none mt-0.5">Transfer</span>
         </a>
 
-        {/* Add to Cart Primary Button */}
+        {/* Enroll Now Primary Button */}
         <div className="flex-1 max-w-[210px]">
           <button
             onClick={handleAddToCart}
             disabled={loading}
-            className="group relative flex items-center justify-center gap-2 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-200 shadow-md active:scale-95 disabled:opacity-75 disabled:cursor-not-allowed text-sm overflow-hidden"
+            className="group relative flex items-center justify-center gap-1.5 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 px-4 rounded-xl transition-all duration-200 shadow-lg shadow-emerald-600/30 active:scale-95 disabled:opacity-75 disabled:cursor-not-allowed text-sm overflow-hidden tracking-wide"
           >
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin text-white" />
             ) : (
-              <ShoppingCart className="w-4 h-4 group-hover:scale-110 transition-transform" />
+              <Zap className="w-4 h-4 fill-current text-amber-300" />
             )}
-            <span>{loading ? "Adding..." : "Add to Cart"}</span>
+            <span>{loading ? "Opening..." : "Enroll Now"}</span>
           </button>
         </div>
       </div>
