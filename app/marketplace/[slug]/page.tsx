@@ -25,11 +25,22 @@ interface PageParams {
 
 export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
   const { slug } = await params;
-  const { data: product } = await supabaseAdmin
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+
+  let { data: product } = await supabaseAdmin
     .from('learning_products')
     .select('title, description, thumbnail_url')
-    .or(`slug.eq.${slug},id.eq.${slug}`)
+    .eq('slug', slug)
     .maybeSingle();
+
+  if (!product && isUuid) {
+    const { data: productById } = await supabaseAdmin
+      .from('learning_products')
+      .select('title, description, thumbnail_url')
+      .eq('id', slug)
+      .maybeSingle();
+    product = productById;
+  }
 
   if (!product) {
     return {
@@ -61,6 +72,8 @@ export async function generateMetadata({ params }: PageParams): Promise<Metadata
 export default async function MarketplaceProductPage({ params }: PageParams) {
   const { slug } = await params;
 
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+
   // 1. Fetch Product by slug (or fallback to id)
   const { data: productBySlug } = await supabaseAdmin
     .from('learning_products')
@@ -71,7 +84,7 @@ export default async function MarketplaceProductPage({ params }: PageParams) {
 
   let product = productBySlug;
 
-  if (!product) {
+  if (!product && isUuid) {
     const { data: productById } = await supabaseAdmin
       .from('learning_products')
       .select('*')
