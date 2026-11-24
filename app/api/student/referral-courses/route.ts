@@ -6,7 +6,7 @@ import { getCommissionRate } from '@/lib/commission';
 
 export const dynamic = 'force-dynamic';
 
-function generateAffiliateCode(): string {
+function generateStudentCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   return 'SR' + Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 }
@@ -16,10 +16,8 @@ function generateAffiliateCode(): string {
  *
  * Returns a list of courses the student has purchased, with:
  *   - course title, price, thumbnail
- *   - student commission amount for that course (from site_settings or global default)
- *   - unique referral link for that course (using affiliate_links infrastructure)
- *
- * This powers the "My Courses → Refer & Earn" section in the partner dashboard.
+ *   - student commission amount for that course
+ *   - unique referral link for that course
  */
 export async function GET() {
   try {
@@ -28,51 +26,51 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // 1. Get the partner record for this student (auto-activated when they enter partner dashboard)
+    // 1. Get the partner record for this student
     const partner = await getOrResolveAuthenticatedPartner();
     if (!partner) {
       return NextResponse.json({ success: true, courses: [] });
     }
 
-    // 2. Find this student's enrollments (by clerk_user_id or user_id)
-    const { data: enrollments } = await supabaseAdmin
+    // 2. Find this student's active enrollments by clerk_user_id
+    //    enrollments table has: clerk_user_id, learning_product_id, status (active|inactive)
+    const { data: enrollments, error: enrollErr } = await supabaseAdmin
       .from('enrollments')
-      .select('course_id, cohort_id, payment_reference')
-      .or(`clerk_user_id.eq.${userId},user_id.eq.${userId}`)
+      .select('learning_product_id')
+      .eq('clerk_user_id', userId)
       .eq('status', 'active');
+
+    if (enrollErr) {
+      console.error('[referral-courses] enrollment query error:', enrollErr);
+    }
 
     if (!enrollments || enrollments.length === 0) {
       return NextResponse.json({ success: true, courses: [] });
     }
 
-    // Gather product IDs — directly from course_id or via cohorts
-    let productIds: string[] = enrollments
-      .map(e => e.course_id)
-      .filter(Boolean) as string[];
-
-    // Also resolve cohort-based enrollments
-    const cohortIds = enrollments.map(e => e.cohort_id).filter(Boolean);
-    if (cohortIds.length > 0) {
-      const { data: cohorts } = await supabaseAdmin
-        .from('cohorts')
-        .select('learning_product_id')
-        .in('id', cohortIds);
-      const cohortProductIds = (cohorts || [])
-        .map(c => c.learning_product_id)
-        .filter(Boolean) as string[];
-      productIds = [...new Set([...productIds, ...cohortProductIds])];
-    }
+    // Deduplicate product IDs (a student might have multiple cohort records for same product)
+    const productIds: string[] = [
+      ...new Set(
+        enrollments
+          .map(e => e.learning_product_id)
+          .filter((id): id is string => Boolean(id))
+      ),
+    ];
 
     if (productIds.length === 0) {
       return NextResponse.json({ success: true, courses: [] });
     }
 
-    // 3. Fetch product details
-    const { data: products } = await supabaseAdmin
+    // 3. Fetch product details — status is uppercase "PUBLISHED" in this DB
+    const { data: products, error: prodErr } = await supabaseAdmin
       .from('learning_products')
-      .select('id, title, slug, price, thumbnail_url, affiliate_enabled')
+      .select('id, title, slug, price, thumbnail_url, status')
       .in('id', productIds)
-      .eq('status', 'published');
+      .in('status', ['PUBLISHED', 'published']); // handle both cases
+
+    if (prodErr) {
+      console.error('[referral-courses] products query error:', prodErr);
+    }
 
     if (!products || products.length === 0) {
       return NextResponse.json({ success: true, courses: [] });
@@ -86,7 +84,7 @@ export async function GET() {
 
     const codeIds = (partnerCodes || []).map((c: any) => c.id);
 
-    // 5. Get existing affiliate links for these products (student course-specific links)
+    // 5. Get existing affiliate links already created for these products
     let existingLinksMap: Record<string, string> = {};
     if (codeIds.length > 0) {
       const { data: existingLinks } = await supabaseAdmin
@@ -100,10 +98,10 @@ export async function GET() {
       }
     }
 
-    // If partner has no referral code yet, create one
-    let baseRefCode = partnerCodes?.[0];
+    // 6. Ensure the partner has a base referral code
+    let baseRefCode = (partnerCodes || [])[0] || null;
     if (!baseRefCode) {
-      const code = generateAffiliateCode();
+      const code = generateStudentCode();
       const { data: createdCode } = await supabaseAdmin
         .from('referral_codes')
         .insert({
@@ -119,30 +117,27 @@ export async function GET() {
       baseRefCode = createdCode || null;
     }
 
-    // 6. For each enrolled product, get commission + create/return referral link
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
 
+    // 7. Build course cards with commission + link
     const courseCards = await Promise.all(
       products.map(async (product: any) => {
-        // Get student commission for this course
         const studentCommission = await getCommissionRate('student', product.id);
 
-        // Get or create a course-specific referral link
         let linkCode = existingLinksMap[product.id];
 
+        // Auto-create affiliate_link entry for this enrolled course if one doesn't exist
         if (!linkCode && baseRefCode) {
-          // Create a new affiliate link for this enrolled course
-          const uniqueCode = baseRefCode.code;
           const { error: insertErr } = await supabaseAdmin
             .from('affiliate_links')
             .insert({
               referral_code_id: baseRefCode.id,
               learning_product_id: product.id,
-              unique_code: uniqueCode,
+              unique_code: baseRefCode.code,
             });
 
           if (!insertErr) {
-            linkCode = uniqueCode;
+            linkCode = baseRefCode.code;
           }
         }
 
