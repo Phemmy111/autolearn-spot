@@ -47,6 +47,7 @@ import {
   ArrowUpRight,
   Sparkles,
   BookOpen,
+  Video,
   Image as ImageIcon
 } from "lucide-react";
 import Link from "next/link";
@@ -169,8 +170,9 @@ export default function PartnerDashboard() {
   };
 
   const handleCopyLink = () => {
-    if (data?.referral?.link) {
-      navigator.clipboard.writeText(data.referral.link);
+    const link = data?.referral?.link || (typeof window !== 'undefined' ? `${window.location.origin}/enroll?ref=${data?.referral?.code || data?.partner?.partner_id || 'ALS0002'}` : '');
+    if (link) {
+      navigator.clipboard.writeText(link);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -299,7 +301,7 @@ export default function PartnerDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-brand-bg">
+    <div className="min-h-screen bg-brand-bg w-full max-w-full overflow-x-hidden">
       {/* Header */}
       <header className="border-b border-brand-border bg-[var(--card)]/90 backdrop-blur-xl sticky top-0 z-50 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -413,7 +415,7 @@ export default function PartnerDashboard() {
 
       {/* Notification Dropdown */}
       {showNotifications && (
-        <div className="absolute top-20 right-4 sm:right-6 w-80 sm:w-96 bg-[var(--card)] border border-brand-border rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="absolute top-20 right-3 sm:right-6 w-[calc(100vw-1.5rem)] sm:w-96 max-w-md bg-[var(--card)] border border-brand-border rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           <div className="p-4 border-b border-brand-border flex items-center justify-between bg-brand-bg/40">
             <h3 className="font-bold text-brand-text text-sm flex items-center gap-2">
               <Bell className="w-4 h-4 text-emerald-500" /> Notifications
@@ -524,7 +526,7 @@ export default function PartnerDashboard() {
         </div>
       )}
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 w-full max-w-full overflow-x-hidden">
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Desktop Sidebar Navigation */}
           <div className="hidden lg:block">
@@ -596,7 +598,7 @@ export default function PartnerDashboard() {
                 </p>
               </div>
 
-              <div className="flex items-center gap-2.5 shrink-0">
+              <div className="flex items-center gap-2.5 shrink-0 flex-wrap sm:flex-nowrap">
                 <button
                   onClick={() => setActiveTab('promote')}
                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm rounded-xl transition-all shadow-xs flex items-center gap-2"
@@ -749,7 +751,8 @@ export default function PartnerDashboard() {
                       <div className="mt-12">
                         <h3 className="text-xl font-bold text-brand-text mb-4">Your Active Links</h3>
                         <div className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl overflow-hidden">
-                          <table className="w-full text-left text-sm">
+                          <div className="w-full overflow-x-auto">
+                            <table className="w-full min-w-[550px] text-left text-sm">
                             <thead className="bg-brand-bg border-b border-brand-border text-brand-text/60">
                               <tr>
                                 <th className="p-4 font-medium">Product</th>
@@ -789,6 +792,7 @@ export default function PartnerDashboard() {
                               ))}
                             </tbody>
                           </table>
+                          </div>
                         </div>
                       </div>
                     )}
@@ -799,6 +803,108 @@ export default function PartnerDashboard() {
 
             {activeTab === "overview" && (
               <div className="space-y-6">
+                {/* DUAL ROLE AFFILIATE & STUDENT REFERRAL HUB */}
+                <div className="border border-brand-border bg-[var(--card)]/90 backdrop-blur-xl rounded-2xl p-5 sm:p-6 shadow-xs space-y-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-brand-border pb-4">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-emerald-600" />
+                        <h3 className="font-bold text-brand-text text-base sm:text-lg">Your Partner & Referral Links</h3>
+                      </div>
+                      <p className="text-xs text-brand-text/60 mt-0.5">
+                        Whether you are an enrolled student, community creator, or affiliate marketer, choose the right link for your audience.
+                      </p>
+                    </div>
+                    <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 self-start sm:self-auto">
+                      Dual Earnings Active
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* CARD 1: Student Refer & Earn */}
+                    <div className="rounded-xl border-2 border-emerald-500/30 bg-emerald-500/5 p-4 sm:p-5 flex flex-col justify-between space-y-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl">🎓</span>
+                            <span className="font-bold text-sm sm:text-base text-brand-text">Student Refer & Earn</span>
+                          </div>
+                          <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-600 text-white">
+                            Fixed Cash Reward
+                          </span>
+                        </div>
+                        <p className="text-xs text-brand-text/70 leading-relaxed">
+                          Best for sharing with peers, friends, and study groups. When anyone registers via your student referral link, you receive a direct <strong>cash reward (₦1,500 – ₦3,000)</strong> credited straight to your available balance.
+                        </p>
+                        <div className="pt-2">
+                          <label className="text-[11px] font-bold uppercase tracking-wider text-brand-text/60 block mb-1">
+                            Your Direct Referral Link (Code: <span className="text-emerald-600 font-mono font-bold">{referral?.code || partner?.partner_id || 'ACTIVE'}</span>)
+                          </label>
+                          <div className="flex items-center gap-2 bg-brand-bg border border-brand-border rounded-lg p-2">
+                            <input
+                              type="text"
+                              readOnly
+                              value={referral?.link || (typeof window !== 'undefined' ? `${window.location.origin}/enroll?ref=${referral?.code || partner?.partner_id || 'ALS0002'}` : '')}
+                              className="bg-transparent text-xs font-mono text-brand-text w-full truncate focus:outline-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 pt-1">
+                        <button
+                          onClick={handleCopyLink}
+                          className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                        >
+                          {copied ? <><Check className="w-3.5 h-3.5" /> Copied!</> : <><Copy className="w-3.5 h-3.5" /> Copy Student Link</>}
+                        </button>
+                        <a
+                          href={`https://wa.me/?text=${encodeURIComponent(`Hey! I'm learning on AutoLearn Spot. Enroll with my link to join the next cohort: ${referral?.link || (typeof window !== 'undefined' ? `${window.location.origin}/enroll?ref=${referral?.code || partner?.partner_id}` : '')}`)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="py-2 px-3 border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shrink-0"
+                          title="Share on WhatsApp"
+                        >
+                          <Share2 className="w-3.5 h-3.5" /> WhatsApp
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* CARD 2: Course Affiliate Marketing */}
+                    <div className="rounded-xl border-2 border-brand-border bg-brand-bg/50 p-4 sm:p-5 flex flex-col justify-between space-y-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl">💼</span>
+                            <span className="font-bold text-sm sm:text-base text-brand-text">Course Affiliate Partner</span>
+                          </div>
+                          <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-500/10 text-blue-600 border border-blue-500/20">
+                            % Revenue Share
+                          </span>
+                        </div>
+                        <p className="text-xs text-brand-text/70 leading-relaxed">
+                          Best for marketers, content creators, and social advertising. Choose specific courses from our marketplace and earn <strong>up to 50% commission</strong> on every verified sale.
+                        </p>
+                        <div className="pt-2">
+                          <div className="p-3 rounded-lg bg-brand-bg border border-brand-border text-xs text-brand-text/70 flex items-center justify-between">
+                            <span>Active Marketplace Links:</span>
+                            <span className="font-bold text-brand-text font-mono">{data?.activeCourseLinks?.length || 0} courses</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="pt-1">
+                        <button
+                          onClick={() => setActiveTab('promote')}
+                          className="w-full py-2 px-3 bg-brand-primary text-white hover:bg-brand-primary-hover rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                        >
+                          <Globe className="w-3.5 h-3.5" /> Browse Marketplace & Get Course Links
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Active Course Affiliate Links Spotlight */}
                 {data?.activeCourseLinks && data.activeCourseLinks.length > 0 ? (
                   <div className="border border-brand-border bg-[var(--card)]/90 backdrop-blur-xl rounded-2xl p-6 shadow-xs space-y-4">
@@ -847,37 +953,39 @@ export default function PartnerDashboard() {
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-2 shrink-0 w-full md:w-auto">
-                            <div className="flex-1 md:flex-initial md:w-64 font-mono text-xs text-brand-text/70 bg-brand-bg border border-brand-border px-3 py-2 rounded-lg truncate">
+                          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
+                            <div className="w-full md:w-64 font-mono text-xs text-brand-text/70 bg-brand-bg border border-brand-border px-3 py-2 rounded-lg truncate">
                               {link.url}
                             </div>
-                            <button
-                              onClick={() => handleCopyOverviewLink(link.code, link.url)}
-                              className={`px-3 py-2 text-xs font-bold rounded-lg flex items-center gap-1.5 transition-all shrink-0 ${
-                                copiedOverviewCode === link.code
-                                  ? 'bg-emerald-600 text-white shadow-xs'
-                                  : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 border border-emerald-500/30'
-                              }`}
-                            >
-                              {copiedOverviewCode === link.code ? (
-                                <>
-                                  <Check className="w-3.5 h-3.5" /> Copied!
-                                </>
-                              ) : (
-                                <>
-                                  <Copy className="w-3.5 h-3.5" /> Copy Link
-                                </>
-                              )}
-                            </button>
-                            <a
-                              href={link.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="p-2 border border-brand-border text-brand-text/60 hover:text-brand-text hover:bg-brand-bg rounded-lg transition-colors shrink-0"
-                              title="Preview Live Course Page"
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                            </a>
+                            <div className="flex items-center gap-2 w-full sm:w-auto">
+                              <button
+                                onClick={() => handleCopyOverviewLink(link.code, link.url)}
+                                className={`flex-1 sm:flex-initial px-3 py-2 text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition-all shrink-0 ${
+                                  copiedOverviewCode === link.code
+                                    ? 'bg-emerald-600 text-white shadow-xs'
+                                    : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 border border-emerald-500/30'
+                                }`}
+                              >
+                                {copiedOverviewCode === link.code ? (
+                                  <>
+                                    <Check className="w-3.5 h-3.5" /> Copied!
+                                  </>
+                                ) : (
+                                  <>
+                                    <Copy className="w-3.5 h-3.5" /> Copy Link
+                                  </>
+                                )}
+                              </button>
+                              <a
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-2 border border-brand-border text-brand-text/60 hover:text-brand-text hover:bg-brand-bg rounded-lg transition-colors shrink-0 flex items-center justify-center"
+                                title="Preview Live Course Page"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -1078,7 +1186,7 @@ export default function PartnerDashboard() {
               <div className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl p-6">
                 <h3 className="font-semibold text-brand-text mb-4">Referral History</h3>
                 <div className="overflow-x-auto">
-                  <table className="w-full">
+                  <table className="w-full min-w-[500px]">
                     <thead>
                       <tr className="border-b border-brand-border">
                         <th className="text-left py-3 px-4 text-sm font-medium text-brand-text/60">Name</th>

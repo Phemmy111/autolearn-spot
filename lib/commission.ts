@@ -15,11 +15,28 @@ const SETTING_KEYS: Record<PartnerType, string> = {
 };
 
 /**
- * Get the current commission rate for a specific partner type from the database
- * Falls back to default values if the setting is not configured
+ * Get the current commission rate for a specific partner type from the database.
+ * If productId is provided for student/community referrals, it checks for a course-specific rate first!
+ * Falls back to global settings and defaults if not configured.
  */
-export async function getCommissionRate(partnerType: PartnerType): Promise<number> {
+export async function getCommissionRate(partnerType: PartnerType, productId?: string): Promise<number> {
   try {
+    // 1. Check course-specific student commission if productId is provided
+    if (productId && (partnerType === 'student' || partnerType === 'community')) {
+      const { data: courseSetting } = await supabaseAdmin
+        .from('site_settings')
+        .select('value')
+        .eq('key', `course_student_commission:${productId}`)
+        .maybeSingle();
+
+      if (courseSetting?.value) {
+        const customRate = parseInt(courseSetting.value, 10);
+        if (!isNaN(customRate) && customRate > 0) {
+          return customRate;
+        }
+      }
+    }
+
     const settingKey = SETTING_KEYS[partnerType];
     const defaultRate = DEFAULT_RATES[partnerType];
 

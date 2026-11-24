@@ -33,18 +33,21 @@ export class CommissionService {
    */
   static async recordCommission(params: {
     referrerId: string;
-    referrerType: 'student' | 'community' | 'influencer';
+    referrerType?: 'student' | 'community' | 'influencer';
     refereeEmail: string;
     referralCode: string;
     paymentReference: string;
-    courseAmount: number; // Amount paid for the course
+    courseAmount?: number; // Amount paid for the course
     ipAddress?: string; // For fraud detection
+    productId?: string; // Optional course product ID for course-specific student commission
   }): Promise<{ success: boolean; error?: string; commission?: Commission }> {
     try {
       // Only create commissions for Direct Enrollment payments, not scholarship (₦5,000)
       if (params.courseAmount === 5000) {
         return { success: false, error: 'Commissions not eligible for scholarship payments' };
       }
+
+      const referrerType = params.referrerType || 'student';
 
       // Run fraud checks
       const fraudCheck = await FraudService.runFraudChecks({
@@ -59,9 +62,27 @@ export class CommissionService {
         return { success: false, error: `Fraud detected: ${fraudCheck.alerts.join(', ')}` };
       }
 
-      // Get commission rate from database configuration
-      const amount = await getCommissionRate(params.referrerType);
-      console.log(`[CommissionService] Commission rate for ${params.referrerType}: ₦${amount}`);
+      // Resolve courseId if not provided
+      let resolvedCourseId = params.productId;
+      if (!resolvedCourseId && params.paymentReference) {
+        try {
+          const { data: enrollment } = await supabaseAdmin
+            .from('enrollments')
+            .select('course_id')
+            .eq('payment_reference', params.paymentReference)
+            .limit(1)
+            .maybeSingle();
+          if (enrollment?.course_id) {
+            resolvedCourseId = enrollment.course_id;
+          }
+        } catch (e) {
+          // continue with default
+        }
+      }
+
+      // Get commission rate from database configuration or course-specific setting
+      const amount = await getCommissionRate(referrerType, resolvedCourseId);
+      console.log(`[CommissionService] Commission rate for ${referrerType} (course: ${resolvedCourseId || 'default'}): ₦${amount}`);
       
       // Standard 7-day holding period
       const holdingPeriodEndsAt = new Date();
@@ -71,7 +92,7 @@ export class CommissionService {
         .from('commissions')
         .insert({
           referrer_id: params.referrerId,
-          referrer_type: params.referrerType,
+          referrer_type: referrerType,
           referee_email: params.refereeEmail,
           referral_code: params.referralCode,
           payment_reference: params.paymentReference,
@@ -133,7 +154,7 @@ export class CommissionService {
         await AdminEmailService.sendAdminPartnerReferralNotification({
           partnerName: partnerDisplayName,
           partnerEmail: partner.email,
-          partnerType: params.referrerType,
+          partnerType: referrerType,
           refereeEmail: params.refereeEmail,
           commissionAmount: amount,
           referralCode: params.referralCode

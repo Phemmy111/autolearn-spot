@@ -64,6 +64,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   // Affiliate settings
   const [affiliateEnabled, setAffiliateEnabled] = useState(false);
   const [affiliateRate, setAffiliateRate] = useState(20);
+  const [studentCommissionAmount, setStudentCommissionAmount] = useState<number>(1500);
   const [affiliateSaving, setAffiliateSaving] = useState(false);
   const [affiliateSaved, setAffiliateSaved] = useState(false);
   const [productPrice, setProductPriceForAffiliate] = useState(0);
@@ -83,6 +84,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           setProductPriceForAffiliate(p.price || 0);
           setAffiliateEnabled(p.affiliate_enabled || false);
           setAffiliateRate(p.affiliate_commission_rate || 20);
+          if (data.student_commission_amount !== undefined && data.student_commission_amount !== null) {
+            setStudentCommissionAmount(Number(data.student_commission_amount));
+          } else if (p.student_commission_amount !== undefined && p.student_commission_amount !== null) {
+            setStudentCommissionAmount(Number(p.student_commission_amount));
+          }
 
           if (data.platform_commission_rate !== undefined) {
             setPlatformCommissionRate(Number(data.platform_commission_rate));
@@ -480,6 +486,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       thumbnail_url: updatedThumbnailUrl,
       affiliate_enabled: affiliateEnabled,
       affiliate_commission_rate: affiliateRate,
+      student_commission_amount: Number(studentCommissionAmount) || 0,
     };
 
     try {
@@ -902,6 +909,61 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               </div>
             </div>
 
+            {/* STUDENT REFER & EARN COMMISSION SETTINGS */}
+            <div className="bg-brand-bg/70 border border-brand-border rounded-xl p-5 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">🎓</span>
+                    <label className="block text-sm font-bold text-brand-text">
+                      Student Referral Commission (₦)
+                    </label>
+                  </div>
+                  <p className="text-xs text-brand-text/60">
+                    Set the fixed cash reward an enrolled student earns when referring a peer who purchases this course
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-brand-text/60">₦</span>
+                    <input
+                      type="number"
+                      min={0}
+                      step={100}
+                      value={studentCommissionAmount}
+                      onChange={e => setStudentCommissionAmount(Math.max(0, Number(e.target.value) || 0))}
+                      className="w-32 pl-8 pr-3 py-2 text-center font-bold text-base bg-[var(--card)] border-2 border-brand-primary rounded-xl text-brand-text focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Select Buttons */}
+              <div className="flex items-center gap-2 flex-wrap pt-1">
+                <span className="text-xs font-semibold text-brand-text/60 mr-1">Quick Select:</span>
+                {[1000, 1500, 2000, 2500, 3000, 5000].map(amt => (
+                  <button
+                    key={amt}
+                    type="button"
+                    onClick={() => setStudentCommissionAmount(amt)}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold border transition-all ${
+                      Number(studentCommissionAmount) === amt
+                        ? 'bg-brand-primary text-white border-brand-primary shadow-sm'
+                        : 'bg-[var(--card)] text-brand-text/70 border-brand-border hover:border-brand-primary/50'
+                    }`}
+                  >
+                    ₦{amt.toLocaleString()}
+                  </button>
+                ))}
+              </div>
+
+              <div className="p-3 rounded-lg bg-brand-primary/5 border border-brand-primary/10 text-xs text-brand-text/70 flex items-center justify-between">
+                <span>When students share their direct referral link, they receive:</span>
+                <span className="font-extrabold text-brand-primary text-sm">₦{Number(studentCommissionAmount).toLocaleString()} / sale</span>
+              </div>
+            </div>
+
             {/* LIVE FINANCIAL BREAKDOWN */}
             {(Number(price) || 0) > 0 && (
               <div className="space-y-2">
@@ -952,7 +1014,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ 
                     affiliate_enabled: affiliateEnabled, 
-                    affiliate_commission_rate: affiliateRate 
+                    affiliate_commission_rate: affiliateRate,
+                    student_commission_amount: Number(studentCommissionAmount) || 0
                   }),
                 });
                 if (res.ok) { 
@@ -971,11 +1034,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             className="w-full py-3 bg-brand-primary text-white font-bold rounded-xl hover:bg-brand-primary-hover transition-all text-sm flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
           >
             {affiliateSaving ? (
-              <><span className="animate-spin">⟳</span> Saving Affiliate Settings...</>
+              <><span className="animate-spin">⟳</span> Saving Settings...</>
             ) : affiliateSaved ? (
-              '✓ Affiliate Settings Saved Successfully!'
+              '✓ Affiliate & Referral Settings Saved Successfully!'
             ) : (
-              'Save Affiliate Settings'
+              'Save Affiliate & Referral Settings'
             )}
           </button>
         </div>

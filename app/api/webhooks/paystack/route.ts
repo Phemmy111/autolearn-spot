@@ -445,51 +445,45 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
                          request.headers.get('x-real-ip') || 
                          'unknown';
 
-        // Create commission using the owner_id from referral_codes (this is partner.id UUID)
-        // Get the partner's details for the commission
-        const { data: partner } = await supabaseAdmin
+        // Create commission using owner_id from referral_codes
+        // Lookup partner by id or user_id (validation.owner_id may be partner UUID or clerk user_id)
+        const { data: matchedPartners } = await supabaseAdmin
           .from('partners')
-          .select('clerk_user_id, partner_type')
-          .eq('id', validation.owner_id)
-          .single();
+          .select('id, user_id, email, name')
+          .or(`id.eq.${validation.owner_id},user_id.eq.${validation.owner_id}`)
+          .limit(1);
 
-        if (partner) {
-          // Use clerk_user_id for student partners, partner.id for community/influencer
-          const referrerId = partner.partner_type === 'student' && partner.clerk_user_id 
-            ? partner.clerk_user_id 
-            : validation.owner_id;
+        const partner = matchedPartners?.[0];
+        const referrerId = partner?.id || validation.owner_id;
+        const referrerType = (validation.owner_type as 'student' | 'community' | 'influencer') || 'student';
 
-          const commissionResult = await CommissionService.recordCommission({
+        const commissionResult = await CommissionService.recordCommission({
+          referrerId: referrerId,
+          referrerType: referrerType,
+          refereeEmail: pendingEnrollment.email,
+          referralCode: pendingEnrollment.referred_by_code,
+          paymentReference: reference,
+          courseAmount: amountInNaira,
+          ipAddress: ipAddress,
+          productId: (pendingEnrollment as any)?.course_id || (pendingEnrollment as any)?.product_id
+        });
+
+        if (commissionResult.success) {
+          console.log('DIRECT ENROLLMENT: Commission created successfully for referral', {
             referrerId: referrerId,
-            referrerType: partner.partner_type as 'student' | 'community' | 'influencer',
-            refereeEmail: pendingEnrollment.email,
-            referralCode: pendingEnrollment.referred_by_code,
-            paymentReference: reference,
-            courseAmount: amountInNaira,
-            ipAddress: ipAddress
-          });
-
-          if (commissionResult.success) {
-            console.log('DIRECT ENROLLMENT: Commission created successfully for referral', {
-              referrerId: referrerId,
-              referrerType: partner.partner_type
-            });
-          } else {
-            console.error('DIRECT ENROLLMENT: Commission creation failed:', commissionResult.error);
-          }
-
-          // Track the referral conversion in referral_codes table
-          await ReferralService.trackConversion({
-            referralCode: pendingEnrollment.referred_by_code,
-            refereeEmail: pendingEnrollment.email,
-            paymentAmount: amountInNaira,
-            paymentReference: reference,
+            referrerType: referrerType
           });
         } else {
-          console.error('DIRECT ENROLLMENT: Partner not found for referral', {
-            owner_id: validation.owner_id
-          });
+          console.error('DIRECT ENROLLMENT: Commission creation failed:', commissionResult.error);
         }
+
+        // Track the referral conversion in referral_codes table
+        await ReferralService.trackConversion({
+          referralCode: pendingEnrollment.referred_by_code,
+          refereeEmail: pendingEnrollment.email,
+          paymentAmount: amountInNaira,
+          paymentReference: reference,
+        });
       }
     } catch (error) {
       console.error('DIRECT ENROLLMENT: Error processing referral commission:', error);

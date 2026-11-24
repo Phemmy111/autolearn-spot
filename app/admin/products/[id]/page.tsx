@@ -18,6 +18,12 @@ export default function AdminProductReviewPage({ params }: { params: Promise<{ i
   const [feedback, setFeedback] = useState('');
   const [selectedLesson, setSelectedLesson] = useState<any>(null);
 
+  // Commission settings
+  const [adminAffiliateRate, setAdminAffiliateRate] = useState<number>(20);
+  const [adminStudentComm, setAdminStudentComm] = useState<number>(1500);
+  const [savingCommissions, setSavingCommissions] = useState(false);
+  const [commissionSaved, setCommissionSaved] = useState(false);
+
   useEffect(() => {
     fetchProduct();
   }, [id]);
@@ -28,10 +34,37 @@ export default function AdminProductReviewPage({ params }: { params: Promise<{ i
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setProduct(data.product);
+      setAdminAffiliateRate(data.product.affiliate_commission_rate ?? 20);
+      setAdminStudentComm(data.product.student_commission_amount ?? 1500);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch product');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSaveCommissions = async () => {
+    setSavingCommissions(true);
+    setCommissionSaved(false);
+    try {
+      const res = await fetch(`/api/admin/products/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          affiliate_commission_rate: Number(adminAffiliateRate),
+          student_commission_amount: Number(adminStudentComm),
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setCommissionSaved(true);
+      setTimeout(() => setCommissionSaved(false), 3000);
+      alert('Commission settings updated successfully');
+      setProduct(data.product);
+    } catch (err: any) {
+      alert(err.message || 'Error updating commissions');
+    } finally {
+      setSavingCommissions(false);
     }
   };
 
@@ -217,6 +250,61 @@ export default function AdminProductReviewPage({ params }: { params: Promise<{ i
                   </div>
                 </li>
               </ul>
+            </div>
+
+            {/* Commission & Referral Settings Card */}
+            <div className="bg-brand-bg border border-brand-border rounded-xl p-6 space-y-4">
+              <h2 className="text-lg font-bold text-brand-text border-b border-brand-border pb-2 flex items-center justify-between">
+                <span>Commission Settings</span>
+                <span className="text-xs font-normal text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded">Admin Override</span>
+              </h2>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-brand-text/70 uppercase tracking-wider mb-1">
+                    Affiliate Commission (%)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={adminAffiliateRate}
+                      onChange={e => setAdminAffiliateRate(Number(e.target.value))}
+                      className="w-full bg-[var(--card)] border border-brand-border rounded-lg px-3 py-2 text-sm font-bold text-brand-text focus:outline-none focus:border-brand-primary"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-brand-text/50 font-bold">%</span>
+                  </div>
+                  <p className="text-xs text-brand-text/50 mt-1">Percentage earned per sale by registered affiliates</p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-brand-text/70 uppercase tracking-wider mb-1">
+                    Student Referral Commission (₦)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min={0}
+                      step={100}
+                      value={adminStudentComm}
+                      onChange={e => setAdminStudentComm(Number(e.target.value))}
+                      className="w-full bg-[var(--card)] border border-brand-border rounded-lg px-3 py-2 text-sm font-bold text-brand-text focus:outline-none focus:border-brand-primary"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-brand-text/50 font-bold">₦</span>
+                  </div>
+                  <p className="text-xs text-brand-text/50 mt-1">Fixed cash reward earned when an enrolled student refers a peer</p>
+                </div>
+
+                <button
+                  type="button"
+                  disabled={savingCommissions}
+                  onClick={handleSaveCommissions}
+                  className="w-full bg-brand-primary text-white text-xs font-bold py-2.5 rounded-lg hover:bg-brand-primary-hover transition-colors disabled:opacity-50"
+                >
+                  {savingCommissions ? 'Saving...' : commissionSaved ? '✓ Saved!' : 'Save Commission Rates'}
+                </button>
+              </div>
             </div>
 
             {/* Validation Checklist */}

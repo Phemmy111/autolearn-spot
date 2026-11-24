@@ -56,15 +56,25 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       }
     }
 
+    // Fetch course-specific student commission amount
+    const { data: studentCommSetting } = await supabaseAdmin
+      .from('site_settings')
+      .select('value')
+      .eq('key', `course_student_commission:${id}`)
+      .maybeSingle();
+    const studentCommissionAmount = studentCommSetting?.value ? Number(studentCommSetting.value) : null;
+
     return NextResponse.json({ 
       success: true, 
       product: {
         ...product,
         skill_slug: skillSlug,
         skill_name: skillName,
+        student_commission_amount: studentCommissionAmount,
       },
       skill_slug: skillSlug,
       skill_name: skillName,
+      student_commission_amount: studentCommissionAmount,
       platform_commission_rate: platformCommissionRate 
     });
   } catch (err: any) {
@@ -163,6 +173,21 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     await requireAuthor();
     const { id } = await params;
     const body = await request.json();
+
+    if (body.student_commission_amount !== undefined) {
+      const studentAmt = Number(body.student_commission_amount);
+      if (!isNaN(studentAmt) && studentAmt >= 0) {
+        await supabaseAdmin
+          .from('site_settings')
+          .upsert({
+            key: `course_student_commission:${id}`,
+            value: studentAmt.toString(),
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'key' });
+      }
+      delete body.student_commission_amount;
+    }
+
     const updated = await updateProduct(id, body);
     if (!updated) {
       return NextResponse.json({ error: 'Failed to update product' }, { status: 500 });

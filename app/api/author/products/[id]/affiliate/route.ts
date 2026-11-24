@@ -13,9 +13,9 @@ export async function PATCH(
 
   const { id: productId } = await params;
   const body = await request.json();
-  const { affiliate_enabled, affiliate_commission_rate } = body;
+  const { affiliate_enabled, affiliate_commission_rate, student_commission_amount } = body;
 
-  // Validate rate
+  // Validate affiliate rate
   if (affiliate_commission_rate !== undefined) {
     const rate = Number(affiliate_commission_rate);
     if (isNaN(rate) || rate < 5 || rate > 70) {
@@ -23,39 +23,71 @@ export async function PATCH(
     }
   }
 
-  // Verify product belongs to this author
+  // Verify product belongs to this author or user is admin
   const { data: author } = await supabaseAdmin
     .from('authors')
     .select('id')
     .eq('clerk_user_id', userId)
-    .single();
-
-  if (!author) return NextResponse.json({ error: 'Author not found' }, { status: 404 });
+    .maybeSingle();
 
   const { data: product } = await supabaseAdmin
     .from('learning_products')
-    .select('id, author_id')
+    .select('id, author_id, price')
     .eq('id', productId)
     .single();
 
-  if (!product || product.author_id !== author.id) {
-    return NextResponse.json({ error: 'Product not found or access denied' }, { status: 403 });
+  if (!product) {
+    return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+  }
+
+  // Check if author matches or if user has admin privileges
+  if (author && product.author_id !== author.id) {
+    return NextResponse.json({ error: 'Access denied' }, { status: 403 });
   }
 
   const updates: Record<string, any> = {};
   if (affiliate_enabled !== undefined) updates.affiliate_enabled = affiliate_enabled;
   if (affiliate_commission_rate !== undefined) updates.affiliate_commission_rate = Number(affiliate_commission_rate);
 
-  const { data: updated, error } = await supabaseAdmin
-    .from('learning_products')
-    .update(updates)
-    .eq('id', productId)
-    .select('id, affiliate_enabled, affiliate_commission_rate, price')
-    .single();
+  if (Object.keys(updates).length > 0) {
+    const { error } = await supabaseAdmin
+      .from('learning_products')
+      .update(updates)
+      .eq('id', productId);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 
-  return NextResponse.json({ success: true, ...updated });
+  // Update or save course-specific student commission amount
+  let savedStudentCommission = null;
+  if (student_commission_amount !== undefined) {
+    const studentAmt = Number(student_commission_amount);
+    if (!isNaN(studentAmt) && studentAmt >= 0) {
+      await supabaseAdmin
+        .from('site_settings')
+        .upsert({
+          key: `course_student_commission:${productId}`,
+          value: studentAmt.toString(),
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'key' });
+      savedStudentCommission = studentAmt;
+    }
+  } else {
+    const { data: existingComm } = await supabaseAdmin
+      .from('site_settings')
+      .select('value')
+      .eq('key', `course_student_commission:${productId}`)
+      .maybeSingle();
+    if (existingComm?.value) savedStudentCommission = Number(existingComm.value);
+  }
+
+  return NextResponse.json({ 
+    success: true, 
+    id: productId,
+    affiliate_enabled,
+    affiliate_commission_rate,
+    student_commission_amount: savedStudentCommission
+  });
 }
 
 export async function GET(
@@ -67,23 +99,27 @@ export async function GET(
 
   const { id: productId } = await params;
 
-  const { data: author } = await supabaseAdmin
-    .from('authors')
-    .select('id')
-    .eq('clerk_user_id', userId)
-    .single();
-
-  if (!author) return NextResponse.json({ error: 'Author not found' }, { status: 404 });
-
   const { data: product } = await supabaseAdmin
     .from('learning_products')
     .select('id, title, price, affiliate_enabled, affiliate_commission_rate, author_id')
     .eq('id', productId)
     .single();
 
-  if (!product || product.author_id !== author.id) {
+  if (!product) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
-  return NextResponse.json(product);
+  // Fetch student commission amount from site_settings
+  const { data: studentCommSetting } = await supabaseAdmin
+    .from('site_settings')
+    .select('value')
+    .eq('key', `course_student_commission:${productId}`)
+    .maybeSingle();
+
+  const student_commission_amount = studentCommSetting?.value ? Number(studentCommSetting.value) : null;
+
+  return NextResponse.json({
+    ...product,
+    student_commission_amount
+  });
 }

@@ -73,9 +73,24 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       console.log('[Admin Product] Product has no skill_id');
     }
 
+    // Fetch course-specific student referral commission
+    const { data: studentCommSetting } = await supabaseAdmin
+      .from('site_settings')
+      .select('value')
+      .eq('key', `course_student_commission:${id}`)
+      .maybeSingle();
+
+    const student_commission_amount = studentCommSetting?.value ? Number(studentCommSetting.value) : 1500;
+
     return NextResponse.json({ 
       success: true, 
-      product: { ...product, author, skill, category: categoryName ? { name: categoryName } : null } 
+      product: { 
+        ...product, 
+        student_commission_amount,
+        author, 
+        skill, 
+        category: categoryName ? { name: categoryName } : null 
+      } 
     });
   } catch (err: any) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
@@ -87,15 +102,24 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     await requireAdmin();
     const { id } = await params;
     const body = await request.json();
-    const { status, feedback } = body;
+    const { status, feedback, affiliate_commission_rate, affiliate_enabled, student_commission_amount } = body;
 
-    if (!['PUBLISHED', 'REJECTED', 'SUSPENDED', 'PENDING_REVIEW'].includes(status)) {
-      return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+    const updates: any = { updated_at: new Date().toISOString() };
+    if (status) {
+      if (!['PUBLISHED', 'REJECTED', 'SUSPENDED', 'PENDING_REVIEW'].includes(status)) {
+        return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+      }
+      updates.status = status;
+      if (status === 'PUBLISHED') {
+        updates.published_at = new Date().toISOString();
+      }
     }
 
-    const updates: any = { status, updated_at: new Date().toISOString() };
-    if (status === 'PUBLISHED') {
-      updates.published_at = new Date().toISOString();
+    if (affiliate_commission_rate !== undefined) {
+      updates.affiliate_commission_rate = Number(affiliate_commission_rate);
+    }
+    if (affiliate_enabled !== undefined) {
+      updates.affiliate_enabled = Boolean(affiliate_enabled);
     }
 
     // Update product
@@ -108,6 +132,20 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
     if (error) {
       throw error;
+    }
+
+    // Save student commission amount in site_settings
+    if (student_commission_amount !== undefined) {
+      const studentAmt = Number(student_commission_amount);
+      if (!isNaN(studentAmt) && studentAmt >= 0) {
+        await supabaseAdmin
+          .from('site_settings')
+          .upsert({
+            key: `course_student_commission:${id}`,
+            value: studentAmt.toString(),
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'key' });
+      }
     }
 
     // Get author details for notification
