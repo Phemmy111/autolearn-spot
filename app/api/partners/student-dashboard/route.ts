@@ -142,10 +142,19 @@ export async function GET(request: Request) {
       .eq('partner_id', partner.id)
       .maybeSingle();
 
+    // Fetch pending withdrawals to display real pending earnings
+    const { data: pendingWds } = await supabaseAdmin
+      .from('author_withdrawals')
+      .select('amount')
+      .eq('author_id', partner.id)
+      .eq('status', 'PENDING');
+
+    const pendingEarningsTotal = (pendingWds || []).reduce((sum, w) => sum + (Number(w.amount) || 0), 0);
+
     // Updated stats
     const { data: updatedPartner } = await supabaseAdmin
       .from('partners')
-      .select('total_clicks, total_registrations, available_earnings, pending_earnings, lifetime_earnings')
+      .select('total_clicks, total_registrations, available_earnings, total_earnings')
       .eq('id', partner.id)
       .single();
 
@@ -167,7 +176,7 @@ export async function GET(request: Request) {
         stats: {
           totalClicks: updatedPartner?.total_clicks || 0,
           totalRegistrations: updatedPartner?.total_registrations || 0,
-          pendingEarnings: updatedPartner?.pending_earnings || 0,
+          pendingEarnings: pendingEarningsTotal,
           availableBalance: updatedPartner?.available_earnings || 0
         },
         recentReferrals: formattedReferrals,

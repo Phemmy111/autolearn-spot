@@ -73,17 +73,17 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    // Create withdrawal request
+    // Create withdrawal request in author_withdrawals (aligned with admin withdrawal queue)
+    const reference = 'WD-STU-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
     const { data: withdrawal, error: withdrawalError } = await supabaseAdmin
-      .from('withdrawals')
+      .from('author_withdrawals')
       .insert({
-        partner_id: partner.id,
+        author_id: partner.id,
         amount: amount,
-        status: 'pending',
-        bank_name: bankProfile.bank_name,
-        account_number: bankProfile.account_number,
-        account_name: bankProfile.account_name,
-        account_type: bankProfile.account_type || 'savings'
+        status: 'PENDING',
+        reference: reference,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       })
       .select()
       .single();
@@ -93,22 +93,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to create withdrawal request in database.' }, { status: 500 });
     }
 
-    // Update partner's available and pending earnings atomically
+    // Update partner's available earnings atomically
     const newAvailable = Math.max(0, available - amount);
-    const newPending = (Number(partner.pending_earnings) || 0) + amount;
 
     const { error: updateError } = await supabaseAdmin
       .from('partners')
       .update({
         available_earnings: newAvailable,
-        pending_earnings: newPending,
         updated_at: new Date().toISOString()
       })
       .eq('id', partner.id);
 
     if (updateError) {
       console.error('[student-withdrawals] Error updating earnings:', updateError);
-      await supabaseAdmin.from('withdrawals').delete().eq('id', withdrawal.id);
+      await supabaseAdmin.from('author_withdrawals').delete().eq('id', withdrawal.id);
       return NextResponse.json({ error: 'Failed to update partner balance.' }, { status: 500 });
     }
 
