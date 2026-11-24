@@ -23,9 +23,13 @@ interface PageParams {
   params: Promise<{ slug: string }>;
 }
 
+function isUuidString(val?: string | null): boolean {
+  if (!val) return false;
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+}
+
 export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
   const { slug } = await params;
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
 
   let { data: product } = await supabaseAdmin
     .from('learning_products')
@@ -33,7 +37,7 @@ export async function generateMetadata({ params }: PageParams): Promise<Metadata
     .eq('slug', slug)
     .maybeSingle();
 
-  if (!product && isUuid) {
+  if (!product && isUuidString(slug)) {
     const { data: productById } = await supabaseAdmin
       .from('learning_products')
       .select('title, description, thumbnail_url')
@@ -72,8 +76,6 @@ export async function generateMetadata({ params }: PageParams): Promise<Metadata
 export default async function MarketplaceProductPage({ params }: PageParams) {
   const { slug } = await params;
 
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
-
   // 1. Fetch Product by slug (or fallback to id)
   const { data: productBySlug } = await supabaseAdmin
     .from('learning_products')
@@ -84,7 +86,7 @@ export default async function MarketplaceProductPage({ params }: PageParams) {
 
   let product = productBySlug;
 
-  if (!product && isUuid) {
+  if (!product && isUuidString(slug)) {
     const { data: productById } = await supabaseAdmin
       .from('learning_products')
       .select('*')
@@ -119,8 +121,8 @@ export default async function MarketplaceProductPage({ params }: PageParams) {
   }
 
   // 2. Fetch Author (support UUID id, user_id, or clerk_user_id)
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(product.author_id);
-  const authorQuery = isUuid
+  const isAuthorUuid = isUuidString(product.author_id);
+  const authorQuery = isAuthorUuid
     ? supabaseAdmin.from('authors').select('*').or(`id.eq.${product.author_id},user_id.eq.${product.author_id}`)
     : supabaseAdmin.from('authors').select('*').or(`user_id.eq.${product.author_id},clerk_user_id.eq.${product.author_id}`);
 
