@@ -51,7 +51,8 @@ export function validateProductCompleteness(product: Partial<LearningProduct>): 
     errors.push('Currency is required');
   }
 
-  if (!product.access_duration_days) {
+  // access_duration_days === null represents Lifetime Access, which is valid.
+  if (product.access_duration_days === undefined) {
     errors.push('Access duration is required');
   }
 

@@ -36,12 +36,40 @@ async function resolvePartner(request: Request) {
       const { data: matchedPartners } = await supabaseAdmin
         .from('partners')
         .select('*')
-        .or(`id.eq.${userId},user_id.eq.${userId}`)
+        .or(`id.eq.${userId},user_id.eq.${userId},clerk_user_id.eq.${userId}`)
         .order('created_at', { ascending: false })
         .limit(1);
 
       if (matchedPartners && matchedPartners.length > 0) {
         return matchedPartners[0];
+      }
+
+      // Check if user is an enrolled student and auto-create partner record
+      const { data: enrollment } = await supabaseAdmin
+        .from('enrollments')
+        .select('id, email, clerk_user_id')
+        .or(`clerk_user_id.eq.${userId},user_id.eq.${userId}`)
+        .limit(1)
+        .maybeSingle();
+
+      if (enrollment) {
+        const { data: newPartner } = await supabaseAdmin
+          .from('partners')
+          .insert({
+            clerk_user_id: userId,
+            email: enrollment.email || 'student@autolearnspot.com',
+            full_name: 'Enrolled Student',
+            partner_type: 'student',
+            status: 'active',
+            available_earnings: 0,
+            pending_earnings: 0,
+            total_earnings: 0,
+            paid_earnings: 0,
+          })
+          .select()
+          .single();
+
+        if (newPartner) return newPartner;
       }
     }
   } catch (err) {

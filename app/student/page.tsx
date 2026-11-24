@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BookOpen, Trophy, Award, ArrowRight, Clock, Play, ChevronRight, Video, MessageSquare } from 'lucide-react';
+import { BookOpen, Trophy, Award, ArrowRight, Clock, Play, ChevronRight, Video, MessageSquare, Sparkles } from 'lucide-react';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { UserButton } from '@clerk/nextjs';
 import { getUserEnrollments } from '@/lib/enrollment-service';
@@ -64,16 +64,27 @@ export default async function StudentDashboardPage() {
     .map((e: any) => {
       const lp = Array.isArray(e.learning_product) ? e.learning_product[0] : e.learning_product;
       const isStarted = !!e.activated_at;
+      const isCourseLifetime = !lp?.access_duration_days;
+      const isStudentLifetime = e.expires_at ? new Date(e.expires_at).getFullYear() >= 2099 : false;
+      const isLifetime = isCourseLifetime || isStudentLifetime;
+
       let daysLeft: number | null = null;
-      if (isStarted && lp?.access_duration_days) {
-        const activatedTime = new Date(e.activated_at).getTime();
-        const durationMs = lp.access_duration_days * 24 * 60 * 60 * 1000;
-        const now = Date.now();
-        daysLeft = now > activatedTime + durationMs ? 0 : Math.ceil((activatedTime + durationMs - now) / (1000 * 60 * 60 * 24));
+      if (!isLifetime && isStarted) {
+        if (e.expires_at) {
+          const diffMs = new Date(e.expires_at).getTime() - Date.now();
+          daysLeft = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+        } else if (lp?.access_duration_days) {
+          const activatedTime = new Date(e.activated_at).getTime();
+          const durationMs = lp.access_duration_days * 24 * 60 * 60 * 1000;
+          const diffMs = (activatedTime + durationMs) - Date.now();
+          daysLeft = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+        }
       }
+
       return { 
         enrollment_id: e.id, 
         isStarted, 
+        isLifetime,
         daysLeft, 
         course: lp,
         has_live_class: productIdsWithLiveClasses.has(lp?.id),
@@ -143,7 +154,11 @@ export default async function StudentDashboardPage() {
             {recentCourses.map((c) => (
               <div key={c.enrollment_id} className="bg-[var(--card)] border border-brand-border rounded-xl p-5 flex flex-col gap-3">
                 <h3 className="font-bold text-brand-text leading-snug line-clamp-2">{c.course?.title || 'Untitled Course'}</h3>
-                {c.isStarted && c.daysLeft !== null ? (
+                {c.isLifetime ? (
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                    <Sparkles className="w-3.5 h-3.5" /> Lifetime Access
+                  </p>
+                ) : c.isStarted && c.daysLeft !== null ? (
                   <p className="text-xs text-brand-text/50 flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5" />
                     {c.daysLeft} days access left

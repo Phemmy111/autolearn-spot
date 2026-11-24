@@ -1,23 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { requireAuthor } from '@/lib/author';
+import { extendEnrollmentAccess } from '@/lib/enrollment-service';
 
 export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/author/students
- * Get students who actually purchased author's products via orders
+ * Get students enrolled in author's courses with accurate status, days_left, and lifetime details
  */
 export async function GET(request: NextRequest) {
   try {
-    console.log('[STUDENTS API] Starting students API call');
-    
     const authorCheck = await requireAuthor();
     if (authorCheck instanceof NextResponse) return authorCheck;
 
     const { userId } = authorCheck;
-    console.log('[STUDENTS API] Current user ID:', userId);
 
     // Get author ID
     const { data: author } = await supabaseAdmin
@@ -26,161 +23,220 @@ export async function GET(request: NextRequest) {
       .eq('clerk_user_id', userId)
       .single();
 
-    console.log('[STUDENTS API] Author lookup result:', author);
-
     if (!author) {
-      console.log('[STUDENTS API] Author not found for user ID:', userId);
       return NextResponse.json({ error: 'Author not found' }, { status: 404 });
     }
-
-    console.log('[STUDENTS API] Author ID:', author.id);
 
     // Get author's products
     const { data: products } = await supabaseAdmin
       .from('learning_products')
-      .select('id, title')
+      .select('id, title, access_duration_days')
       .eq('author_id', author.id);
 
-    console.log('[STUDENTS API] Products lookup result:', products);
-
     if (!products || products.length === 0) {
-      console.log('[STUDENTS API] No products found for author');
       return NextResponse.json({ success: true, students: [] });
     }
 
     const productIds = products.map(p => p.id);
-    console.log('[STUDENTS API] Product IDs:', productIds);
 
-    // Get order items for author's products
-    const { data: orderItems } = await supabaseAdmin
-      .from('order_items')
-      .select('order_id, learning_product_id, product_title')
-      .in('learning_product_id', productIds);
-
-    console.log('[STUDENTS API] Order items lookup result:', orderItems);
-
-    if (!orderItems || orderItems.length === 0) {
-      console.log('[STUDENTS API] No order items found for products');
-      return NextResponse.json({ success: true, students: [] });
-    }
-
-    // Get unique order IDs
-    const orderIds = [...new Set(orderItems.map(oi => oi.order_id))];
-    console.log('[STUDENTS API] Order IDs:', orderIds);
-
-    // Get paid orders to get actual students who purchased, newest first
-    const { data: orders } = await supabaseAdmin
-      .from('orders')
-      .select('id, user_id, created_at, status, customer_name, customer_email')
-      .in('id', orderIds)
-      .eq('status', 'PAID')
+    // 1. Fetch real enrollments for author's products
+    const { data: enrollments, error: enrollError } = await supabaseAdmin
+      .from('enrollments')
+      .select(`
+        id,
+        full_name,
+        first_name,
+        last_name,
+        email,
+        clerk_user_id,
+        learning_product_id,
+        status,
+        activated_at,
+        expires_at,
+        enrolled_at,
+        created_at,
+        learning_product:learning_products (
+          id,
+          title,
+          slug,
+          access_duration_days
+        )
+      `)
+      .in('learning_product_id', productIds)
       .order('created_at', { ascending: false });
 
-    console.log('[STUDENTS API] Orders lookup result:', orders);
-
-    if (!orders || orders.length === 0) {
-      console.log('[STUDENTS API] No paid orders found');
-      return NextResponse.json({ success: true, students: [] });
+    if (enrollError) {
+      console.error('[STUDENTS API] Error fetching enrollments:', enrollError);
+      return NextResponse.json({ error: 'Failed to fetch student enrollments' }, { status: 500 });
     }
 
-    console.log('[STUDENTS API] Found', orders.length, 'paid orders');
-
-    // Get user IDs from paid orders
-    const userIds = [...new Set(orders.map(o => o.user_id))];
-    console.log('[STUDENTS API] User IDs from orders:', userIds);
+    // Get all user IDs from enrollments for quizzes & assignments lookup
+    const userIds = [...new Set((enrollments || []).map(e => e.clerk_user_id).filter(Boolean))] as string[];
 
     // Fetch quiz answers for these students
-    const { data: quizAnswers } = await supabaseAdmin
-      .from('student_quiz_answers')
-      .select('student_id')
-      .in('student_id', userIds);
+    let quizCounts: Record<string, number> = {};
+    if (userIds.length > 0) {
+      const { data: quizAnswers } = await supabaseAdmin
+        .from('student_quiz_answers')
+        .select('student_id')
+        .in('student_id', userIds);
 
-    const quizCounts: Record<string, number> = {};
-    quizAnswers?.forEach(qa => {
-      quizCounts[qa.student_id] = (quizCounts[qa.student_id] || 0) + 1;
-    });
+      quizAnswers?.forEach(qa => {
+        quizCounts[qa.student_id] = (quizCounts[qa.student_id] || 0) + 1;
+      });
+    }
 
     // Fetch assignment submissions for these students
-    const { data: assignments } = await supabaseAdmin
-      .from('student_assignments')
-      .select('student_id')
-      .in('student_id', userIds);
+    let assignmentCounts: Record<string, number> = {};
+    if (userIds.length > 0) {
+      const { data: assignments } = await supabaseAdmin
+        .from('student_assignments')
+        .select('student_id')
+        .in('student_id', userIds);
 
-    const assignmentCounts: Record<string, number> = {};
-    assignments?.forEach(sa => {
-      assignmentCounts[sa.student_id] = (assignmentCounts[sa.student_id] || 0) + 1;
-    });
-
-    // Create a map of order_id to product info
-    const orderToProduct = new Map();
-    orderItems.forEach(oi => {
-      orderToProduct.set(oi.order_id, {
-        productId: oi.learning_product_id,
-        productTitle: oi.product_title
+      assignments?.forEach(sa => {
+        assignmentCounts[sa.student_id] = (assignmentCounts[sa.student_id] || 0) + 1;
       });
-    });
+    }
 
-    // Create a map of customer emails to linked clerk_user_id from enrollments
-    const customerEmails = [...new Set(orders.map(o => o.customer_email).filter(Boolean))];
-    const { data: matchedEnrollments } = customerEmails.length > 0 ? await supabaseAdmin
-      .from('enrollments')
-      .select('email, clerk_user_id')
-      .in('email', customerEmails)
-      .not('clerk_user_id', 'is', null) : { data: [] };
+    // Format students with full access & lifetime details
+    const formattedStudents = (enrollments || []).map(e => {
+      const product = Array.isArray(e.learning_product) ? e.learning_product[0] : e.learning_product;
+      const isCourseLifetime = product ? (product.access_duration_days === null || product.access_duration_days === undefined || product.access_duration_days === 0) : false;
+      const isStudentLifetime = e.expires_at ? new Date(e.expires_at).getFullYear() >= 2099 : false;
+      const isLifetime = isCourseLifetime || isStudentLifetime;
 
-    const emailToClerkId = new Map<string, string>();
-    matchedEnrollments?.forEach(e => {
-      if (e.email && e.clerk_user_id) {
-        emailToClerkId.set(e.email.toLowerCase(), e.clerk_user_id);
+      let daysLeft: number | null = null;
+      let isExpired = e.status === 'expired';
+
+      if (isLifetime) {
+        daysLeft = null;
+      } else if (e.expires_at) {
+        const diffMs = new Date(e.expires_at).getTime() - Date.now();
+        daysLeft = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+        if (diffMs <= 0) isExpired = true;
+      } else if (e.status === 'active' && e.activated_at && product?.access_duration_days) {
+        const start = new Date(e.activated_at).getTime();
+        const durationMs = product.access_duration_days * 24 * 60 * 60 * 1000;
+        const diffMs = (start + durationMs) - Date.now();
+        daysLeft = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+        if (diffMs <= 0) isExpired = true;
       }
-    });
 
-    // Format students based on actual purchases
-    const studentsByProduct = orders.map(order => {
-      const productInfo = orderToProduct.get(order.id);
-      const isGuest = order.user_id.startsWith('guest_');
-      const linkedClerkId = order.customer_email ? emailToClerkId.get(order.customer_email.toLowerCase()) : null;
-      const effectiveStudentId = linkedClerkId || order.user_id;
-      
-      // Use customer details from orders if available, otherwise fallback
-      // Use email local part as name if customer_name is null
-      const displayName = order.customer_name || 
-                        (order.customer_email ? order.customer_email.split('@')[0] : 
-                        (isGuest ? 'Guest Purchaser' : order.user_id));
-      const displayEmail = order.customer_email || (isGuest ? 'guest@example.com' : `${order.user_id}@clerk.user`);
-      
-      console.log('[STUDENTS API] Processing order:', order.id, 'User:', order.user_id, 'Effective student ID:', effectiveStudentId, 'Customer name:', order.customer_name, 'Customer email:', order.customer_email);
-      
+      const finalStatus = e.status === 'deactivated' 
+        ? 'deactivated' 
+        : isExpired 
+        ? 'expired' 
+        : (e.status || 'not_started');
+
+      const displayName = e.full_name || 
+        (e.first_name || e.last_name ? `${e.first_name || ''} ${e.last_name || ''}`.trim() : 
+        (e.email ? e.email.split('@')[0] : 'Student'));
+
       return {
         // For messages page
-        student_id: effectiveStudentId,
+        student_id: e.clerk_user_id || e.email,
         full_name: displayName,
-        product_id: productInfo?.productId,
-        product_title: productInfo?.productTitle || 'Unknown Course',
+        product_id: e.learning_product_id,
+        product_title: product?.title || 'Unknown Course',
         
         // For students page
-        id: order.id,
-        email: displayEmail,
+        id: e.id,
+        enrollment_id: e.id,
+        email: e.email || 'N/A',
         name: displayName,
-        cohort: productInfo?.productTitle || 'Unknown Course',
-        status: 'active', // All paid orders are considered active
-        profilePicture: null, // No profile picture available
-        enrolledAt: order.created_at || new Date().toISOString(),
-        activatedAt: order.created_at || null,
-        quizCount: quizCounts[order.user_id] || 0,
-        submissionCount: assignmentCounts[order.user_id] || 0,
+        cohort: product?.title || 'Unknown Course',
+        status: finalStatus,
+        profilePicture: null,
+        enrolledAt: e.enrolled_at || e.created_at || new Date().toISOString(),
+        activatedAt: e.activated_at || null,
+        expiresAt: e.expires_at || null,
+        days_left: daysLeft,
+        is_lifetime: isLifetime,
+        quizCount: (e.clerk_user_id ? quizCounts[e.clerk_user_id] : 0) || 0,
+        submissionCount: (e.clerk_user_id ? assignmentCounts[e.clerk_user_id] : 0) || 0,
       };
     });
 
-    // Explicitly sort newest enrollments first
-    studentsByProduct.sort((a, b) => new Date(b.enrolledAt).getTime() - new Date(a.enrolledAt).getTime());
-
-    console.log('[STUDENTS API] Final students list (newest first):', studentsByProduct);
-    console.log('[STUDENTS API] Returning', studentsByProduct.length, 'students');
-
-    return NextResponse.json({ success: true, students: studentsByProduct });
+    return NextResponse.json({ success: true, students: formattedStudents });
   } catch (error) {
     console.error('[STUDENTS API] Error in students API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+/**
+ * PATCH /api/author/students
+ * Author can extend access / add days to a student enrolled in their courses
+ * Body: { enrollmentId: string, daysToAdd?: number, isLifetime?: boolean }
+ */
+export async function PATCH(request: NextRequest) {
+  try {
+    const authorCheck = await requireAuthor();
+    if (authorCheck instanceof NextResponse) return authorCheck;
+
+    const { userId } = authorCheck;
+
+    // Get author ID
+    const { data: author } = await supabaseAdmin
+      .from('authors')
+      .select('id')
+      .eq('clerk_user_id', userId)
+      .single();
+
+    if (!author) {
+      return NextResponse.json({ error: 'Author profile not found' }, { status: 404 });
+    }
+
+    const body = await request.json().catch(() => ({}));
+    const { enrollmentId, id, daysToAdd, isLifetime } = body;
+    const targetEnrollmentId = enrollmentId || id;
+
+    if (!targetEnrollmentId) {
+      return NextResponse.json({ error: 'Enrollment ID is required' }, { status: 400 });
+    }
+
+    // Security check: Verify that this enrollment belongs to a course owned by this author
+    const { data: enrollment, error: fetchErr } = await supabaseAdmin
+      .from('enrollments')
+      .select(`
+        id,
+        learning_product_id,
+        learning_product:learning_products (
+          id,
+          author_id
+        )
+      `)
+      .eq('id', targetEnrollmentId)
+      .single();
+
+    if (fetchErr || !enrollment) {
+      return NextResponse.json({ error: 'Enrollment not found' }, { status: 404 });
+    }
+
+    const product = Array.isArray(enrollment.learning_product)
+      ? enrollment.learning_product[0]
+      : enrollment.learning_product;
+
+    if (!product || product.author_id !== author.id) {
+      return NextResponse.json({ 
+        error: 'You are only authorized to extend access for students in your own courses' 
+      }, { status: 403 });
+    }
+
+    const result = await extendEnrollmentAccess({
+      enrollmentId: targetEnrollmentId,
+      daysToAdd: daysToAdd !== undefined ? Number(daysToAdd) : undefined,
+      isLifetime: Boolean(isLifetime),
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: result.message,
+      data: result,
+    });
+  } catch (error: any) {
+    console.error('[STUDENTS API] Error extending access:', error);
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
 }

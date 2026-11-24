@@ -2,18 +2,24 @@ import { supabaseAdmin } from '@/lib/supabase';
 
 const SETTING_KEYS = {
   minWithdrawal: 'partner_min_withdrawal',
+  studentCommission: 'commission_rate_student',
+  holdingPeriodDays: 'partner_holding_period_days',
 };
 
 const DEFAULT_VALUES = {
   minWithdrawal: 1000,
+  studentCommission: 1000,
+  holdingPeriodDays: 7,
 };
 
 export interface PartnershipSettings {
   minWithdrawal: number;
+  studentCommission: number;
+  holdingPeriodDays: number;
 }
 
 /**
- * Get partnership settings from the database
+ * Get partnership settings from the database (site_settings table)
  * Falls back to default values if settings don't exist
  */
 export async function getPartnershipSettings(): Promise<PartnershipSettings> {
@@ -32,21 +38,26 @@ export async function getPartnershipSettings(): Promise<PartnershipSettings> {
 
     if (settings) {
       for (const setting of settings) {
-        if (setting.key === SETTING_KEYS.minWithdrawal) {
-          // Handle JSONB values - unwrap if stored as JSON string
-          let value = setting.value;
-          if (typeof value === 'string') {
-            try {
-              const parsed = JSON.parse(value);
-              if (typeof parsed === 'string') {
-                value = parsed;
-              }
-            } catch {
-              // Not JSON, keep as is
+        let value = setting.value;
+        if (typeof value === 'string') {
+          try {
+            const parsed = JSON.parse(value);
+            if (typeof parsed === 'string' || typeof parsed === 'number') {
+              value = parsed;
             }
+          } catch {
+            // keep raw value
           }
-          const amount = value ? parseInt(value, 10) : DEFAULT_VALUES.minWithdrawal;
-          values.minWithdrawal = isNaN(amount) ? DEFAULT_VALUES.minWithdrawal : amount;
+        }
+
+        const numVal = parseInt(String(value), 10);
+
+        if (setting.key === SETTING_KEYS.minWithdrawal && !isNaN(numVal)) {
+          values.minWithdrawal = numVal;
+        } else if (setting.key === SETTING_KEYS.studentCommission && !isNaN(numVal)) {
+          values.studentCommission = numVal;
+        } else if (setting.key === SETTING_KEYS.holdingPeriodDays && !isNaN(numVal)) {
+          values.holdingPeriodDays = numVal;
         }
       }
     }

@@ -1,47 +1,23 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin';
 import { supabaseAdmin } from '@/lib/supabase';
+import { getPartnershipSettings } from '@/lib/partnership-settings';
 
 const SETTING_KEYS = {
   minWithdrawal: 'partner_min_withdrawal',
-};
-
-const DEFAULT_VALUES = {
-  minWithdrawal: 1000,
+  studentCommission: 'commission_rate_student',
+  holdingPeriodDays: 'partner_holding_period_days',
 };
 
 const MAX_WITHDRAWAL = 1000000; // ₦1,000,000 maximum
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    // Fetch partnership settings
-    const { data: settings, error } = await supabaseAdmin
-      .from('site_settings')
-      .select('key, value')
-      .in('key', Object.values(SETTING_KEYS));
-
-    if (error) {
-      console.error('Error fetching partnership settings:', error);
-      // Fallback to defaults if settings don't exist
-      return NextResponse.json(DEFAULT_VALUES);
-    }
-
-    // Map settings to values
-    const values = { ...DEFAULT_VALUES };
-
-    if (settings) {
-      for (const setting of settings) {
-        if (setting.key === SETTING_KEYS.minWithdrawal) {
-          const amount = setting.value ? parseInt(setting.value, 10) : DEFAULT_VALUES.minWithdrawal;
-          values.minWithdrawal = isNaN(amount) ? DEFAULT_VALUES.minWithdrawal : amount;
-        }
-      }
-    }
-
-    return NextResponse.json(values);
-  } catch (e) {
+    const settings = await getPartnershipSettings();
+    return NextResponse.json(settings);
+  } catch (e: any) {
     console.error('Error fetching partnership settings:', e);
-    return NextResponse.json(DEFAULT_VALUES);
+    return NextResponse.json({ minWithdrawal: 1000, studentCommission: 1000, holdingPeriodDays: 7 });
   }
 }
 
@@ -54,18 +30,29 @@ export async function PUT(request: Request) {
 
   try {
     const body = await request.json();
-    const { minWithdrawal } = body;
+    const { minWithdrawal, studentCommission, holdingPeriodDays } = body;
 
     // Validate min withdrawal
     if (minWithdrawal !== undefined) {
-      if (typeof minWithdrawal !== 'number' || isNaN(minWithdrawal)) {
-        return NextResponse.json({ error: 'Invalid minimum withdrawal: must be a number' }, { status: 400 });
-      }
-      if (minWithdrawal <= 0) {
-        return NextResponse.json({ error: 'Invalid minimum withdrawal: must be greater than 0' }, { status: 400 });
+      if (typeof minWithdrawal !== 'number' || isNaN(minWithdrawal) || minWithdrawal <= 0) {
+        return NextResponse.json({ error: 'Invalid minimum withdrawal amount' }, { status: 400 });
       }
       if (minWithdrawal > MAX_WITHDRAWAL) {
-        return NextResponse.json({ error: `Invalid minimum withdrawal: maximum amount is ₦${MAX_WITHDRAWAL.toLocaleString()}` }, { status: 400 });
+        return NextResponse.json({ error: `Maximum withdrawal limit is ₦${MAX_WITHDRAWAL.toLocaleString()}` }, { status: 400 });
+      }
+    }
+
+    // Validate student commission
+    if (studentCommission !== undefined) {
+      if (typeof studentCommission !== 'number' || isNaN(studentCommission) || studentCommission < 0) {
+        return NextResponse.json({ error: 'Invalid student commission: must be a positive number' }, { status: 400 });
+      }
+    }
+
+    // Validate holding period
+    if (holdingPeriodDays !== undefined) {
+      if (typeof holdingPeriodDays !== 'number' || isNaN(holdingPeriodDays) || holdingPeriodDays < 0 || holdingPeriodDays > 60) {
+        return NextResponse.json({ error: 'Holding period must be between 0 and 60 days' }, { status: 400 });
       }
     }
 
@@ -83,22 +70,42 @@ export async function PUT(request: Request) {
       );
     }
 
-    // Execute all updates
+    if (studentCommission !== undefined) {
+      updates.push(
+        supabaseAdmin
+          .from('site_settings')
+          .upsert(
+            { key: SETTING_KEYS.studentCommission, value: studentCommission.toString() },
+            { onConflict: 'key' }
+          )
+      );
+    }
+
+    if (holdingPeriodDays !== undefined) {
+      updates.push(
+        supabaseAdmin
+          .from('site_settings')
+          .upsert(
+            { key: SETTING_KEYS.holdingPeriodDays, value: holdingPeriodDays.toString() },
+            { onConflict: 'key' }
+          )
+      );
+    }
+
+    // Execute updates
     const results = await Promise.all(updates);
 
-    // Check for errors
     for (const result of results) {
       if (result.error) {
         console.error('Error updating partnership setting:', result.error);
-        return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to update settings in database' }, { status: 500 });
       }
     }
 
-    // Return updated values
-    const updatedValues = await GET(request);
-    return updatedValues;
-  } catch (e) {
+    const updated = await getPartnershipSettings();
+    return NextResponse.json({ success: true, ...updated });
+  } catch (e: any) {
     console.error('Error updating partnership settings:', e);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: e.message || 'Internal server error' }, { status: 500 });
   }
 }

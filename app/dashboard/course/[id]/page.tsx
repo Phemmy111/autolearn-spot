@@ -60,16 +60,28 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
     ? enrollment.learning_product[0]
     : enrollment.learning_product;
 
-  // 2. Compute countdown
+  // 2. Compute lifetime & countdown
+  const isCourseLifetime = !course?.access_duration_days;
+  const isStudentLifetime = enrollment.expires_at ? new Date(enrollment.expires_at).getFullYear() >= 2099 : false;
+  const isLifetime = isCourseLifetime || isStudentLifetime;
+
   let daysLeft: number | null = null;
   let countdownPercent = 0;
-  if (isStarted && enrollment.activated_at && course?.access_duration_days) {
-    const activatedTime = new Date(enrollment.activated_at).getTime();
-    const now = Date.now();
+  if (!isLifetime && isStarted) {
     const msPerDay = 24 * 60 * 60 * 1000;
-    const totalMs = course.access_duration_days * msPerDay;
-    daysLeft = Math.max(0, Math.ceil((activatedTime + totalMs - now) / msPerDay));
-    countdownPercent = Math.max(0, Math.min(100, 100 - (daysLeft / course.access_duration_days) * 100));
+    let expiryTime: number | null = null;
+    if (enrollment.expires_at) {
+      expiryTime = new Date(enrollment.expires_at).getTime();
+    } else if (enrollment.activated_at && course?.access_duration_days) {
+      expiryTime = new Date(enrollment.activated_at).getTime() + (course.access_duration_days * msPerDay);
+    }
+
+    if (expiryTime) {
+      const now = Date.now();
+      daysLeft = Math.max(0, Math.ceil((expiryTime - now) / msPerDay));
+      const totalDuration = course?.access_duration_days || 30;
+      countdownPercent = Math.max(0, Math.min(100, 100 - (daysLeft / totalDuration) * 100));
+    }
   }
 
   // 3. Fetch lessons for this product
@@ -141,8 +153,11 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
               <div>
                 <p className="text-sm font-semibold text-neutral-900 mb-1">Ready to begin?</p>
                 <p className="text-xs text-neutral-600">
-                  Once you start this course, your <strong>{course?.access_duration_days}-day</strong> access
-                  will begin counting down. You can watch the lessons at your own pace within that period.
+                  {isLifetime ? (
+                    <>This course includes <strong>Lifetime Access</strong>. You can begin now and learn at your own pace anytime.</>
+                  ) : (
+                    <>Once you start this course, your <strong>{course?.access_duration_days}-day</strong> access will begin counting down. You can watch the lessons at your own pace within that period.</>
+                  )}
                 </p>
               </div>
             </div>
@@ -155,19 +170,21 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
                 <Clock className="w-4 h-4 text-neutral-600" />
                 Course Access
               </div>
-              <span className={`text-sm font-bold ${daysLeft !== null && daysLeft < 5 ? 'text-red-600' : 'text-neutral-900'}`}>
-                {daysLeft !== null ? `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left` : 'N/A'}
+              <span className={`text-sm font-bold ${isLifetime ? 'text-emerald-600 font-extrabold' : daysLeft !== null && daysLeft < 5 ? 'text-red-600' : 'text-neutral-900'}`}>
+                {isLifetime ? 'Lifetime Access' : daysLeft !== null ? `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left` : 'N/A'}
               </span>
             </div>
-            <div className="w-full bg-neutral-200 rounded-full h-2 overflow-hidden">
-              <div
-                className={`h-2 rounded-full transition-all duration-1000 ${daysLeft !== null && daysLeft < 5 ? 'bg-red-500' : 'bg-neutral-900'}`}
-                style={{ width: `${countdownPercent}%` }}
-              />
-            </div>
+            {!isLifetime && (
+              <div className="w-full bg-neutral-200 rounded-full h-2 overflow-hidden">
+                <div
+                  className={`h-2 rounded-full transition-all duration-1000 ${daysLeft !== null && daysLeft < 5 ? 'bg-red-500' : 'bg-neutral-900'}`}
+                  style={{ width: `${countdownPercent}%` }}
+                />
+              </div>
+            )}
             <div className="flex justify-between mt-2 text-xs text-neutral-500">
               <span>{completedCount}/{lessons.length} lessons completed</span>
-              <span>{course?.access_duration_days} days total</span>
+              <span>{isLifetime ? 'Unlimited access & updates' : `${course?.access_duration_days} days total`}</span>
             </div>
           </div>
         )}

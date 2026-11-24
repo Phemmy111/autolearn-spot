@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin';
 import { supabaseAdmin } from '@/lib/supabase';
+import { extendEnrollmentAccess } from '@/lib/enrollment-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +27,7 @@ export async function GET() {
         amount_paid,
         status,
         activated_at,
+        expires_at,
         enrolled_at,
         created_at,
         learning_product:learning_products (
@@ -45,13 +47,32 @@ export async function GET() {
     const formattedData = (enrollments || []).map(e => {
       const product = Array.isArray(e.learning_product) ? e.learning_product[0] : e.learning_product;
       
-      let daysLeft = null;
-      if (e.status === 'active' && e.activated_at && product?.access_duration_days) {
+      const isCourseLifetime = product ? (product.access_duration_days === null || product.access_duration_days === undefined || product.access_duration_days === 0) : false;
+      const isStudentLifetime = e.expires_at ? new Date(e.expires_at).getFullYear() >= 2099 : false;
+      const isLifetime = isCourseLifetime || isStudentLifetime;
+
+      let daysLeft: number | null = null;
+      let isExpired = e.status === 'expired';
+
+      if (isLifetime) {
+        daysLeft = null;
+      } else if (e.expires_at) {
+        const diffMs = new Date(e.expires_at).getTime() - Date.now();
+        daysLeft = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+        if (diffMs <= 0) isExpired = true;
+      } else if (e.status === 'active' && e.activated_at && product?.access_duration_days) {
         const start = new Date(e.activated_at).getTime();
-        const now = Date.now();
         const durationMs = product.access_duration_days * 24 * 60 * 60 * 1000;
-        daysLeft = Math.max(0, Math.ceil((start + durationMs - now) / (1000 * 60 * 60 * 24)));
+        const diffMs = (start + durationMs) - Date.now();
+        daysLeft = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+        if (diffMs <= 0) isExpired = true;
       }
+
+      const finalStatus = e.status === 'deactivated' 
+        ? 'deactivated' 
+        : isExpired 
+        ? 'expired' 
+        : (e.status || 'not_started');
 
       const name = e.full_name || 
         (e.first_name || e.last_name ? `${e.first_name || ''} ${e.last_name || ''}`.trim() : 'No name');
@@ -64,15 +85,18 @@ export async function GET() {
         course_id: e.learning_product_id,
         course: product ? product.title : 'Unknown Course',
         amount: e.payment_amount || e.amount_paid || 0,
-        status: e.status || 'not_started',
+        status: finalStatus,
         date: e.activated_at || e.enrolled_at || e.created_at || 'N/A',
-        days_left: daysLeft
+        expires_at: e.expires_at,
+        days_left: daysLeft,
+        is_lifetime: isLifetime
       };
     });
 
     const metrics = {
       total: formattedData.length,
       active: formattedData.filter(s => s.status === 'active').length,
+      expired: formattedData.filter(s => s.status === 'expired').length,
       deactivated: formattedData.filter(s => s.status === 'deactivated').length,
       not_started: formattedData.filter(s => s.status === 'not_started').length,
     };
@@ -86,8 +110,8 @@ export async function GET() {
 
 /**
  * PATCH /api/admin/students
- * Deactivates or Reactivates student enrollment
- * Body: { id: string, status?: 'active' | 'deactivated', action?: 'deactivate' | 'activate' }
+ * Deactivates or Reactivates student enrollment, OR extends course access days / lifetime
+ * Body: { id: string, status?: 'active' | 'deactivated', action?: 'deactivate' | 'activate' | 'extend_access', daysToAdd?: number, isLifetime?: boolean }
  */
 export async function PATCH(request: NextRequest) {
   try {
@@ -98,12 +122,28 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const body = await request.json().catch(() => ({}));
-    const { id, status, action } = body;
+    const { id, status, action, daysToAdd, isLifetime } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'Enrollment ID is required' }, { status: 400 });
     }
 
+    // Handle Access Extension
+    if (action === 'extend_access' || daysToAdd !== undefined || isLifetime !== undefined) {
+      const result = await extendEnrollmentAccess({
+        enrollmentId: id,
+        daysToAdd: daysToAdd !== undefined ? Number(daysToAdd) : undefined,
+        isLifetime: Boolean(isLifetime),
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: result.message,
+        data: result
+      });
+    }
+
+    // Handle Status Toggle (deactivate / reactivate)
     let targetStatus: string;
     if (action === 'deactivate' || status === 'deactivated') {
       targetStatus = 'deactivated';

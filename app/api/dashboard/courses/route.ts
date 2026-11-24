@@ -35,6 +35,8 @@ export async function GET() {
         return {
           enrollment_id: e.id,
           enrolled_at: e.activated_at,
+          expires_at: e.expires_at,
+          status: e.status,
           course: lp,
         };
       })

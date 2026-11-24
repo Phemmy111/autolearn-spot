@@ -10,8 +10,11 @@ import {
   CheckCircle2,
   Clock,
   FileText,
-  Target
+  Target,
+  CalendarPlus,
+  Infinity as InfinityIcon
 } from 'lucide-react'
+import ExtendAccessModal, { ExtendAccessStudent } from '@/components/shared/ExtendAccessModal'
 
 interface Student {
   id: string
@@ -22,6 +25,9 @@ interface Student {
   profilePicture: string | null
   enrolledAt: string
   activatedAt: string | null
+  expiresAt?: string | null
+  days_left?: number | null
+  is_lifetime?: boolean
   quizCount: number
   submissionCount: number
 }
@@ -31,7 +37,9 @@ export default function AuthorStudentsPage() {
   const [students, setStudents] = useState<Student[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [feedback, setFeedback] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [extendTarget, setExtendTarget] = useState<Student | null>(null)
 
   useEffect(() => {
     if (userId) fetchStudents()
@@ -117,6 +125,18 @@ export default function AuthorStudentsPage() {
           </div>
         )}
 
+        {feedback && (
+          <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 dark:bg-emerald-950/50 dark:border-emerald-800 dark:text-emerald-300 px-4 py-3 rounded-xl mb-6 flex items-center justify-between text-xs font-bold animate-in fade-in">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              <span>{feedback}</span>
+            </div>
+            <button onClick={() => setFeedback(null)} className="text-muted-foreground hover:text-foreground">
+              ✕
+            </button>
+          </div>
+        )}
+
         {/* Stats Summary */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           <div className="bg-brand-bg border border-brand-border rounded-xl p-4">
@@ -175,12 +195,13 @@ export default function AuthorStudentsPage() {
         ) : (
           <div className="bg-[var(--card)] rounded-xl border border-brand-border overflow-hidden">
             {/* Table Header */}
-            <div className="hidden sm:grid sm:grid-cols-[1fr_140px_100px_80px_80px] gap-4 px-6 py-3 bg-brand-bg border-b border-brand-border text-xs font-semibold text-brand-text/60 uppercase tracking-wider">
+            <div className="hidden sm:grid sm:grid-cols-[1fr_150px_130px_70px_70px_130px] gap-4 px-6 py-3 bg-brand-bg border-b border-brand-border text-xs font-semibold text-brand-text/60 uppercase tracking-wider">
               <span>Student</span>
               <span>Course</span>
-              <span>Status</span>
+              <span>Access Status</span>
               <span className="text-center">Quizzes</span>
               <span className="text-center">Assignments</span>
+              <span className="text-right">Actions</span>
             </div>
 
             {/* Table Body */}
@@ -188,7 +209,7 @@ export default function AuthorStudentsPage() {
               {filteredStudents.map((student) => (
                 <div
                   key={student.id}
-                  className="sm:grid sm:grid-cols-[1fr_140px_100px_80px_80px] gap-4 px-6 py-4 items-center hover:bg-brand-bg/50 transition-colors"
+                  className="sm:grid sm:grid-cols-[1fr_150px_130px_70px_70px_130px] gap-4 px-6 py-4 items-center hover:bg-brand-bg/50 transition-colors"
                 >
                   {/* Student Info */}
                   <div className="flex items-center gap-3 mb-2 sm:mb-0">
@@ -217,17 +238,31 @@ export default function AuthorStudentsPage() {
                   </div>
 
                   {/* Cohort */}
-                  <div className="text-sm text-brand-text/70 mb-1 sm:mb-0">
+                  <div className="text-sm text-brand-text/70 mb-1 sm:mb-0 truncate" title={student.cohort}>
                     {student.cohort || '—'}
                   </div>
 
-                  {/* Status */}
+                  {/* Status / Access Details */}
                   <div className="mb-1 sm:mb-0">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${statusColor(student.status)}`}
-                    >
-                      {student.status}
-                    </span>
+                    {student.is_lifetime ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                        <InfinityIcon className="w-3 h-3" /> Lifetime
+                      </span>
+                    ) : student.status === 'expired' ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+                        <Clock className="w-3 h-3" /> Expired (0d)
+                      </span>
+                    ) : student.status === 'active' ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                        <CheckCircle2 className="w-3 h-3" /> {student.days_left !== null && student.days_left !== undefined ? `${student.days_left}d left` : 'Active'}
+                      </span>
+                    ) : (
+                      <span
+                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${statusColor(student.status)}`}
+                      >
+                        {student.status.replace('_', ' ')}
+                      </span>
+                    )}
                   </div>
 
                   {/* Quiz Count */}
@@ -239,12 +274,58 @@ export default function AuthorStudentsPage() {
                   <div className="text-sm text-brand-text/70 text-center">
                     {student.submissionCount}
                   </div>
+
+                  {/* Action: Extend Access */}
+                  <div className="text-right">
+                    <button
+                      onClick={() => setExtendTarget(student)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 transition-all shadow-sm"
+                      title="Add days or grant lifetime access"
+                    >
+                      <CalendarPlus className="w-3.5 h-3.5" />
+                      <span>+ Extend</span>
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         )}
       </div>
+
+      {/* Extend Access Modal */}
+      <ExtendAccessModal
+        isOpen={!!extendTarget}
+        onClose={() => setExtendTarget(null)}
+        student={extendTarget ? {
+          id: extendTarget.id,
+          name: extendTarget.name || 'Student',
+          email: extendTarget.email,
+          course: extendTarget.cohort,
+          status: extendTarget.status,
+          expires_at: extendTarget.expiresAt,
+          days_left: extendTarget.days_left,
+          is_lifetime: extendTarget.is_lifetime,
+        } : null}
+        apiEndpoint="/api/author/students"
+        onSuccess={(result) => {
+          if (!extendTarget) return;
+          setStudents(prev => prev.map(s => {
+            if (s.id === extendTarget.id) {
+              return {
+                ...s,
+                status: result.status,
+                days_left: result.days_left,
+                is_lifetime: result.is_lifetime,
+                expiresAt: result.expires_at,
+              };
+            }
+            return s;
+          }));
+          setFeedback(result.message || `Successfully extended course access for ${extendTarget.name}`);
+          setTimeout(() => setFeedback(null), 5000);
+        }}
+      />
     </div>
   )
 }

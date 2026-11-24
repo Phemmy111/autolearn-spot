@@ -2,8 +2,47 @@
 
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Loader2, Copy, CheckCircle2, Wallet, Users, MousePointerClick, DollarSign, Clock, TrendingUp, ArrowRight, Link as LinkIcon, Share2, FileText, X, CreditCard, Download, Eye } from "lucide-react";
+import { 
+  Loader2, 
+  Copy, 
+  CheckCircle2, 
+  Wallet, 
+  Users, 
+  MousePointerClick, 
+  Clock, 
+  TrendingUp, 
+  ArrowRight, 
+  Share2, 
+  CreditCard, 
+  X,
+  MessageCircle,
+  Building2,
+  DollarSign,
+  Gift
+} from "lucide-react";
 import Link from "next/link";
+
+const NIGERIAN_BANKS = [
+  "Access Bank",
+  "GTBank (Guaranty Trust Bank)",
+  "Zenith Bank",
+  "First Bank of Nigeria",
+  "UBA (United Bank for Africa)",
+  "Opay",
+  "PalmPay",
+  "Kuda Bank",
+  "Moniepoint MFB",
+  "Stanbic IBTC Bank",
+  "Fidelity Bank",
+  "FCMB",
+  "Sterling Bank",
+  "Wema Bank / ALAT",
+  "Union Bank",
+  "Polaris Bank",
+  "Jaiz Bank",
+  "Taj Bank",
+  "Other Bank"
+];
 
 export default function StudentPartnerPage() {
   const { user, isLoaded } = useUser();
@@ -12,48 +51,59 @@ export default function StudentPartnerPage() {
   const [copied, setCopied] = useState(false);
   const [showBankModal, setShowBankModal] = useState(false);
   const [bankFormData, setBankFormData] = useState({
-    bank_name: '',
+    bank_name: 'Access Bank',
     account_number: '',
     account_name: ''
   });
   const [isSavingBank, setIsSavingBank] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [isWithdrawing, setIsWithdrawing] = useState(false);
-  const [selectedMaterial, setSelectedMaterial] = useState<any>(null);
-  const [showMaterialModal, setShowMaterialModal] = useState(false);
-  const [minWithdrawal, setMinWithdrawal] = useState(5000);
+  const [minWithdrawal, setMinWithdrawal] = useState(1000);
+  const [commissionRate, setCommissionRate] = useState(1000);
+  const [holdingPeriodDays, setHoldingPeriodDays] = useState(7);
+  const [actionMessage, setActionMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  useEffect(() => {
-    if (isLoaded && user) {
-      fetchPartnerStatus();
-    }
-  }, [isLoaded, user]);
-
-  // Fetch partnership settings to get minimum withdrawal amount
+  // Fetch admin partnership settings
   useEffect(() => {
     const fetchPartnershipSettings = async () => {
       try {
         const res = await fetch('/api/settings/partnership');
-        const data = await res.json();
-        if (res.ok && data.minWithdrawal) {
-          setMinWithdrawal(data.minWithdrawal);
+        const s = await res.json();
+        if (res.ok) {
+          if (s.minWithdrawal) setMinWithdrawal(s.minWithdrawal);
+          if (s.studentCommission) setCommissionRate(s.studentCommission);
+          if (s.holdingPeriodDays) setHoldingPeriodDays(s.holdingPeriodDays);
         }
       } catch (err) {
-        console.error('Failed to fetch partnership settings:', err);
+        console.warn('Failed to fetch partnership settings:', err);
       }
     };
     fetchPartnershipSettings();
   }, []);
 
   const fetchPartnerStatus = async () => {
+    if (!user) return;
     try {
-      const res = await fetch(`/api/partners/student-dashboard?userId=${user?.id}`);
+      const res = await fetch(`/api/partners/student-dashboard?userId=${user.id}`);
       const result = await res.json();
       
       if (res.ok && result.success) {
         setStatus('active');
         setData(result.data);
+        if (result.data?.commissionRate) setCommissionRate(result.data.commissionRate);
+        if (result.data?.minWithdrawal) setMinWithdrawal(result.data.minWithdrawal);
+        if (result.data?.holdingPeriodDays) setHoldingPeriodDays(result.data.holdingPeriodDays);
+        if (result.data?.bankProfile) {
+          setBankFormData({
+            bank_name: result.data.bankProfile.bank_name || 'Access Bank',
+            account_number: result.data.bankProfile.account_number || '',
+            account_name: result.data.bankProfile.account_name || ''
+          });
+        }
       } else {
+        if (result.commissionRate) setCommissionRate(result.commissionRate);
+        if (result.minWithdrawal) setMinWithdrawal(result.minWithdrawal);
+        if (result.holdingPeriodDays) setHoldingPeriodDays(result.holdingPeriodDays);
         setStatus('not_partner');
       }
     } catch (err) {
@@ -61,6 +111,14 @@ export default function StudentPartnerPage() {
       setStatus('not_partner');
     }
   };
+
+  useEffect(() => {
+    if (isLoaded && user) {
+      fetchPartnerStatus();
+    } else if (isLoaded && !user) {
+      setStatus('not_partner');
+    }
+  }, [isLoaded, user]);
 
   const handleCopyLink = () => {
     if (data?.referralLink) {
@@ -70,17 +128,11 @@ export default function StudentPartnerPage() {
     }
   };
 
-  const handleCopyCode = () => {
-    if (data?.referralCode) {
-      navigator.clipboard.writeText(data.referralCode);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
   const handleSaveBankDetails = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSavingBank(true);
+    setActionMessage(null);
+
     try {
       const res = await fetch('/api/partners/bank-profile', {
         method: 'POST',
@@ -89,14 +141,14 @@ export default function StudentPartnerPage() {
       });
       const result = await res.json();
       if (res.ok && result.success) {
-        alert('Bank details saved successfully!');
+        setActionMessage({ type: 'success', text: 'Bank details saved successfully!' });
         setShowBankModal(false);
         fetchPartnerStatus();
       } else {
-        alert(result.error || 'Failed to save bank details');
+        setActionMessage({ type: 'error', text: result.error || 'Failed to save bank details' });
       }
-    } catch (err) {
-      alert('An error occurred while saving bank details');
+    } catch (err: any) {
+      setActionMessage({ type: 'error', text: err.message || 'Error saving bank details' });
     } finally {
       setIsSavingBank(false);
     }
@@ -105,14 +157,21 @@ export default function StudentPartnerPage() {
   const handleWithdraw = async (e: React.FormEvent) => {
     e.preventDefault();
     const amount = Number(withdrawAmount);
+    setActionMessage(null);
 
-    if (!amount) {
-      alert('Please enter a withdrawal amount');
+    if (!amount || isNaN(amount) || amount <= 0) {
+      setActionMessage({ type: 'error', text: 'Please enter a valid withdrawal amount' });
       return;
     }
 
-    if (amount > (data?.stats?.availableBalance || 0)) {
-      alert('Insufficient balance');
+    if (amount < minWithdrawal) {
+      setActionMessage({ type: 'error', text: `Minimum withdrawal is ₦${minWithdrawal.toLocaleString()}` });
+      return;
+    }
+
+    const available = data?.stats?.availableBalance || 0;
+    if (amount > available) {
+      setActionMessage({ type: 'error', text: `Insufficient available balance (Available: ₦${available.toLocaleString()})` });
       return;
     }
 
@@ -125,14 +184,17 @@ export default function StudentPartnerPage() {
       });
       const result = await res.json();
       if (res.ok && result.success) {
-        alert('Withdrawal request submitted successfully!');
+        setActionMessage({ 
+          type: 'success', 
+          text: `Withdrawal request for ₦${amount.toLocaleString()} submitted successfully! Check your email for confirmation.` 
+        });
         setWithdrawAmount('');
         fetchPartnerStatus();
       } else {
-        alert(result.error || 'Failed to submit withdrawal');
+        setActionMessage({ type: 'error', text: result.error || 'Failed to submit withdrawal request' });
       }
-    } catch (err) {
-      alert('An error occurred while submitting withdrawal');
+    } catch (err: any) {
+      setActionMessage({ type: 'error', text: err.message || 'Error submitting withdrawal' });
     } finally {
       setIsWithdrawing(false);
     }
@@ -140,53 +202,67 @@ export default function StudentPartnerPage() {
 
   if (!isLoaded || status === 'loading') {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-brand-bg">
-        <Loader2 className="h-8 w-8 animate-spin text-[#10b981]" />
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
       </div>
     );
   }
 
+  // Polished "Complete Your Enrollment" Fallback Screen for non-enrolled users
   if (status === 'not_partner') {
     return (
-      <div className="min-h-screen bg-brand-bg py-12 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-brand-bg border border-brand-border rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-bg/10 blur-3xl rounded-full" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 blur-3xl rounded-full" />
-            
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#00f0ff]/20 to-purple-500/20 flex items-center justify-center text-[#10b981] mx-auto mb-8 relative z-10 border border-[#10b981]/30">
-              <Users className="h-10 w-10" />
+      <div className="py-12 px-4 max-w-4xl mx-auto">
+        <div className="bg-card border border-border rounded-3xl p-6 sm:p-12 text-center shadow-xl relative overflow-hidden">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center text-brand-primary mx-auto mb-6">
+            <Gift className="h-8 w-8 sm:h-10 sm:w-10 text-emerald-500" />
+          </div>
+          
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-3">
+            <span>Student Referral Program</span>
+          </div>
+
+          <h1 className="text-2xl sm:text-4xl font-heading font-extrabold text-foreground mb-3">
+            Activate Your Student Referral Account
+          </h1>
+          
+          <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto mb-8 leading-relaxed">
+            AutoLearn Spot students earn <strong className="text-foreground">₦{commissionRate.toLocaleString()} cash</strong> for every friend, colleague, or coursemate who enrolls using their link.
+          </p>
+          
+          <div className="grid sm:grid-cols-3 gap-4 sm:gap-6 mb-8 text-left">
+            <div className="bg-muted/30 border border-border rounded-2xl p-5">
+              <DollarSign className="h-7 w-7 text-emerald-500 mb-2" />
+              <h3 className="font-bold text-foreground text-lg mb-0.5">₦{commissionRate.toLocaleString()}</h3>
+              <p className="text-xs text-muted-foreground">Fixed payout for every verified student enrollment.</p>
             </div>
             
-            <h1 className="text-3xl md:text-4xl font-bold mb-4 relative z-10">Complete Your Enrollment</h1>
-            <p className="text-brand-text/60 mb-8 max-w-lg mx-auto relative z-10 text-lg">
-              The Student Partner program is automatically activated when you complete your course enrollment. Once enrolled, you'll earn ₦1,500 for every successful referral.
-            </p>
-            
-            <div className="grid md:grid-cols-3 gap-6 mb-8 relative z-10">
-              <div className="bg-brand-bg border border-brand-border rounded-xl p-6">
-                <DollarSign className="h-8 w-8 text-[#10b981] mb-3" />
-                <h3 className="font-bold mb-1">₦1,500</h3>
-                <p className="text-sm text-brand-text/60">Per successful referral</p>
-              </div>
-              <div className="bg-brand-bg border border-brand-border rounded-xl p-6">
-                <Clock className="h-8 w-8 text-purple-400 mb-3" />
-                <h3 className="font-bold mb-1">7 Days</h3>
-                <p className="text-sm text-brand-text/60">Commission holding period</p>
-              </div>
-              <div className="bg-brand-bg border border-brand-border rounded-xl p-6">
-                <TrendingUp className="h-8 w-8 text-green-400 mb-3" />
-                <h3 className="font-bold mb-1">Unlimited</h3>
-                <p className="text-sm text-brand-text/60">Earning potential</p>
-              </div>
+            <div className="bg-muted/30 border border-border rounded-2xl p-5">
+              <Clock className="h-7 w-7 text-amber-500 mb-2" />
+              <h3 className="font-bold text-foreground text-lg mb-0.5">{holdingPeriodDays} Days</h3>
+              <p className="text-xs text-muted-foreground">Fast clearance window before funds are ready for withdrawal.</p>
             </div>
             
+            <div className="bg-muted/30 border border-border rounded-2xl p-5">
+              <Building2 className="h-7 w-7 text-sky-500 mb-2" />
+              <h3 className="font-bold text-foreground text-lg mb-0.5">Bank Payout</h3>
+              <p className="text-xs text-muted-foreground">Direct transfer into any Nigerian bank or fintech app.</p>
+            </div>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link 
-              href="/enroll"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-brand-bg text-black font-bold rounded-xl hover:bg-[var(--card)] brightness-95 transition-colors relative z-10"
+              href="/learning_products/c1e11cc7-d8f6-4c2d-8a3b-1bb204892921"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-brand-primary hover:bg-brand-primary-hover text-white font-bold rounded-2xl shadow-lg transition-all"
             >
-              Complete Enrollment
+              <span>Enroll in a Course to Activate</span>
               <ArrowRight className="h-4 w-4" />
+            </Link>
+
+            <Link 
+              href="/dashboard"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-muted hover:bg-muted/80 text-foreground font-semibold rounded-2xl transition-colors border border-border text-sm"
+            >
+              <span>Already Enrolled? Link Purchase</span>
             </Link>
           </div>
         </div>
@@ -194,481 +270,399 @@ export default function StudentPartnerPage() {
     );
   }
 
+  // Active Student Partner Dashboard
+  const referralLink = data?.referralLink || '';
+  const waShareText = `Hey! I'm learning practical AI Automation & tech skills on AutoLearn Spot. Watch the free preview lesson here: ${referralLink}`;
+
   return (
-    <div className="min-h-screen bg-brand-bg py-8 px-4">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Student Partner Dashboard</h1>
-            <p className="text-brand-text/60">Track your referrals and earnings</p>
+    <div className="py-6 px-4 max-w-7xl mx-auto space-y-8">
+      {/* Action Notification Alert */}
+      {actionMessage && (
+        <div className={`p-4 rounded-2xl border flex items-center justify-between gap-3 animate-in fade-in duration-300 ${
+          actionMessage.type === 'success'
+            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
+            : 'bg-destructive/10 border-destructive/30 text-destructive'
+        }`}>
+          <div className="flex items-center gap-2 text-sm font-medium">
+            {actionMessage.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <X className="w-5 h-5" />}
+            <span>{actionMessage.text}</span>
           </div>
-          <Link 
-            href="/dashboard"
-            className="inline-flex items-center gap-2 px-4 py-2 border border-brand-border bg-brand-bg text-brand-text/60 rounded-lg hover:border-[#10b981] hover:text-[#10b981] transition-colors"
-          >
-            <ArrowRight className="h-4 w-4 rotate-180" />
-            Back to Dashboard
-          </Link>
+          <button onClick={() => setActionMessage(null)} className="opacity-70 hover:opacity-100">
+            <X className="w-4 h-4" />
+          </button>
         </div>
+      )}
 
-        {/* Referral Link Card */}
-        <div className="bg-gradient-to-r from-[#00f0ff]/10 via-purple-500/10 to-transparent border border-[#10b981]/20 rounded-2xl p-6 md:p-8">
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-3">
-                <Share2 className="h-6 w-6 text-[#10b981]" />
-                <h2 className="text-xl font-bold">Your Referral Link</h2>
-              </div>
-              <p className="text-brand-text/60 text-sm max-w-xl">
-                Share this unique link with your network. When they enroll through it, you earn ₦1,500 commission after their payment is verified.
-              </p>
-            </div>
-            <div className="flex items-center gap-2 w-full lg:w-auto">
-              <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg px-4 py-3 font-mono text-sm text-brand-text/80 truncate flex-1 lg:w-80">
-                {data?.referralLink}
-              </div>
-              <button 
-                onClick={handleCopyLink}
-                className="bg-brand-bg text-black px-4 py-3 rounded-lg font-bold hover:bg-[var(--card)] brightness-95 transition-colors flex-shrink-0 flex items-center gap-2"
-              >
-                {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                {copied ? "Copied" : "Copy"}
-              </button>
-            </div>
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">
+            <Gift className="w-3.5 h-3.5" />
+            <span>Earn ₦{commissionRate.toLocaleString()} Per Referral</span>
           </div>
+          <h1 className="text-2xl sm:text-3xl font-heading font-extrabold text-foreground">
+            Student Referral Dashboard
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Share your unique referral link with coursemates and earn cash directly to your bank account.
+          </p>
         </div>
+        <Link 
+          href="/dashboard"
+          className="inline-flex items-center gap-2 px-4 py-2 border border-border bg-card text-foreground rounded-xl text-xs font-semibold hover:bg-muted transition-colors self-start md:self-auto"
+        >
+          <ArrowRight className="h-3.5 w-3.5 rotate-180" />
+          Back to My Learning
+        </Link>
+      </div>
 
-        {/* Referral Code Card */}
-        <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div>
-              <div className="flex items-center gap-3 mb-3">
-                <LinkIcon className="h-5 w-5 text-purple-400" />
-                <h2 className="text-lg font-bold">Your Referral Code</h2>
-              </div>
-              <p className="text-brand-text/60 text-sm">
-                Share this 8-character code. Users can also enter it manually during enrollment.
-              </p>
+      {/* Referral Link & Share Box */}
+      <div className="bg-gradient-to-br from-emerald-500/10 via-brand-primary/5 to-transparent border border-emerald-500/30 rounded-3xl p-5 sm:p-7 shadow-sm">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div className="flex-1 space-y-1">
+            <div className="flex items-center gap-2">
+              <Share2 className="h-5 w-5 text-emerald-500" />
+              <h2 className="text-base sm:text-lg font-heading font-bold text-foreground">
+                Your Unique Referral Link
+              </h2>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="bg-brand-bg border border-brand-border rounded-lg px-6 py-3 font-mono text-2xl font-bold text-[#10b981] tracking-wider">
-                {data?.referralCode}
-              </div>
-              <button 
-                onClick={handleCopyCode}
-                className="bg-purple-500/20 text-purple-400 border border-purple-500/30 px-4 py-3 rounded-lg font-bold hover:bg-purple-500/30 transition-colors flex-shrink-0 flex items-center gap-2"
-              >
-                {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                {copied ? "Copied" : "Copy"}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
-                <MousePointerClick className="h-6 w-6" />
-              </div>
-            </div>
-            <p className="text-sm text-brand-text/60 mb-1">Total Clicks</p>
-            <h3 className="text-3xl font-bold">{data?.stats?.totalClicks || 0}</h3>
-          </div>
-          
-          <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400">
-                <Users className="h-6 w-6" />
-              </div>
-            </div>
-            <p className="text-sm text-brand-text/60 mb-1">Registrations</p>
-            <h3 className="text-3xl font-bold">{data?.stats?.totalRegistrations || 0}</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground max-w-xl leading-relaxed">
+              When friends click your link and enroll, your ₦{commissionRate.toLocaleString()} reward is immediately logged and credited to your account.
+            </p>
           </div>
 
-          <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-400">
-                <Clock className="h-6 w-6" />
-              </div>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto">
+            <div className="bg-background border border-border rounded-xl px-4 py-3 font-mono text-xs sm:text-sm text-foreground truncate max-w-full lg:max-w-md select-all">
+              {referralLink}
             </div>
-            <p className="text-sm text-brand-text/60 mb-1">Pending Earnings</p>
-            <h3 className="text-3xl font-bold text-yellow-400">₦{(data?.stats?.pendingEarnings || 0).toLocaleString()}</h3>
-          </div>
 
-          <div className="bg-gradient-to-br from-[#00f0ff]/10 to-purple-500/10 border border-[#10b981]/30 rounded-2xl p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-bg/5 blur-3xl rounded-full" />
-            <div className="flex items-center justify-between mb-4 relative z-10">
-              <div className="w-12 h-12 rounded-full bg-brand-bg/10 flex items-center justify-center text-[#10b981]">
-                <Wallet className="h-6 w-6" />
-              </div>
-            </div>
-            <p className="text-sm text-brand-text/60 mb-1 relative z-10">Available Balance</p>
-            <h3 className="text-3xl font-bold text-[#10b981] relative z-10">₦{(data?.stats?.availableBalance || 0).toLocaleString()}</h3>
+            <button 
+              onClick={handleCopyLink}
+              className="px-4 py-3 bg-brand-primary hover:bg-brand-primary-hover text-white rounded-xl font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-1.5 shrink-0"
+            >
+              {copied ? <CheckCircle2 className="h-4 w-4 text-white" /> : <Copy className="h-4 w-4" />}
+              <span>{copied ? "Copied Link!" : "Copy Link"}</span>
+            </button>
+
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(waShareText)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-1.5 shrink-0 text-center"
+            >
+              <MessageCircle className="h-4 w-4 fill-current" />
+              <span>Share WhatsApp</span>
+            </a>
           </div>
         </div>
+      </div>
 
-        {/* Recent Referrals */}
-        <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
-          <h2 className="text-xl font-bold mb-6">Recent Referrals</h2>
-          
-          {data?.recentReferrals && data.recentReferrals.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-brand-border">
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-brand-text/60">Email</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-brand-text/60">Date</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-brand-text/60">Status</th>
-                    <th className="text-right py-3 px-4 text-sm font-semibold text-brand-text/60">Commission</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.recentReferrals.map((referral: any, index: number) => (
-                    <tr key={index} className="border-b border-brand-border last:border-0">
-                      <td className="py-4 px-4 text-sm">{referral.email}</td>
-                      <td className="py-4 px-4 text-sm text-brand-text/60">
-                        {new Date(referral.date).toLocaleDateString()}
-                      </td>
-                      <td className="py-4 px-4">
-                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${
-                          referral.status === 'completed' 
-                            ? 'bg-green-500/10 text-green-400' 
-                            : referral.status === 'pending'
-                            ? 'bg-yellow-500/10 text-yellow-400'
-                            : 'bg-red-500/10 text-red-400'
-                        }`}>
-                          {referral.status}
-                        </span>
-                      </td>
-                      <td className="py-4 px-4 text-right text-sm font-semibold">
-                        {referral.commission ? `₦${referral.commission.toLocaleString()}` : '-'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Available Payout</span>
+            <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+              <Wallet className="h-4 w-4" />
+            </div>
+          </div>
+          <h3 className="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
+            ₦{(data?.stats?.availableBalance || 0).toLocaleString()}
+          </h3>
+          <p className="text-[11px] text-muted-foreground mt-1">Ready to withdraw now</p>
+        </div>
+
+        <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pending Holding</span>
+            <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
+              <Clock className="h-4 w-4" />
+            </div>
+          </div>
+          <h3 className="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400">
+            ₦{(data?.stats?.pendingEarnings || 0).toLocaleString()}
+          </h3>
+          <p className="text-[11px] text-muted-foreground mt-1">{holdingPeriodDays}-day holding window</p>
+        </div>
+
+        <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Enrolled Friends</span>
+            <div className="w-8 h-8 rounded-full bg-sky-500/10 flex items-center justify-center text-sky-500">
+              <Users className="h-4 w-4" />
+            </div>
+          </div>
+          <h3 className="text-2xl sm:text-3xl font-extrabold text-foreground">
+            {data?.stats?.totalRegistrations || 0}
+          </h3>
+          <p className="text-[11px] text-muted-foreground mt-1">Successful course referrals</p>
+        </div>
+
+        <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Link Clicks</span>
+            <div className="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500">
+              <MousePointerClick className="h-4 w-4" />
+            </div>
+          </div>
+          <h3 className="text-2xl sm:text-3xl font-extrabold text-foreground">
+            {data?.stats?.totalClicks || 0}
+          </h3>
+          <p className="text-[11px] text-muted-foreground mt-1">Prospective students engaged</p>
+        </div>
+      </div>
+
+      {/* Payout & Bank Details Row */}
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Bank Details Card */}
+        <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-emerald-500" />
+              <h2 className="text-lg font-heading font-bold text-foreground">Payout Bank Details</h2>
+            </div>
+            <button
+              onClick={() => setShowBankModal(true)}
+              className="px-3.5 py-1.5 rounded-xl border border-border bg-muted hover:bg-muted/80 text-foreground text-xs font-semibold transition-colors"
+            >
+              {data?.bankProfile ? 'Edit Account' : 'Add Bank Details'}
+            </button>
+          </div>
+
+          {data?.bankProfile ? (
+            <div className="p-4 rounded-xl border border-border/70 bg-muted/20 space-y-2">
+              <div className="flex justify-between text-xs sm:text-sm">
+                <span className="text-muted-foreground">Bank Name</span>
+                <span className="font-bold text-foreground">{data.bankProfile.bank_name}</span>
+              </div>
+              <div className="flex justify-between text-xs sm:text-sm">
+                <span className="text-muted-foreground">Account Number</span>
+                <span className="font-mono font-bold text-foreground">{data.bankProfile.account_number}</span>
+              </div>
+              <div className="flex justify-between text-xs sm:text-sm">
+                <span className="text-muted-foreground">Account Name</span>
+                <span className="font-bold text-foreground">{data.bankProfile.account_name}</span>
+              </div>
             </div>
           ) : (
-            <div className="text-center py-12 text-brand-text/60">
-              <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No referrals yet. Start sharing your link!</p>
+            <div className="p-6 text-center border-2 border-dashed border-border rounded-xl">
+              <Building2 className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-50" />
+              <p className="text-xs text-muted-foreground mb-3">
+                No bank account saved yet. Add your account to receive automated payout transfers.
+              </p>
+              <button
+                onClick={() => setShowBankModal(true)}
+                className="px-4 py-2 bg-brand-primary text-white rounded-xl text-xs font-bold hover:bg-brand-primary-hover shadow-sm transition-all"
+              >
+                Add Nigerian Bank Details
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Withdrawal Request Card */}
+        <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <Wallet className="h-5 w-5 text-emerald-500" />
+            <h2 className="text-lg font-heading font-bold text-foreground">Request Bank Payout</h2>
+          </div>
+
+          <div className="p-4 rounded-xl border border-border/70 bg-muted/20 mb-4">
+            <div className="flex justify-between items-center mb-3">
+              <span className="text-xs text-muted-foreground">Available to Withdraw</span>
+              <span className="text-xl font-extrabold text-emerald-600 dark:text-emerald-400">
+                ₦{(data?.stats?.availableBalance || 0).toLocaleString()}
+              </span>
+            </div>
+            <div className="flex justify-between items-center text-xs text-muted-foreground border-t border-border/40 pt-2">
+              <span>Minimum Payout Threshold</span>
+              <span className="font-semibold text-foreground">₦{minWithdrawal.toLocaleString()}</span>
+            </div>
+          </div>
+
+          <form onSubmit={handleWithdraw} className="space-y-3">
+            <div className="flex gap-2">
+              <input
+                type="number"
+                value={withdrawAmount}
+                onChange={(e) => setWithdrawAmount(e.target.value)}
+                placeholder={`Amount (Min ₦${minWithdrawal.toLocaleString()})`}
+                min={minWithdrawal}
+                max={data?.stats?.availableBalance || 0}
+                className="flex-1 bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-brand-primary"
+                disabled={isWithdrawing || !data?.bankProfile}
+              />
+              <button
+                type="submit"
+                disabled={isWithdrawing || !data?.bankProfile || (data?.stats?.availableBalance || 0) < minWithdrawal}
+                className="px-6 py-2.5 bg-brand-primary hover:bg-brand-primary-hover text-white rounded-xl font-bold text-xs sm:text-sm shadow-md transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isWithdrawing && <Loader2 className="w-4 h-4 animate-spin" />}
+                <span>{isWithdrawing ? 'Submitting...' : 'Withdraw'}</span>
+              </button>
+            </div>
+
+            {!data?.bankProfile && (
+              <p className="text-xs text-amber-500">
+                ⚠️ Save your bank details first before requesting payout.
+              </p>
+            )}
+          </form>
+        </div>
+      </div>
+
+      {/* Referrals & Commissions History */}
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Recent Referrals */}
+        <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+          <h2 className="text-lg font-heading font-bold text-foreground mb-4">
+            Recent Enrolled Friends
+          </h2>
+          
+          {data?.recentReferrals && data.recentReferrals.length > 0 ? (
+            <div className="divide-y divide-border/60">
+              {data.recentReferrals.map((referral: any, index: number) => (
+                <div key={index} className="py-3 flex items-center justify-between text-xs sm:text-sm">
+                  <div>
+                    <p className="font-semibold text-foreground">{referral.email}</p>
+                    <p className="text-[11px] text-muted-foreground">{new Date(referral.date).toLocaleDateString()}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                      referral.status === 'completed' 
+                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' 
+                        : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                    }`}>
+                      {referral.status}
+                    </span>
+                    <p className="font-bold text-foreground mt-0.5">
+                      {referral.commission ? `₦${referral.commission.toLocaleString()}` : '-'}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground text-xs">
+              <Users className="w-8 h-8 mx-auto mb-2 opacity-40" />
+              <p>No referrals yet. Share your link to start earning!</p>
             </div>
           )}
         </div>
 
         {/* Commission History */}
-        <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
-          <h2 className="text-xl font-bold mb-6">Commission History</h2>
+        <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+          <h2 className="text-lg font-heading font-bold text-foreground mb-4">
+            Commission History
+          </h2>
           
           {data?.commissions && data.commissions.length > 0 ? (
-            <div className="space-y-4">
-              {data.commissions.map((commission: any, index: number) => (
-                <div key={index} className="flex items-center justify-between p-4 bg-brand-bg border border-brand-border rounded-xl">
+            <div className="divide-y divide-border/60">
+              {data.commissions.map((comm: any, index: number) => (
+                <div key={index} className="py-3 flex items-center justify-between text-xs sm:text-sm">
                   <div>
-                    <p className="font-semibold">{commission.refereeEmail}</p>
-                    <p className="text-sm text-brand-text/60">{new Date(commission.createdAt).toLocaleDateString()}</p>
+                    <p className="font-semibold text-foreground">{comm.refereeEmail}</p>
+                    <p className="text-[11px] text-muted-foreground">{new Date(comm.createdAt).toLocaleDateString()}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-[#10b981]">₦{commission.amount.toLocaleString()}</p>
-                    <p className="text-xs text-brand-text/60">{commission.status}</p>
+                    <p className="font-extrabold text-emerald-600 dark:text-emerald-400">
+                      ₦{comm.amount.toLocaleString()}
+                    </p>
+                    <span className="text-[10px] text-muted-foreground uppercase">{comm.status}</span>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 text-brand-text/60">
-              <DollarSign className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No commissions earned yet. Refer your first student!</p>
+            <div className="text-center py-8 text-muted-foreground text-xs">
+              <DollarSign className="w-8 h-8 mx-auto mb-2 opacity-40" />
+              <p>No commissions logged yet. Once your friend pays, it appears here instantly.</p>
             </div>
           )}
-        </div>
-
-        {/* Marketing Kits */}
-        <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
-          <h2 className="text-xl font-bold mb-6">Marketing Kits</h2>
-          
-          {data?.marketingResources && data.marketingResources.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {data.marketingResources.map((resource: any, index: number) => (
-                <div key={index} className="bg-brand-bg border border-brand-border rounded-xl p-4 hover:border-[#10b981]/50 transition-colors">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-sm mb-1">{resource.name}</h3>
-                      <p className="text-xs text-brand-text/60 mb-2">{resource.category}</p>
-                    </div>
-                    <FileText className="h-5 w-5 text-[#10b981] flex-shrink-0" />
-                  </div>
-                  {resource.description && (
-                    <p className="text-xs text-brand-text/60 mb-3 line-clamp-2">{resource.description}</p>
-                  )}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => {
-                        setSelectedMaterial(resource);
-                        setShowMaterialModal(true);
-                      }}
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#10b981] hover:text-brand-text transition-colors"
-                    >
-                      <Eye className="h-3 w-3" />
-                      Preview
-                    </button>
-                    <a
-                      href={resource.resource_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#10b981] hover:text-brand-text transition-colors"
-                    >
-                      <Download className="h-3 w-3" />
-                      Download
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 text-brand-text/60">
-              <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No marketing kits available yet. Check back soon!</p>
-            </div>
-          )}
-        </div>
-
-        {/* Bank Details Section */}
-        <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <CreditCard className="h-6 w-6 text-[#10b981]" />
-              <h2 className="text-xl font-bold">Bank Details</h2>
-            </div>
-            <button
-              onClick={() => {
-                if (data?.bankProfile) {
-                  setBankFormData({
-                    bank_name: data.bankProfile.bank_name,
-                    account_number: data.bankProfile.account_number,
-                    account_name: data.bankProfile.account_name
-                  });
-                }
-                setShowBankModal(true);
-              }}
-              className="bg-brand-bg text-black px-4 py-2 rounded-lg font-bold hover:bg-[var(--card)] brightness-95 transition-colors"
-            >
-              {data?.bankProfile ? 'Update Bank Details' : 'Add Bank Details'}
-            </button>
-          </div>
-          
-          {data?.bankProfile ? (
-            <div className="bg-brand-bg border border-brand-border rounded-xl p-4">
-              <div className="grid md:grid-cols-3 gap-4">
-                <div>
-                  <p className="text-sm text-brand-text/60 mb-1">Bank Name</p>
-                  <p className="font-semibold">{data.bankProfile.bank_name}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-brand-text/60 mb-1">Account Number</p>
-                  <p className="font-semibold">{data.bankProfile.account_number}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-brand-text/60 mb-1">Account Name</p>
-                  <p className="font-semibold">{data.bankProfile.account_name}</p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-8 text-brand-text/60">
-              <CreditCard className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No bank details added yet. Add your bank details to withdraw your earnings.</p>
-            </div>
-          )}
-        </div>
-
-        {/* Withdrawal Section */}
-        <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <Wallet className="h-6 w-6 text-[#10b981]" />
-            <h2 className="text-xl font-bold">Withdraw Earnings</h2>
-          </div>
-          
-          <div className="bg-brand-bg border border-brand-border rounded-xl p-6 mb-4">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-sm text-brand-text/60 mb-1">Available Balance</p>
-                <p className="text-3xl font-bold text-[#10b981]">₦{(data?.stats?.availableBalance || 0).toLocaleString()}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-brand-text/60 mb-1">Minimum Withdrawal</p>
-                <p className="text-lg font-semibold">₦5,000</p>
-              </div>
-            </div>
-            
-            <form onSubmit={handleWithdraw} className="flex items-center gap-4">
-              <div className="flex-1">
-                <input
-                  type="number"
-                  value={withdrawAmount}
-                  onChange={(e) => setWithdrawAmount(e.target.value)}
-                  placeholder={`Minimum ₦${minWithdrawal.toLocaleString()}`}
-                  min={minWithdrawal}
-                  max={data?.stats?.availableBalance || 0}
-                  className="w-full bg-[var(--card)] brightness-95 border border-brand-border rounded-lg px-4 py-3 text-brand-text focus:border-[#10b981] focus:outline-none"
-                  disabled={isWithdrawing}
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={isWithdrawing || !data?.bankProfile}
-                className="bg-brand-bg text-black px-6 py-3 rounded-lg font-bold hover:bg-[var(--card)] brightness-95 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-              >
-                {isWithdrawing ? 'Processing...' : 'Withdraw'}
-              </button>
-            </form>
-            
-            {!data?.bankProfile && (
-              <p className="text-sm text-yellow-400 mt-3">
-                ⚠️ Please add your bank details first to withdraw earnings
-              </p>
-            )}
-          </div>
         </div>
       </div>
 
       {/* Bank Details Modal */}
       {showBankModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-brand-bg border border-brand-border rounded-2xl p-6 w-full max-w-md">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold">Bank Details</h3>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-card border border-border rounded-3xl p-6 sm:p-7 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-emerald-500" />
+                <h3 className="text-lg font-heading font-bold text-foreground">Nigerian Bank Payout Account</h3>
+              </div>
               <button
                 onClick={() => setShowBankModal(false)}
-                className="text-brand-text/60 hover:text-brand-text transition-colors"
+                className="text-muted-foreground hover:text-foreground p-1"
               >
-                <X className="h-6 w-6" />
+                <X className="h-5 w-5" />
               </button>
             </div>
             
             <form onSubmit={handleSaveBankDetails} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Bank Name</label>
-                <input
-                  type="text"
-                  required
+                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+                  Select Bank <span className="text-destructive">*</span>
+                </label>
+                <select
                   value={bankFormData.bank_name}
                   onChange={(e) => setBankFormData({ ...bankFormData, bank_name: e.target.value })}
-                  className="w-full bg-brand-bg border border-brand-border rounded-lg px-4 py-3 text-brand-text focus:border-[#10b981] focus:outline-none"
-                  placeholder="e.g., Access Bank"
-                />
+                  className="w-full bg-background border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-brand-primary"
+                >
+                  {NIGERIAN_BANKS.map((bank) => (
+                    <option key={bank} value={bank}>{bank}</option>
+                  ))}
+                </select>
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-2">Account Number</label>
+                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+                  Account Number (10 Digits) <span className="text-destructive">*</span>
+                </label>
                 <input
                   type="text"
                   required
+                  maxLength={10}
+                  pattern="[0-9]{10}"
                   value={bankFormData.account_number}
-                  onChange={(e) => setBankFormData({ ...bankFormData, account_number: e.target.value })}
-                  className="w-full bg-brand-bg border border-brand-border rounded-lg px-4 py-3 text-brand-text focus:border-[#10b981] focus:outline-none"
-                  placeholder="e.g., 1234567890"
+                  onChange={(e) => setBankFormData({ ...bankFormData, account_number: e.target.value.replace(/\D/g, '') })}
+                  className="w-full bg-background border border-border rounded-xl px-3.5 py-2.5 font-mono text-sm text-foreground focus:outline-none focus:border-brand-primary"
+                  placeholder="0123456789"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-2">Account Name</label>
+                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+                  Account Holder Name <span className="text-destructive">*</span>
+                </label>
                 <input
                   type="text"
                   required
                   value={bankFormData.account_name}
                   onChange={(e) => setBankFormData({ ...bankFormData, account_name: e.target.value })}
-                  className="w-full bg-brand-bg border border-brand-border rounded-lg px-4 py-3 text-brand-text focus:border-[#10b981] focus:outline-none"
-                  placeholder="e.g., John Doe"
+                  className="w-full bg-background border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-brand-primary"
+                  placeholder="e.g. Femi Adeleke"
                 />
               </div>
-              
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowBankModal(false)}
-                  className="flex-1 border border-brand-border bg-brand-bg text-brand-text/60 px-4 py-3 rounded-lg font-medium hover:bg-brand-bg transition-colors"
-                >
-                  Cancel
-                </button>
+
+              <div className="flex gap-2 pt-2">
                 <button
                   type="submit"
                   disabled={isSavingBank}
-                  className="flex-1 bg-brand-bg text-black px-4 py-3 rounded-lg font-bold hover:bg-[var(--card)] brightness-95 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 py-3 bg-brand-primary hover:bg-brand-primary-hover text-white rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2"
                 >
-                  {isSavingBank ? 'Saving...' : 'Save Details'}
+                  {isSavingBank && <Loader2 className="w-4 h-4 animate-spin" />}
+                  <span>{isSavingBank ? 'Saving...' : 'Save Bank Details'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowBankModal(false)}
+                  className="py-3 px-4 rounded-xl border border-border text-muted-foreground hover:text-foreground text-sm font-semibold transition-colors"
+                >
+                  Cancel
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* Marketing Material Preview Modal */}
-      {showMaterialModal && selectedMaterial && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-brand-bg border border-brand-border rounded-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold">{selectedMaterial.resource_name}</h3>
-              <button
-                onClick={() => setShowMaterialModal(false)}
-                className="text-brand-text/60 hover:text-brand-text transition-colors"
-              >
-                <X className="h-6 w-6" />
-              </button>
-            </div>
-            
-            {/* Image Preview */}
-            {selectedMaterial.resource_url && (
-              <div className="mb-6">
-                <img
-                  src={selectedMaterial.resource_url}
-                  alt={selectedMaterial.resource_name}
-                  className="w-full h-auto rounded-lg max-h-96 object-contain cursor-pointer hover:opacity-90 transition-opacity"
-                  onClick={() => window.open(selectedMaterial.resource_url, '_blank')}
-                />
-                <p className="text-xs text-brand-text/60 mt-2 text-center">Click image to open in new tab</p>
-              </div>
-            )}
-            
-            {/* Description/Caption */}
-            {selectedMaterial.description && (
-              <div className="bg-[var(--card)] brightness-95 p-4 rounded-lg mb-6">
-                <p className="text-sm font-medium text-[#e2e2e8] mb-2">Caption</p>
-                <p className="text-sm text-brand-text/60">{selectedMaterial.description}</p>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(selectedMaterial.description);
-                    alert('Caption copied to clipboard!');
-                  }}
-                  className="mt-3 text-xs text-[#10b981] hover:text-brand-text transition-colors flex items-center gap-1"
-                >
-                  <Copy className="h-3 w-3" />
-                  Copy Caption
-                </button>
-              </div>
-            )}
-            
-            <div className="flex gap-3 pt-4 border-t border-brand-border">
-              <a
-                href={selectedMaterial.resource_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-brand-bg text-black rounded-lg font-medium hover:bg-[var(--card)] brightness-95 transition-colors"
-              >
-                <Download className="h-4 w-4" />
-                Download
-              </a>
-              <button
-                onClick={() => setShowMaterialModal(false)}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[var(--card)] brightness-95 text-[#e2e2e8] border border-brand-border rounded-lg font-medium hover:bg-brand-bg transition-colors"
-              >
-                Close
-              </button>
-            </div>
           </div>
         </div>
       )}

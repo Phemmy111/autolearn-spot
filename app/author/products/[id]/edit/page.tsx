@@ -12,7 +12,7 @@ const PRODUCT_TYPES = [
 ];
 const DIFFICULTIES = ['Beginner', 'Intermediate', 'Advanced', 'All Levels'];
 const CURRENCIES = ['NGN', 'USD', 'EUR', 'GBP'];
-const ACCESS_DURATIONS = [7, 14, 30, 60, 90, 180, 365, 'Custom'];
+const ACCESS_DURATIONS = ['Lifetime', 7, 14, 30, 60, 90, 180, 365, 'Custom'];
 const TARGET_AUDIENCES_OPTIONS = ['Beginners', 'Students', 'Professionals', 'Entrepreneurs', 'Business Owners', 'Freelancers', 'Creators', 'Career Changers', 'Developers', 'Designers', 'Marketers'];
 
 export default function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
@@ -91,13 +91,13 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             setPlatformCommissionRate(pRate <= 1 && pRate > 0 ? pRate * 100 : pRate);
           }
           
-          if (p.access_duration_days) {
-            if (ACCESS_DURATIONS.includes(p.access_duration_days)) {
-              setAccessDurationType(p.access_duration_days);
-            } else {
-              setAccessDurationType('Custom');
-              setCustomAccessDuration(String(p.access_duration_days));
-            }
+          if (p.access_duration_days === null || p.access_duration_days === undefined || p.access_duration_days === 0) {
+            setAccessDurationType('Lifetime');
+          } else if (ACCESS_DURATIONS.includes(p.access_duration_days)) {
+            setAccessDurationType(p.access_duration_days);
+          } else {
+            setAccessDurationType('Custom');
+            setCustomAccessDuration(String(p.access_duration_days));
           }
 
           let loadedCategory = '';
@@ -193,7 +193,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       }
     }
     
-    const finalAccessDuration = accessDurationType === 'Custom' ? Number(customAccessDuration) : Number(accessDurationType);
+    const finalAccessDuration = accessDurationType === 'Lifetime'
+      ? null
+      : accessDurationType === 'Custom' 
+      ? Number(customAccessDuration) 
+      : Number(accessDurationType);
     const generatedSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
     const structuredDescription = JSON.stringify({
       short_description: shortDesc,
@@ -444,7 +448,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       }
     }
     
-    const finalAccessDuration = accessDurationType === 'Custom' 
+    const finalAccessDuration = accessDurationType === 'Lifetime'
+      ? null
+      : accessDurationType === 'Custom' 
       ? Number(customAccessDuration) 
       : Number(accessDurationType);
       
@@ -608,7 +614,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Access Duration <span className="text-red-500">*</span></label>
               <select required className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm mb-2" value={accessDurationType} onChange={(e) => setAccessDurationType(e.target.value)}>
                 {ACCESS_DURATIONS.map(d => (
-                  <option key={d} value={d}>{d === 'Custom' ? 'Custom' : `${d} days`}</option>
+                  <option key={d} value={d}>{d === 'Lifetime' ? 'Lifetime Access' : d === 'Custom' ? 'Custom' : `${d} days`}</option>
                 ))}
               </select>
               {accessDurationType === 'Custom' && (

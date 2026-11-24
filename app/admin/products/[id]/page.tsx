@@ -101,7 +101,7 @@ export default function AdminProductReviewPage({ params }: { params: Promise<{ i
                 <p><strong>Skill:</strong> {product.skill?.name || 'Unknown'} {product.skill_id && !product.skill?.name && <span className="text-xs text-gray-400">(ID: {product.skill_id})</span>}</p>
                 {product.category && <p><strong>Category:</strong> {product.category.name}</p>}
                 <p><strong>Price:</strong> {product.price > 0 ? `${product.currency} ${product.price.toLocaleString()}` : 'Free'}</p>
-                <p><strong>Type:</strong> {product.product_type} • <strong>Access:</strong> {product.access_duration_days} days</p>
+                <p><strong>Type:</strong> {product.product_type} • <strong>Access:</strong> {product.access_duration_days ? `${product.access_duration_days} days` : 'Lifetime Access'}</p>
               </div>
             </div>
           </div>

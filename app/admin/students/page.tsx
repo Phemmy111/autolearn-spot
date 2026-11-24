@@ -21,9 +21,12 @@ import {
   Plus, 
   ChevronRight,
   Filter,
-  X
+  X,
+  CalendarPlus,
+  Infinity as InfinityIcon
 } from 'lucide-react';
 import { ManualEnrollmentForm } from './ManualEnrollmentForm';
+import ExtendAccessModal from '@/components/shared/ExtendAccessModal';
 
 interface Student {
   id: string;
@@ -35,7 +38,9 @@ interface Student {
   amount: number;
   status: 'active' | 'deactivated' | 'not_started' | 'expired' | 'inactive';
   date: string;
+  expires_at?: string | null;
   days_left?: number | null;
+  is_lifetime?: boolean;
 }
 
 interface Metrics {
@@ -62,6 +67,9 @@ export default function AdminStudentsPage() {
 
   // Delete confirmation modal state
   const [deleteTarget, setDeleteTarget] = useState<Student | null>(null);
+
+  // Extend access modal state
+  const [extendTarget, setExtendTarget] = useState<Student | null>(null);
 
   const fetchStudents = useCallback(async () => {
     setLoading(true);
@@ -450,18 +458,28 @@ export default function AdminStudentsPage() {
 
                       {/* Status */}
                       <td className="p-4">
-                        {isDeactivated ? (
+                        {student.is_lifetime ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                            <InfinityIcon className="w-3 h-3" />
+                            Lifetime Access
+                          </span>
+                        ) : isDeactivated ? (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30">
                             <UserX className="w-3 h-3" />
                             Deactivated
                           </span>
+                        ) : student.status === 'expired' ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                            <Clock className="w-3 h-3" />
+                            Expired (0d left)
+                          </span>
                         ) : isActive ? (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
                             <CheckCircle2 className="w-3 h-3" />
-                            Active
+                            Active ({student.days_left !== null && student.days_left !== undefined ? `${student.days_left}d left` : 'Active'})
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30 capitalize">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-sky-500/10 text-sky-400 border border-sky-500/30 capitalize">
                             <Clock className="w-3 h-3" />
                             {student.status.replace('_', ' ')}
                           </span>
@@ -471,6 +489,17 @@ export default function AdminStudentsPage() {
                       {/* Actions */}
                       <td className="p-4 text-right">
                         <div className="flex items-center justify-end gap-2">
+                          {/* Extend Access / Add Days Button */}
+                          <button
+                            onClick={() => setExtendTarget(student)}
+                            disabled={isPending}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-[11px] bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition-all shadow-sm disabled:opacity-50"
+                            title="Extend or add days to student course access"
+                          >
+                            <CalendarPlus className="w-3.5 h-3.5" />
+                            <span>Extend Access</span>
+                          </button>
+
                           {/* Deactivate / Reactivate Toggle Button */}
                           <button
                             onClick={() => handleToggleStatus(student)}
@@ -565,6 +594,33 @@ export default function AdminStudentsPage() {
           </div>
         </div>
       )}
+
+      {/* Extend Access Modal */}
+      <ExtendAccessModal
+        isOpen={!!extendTarget}
+        onClose={() => setExtendTarget(null)}
+        student={extendTarget}
+        apiEndpoint="/api/admin/students"
+        onSuccess={(result) => {
+          if (!extendTarget) return;
+          setStudents(prev => prev.map(s => {
+            if (s.id === extendTarget.id) {
+              return {
+                ...s,
+                status: result.status as any,
+                days_left: result.days_left,
+                is_lifetime: result.is_lifetime,
+                expires_at: result.expires_at,
+              };
+            }
+            return s;
+          }));
+          setFeedback({
+            type: 'success',
+            message: result.message || `Successfully extended course access for ${extendTarget.name}`,
+          });
+        }}
+      />
     </div>
   );
 }

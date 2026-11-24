@@ -7,6 +7,8 @@ import Image from 'next/image';
 interface Course {
   enrollment_id: string;
   enrolled_at: string | null; // activated_at
+  expires_at?: string | null;
+  status?: string;
   course: {
     id: string;
     title: string;
@@ -14,7 +16,7 @@ interface Course {
     description: string;
     thumbnail_url: string;
     product_type: string;
-    access_duration_days: number;
+    access_duration_days?: number | null;
   };
   has_live_class?: boolean;
   has_conversation?: boolean;
@@ -95,13 +97,29 @@ export default function DashboardPage() {
     }
   };
 
-  const calculateDaysLeft = (activatedAt: string, durationDays: number) => {
-    const activatedTime = new Date(activatedAt).getTime();
-    const durationMs = durationDays * 24 * 60 * 60 * 1000;
+  const calculateDaysLeft = (
+    activatedAt?: string | null, 
+    durationDays?: number | null, 
+    expiresAt?: string | null
+  ) => {
+    // 1. Lifetime check
+    const isStudentLifetime = expiresAt ? new Date(expiresAt).getFullYear() >= 2099 : false;
+    const isCourseLifetime = !durationDays && !expiresAt;
+    if (isStudentLifetime || isCourseLifetime) return null;
+
+    // 2. Prioritize explicit expires_at
+    let expiryTime: number;
+    if (expiresAt) {
+      expiryTime = new Date(expiresAt).getTime();
+    } else if (activatedAt && durationDays) {
+      expiryTime = new Date(activatedAt).getTime() + (durationDays * 24 * 60 * 60 * 1000);
+    } else {
+      return null;
+    }
+
     const now = new Date().getTime();
-    
-    if (now > activatedTime + durationMs) return 0;
-    return Math.ceil((activatedTime + durationMs - now) / (1000 * 60 * 60 * 24));
+    if (now > expiryTime) return 0;
+    return Math.ceil((expiryTime - now) / (1000 * 60 * 60 * 24));
   };
 
   if (loading) {
@@ -223,9 +241,11 @@ export default function DashboardPage() {
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pt-4">
         {courses.map((c) => {
           const isStarted = !!c.enrolled_at;
-          const daysLeft = isStarted ? calculateDaysLeft(c.enrolled_at!, c.course.access_duration_days) : null;
-          const progressPercent = isStarted ? 
-            Math.max(0, Math.min(100, 100 - (daysLeft! / c.course.access_duration_days) * 100)) : 0;
+          const isLifetime = (!c.course.access_duration_days && !c.expires_at) || 
+            (c.expires_at ? new Date(c.expires_at).getFullYear() >= 2099 : false);
+          const daysLeft = isStarted ? calculateDaysLeft(c.enrolled_at, c.course.access_duration_days, c.expires_at) : null;
+          const progressPercent = isStarted && !isLifetime && c.course.access_duration_days && daysLeft !== null ? 
+            Math.max(0, Math.min(100, 100 - (daysLeft / c.course.access_duration_days) * 100)) : 0;
 
           return (
             <div
@@ -240,8 +260,17 @@ export default function DashboardPage() {
                 )}
                 
                 <div className="absolute bottom-3 right-3 rounded-lg bg-neutral-900/80 backdrop-blur-md px-2.5 py-1 text-xs font-medium text-white flex items-center gap-1.5 z-10">
-                  <Clock className="w-3 h-3 opacity-70" />
-                  {c.course.access_duration_days} Days Access
+                  {isLifetime ? (
+                    <>
+                      <Sparkles className="w-3 h-3 text-amber-300 fill-amber-300" />
+                      <span>Lifetime Access</span>
+                    </>
+                  ) : (
+                    <>
+                      <Clock className="w-3 h-3 opacity-70" />
+                      <span>{c.course.access_duration_days} Days Access</span>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -265,7 +294,9 @@ export default function DashboardPage() {
                 {!isStarted ? (
                   <div className="mt-auto space-y-3">
                     <div className="text-xs text-brand-text/50 bg-brand-bg p-2 rounded-lg border border-brand-border/50">
-                      By starting this course, your {c.course.access_duration_days}-day access will begin counting down.
+                      {isLifetime 
+                        ? "Lifetime access included. Learn at your own pace anytime." 
+                        : `By starting this course, your ${c.course.access_duration_days}-day access will begin counting down.`}
                     </div>
                     <button
                       onClick={() => startCourse(c.enrollment_id)}
@@ -276,18 +307,27 @@ export default function DashboardPage() {
                   </div>
                 ) : (
                   <div className="mt-auto space-y-3">
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between text-xs font-medium">
+                    {isLifetime ? (
+                      <div className="flex items-center justify-between text-xs font-medium py-1">
                         <span className="text-brand-text/60">Access Duration</span>
-                        <span className={daysLeft && daysLeft < 5 ? "text-red-500 font-bold" : "text-[#10b981]"}>{daysLeft} days left</span>
+                        <span className="text-[#10b981] font-bold flex items-center gap-1">
+                          <Sparkles className="w-3.5 h-3.5" /> Lifetime Access
+                        </span>
                       </div>
-                      <div className="w-full bg-brand-border/30 rounded-full h-1.5 overflow-hidden">
-                        <div 
-                          className="bg-[#10b981] h-1.5 rounded-full transition-all duration-1000"
-                          style={{ width: `${progressPercent}%` }}
-                        />
+                    ) : (
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between text-xs font-medium">
+                          <span className="text-brand-text/60">Access Duration</span>
+                          <span className={daysLeft && daysLeft < 5 ? "text-red-500 font-bold" : "text-[#10b981]"}>{daysLeft} days left</span>
+                        </div>
+                        <div className="w-full bg-brand-border/30 rounded-full h-1.5 overflow-hidden">
+                          <div 
+                            className="bg-[#10b981] h-1.5 rounded-full transition-all duration-1000"
+                            style={{ width: `${progressPercent}%` }}
+                          />
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     {/* Live Class and Messaging Indicators */}
                     <div className="flex gap-2">

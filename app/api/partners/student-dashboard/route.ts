@@ -3,10 +3,13 @@ import { createClient } from '@supabase/supabase-js';
 import { ReferralService } from '@/lib/growth-engine/ReferralService';
 import { CommissionService } from '@/lib/growth-engine/CommissionService';
 import { PartnerService } from '@/lib/growth-engine/PartnerService';
+import { getPartnershipSettings } from '@/lib/partnership-settings';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
@@ -17,30 +20,68 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'User ID required' }, { status: 400 });
     }
 
-    // Get student partner record using the Clerk user ID directly
-    // The webhook sets clerk_user_id to the actual Clerk user ID
-    const { data: partner, error: partnerError } = await supabaseAdmin
+    // 1. Fetch live admin partnership settings
+    const partnershipSettings = await getPartnershipSettings();
+
+    // 2. Look for student partner record using Clerk user ID
+    let { data: partner } = await supabaseAdmin
       .from('partners')
       .select('*')
-      .eq('clerk_user_id', userId) // Use the Clerk user ID directly
+      .eq('clerk_user_id', userId)
       .eq('partner_type', 'student')
-      .eq('status', 'active')
-      .single();
+      .maybeSingle();
 
-    if (partnerError || !partner) {
+    // 3. AUTO-ACTIVATION: If not yet in partners table, check if user is an enrolled student!
+    if (!partner) {
+      const { data: enrollment } = await supabaseAdmin
+        .from('enrollments')
+        .select('id, email, clerk_user_id, status')
+        .or(`clerk_user_id.eq.${userId},user_id.eq.${userId}`)
+        .limit(1)
+        .maybeSingle();
+
+      if (enrollment) {
+        console.log(`[StudentPartner] Auto-activating enrolled student ${userId} as partner...`);
+        const { data: createdPartner, error: createErr } = await supabaseAdmin
+          .from('partners')
+          .insert({
+            clerk_user_id: userId,
+            email: enrollment.email || 'student@autolearnspot.com',
+            full_name: 'Enrolled Student',
+            partner_type: 'student',
+            commission_rate: partnershipSettings.studentCommission,
+            status: 'active',
+            available_earnings: 0,
+            pending_earnings: 0,
+            total_earnings: 0,
+            paid_earnings: 0,
+          })
+          .select()
+          .single();
+
+        if (createdPartner && !createErr) {
+          partner = createdPartner;
+          await ReferralService.getOrCreateReferralCode(partner.id, 'student');
+        }
+      }
+    }
+
+    // 4. If still not a partner (and has zero enrollments), return not_partner with dynamic settings
+    if (!partner || partner.status !== 'active') {
       return NextResponse.json({ 
         success: false,
-        error: 'Not an active student partner' 
+        error: 'Not an active student partner',
+        commissionRate: partnershipSettings.studentCommission,
+        minWithdrawal: partnershipSettings.minWithdrawal,
+        holdingPeriodDays: partnershipSettings.holdingPeriodDays
       }, { status: 200 });
     }
 
-    // Get or create referral code
-    // Use partner.id (UUID) as the owner_id since that's the correct linking
+    // 5. Get or create referral code
     let referralStats = await ReferralService.getReferralStats(partner.id);
     
     if (!referralStats) {
       const referralCode = await ReferralService.getOrCreateReferralCode(partner.id, 'student');
-      
       if (referralCode) {
         referralStats = {
           code: referralCode.code,
@@ -51,25 +92,21 @@ export async function GET(request: Request) {
       }
     }
 
-    // Update partner stats using the correct method
+    // Update partner stats
     await PartnerService.updatePartnerStats(partner.id);
 
-    // Get earnings using the correct referrer_id
-    // For student partners, commissions use clerk_user_id as referrer_id
-    const earnings = await CommissionService.getEarnings(partner.clerk_user_id);
-
-    // Get referral link
+    // Get referral link (points directly to the AI Automation course with ref param)
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
     const referralLink = referralStats
-      ? `${appUrl}/enroll?ref=${referralStats.code}`
+      ? `${appUrl}/learning_products/c1e11cc7-d8f6-4c2d-8a3b-1bb204892921?ref=${referralStats.code}`
       : null;
 
-    // Get recent commissions using correct referrer_id
+    // Get recent commissions
     const recentCommissions = await CommissionService.listCommissions({
       referrerId: partner.clerk_user_id
     }).then(comms => comms.slice(0, 10));
 
-    // Get recent referrals (from enrollments table)
+    // Get recent referrals
     const { data: recentReferrals } = await supabaseAdmin
       .from('enrollments')
       .select('email, created_at, status, referred_by_code')
@@ -77,16 +114,14 @@ export async function GET(request: Request) {
       .order('created_at', { ascending: false })
       .limit(10);
 
-    // Format recent referrals for display
     const formattedReferrals = recentReferrals?.map(ref => ({
       email: ref.email,
       date: ref.created_at,
-      status: ref.status === 'active' ? 'completed' : 
+      status: ref.status === 'active' || ref.status === 'completed' ? 'completed' : 
              ref.status === 'pending' ? 'pending' : 'failed',
-      commission: ref.status === 'active' ? partner.commission_rate : 0
+      commission: ref.status === 'active' || ref.status === 'completed' ? (partner?.commission_rate || partnershipSettings.studentCommission) : 0
     })) || [];
 
-    // Format commissions for display
     const formattedCommissions = recentCommissions?.map(commission => ({
       refereeEmail: commission.referee_email,
       createdAt: commission.created_at,
@@ -94,20 +129,20 @@ export async function GET(request: Request) {
       status: commission.status
     })) || [];
 
-    // Get marketing resources for student partners
+    // Marketing downloads
     const { data: marketingResources } = await supabaseAdmin
       .from('partner_marketing_downloads')
       .select('*')
       .order('created_at', { ascending: false });
 
-    // Get bank profile for student partner
+    // Bank profile
     const { data: bankProfile } = await supabaseAdmin
       .from('partner_bank_profiles')
       .select('*')
       .eq('partner_id', partner.id)
-      .single();
+      .maybeSingle();
 
-    // Fetch updated partner stats after updatePartnerStats
+    // Updated stats
     const { data: updatedPartner } = await supabaseAdmin
       .from('partners')
       .select('total_clicks, total_registrations, available_earnings, pending_earnings, lifetime_earnings')
@@ -121,9 +156,12 @@ export async function GET(request: Request) {
           id: partner.id,
           name: partner.full_name,
           email: partner.email,
-          commissionRate: partner.commission_rate,
+          commissionRate: partnershipSettings.studentCommission, // Live dynamic admin commission
           status: partner.status
         },
+        commissionRate: partnershipSettings.studentCommission,
+        minWithdrawal: partnershipSettings.minWithdrawal,
+        holdingPeriodDays: partnershipSettings.holdingPeriodDays,
         referralCode: referralStats?.code,
         referralLink,
         stats: {

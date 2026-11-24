@@ -99,10 +99,25 @@ async function processEnrollmentExpiry(enrollments: any[]): Promise<any[]> {
       continue;
     }
 
+    const lp = resolveLearningProduct(e);
+    // If course or student is lifetime, it never expires
+    const isLifetime = (lp && (lp.access_duration_days === null || lp.access_duration_days === undefined || lp.access_duration_days === 0)) ||
+      (e.expires_at && new Date(e.expires_at).getFullYear() >= 2099);
+
+    if (isLifetime) {
+      validEnrollments.push(e);
+      continue;
+    }
+
     let isExpired = false;
 
-    const lp = resolveLearningProduct(e);
-    if (lp && lp.access_duration_days && e.activated_at) {
+    if (e.expires_at) {
+      // Prioritize explicit enrollment expires_at date
+      if (now > new Date(e.expires_at).getTime()) {
+        isExpired = true;
+      }
+    } else if (lp && lp.access_duration_days && e.activated_at) {
+      // Fallback to activated_at + access_duration_days
       const activatedTime = new Date(e.activated_at).getTime();
       const durationMs = lp.access_duration_days * 24 * 60 * 60 * 1000;
       if (now > activatedTime + durationMs) {
@@ -114,7 +129,7 @@ async function processEnrollmentExpiry(enrollments: any[]): Promise<any[]> {
       console.log(`[enrollment-service] Enrollment ${e.id} has expired.`);
       await supabaseAdmin
         .from('enrollments')
-        .update({ status: 'expired' })
+        .update({ status: 'expired', updated_at: new Date().toISOString() })
         .eq('id', e.id);
 
       e.status = 'expired';
@@ -124,6 +139,125 @@ async function processEnrollmentExpiry(enrollments: any[]): Promise<any[]> {
   }
 
   return validEnrollments;
+}
+
+/**
+ * Extend or reactivate course access for a student.
+ * Can add N days (from now if elapsed/expired, or from current expiry if active),
+ * or grant permanent lifetime access.
+ */
+export async function extendEnrollmentAccess({
+  enrollmentId,
+  daysToAdd,
+  isLifetime,
+}: {
+  enrollmentId: string;
+  daysToAdd?: number;
+  isLifetime?: boolean;
+}): Promise<{
+  success: boolean;
+  expires_at: string | null;
+  status: string;
+  days_left: number | null;
+  is_lifetime: boolean;
+  message: string;
+}> {
+  const { data: enrollment, error } = await supabaseAdmin
+    .from('enrollments')
+    .select(`
+      id,
+      status,
+      activated_at,
+      expires_at,
+      learning_product_id,
+      learning_product:learning_products (
+        id,
+        title,
+        access_duration_days
+      )
+    `)
+    .eq('id', enrollmentId)
+    .single();
+
+  if (error || !enrollment) {
+    throw new Error('Enrollment not found');
+  }
+
+  const now = Date.now();
+  const product = Array.isArray(enrollment.learning_product)
+    ? enrollment.learning_product[0]
+    : enrollment.learning_product;
+  const courseDurationDays = product?.access_duration_days;
+
+  let newExpiresAt: string | null = null;
+  let newStatus = 'active';
+  let message = '';
+
+  if (isLifetime) {
+    newExpiresAt = '2099-12-31T23:59:59.000Z';
+    newStatus = 'active';
+    message = 'Permanent Lifetime Access granted successfully';
+  } else if (typeof daysToAdd === 'number' && daysToAdd > 0) {
+    // 1. Determine current expiry time if any
+    let currentExpiryTime: number | null = null;
+    if (enrollment.expires_at) {
+      currentExpiryTime = new Date(enrollment.expires_at).getTime();
+    } else if (enrollment.activated_at && courseDurationDays) {
+      currentExpiryTime = new Date(enrollment.activated_at).getTime() + (courseDurationDays * 24 * 60 * 60 * 1000);
+    }
+
+    // 2. If access has already expired / elapsed (or was never started / inactive), start from NOW:
+    let baseTime = now;
+    const isCurrentlyExpired = enrollment.status === 'expired' || (currentExpiryTime !== null && currentExpiryTime <= now);
+
+    if (!isCurrentlyExpired && currentExpiryTime && currentExpiryTime > now && enrollment.status === 'active') {
+      // Still active: extend on top of existing remaining time!
+      baseTime = currentExpiryTime;
+      message = `Extended access by ${daysToAdd} day${daysToAdd !== 1 ? 's' : ''} on top of remaining time`;
+    } else {
+      // Expired / elapsed or newly reactivated: start from today!
+      baseTime = now;
+      message = `Reactivated access for ${daysToAdd} day${daysToAdd !== 1 ? 's' : ''} starting today`;
+    }
+
+    const calculatedTime = baseTime + (daysToAdd * 24 * 60 * 60 * 1000);
+    newExpiresAt = new Date(calculatedTime).toISOString();
+    newStatus = 'active';
+  } else {
+    throw new Error('Please specify either days to add or lifetime access');
+  }
+
+  // Update enrollment in database
+  const { error: updateError } = await supabaseAdmin
+    .from('enrollments')
+    .update({
+      expires_at: newExpiresAt,
+      status: newStatus,
+      activated_at: enrollment.activated_at || new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', enrollmentId);
+
+  if (updateError) {
+    console.error('[extendEnrollmentAccess] DB error:', updateError);
+    throw new Error('Failed to update student enrollment access');
+  }
+
+  const is_lifetime = isLifetime || (newExpiresAt ? new Date(newExpiresAt).getFullYear() >= 2099 : false);
+  const days_left = is_lifetime
+    ? null
+    : newExpiresAt
+    ? Math.max(0, Math.ceil((new Date(newExpiresAt).getTime() - now) / (1000 * 60 * 60 * 24)))
+    : null;
+
+  return {
+    success: true,
+    expires_at: newExpiresAt,
+    status: newStatus,
+    days_left,
+    is_lifetime,
+    message,
+  };
 }
 
 /** The select string for enrollment queries — joins directly to learning_products */
