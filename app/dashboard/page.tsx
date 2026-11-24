@@ -167,11 +167,11 @@ export default function DashboardPage() {
           </div>
 
           <Link
-            href="/dashboard/refer-and-earn"
+            href="/partners/dashboard"
             className="shrink-0 inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-emerald-600/20 transition-all hover:-translate-y-0.5"
           >
             <Share2 className="w-4 h-4" />
-            <span>Get My Referral Link</span>
+            <span>Enter Affiliate Dashboard</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

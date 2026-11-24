@@ -42,29 +42,36 @@ export class PartnerService {
    */
   static async createStudentPartner(clerkUserId: string, email: string, fullName: string): Promise<{ success: boolean; partner?: Partner; error?: string }> {
     try {
-      // Check if partner already exists by clerk_user_id (Clerk user ID)
+      // Check if partner already exists by user_id or email
       const { data: existingPartner } = await supabaseAdmin
         .from('partners')
         .select('*')
-        .eq('clerk_user_id', clerkUserId)
-        .single();
+        .or(`user_id.eq.${clerkUserId},email.ilike.${email}`)
+        .limit(1)
+        .maybeSingle();
 
       if (existingPartner) {
+        if (!existingPartner.user_id) {
+          await supabaseAdmin.from('partners').update({ user_id: clerkUserId }).eq('id', existingPartner.id);
+        }
         return { success: true, partner: existingPartner as Partner };
       }
 
-      // Create partner record first to get the UUID
-      const commissionRate = await getCommissionRate('student');
+      // Generate unique ALS partner_id
+      const partnerIdCode = `ALS${Math.floor(1000 + Math.random() * 9000)}`;
 
       const { data: partner, error: partnerError } = await supabaseAdmin
         .from('partners')
         .insert({
-          partner_type: 'student',
-          clerk_user_id: clerkUserId, // Store actual Clerk user ID
-          full_name: fullName,
+          partner_id: partnerIdCode,
+          user_id: clerkUserId,
+          name: fullName || 'Enrolled Student',
           email: email,
-          commission_rate: commissionRate,
           status: 'active',
+          available_earnings: 0,
+          total_earnings: 0,
+          total_clicks: 0,
+          total_registrations: 0
         })
         .select()
         .single();
@@ -78,17 +85,6 @@ export class PartnerService {
       const referralCode = await ReferralService.getOrCreateReferralCode(partner.id, 'student');
       if (!referralCode) {
         return { success: false, error: 'Failed to create referral code' };
-      }
-
-      // Link referral code to partner
-      const { error: updateError } = await supabaseAdmin
-        .from('partners')
-        .update({ referral_code_id: referralCode.id })
-        .eq('id', partner.id);
-
-      if (updateError) {
-        console.error('[PartnerService] Error linking referral code:', updateError);
-        // Continue anyway, partner was created
       }
 
       await logReferralEvent({
@@ -422,33 +418,22 @@ export class PartnerService {
    */
   static async updatePartnerStats(partnerId: string): Promise<void> {
     try {
-      // Get partner data including clerk_user_id for commission lookup
       const { data: partner } = await supabaseAdmin
         .from('partners')
-        .select('referral_code_id, clerk_user_id, partner_type')
+        .select('*')
         .eq('id', partnerId)
-        .single();
+        .maybeSingle();
 
       if (!partner) return;
 
-      // Get referral code - either from referral_code_id or by finding one linked to this partner
-      let referralCode;
-      if (partner.referral_code_id) {
-        const { data: rc } = await supabaseAdmin
-          .from('referral_codes')
-          .select('code, id')
-          .eq('id', partner.referral_code_id)
-          .single();
-        referralCode = rc;
-      } else {
-        // Find referral code by owner_id
-        const { data: rc } = await supabaseAdmin
-          .from('referral_codes')
-          .select('code, id')
-          .eq('owner_id', partnerId)
-          .single();
-        referralCode = rc;
-      }
+      // Find referral code by owner_id or partner_id
+      const { data: referralCode } = await supabaseAdmin
+        .from('referral_codes')
+        .select('code, id')
+        .or(`owner_id.eq.${partnerId},partner_id.eq.${partnerId}`)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (!referralCode) return;
 
@@ -463,7 +448,7 @@ export class PartnerService {
         .from('enrollments')
         .select('*', { count: 'exact', head: true })
         .eq('referred_by_code', referralCode.code)
-        .eq('status', 'active');
+        .in('status', ['active', 'completed']);
 
       // Update referral_codes conversions and clicks
       await supabaseAdmin
@@ -471,47 +456,33 @@ export class PartnerService {
         .update({ conversions: totalRegistrations || 0, clicks: totalClicks || 0 })
         .eq('id', referralCode.id);
 
-      // Get commission stats using appropriate referrer_id
-      // For student partners: use clerk_user_id (Clerk user ID)
-      // For community/influencer partners: use partner.id (since they don't have clerk_user_id)
-      let referrerId: string;
-      if (partner.partner_type === 'student' && partner.clerk_user_id) {
-        referrerId = partner.clerk_user_id;
-      } else {
-        referrerId = partnerId;
-      }
-
+      // Get commission stats using partner.id or partner.user_id
       const { data: commissions } = await supabaseAdmin
         .from('commissions')
         .select('amount, status')
-        .eq('referrer_id', referrerId);
+        .or(`referrer_id.eq.${partnerId}${partner.user_id ? `,referrer_id.eq.${partner.user_id}` : ''}`);
 
-      let pendingEarnings = 0;
       let availableEarnings = 0;
       let lifetimeEarnings = 0;
-      let totalWithdrawn = 0;
 
       if (commissions) {
         for (const comm of commissions) {
           if (comm.status !== 'reversed') {
             lifetimeEarnings += comm.amount;
           }
-          if (comm.status === 'pending') pendingEarnings += comm.amount;
           if (comm.status === 'available') availableEarnings += comm.amount;
-          if (comm.status === 'paid') totalWithdrawn += comm.amount;
         }
       }
 
-      // Update partner
+      // Update partner using only valid schema columns
       await supabaseAdmin
         .from('partners')
         .update({
           total_clicks: totalClicks || 0,
           total_registrations: totalRegistrations || 0,
-          pending_earnings: pendingEarnings,
-          available_earnings: availableEarnings,
-          lifetime_earnings: lifetimeEarnings,
-          total_withdrawn: totalWithdrawn
+          available_earnings: Math.max(Number(partner.available_earnings) || 0, availableEarnings),
+          total_earnings: Math.max(Number(partner.total_earnings) || 0, lifetimeEarnings),
+          updated_at: new Date().toISOString()
         })
         .eq('id', partnerId);
     } catch (error) {

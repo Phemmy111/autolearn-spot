@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { auth } from '@clerk/nextjs/server';
 import { PartnerEmailService } from '@/lib/growth-engine/PartnerEmailService';
 import { getPartnershipSettings } from '@/lib/partnership-settings';
+import { getOrResolveAuthenticatedPartner } from '@/lib/partner-system/auth';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -12,15 +12,8 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   try {
-    let userId: string | null = null;
-    try {
-      const session = await auth();
-      userId = session.userId;
-    } catch (e) {
-      console.warn('[student-withdrawals] Auth error:', e);
-    }
-
-    if (!userId) {
+    const partner = await getOrResolveAuthenticatedPartner();
+    if (!partner) {
       return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
     }
 
@@ -28,19 +21,6 @@ export async function POST(request: Request) {
 
     if (!amount || typeof amount !== 'number' || isNaN(amount) || amount <= 0) {
       return NextResponse.json({ error: 'Please enter a valid withdrawal amount.' }, { status: 400 });
-    }
-
-    // Get student partner record
-    const { data: partner } = await supabaseAdmin
-      .from('partners')
-      .select('*')
-      .eq('clerk_user_id', userId)
-      .eq('partner_type', 'student')
-      .eq('status', 'active')
-      .maybeSingle();
-
-    if (!partner) {
-      return NextResponse.json({ error: 'Active student partner account not found.' }, { status: 404 });
     }
 
     // Check minimum withdrawal amount from database settings
@@ -67,13 +47,13 @@ export async function POST(request: Request) {
       .eq('partner_id', partner.id)
       .maybeSingle();
 
-    if (!bankProfile) {
+    if (!bankProfile || !bankProfile.bank_name || !bankProfile.account_number) {
       return NextResponse.json({ 
         error: 'Bank details not found. Please save your payout account details first.' 
       }, { status: 400 });
     }
 
-    // Create withdrawal request in author_withdrawals (aligned with admin withdrawal queue)
+    // Create withdrawal request in author_withdrawals
     const reference = 'WD-STU-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
     const { data: withdrawal, error: withdrawalError } = await supabaseAdmin
       .from('author_withdrawals')
@@ -110,12 +90,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to update partner balance.' }, { status: 500 });
     }
 
+    const partnerName = partner.name || 'Student Partner';
+
     // 1. Send confirmation email to student
     try {
       if (partner.email) {
         await PartnerEmailService.sendWithdrawalSubmittedEmail(
           partner.email,
-          partner.full_name || 'Student Partner',
+          partnerName,
           amount
         );
       }
@@ -127,7 +109,7 @@ export async function POST(request: Request) {
     try {
       await PartnerEmailService.sendAdminWithdrawalNotification(
         'autolearnspot@gmail.com',
-        partner.full_name || 'Student Partner',
+        partnerName,
         amount,
         withdrawal.id
       );

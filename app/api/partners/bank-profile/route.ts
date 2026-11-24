@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { SessionService } from '@/lib/growth-engine/SessionService';
-import { auth } from '@clerk/nextjs/server';
+import { getOrResolveAuthenticatedPartner } from '@/lib/partner-system/auth';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -9,79 +8,9 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 export const dynamic = 'force-dynamic';
 
-async function resolvePartner(request: Request) {
-  // 1. Check partner session cookie (OTP login)
-  try {
-    const session = await SessionService.getSession();
-    if (session?.userId) {
-      const { data: matchedPartners } = await supabaseAdmin
-        .from('partners')
-        .select('*')
-        .or(`id.eq.${session.userId},user_id.eq.${session.userId},partner_id.eq.${session.userId}`)
-        .order('created_at', { ascending: false })
-        .limit(1);
-
-      if (matchedPartners && matchedPartners.length > 0) {
-        return matchedPartners[0];
-      }
-    }
-  } catch (err) {
-    console.warn('[bank-profile] Session check error:', err);
-  }
-
-  // 2. Fallback to Clerk auth
-  try {
-    const { userId } = await auth();
-    if (userId) {
-      const { data: matchedPartners } = await supabaseAdmin
-        .from('partners')
-        .select('*')
-        .or(`id.eq.${userId},user_id.eq.${userId},clerk_user_id.eq.${userId}`)
-        .order('created_at', { ascending: false })
-        .limit(1);
-
-      if (matchedPartners && matchedPartners.length > 0) {
-        return matchedPartners[0];
-      }
-
-      // Check if user is an enrolled student and auto-create partner record
-      const { data: enrollment } = await supabaseAdmin
-        .from('enrollments')
-        .select('id, email, clerk_user_id')
-        .or(`clerk_user_id.eq.${userId},user_id.eq.${userId}`)
-        .limit(1)
-        .maybeSingle();
-
-      if (enrollment) {
-        const { data: newPartner } = await supabaseAdmin
-          .from('partners')
-          .insert({
-            clerk_user_id: userId,
-            email: enrollment.email || 'student@autolearnspot.com',
-            full_name: 'Enrolled Student',
-            partner_type: 'student',
-            status: 'active',
-            available_earnings: 0,
-            pending_earnings: 0,
-            total_earnings: 0,
-            paid_earnings: 0,
-          })
-          .select()
-          .single();
-
-        if (newPartner) return newPartner;
-      }
-    }
-  } catch (err) {
-    console.warn('[bank-profile] Clerk check error:', err);
-  }
-
-  return null;
-}
-
 export async function GET(request: Request) {
   try {
-    const partner = await resolvePartner(request);
+    const partner = await getOrResolveAuthenticatedPartner();
     if (!partner) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -106,7 +35,7 @@ export async function GET(request: Request) {
 
 async function handleSaveBankProfile(request: Request) {
   try {
-    const partner = await resolvePartner(request);
+    const partner = await getOrResolveAuthenticatedPartner();
     if (!partner) {
       return NextResponse.json({ error: 'Unauthorized. Please sign in.' }, { status: 401 });
     }

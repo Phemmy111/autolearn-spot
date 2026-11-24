@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useUser, useClerk } from "@clerk/nextjs";
 import { 
   Loader2, 
   Copy, 
@@ -53,6 +54,8 @@ import Image from "next/image";
 
 export default function PartnerDashboard() {
   const router = useRouter();
+  const { user: clerkUser, isLoaded: clerkLoaded } = useUser();
+  const { signOut } = useClerk();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
   const [copied, setCopied] = useState(false);
@@ -89,8 +92,10 @@ export default function PartnerDashboard() {
   };
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    if (clerkLoaded) {
+      fetchDashboardData();
+    }
+  }, [clerkLoaded]);
 
   // Fetch partnership settings to get minimum withdrawal amount
   useEffect(() => {
@@ -148,10 +153,16 @@ export default function PartnerDashboard() {
       if (res.ok && result.success) {
         setData(result);
       } else {
-        router.push("/partners/login");
+        if (clerkLoaded && !clerkUser) {
+          router.push("/partners/login");
+        } else {
+          console.warn('[PartnerDashboard] Warning loading dashboard data:', result?.error);
+        }
       }
     } catch (err) {
-      router.push("/partners/login");
+      if (clerkLoaded && !clerkUser) {
+        router.push("/partners/login");
+      }
     } finally {
       setLoading(false);
     }
@@ -252,6 +263,9 @@ export default function PartnerDashboard() {
   const handleLogout = async () => {
     try {
       await fetch("/api/partners/logout", { method: "POST" });
+      if (clerkUser) {
+        await signOut();
+      }
       router.push("/partners/login");
     } catch (err) {
       router.push("/partners/login");
@@ -312,6 +326,15 @@ export default function PartnerDashboard() {
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="text-xs font-semibold tracking-wide uppercase">Affiliate Portal</span>
               </div>
+
+              <Link
+                href="/dashboard"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-brand-border bg-brand-bg/60 hover:bg-brand-bg hover:border-emerald-500/40 text-xs font-semibold text-brand-text transition-colors"
+                title="Return to Student Dashboard"
+              >
+                <BookOpen className="h-3.5 w-3.5 text-emerald-600" />
+                <span>Student Dashboard</span>
+              </Link>
             </div>
             
             {/* Right: User Pill, Notifications, Logout & Mobile Toggle */}
@@ -474,7 +497,14 @@ export default function PartnerDashboard() {
               );
             })}
             
-            <div className="pt-2 border-t border-brand-border mt-2">
+            <div className="pt-2 border-t border-brand-border mt-2 space-y-1">
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 transition-colors"
+              >
+                <BookOpen className="h-4 w-4 text-emerald-500" />
+                Return to Student Dashboard
+              </Link>
               <button
                 onClick={handleContactSupport}
                 className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/5 transition-colors"

@@ -103,32 +103,19 @@ export class CommissionService {
         }
       });
 
-      // Send commission earned email
-      // Get partner email - need to find partner by appropriate ID
-      let partner;
-      if (params.referrerType === 'student') {
-        // For students, referrerId is clerk_user_id
-        const { data: studentPartner } = await supabaseAdmin
-          .from('partners')
-          .select('id, email, full_name')
-          .eq('clerk_user_id', params.referrerId)
-          .eq('partner_type', 'student')
-          .single();
-        partner = studentPartner;
-      } else {
-        // For community/influencer, referrerId is partner.id (as text)
-        const { data: otherPartner } = await supabaseAdmin
-          .from('partners')
-          .select('id, email, full_name')
-          .eq('id', params.referrerId)
-          .single();
-        partner = otherPartner;
-      }
+      // Flexible lookup for partner by id, user_id, or partner_id
+      const { data: matchedPartners } = await supabaseAdmin
+        .from('partners')
+        .select('id, email, name')
+        .or(`id.eq.${params.referrerId},user_id.eq.${params.referrerId},partner_id.eq.${params.referrerId}`)
+        .limit(1);
+      const partner = matchedPartners?.[0];
 
       if (partner) {
+        const partnerDisplayName = partner.name || 'Partner';
         await PartnerEmailService.sendCommissionEarnedEmail(
           partner.email,
-          partner.full_name,
+          partnerDisplayName,
           amount,
           params.refereeEmail
         );
@@ -144,7 +131,7 @@ export class CommissionService {
 
         // Send admin notification about successful partner referral
         await AdminEmailService.sendAdminPartnerReferralNotification({
-          partnerName: partner.full_name,
+          partnerName: partnerDisplayName,
           partnerEmail: partner.email,
           partnerType: params.referrerType,
           refereeEmail: params.refereeEmail,
@@ -221,17 +208,23 @@ export class CommissionService {
   /**
    * Returns aggregated earnings for a specific referrer
    */
-  static async getEarnings(referrerId: string): Promise<{
+  static async getEarnings(referrerId: string | string[]): Promise<{
     pendingEarnings: number;
     availableEarnings: number;
     withdrawnEarnings: number;
     lifetimeEarnings: number;
   }> {
     try {
-      const { data, error } = await supabaseAdmin
-        .from('commissions')
-        .select('amount, status')
-        .eq('referrer_id', referrerId);
+      let query = supabaseAdmin.from('commissions').select('amount, status');
+      if (Array.isArray(referrerId)) {
+        const ids = referrerId.filter(Boolean);
+        if (ids.length === 0) return { pendingEarnings: 0, availableEarnings: 0, withdrawnEarnings: 0, lifetimeEarnings: 0 };
+        query = query.in('referrer_id', ids);
+      } else {
+        query = query.eq('referrer_id', referrerId);
+      }
+
+      const { data, error } = await query;
 
       if (error || !data) {
         return { pendingEarnings: 0, availableEarnings: 0, withdrawnEarnings: 0, lifetimeEarnings: 0 };
@@ -303,7 +296,7 @@ export class CommissionService {
    * List all commissions with optional filters
    */
   static async listCommissions(filters?: {
-    referrerId?: string;
+    referrerId?: string | string[];
     status?: string;
     referralCode?: string;
     startDate?: Date;
@@ -315,7 +308,16 @@ export class CommissionService {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (filters?.referrerId) query = query.eq('referrer_id', filters.referrerId);
+      if (filters?.referrerId) {
+        if (Array.isArray(filters.referrerId)) {
+          const ids = filters.referrerId.filter(Boolean);
+          if (ids.length > 0) {
+            query = query.in('referrer_id', ids);
+          }
+        } else {
+          query = query.eq('referrer_id', filters.referrerId);
+        }
+      }
       if (filters?.status) query = query.eq('status', filters.status);
       if (filters?.referralCode) query = query.eq('referral_code', filters.referralCode);
       if (filters?.startDate) query = query.gte('created_at', filters.startDate.toISOString());

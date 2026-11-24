@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { SessionService } from '@/lib/growth-engine/SessionService';
-import { PartnerService } from '@/lib/growth-engine/PartnerService';
+import { getOrResolveAuthenticatedPartner } from '@/lib/partner-system/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
@@ -10,28 +9,14 @@ function generateAffiliateCode(): string {
   return 'AF' + Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 }
 
-async function resolvePartner(session: { userId: string; role?: string }) {
-  const { data: matchedPartners } = await supabaseAdmin
-    .from('partners')
-    .select('*')
-    .or(`id.eq.${session.userId},user_id.eq.${session.userId},partner_id.eq.${session.userId}`)
-    .order('created_at', { ascending: false })
-    .limit(1);
-
-  return (matchedPartners && matchedPartners.length > 0) ? matchedPartners[0] : null;
-}
-
 // POST: Create an affiliate link for a product
 export async function POST(request: NextRequest) {
-  const session = await SessionService.getSession();
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const partner = await getOrResolveAuthenticatedPartner();
+  if (!partner) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await request.json();
   const { learning_product_id } = body;
   if (!learning_product_id) return NextResponse.json({ error: 'learning_product_id required' }, { status: 400 });
-
-  const partner = await resolvePartner(session);
-  if (!partner) return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
 
   const { data: product } = await supabaseAdmin
     .from('learning_products')
@@ -124,11 +109,8 @@ export async function POST(request: NextRequest) {
 
 // GET: List all affiliate links for current partner
 export async function GET() {
-  const session = await SessionService.getSession();
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  const partner = await resolvePartner(session);
-  if (!partner) return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
+  const partner = await getOrResolveAuthenticatedPartner();
+  if (!partner) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   // 1. Get all referral codes owned by this partner
   const { data: partnerCodes } = await supabaseAdmin

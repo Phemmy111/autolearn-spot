@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
-import { SessionService } from '@/lib/growth-engine/SessionService';
+import { getOrResolveAuthenticatedPartner } from '@/lib/partner-system/auth';
 import { PartnerWithdrawalService } from '@/lib/partner-system/PartnerWithdrawalService';
 import { getPartnershipSettings } from '@/lib/partnership-settings';
 import { createClient } from '@supabase/supabase-js';
-import { auth } from '@clerk/nextjs/server';
 import nodemailer from 'nodemailer';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -12,47 +11,9 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 export const dynamic = 'force-dynamic';
 
-async function resolvePartner(): Promise<any | null> {
-  // 1. SessionService check (used by OTP login)
-  try {
-    const session = await SessionService.getSession();
-    if (session?.userId) {
-      const { data: partner } = await supabaseAdmin
-        .from('partners')
-        .select('*')
-        .or(`id.eq.${session.userId},user_id.eq.${session.userId},partner_id.eq.${session.userId}`)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (partner) return partner;
-    }
-  } catch (err) {
-    console.warn('[withdrawals] Session lookup warning:', err);
-  }
-
-  // 2. Clerk auth check (fallback)
-  try {
-    const { userId } = await auth();
-    if (userId) {
-      const { data: partner } = await supabaseAdmin
-        .from('partners')
-        .select('*')
-        .or(`id.eq.${userId},user_id.eq.${userId}`)
-        .maybeSingle();
-
-      if (partner) return partner;
-    }
-  } catch (err) {
-    console.warn('[withdrawals] Clerk lookup warning:', err);
-  }
-
-  return null;
-}
-
 export async function POST(request: Request) {
   try {
-    const partner = await resolvePartner();
+    const partner = await getOrResolveAuthenticatedPartner();
     if (!partner) {
       return NextResponse.json({ error: 'Unauthorized. Please sign in to your partner account.' }, { status: 401 });
     }
@@ -182,7 +143,7 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    const partner = await resolvePartner();
+    const partner = await getOrResolveAuthenticatedPartner();
     if (!partner) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

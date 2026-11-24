@@ -64,18 +64,36 @@ export class PartnerWithdrawalService {
         return { success: false, error: 'Failed to create withdrawal request' };
       }
 
-      // Upsert bank profile for record
+      // Save or update bank profile for record
       try {
-        await supabase
+        const { data: existingBp } = await supabase
           .from('partner_bank_profiles')
-          .upsert({
-            partner_id: partner.id,
-            bank_name: bankName,
-            account_number: accountNumber,
-            account_name: accountName
-          }, { onConflict: 'partner_id' });
+          .select('id')
+          .eq('partner_id', partner.id)
+          .maybeSingle();
+
+        if (existingBp) {
+          await supabase
+            .from('partner_bank_profiles')
+            .update({
+              bank_name: bankName,
+              account_number: accountNumber,
+              account_name: accountName,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', existingBp.id);
+        } else {
+          await supabase
+            .from('partner_bank_profiles')
+            .insert({
+              partner_id: partner.id,
+              bank_name: bankName,
+              account_number: accountNumber,
+              account_name: accountName
+            });
+        }
       } catch (be) {
-        console.warn('Bank profile upsert note:', be);
+        console.warn('Bank profile save note:', be);
       }
 
       // Deduct from available earnings

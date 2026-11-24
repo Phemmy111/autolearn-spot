@@ -36,7 +36,7 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
     { name: 'Dashboard', href: '/student', icon: Home },
     { name: 'My Learning', href: '/dashboard', icon: BookOpen },
     { name: 'Alex AI Tutor', href: '/dashboard/alex', icon: Bot, badge: 'Smart' },
-    { name: 'Refer & Earn', href: '/dashboard/refer-and-earn', icon: Share2, badge: '₦1,500' },
+    { name: 'Refer & Earn', href: '/partners/dashboard', icon: Share2, badge: '₦1,500' },
     { name: 'Messages', href: '/student/messages', icon: MessageSquare },
     { name: 'Live Classes', href: '/student/live-classes', icon: Video },
     { name: 'Quizzes', href: '/dashboard/quizzes', icon: ClipboardCheck },

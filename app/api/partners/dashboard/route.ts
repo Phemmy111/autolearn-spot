@@ -1,38 +1,22 @@
 import { NextResponse } from 'next/server';
-import { SessionService } from '@/lib/growth-engine/SessionService';
+import { getOrResolveAuthenticatedPartner } from '@/lib/partner-system/auth';
 import { PartnerService } from '@/lib/growth-engine/PartnerService';
 import { CommissionService } from '@/lib/growth-engine/CommissionService';
 import { ReferralService } from '@/lib/growth-engine/ReferralService';
-import { WithdrawalService } from '@/lib/growth-engine/WithdrawalService';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
-    // Check session
-    const session = await SessionService.getSession();
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Get partner by session userId (matches partner.id, partner.user_id, or partner.partner_id)
-    let partner = null;
-    const { data: matchedPartners } = await supabaseAdmin
-      .from('partners')
-      .select('*')
-      .or(`id.eq.${session.userId},user_id.eq.${session.userId},partner_id.eq.${session.userId}`)
-      .order('created_at', { ascending: false })
-      .limit(1);
-
-    if (matchedPartners && matchedPartners.length > 0) {
-      partner = matchedPartners[0];
-    }
-
+    // Universal auth: Standalone Session or Clerk Student Session with auto-activation
+    const partner = await getOrResolveAuthenticatedPartner();
     if (!partner) {
-      return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Update partner stats
@@ -42,13 +26,7 @@ export async function GET(request: Request) {
     let referralStats = await ReferralService.getReferralStats(partner.id);
     
     if (!referralStats) {
-      // Determine owner type based on partner type
-      const ownerType = partner.partner_type === 'influencer' ? 'influencer' : 
-                       partner.partner_type === 'student' ? 'student' : 'community';
-      
-      // Create referral code
-      const referralCode = await ReferralService.getOrCreateReferralCode(partner.id, ownerType);
-      
+      const referralCode = await ReferralService.getOrCreateReferralCode(partner.id, 'student');
       if (referralCode) {
         referralStats = {
           code: referralCode.code,
@@ -59,8 +37,8 @@ export async function GET(request: Request) {
       }
     }
 
-    // Get earnings
-    const earnings = await CommissionService.getEarnings(partner.id);
+    // Get earnings checking both partner.id and partner.user_id
+    const earnings = await CommissionService.getEarnings([partner.id, partner.user_id].filter(Boolean));
 
     // Get referral link
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.autolearnspot.com';
@@ -70,7 +48,7 @@ export async function GET(request: Request) {
 
     // Get recent commissions enriched with student names
     const rawCommissions = await CommissionService.listCommissions({
-      referrerId: partner.id
+      referrerId: [partner.id, partner.user_id].filter(Boolean)
     }).then(comms => comms.slice(0, 20));
 
     const refereeEmails = [...new Set(rawCommissions.map(c => c.referee_email).filter(Boolean))];
@@ -92,7 +70,7 @@ export async function GET(request: Request) {
       referred_name: nameMap[c.referee_email] || (c.referee_email ? c.referee_email.split('@')[0] : 'Student Referral')
     }));
 
-    // Get withdrawal history from author_withdrawals (used by partner withdrawal service)
+    // Get withdrawal history from author_withdrawals
     const { data: authorWithdrawals } = await supabaseAdmin
       .from('author_withdrawals')
       .select('*')
@@ -130,7 +108,7 @@ export async function GET(request: Request) {
       .eq('partner_id', partner.id)
       .eq('read', false);
 
-    // Get marketing resources from the correct table
+    // Get marketing resources
     const { data: marketingResources } = await supabaseAdmin
       .from('partner_marketing_downloads')
       .select('*')
@@ -203,21 +181,20 @@ export async function GET(request: Request) {
       partner: {
         id: partner.id,
         partner_id: partner.partner_id || 'ALS0000',
-        type: partner.partner_type,
-        name: partner.name || partner.full_name || 'Partner',
+        name: partner.name || 'Partner',
         email: partner.email,
-        commissionRate: partner.commission_rate || 20,
+        phone: partner.phone,
         status: partner.status || 'active'
       },
       stats: {
         totalClicks: partner.total_clicks || referralStats?.totalClicks || 0,
         totalRegistrations: partner.total_registrations || referralStats?.totalRegistrations || 0,
-        totalPaymentsInitiated: partner.total_payments_initiated || 0,
-        totalSuccessfulPurchases: partner.total_successful_purchases || 0,
-        pendingEarnings: partner.pending_earnings || 0,
-        availableEarnings: partner.available_earnings || 0,
-        lifetimeEarnings: partner.total_earnings || partner.lifetime_earnings || partner.available_earnings || 0,
-        totalWithdrawn: partner.total_withdrawn || 0
+        totalPaymentsInitiated: 0,
+        totalSuccessfulPurchases: partner.total_registrations || 0,
+        pendingEarnings: earnings.pendingEarnings || 0,
+        availableEarnings: Math.max(Number(partner.available_earnings) || 0, earnings.availableEarnings || 0),
+        lifetimeEarnings: Math.max(Number(partner.total_earnings) || 0, earnings.lifetimeEarnings || 0),
+        totalWithdrawn: earnings.withdrawnEarnings || 0
       },
       referral: {
         code: referralStats?.code,

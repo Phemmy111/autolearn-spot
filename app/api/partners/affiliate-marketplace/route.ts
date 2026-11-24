@@ -1,28 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { SessionService } from '@/lib/growth-engine/SessionService';
-import { PartnerService } from '@/lib/growth-engine/PartnerService';
+import { NextResponse } from 'next/server';
+import { getOrResolveAuthenticatedPartner } from '@/lib/partner-system/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
-async function resolvePartner(session: { userId: string; role?: string }) {
-  const { data: matchedPartners } = await supabaseAdmin
-    .from('partners')
-    .select('*')
-    .or(`id.eq.${session.userId},user_id.eq.${session.userId},partner_id.eq.${session.userId}`)
-    .order('created_at', { ascending: false })
-    .limit(1);
-
-  return (matchedPartners && matchedPartners.length > 0) ? matchedPartners[0] : null;
-}
-
 export async function GET() {
-  const session = await SessionService.getSession();
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  // Get partner record
-  const partner = await resolvePartner(session);
-  if (!partner) return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
+  const partner = await getOrResolveAuthenticatedPartner();
+  if (!partner) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   // Fetch all published products
   const { data: products, error } = await supabaseAdmin
@@ -57,7 +41,7 @@ export async function GET() {
   const enriched = (products || [])
     .filter((p: any) => p.affiliate_enabled !== false)
     .map((p: any) => {
-      const commissionRate = p.affiliate_commission_rate || partner.commission_rate || 20;
+      const commissionRate = p.affiliate_commission_rate || 20;
       const price = Number(p.price) || 0;
       return {
         ...p,
