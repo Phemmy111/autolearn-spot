@@ -6,6 +6,9 @@ import {
   Clock, 
   Lock, 
   Play, 
+  Pause,
+  Volume2,
+  VolumeX,
   X, 
   Sparkles, 
   MessageCircle, 
@@ -64,8 +67,11 @@ export default function CurriculumWithPreview({
   const [isEnrolling, setIsEnrolling] = useState(false);
   const [iframeKey, setIframeKey] = useState(1);
   const [currentTime, setCurrentTime] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
   const maxWatchedTimeRef = useRef(0);
   const previewContainerRef = useRef<HTMLDivElement | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
   const formatPrice = (amount: number, currency: string) => {
     return new Intl.NumberFormat('en-NG', {
@@ -141,45 +147,128 @@ export default function CurriculumWithPreview({
     setIsPaywallTriggered(false);
     setCurrentTime(0);
     maxWatchedTimeRef.current = 0;
+    setIsPlaying(true);
     setIframeKey((prev) => prev + 1);
+    try {
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: 'command', func: 'seekTo', args: [0, true] }),
+        '*'
+      );
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: 'command', func: 'playVideo', args: [] }),
+        '*'
+      );
+    } catch {}
   };
 
-  // YouTube Iframe listener + 4:30 Cutoff & anti-forwarding guard
+  const togglePlayPause = () => {
+    if (isPlaying) {
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }),
+        '*'
+      );
+      setIsPlaying(false);
+    } else {
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: 'command', func: 'playVideo', args: [] }),
+        '*'
+      );
+      setIsPlaying(true);
+    }
+  };
+
+  const toggleMute = () => {
+    if (isMuted) {
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: 'command', func: 'unMute', args: [] }),
+        '*'
+      );
+      setIsMuted(false);
+    } else {
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: 'command', func: 'mute', args: [] }),
+        '*'
+      );
+      setIsMuted(true);
+    }
+  };
+
+  // YouTube Iframe listener + active time polling + 4:30 Cutoff & anti-forwarding guard
   useEffect(() => {
     if (!expandedPreviewId) return;
+
+    let pollTimer: NodeJS.Timeout | null = null;
+
+    // Send handshakes & query currentTime continuously
+    const pingIframe = () => {
+      try {
+        const win = iframeRef.current?.contentWindow;
+        if (win) {
+          win.postMessage(JSON.stringify({ event: 'listening' }), '*');
+          win.postMessage(JSON.stringify({ event: 'command', func: 'getCurrentTime', args: [] }), '*');
+          win.postMessage(JSON.stringify({ event: 'command', func: 'getPlayerState', args: [] }), '*');
+        }
+      } catch {}
+    };
+
+    pollTimer = setInterval(pingIframe, 500);
+    const initialTimeout = setTimeout(pingIframe, 800);
 
     const handleMessage = (event: MessageEvent) => {
       try {
         if (!event.data) return;
         const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
 
-        // When YouTube reaches the end parameter (end=270, code 0) after having played
-        if (data?.event === 'onStateChange' && data.info === 0 && maxWatchedTimeRef.current >= 240) {
-          setIsPaywallTriggered(true);
-        }
-
-        // Real-time tracking of current playback time
-        if (data?.event === 'infoDelivery' && data?.info?.currentTime !== undefined) {
-          const current = Number(data.info.currentTime);
-          setCurrentTime(current);
-
-          // Anti-forwarding protection: if user jumped forward > 4s beyond what they actually watched
-          if (current > maxWatchedTimeRef.current + 4) {
+        // When YouTube reaches state change (0 = ended, 1 = playing, 2 = paused)
+        if (data?.event === 'onStateChange') {
+          if (data.info === 0 && maxWatchedTimeRef.current >= 240) {
             setIsPaywallTriggered(true);
           }
+          if (data.info === 1) setIsPlaying(true);
+          if (data.info === 2) setIsPlaying(false);
+        }
 
-          maxWatchedTimeRef.current = Math.max(maxWatchedTimeRef.current, current);
+        // Real-time tracking of current playback time via infoDelivery
+        if (data?.event === 'infoDelivery' && data?.info) {
+          if (data.info.playerState !== undefined) {
+            setIsPlaying(data.info.playerState === 1);
+          }
 
-          // 4:30 Cutoff enforcement
-          if (current >= PREVIEW_LIMIT_SECONDS) {
-            setIsPaywallTriggered(true);
+          if (data.info.currentTime !== undefined) {
+            const current = Number(data.info.currentTime);
+            setCurrentTime(current);
+
+            // Anti-forwarding protection: if user jumped forward > 3s beyond what they actually watched
+            if (current > maxWatchedTimeRef.current + 3) {
+              // Immediately freeze & lock with paywall
+              setIsPaywallTriggered(true);
+              iframeRef.current?.contentWindow?.postMessage(
+                JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }),
+                '*'
+              );
+            } else {
+              maxWatchedTimeRef.current = Math.max(maxWatchedTimeRef.current, current);
+            }
+
+            // 4:30 Cutoff enforcement
+            if (current >= PREVIEW_LIMIT_SECONDS) {
+              setIsPaywallTriggered(true);
+              iframeRef.current?.contentWindow?.postMessage(
+                JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }),
+                '*'
+              );
+            }
           }
         }
       } catch {}
     };
 
     window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
+    return () => {
+      if (pollTimer) clearInterval(pollTimer);
+      clearTimeout(initialTimeout);
+      window.removeEventListener('message', handleMessage);
+    };
   }, [expandedPreviewId]);
 
   if (!lessons || lessons.length === 0) {
@@ -324,8 +413,9 @@ export default function CurriculumWithPreview({
                   {/* The Video Iframe */}
                   {cleanYtId ? (
                     <iframe
+                      ref={iframeRef}
                       key={iframeKey}
-                      src={`https://www.youtube.com/embed/${cleanYtId}?enablejsapi=1&playsinline=1&end=${PREVIEW_LIMIT_SECONDS}&rel=0&modestbranding=1&controls=1&disablekb=1&iv_load_policy=3&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`}
+                      src={`https://www.youtube.com/embed/${cleanYtId}?enablejsapi=1&playsinline=1&autoplay=1&end=${PREVIEW_LIMIT_SECONDS}&rel=0&modestbranding=1&controls=0&disablekb=1&fs=0&iv_load_policy=3&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`}
                       title={lesson.title}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                       allowFullScreen
@@ -333,6 +423,7 @@ export default function CurriculumWithPreview({
                     />
                   ) : lesson.vimeo_video_id ? (
                     <iframe
+                      ref={iframeRef}
                       key={iframeKey}
                       src={`https://player.vimeo.com/video/${lesson.vimeo_video_id}?playsinline=1`}
                       title={lesson.title}
@@ -348,11 +439,10 @@ export default function CurriculumWithPreview({
 
                   {/*
                     ── SECURITY & ANTI-STEALING WATERMARK OVERLAYS ─────────────────────────
-                    Matches the lesson video player protection:
                     1. Top header blocker absorbs clicks on YouTube title, channel avatar & share
-                    2. Bottom seek bar blocker prevents dragging/scrubbing forward
-                    3. Bottom-right blocker absorbs clicks on "Watch on YouTube" & YouTube logo
-                    4. Brand watermark overlays YouTube watermark
+                    2. Bottom seek bar blocker completely absorbs all drags and touches
+                    3. Brand watermark overlays YouTube watermark
+                    4. Custom AutoLearn Spot player bar (NON-DRAGGABLE)
                   */}
 
                   {/* 1. TOP HEADER BLOCKER: Blocks clicks to YouTube channel / title / share */}
@@ -363,25 +453,75 @@ export default function CurriculumWithPreview({
                     onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
                   />
 
-                  {/* 2. BOTTOM SEEK BAR BLOCKER: Completely blocks dragging forward or scrubbing */}
+                  {/* 2. BOTTOM DRAG & SEEK BLOCKER: Absorbs all clicks & drag attempts */}
                   <div 
-                    className="absolute bottom-0 left-0 right-0 h-11 sm:h-12 z-20 bg-transparent cursor-default select-none"
+                    className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 z-20 bg-transparent cursor-default select-none pointer-events-auto"
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
                     onTouchStart={(e) => { e.stopPropagation(); }}
                     onTouchMove={(e) => { e.stopPropagation(); }}
                     onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    onDragStart={(e) => { e.preventDefault(); e.stopPropagation(); }}
                   />
 
-                  {/* 3. BOTTOM-RIGHT BLOCKER: Blocks clicks on "Watch on YouTube" and YouTube logo */}
-                  <div 
-                    className="absolute bottom-0 right-0 w-36 sm:w-52 h-14 z-20 bg-transparent cursor-default select-none"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                    onTouchStart={(e) => { e.stopPropagation(); }}
-                    onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                  />
+                  {/* 3. CUSTOM BRANDED CONTROLS BAR: Non-draggable, zero scrubber */}
+                  <div className="absolute bottom-0 left-0 right-0 z-30 p-2 sm:p-3 bg-gradient-to-t from-black/95 via-black/70 to-transparent flex items-center justify-between gap-2 sm:gap-3 select-none">
+                    <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          togglePlayPause();
+                        }}
+                        className="p-1.5 sm:p-2 rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors backdrop-blur-sm cursor-pointer shadow-sm"
+                        title={isPlaying ? "Pause Preview" : "Play Preview"}
+                      >
+                        {isPlaying ? <Pause className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current" /> : <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current ml-0.5" />}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toggleMute();
+                        }}
+                        className="p-1.5 sm:p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-colors backdrop-blur-sm cursor-pointer"
+                        title={isMuted ? "Unmute" : "Mute"}
+                      >
+                        {isMuted ? <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                      </button>
+                      <span className="text-white text-[10px] sm:text-xs font-mono font-bold select-none whitespace-nowrap">
+                        {formatTime(currentTime)} <span className="text-white/40">/ 4:30</span>
+                      </span>
+                    </div>
+
+                    {/* STRICTLY NON-DRAGGABLE PREVIEW PROGRESS BAR */}
+                    <div className="flex-1 mx-1 sm:mx-3 h-1.5 sm:h-2 bg-white/20 rounded-full overflow-hidden select-none pointer-events-none">
+                      <div
+                        className="h-full bg-emerald-500 rounded-full transition-all duration-300"
+                        style={{ width: `${Math.min(100, (currentTime / PREVIEW_LIMIT_SECONDS) * 100)}%` }}
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleReplayPreview();
+                        }}
+                        className="p-1 sm:p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-colors backdrop-blur-sm text-[10px] sm:text-[11px] flex items-center gap-1 font-semibold px-2 cursor-pointer"
+                        title="Replay from start"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        <span className="hidden sm:inline">Restart</span>
+                      </button>
+                    </div>
+                  </div>
 
                   {/* 4. BRAND WATERMARK: Overlays channel watermark so it looks 100% proprietary */}
-                  <div className="absolute bottom-12 right-3 z-20 pointer-events-none select-none flex items-center gap-1.5 px-2 py-0.5 rounded bg-black/70 border border-white/10 backdrop-blur-sm opacity-70">
+                  <div className="absolute bottom-14 right-3 z-20 pointer-events-none select-none flex items-center gap-1.5 px-2 py-0.5 rounded bg-black/70 border border-white/10 backdrop-blur-sm opacity-70">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                     <span className="text-[10px] font-mono font-bold tracking-wider text-white">
                       AutoLearn Spot
